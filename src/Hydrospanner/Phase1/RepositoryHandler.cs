@@ -10,17 +10,19 @@
 		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
 			var stream = this.identifier.DiscoverStreams(data.Body, data.Headers);
-			List<IHydratable> hydratable;
-			if (!this.cache.TryGetValue(stream, out hydratable))
-				hydratable = this.factory(stream);
+			List<IHydratable> hydratables;
+			if (!this.cache.TryGetValue(stream, out hydratables))
+				hydratables = this.factory(stream);
 
 			var claimed = this.phase2.Next();
 			var message = this.phase2[claimed];
+			message.Clear();
+			message.IncomingWireMessage = true;
 			message.StreamId = stream;
 			message.Body = data.Body;
 			message.Headers = data.Headers;
 			message.ConfirmDelivery = data.ConfirmDelivery;
-			message.Hydratables = hydratable;
+			message.Hydratables = hydratables;
 			this.phase2.Publish(claimed);
 		}
 

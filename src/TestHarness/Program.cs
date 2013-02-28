@@ -21,6 +21,7 @@
 			var phase2Disruptor = BuildDisruptor<ParsedMessage>();
 			phase2Disruptor
 				.HandleEventsWith(new TransformationHandler())
+				.Then(new DispatchHandler())
 				.Then(new AcknowledgementHandler());
 			var phase2RingBuffer = phase2Disruptor.Start();
 
@@ -51,7 +52,7 @@
 				TaskScheduler.Default);
 		}
 
-		private const int PreallocatedSize = 1024 * 4;
+		private const int PreallocatedSize = 1024 * 1024;
 	}
 
 	public class TestStreamIdentifier : IStreamIdentifier
@@ -66,7 +67,24 @@
 	{
 		public void Hydrate(object message, Hashtable headers)
 		{
-			Console.WriteLine("Hello, World!");
+			// provide to underlying aggregate/saga/projector
+		}
+
+		public IEnumerable<object> GatherMessages()
+		{
+			return new object[]
+			{
+				new AccountClosedEvent
+				{
+					AccountId = Guid.NewGuid(),
+					Description = "Hello, World!",
+					Dispatched = DateTime.UtcNow,
+					MessageId = Guid.NewGuid(),
+					Reason = CloseReason.Abuse,
+					UserId = Guid.NewGuid(),
+					Username = "test@test.com"
+				}
+			};
 		}
 	}
 }

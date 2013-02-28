@@ -28,7 +28,7 @@
 
 				try
 				{
-					for (var i = 0; i < 1; i++)
+					for (var i = 0; i < 1000000; i++)
 					{
 						channel.BasicPublish(string.Empty, QueueName, properties, payload);
 					}

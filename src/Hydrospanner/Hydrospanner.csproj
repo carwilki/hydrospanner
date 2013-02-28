@@ -39,6 +39,7 @@
     <Compile Include="IHydratable.cs" />
     <Compile Include="IStreamIdentifier.cs" />
     <Compile Include="Phase1\MessageListener.cs" />
+    <Compile Include="Phase2\DispatchHandler.cs" />
     <Compile Include="Phase2\ParsedMessage.cs" />
     <Compile Include="Phase2\TransformationHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
