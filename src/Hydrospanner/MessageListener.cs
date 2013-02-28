@@ -122,9 +122,24 @@
 			var claimed = this.ring.Next();
 			var message = this.ring[claimed];
 			message.Clear();
-			message.RawBody = delivery.Body;
+			message.Payload = delivery.Body;
 			message.Headers = (Hashtable)delivery.BasicProperties.Headers;
-			message.DeliveryTag = delivery.DeliveryTag;
+			var tag = delivery.DeliveryTag;
+
+			message.ConfirmDelivery = () =>
+			{
+				try
+				{
+					Console.WriteLine("Acknowledged message {0}", tag);
+					channel.BasicAck(tag, true);
+				}
+// ReSharper disable EmptyGeneralCatchClause
+				catch
+// ReSharper restore EmptyGeneralCatchClause
+				{
+				}
+			};
+
 			this.ring.Publish(claimed);
 		}
 

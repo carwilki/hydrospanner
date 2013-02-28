@@ -15,7 +15,7 @@
 			foreach (var key in headers.Keys)
 				headers[key] = Encoding.UTF8.GetString(headers[key] as byte[] ?? new byte[0]);
 
-			using (var stream = new MemoryStream(data.RawBody))
+			using (var stream = new MemoryStream(data.Payload))
 			using (var streamReader = new StreamReader(stream, DefaultEncoding))
 			using (new JsonTextReader(streamReader))
 				data.Body = this.serializer.Deserialize(new JsonTextReader(streamReader));

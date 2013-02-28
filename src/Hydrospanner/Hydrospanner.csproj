@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AcknowledgementHandler.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="DeserializationHandler.cs" />
     <Compile Include="MessageListener.cs" />
