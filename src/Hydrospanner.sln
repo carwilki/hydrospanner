@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hydrospanner", "Hydrospanner\Hydrospanner.csproj", "{EB28F477-2BD0-4C5C-AB15-998BE9F59723}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHarness", "TestHarness\TestHarness.csproj", "{7C0A4069-2A0A-4402-9BC8-3B9CF52E7746}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSender", "TestSender\TestSender.csproj", "{180F71F0-6833-4FA9-BAB8-539518E6D239}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +17,14 @@ Global
 		{EB28F477-2BD0-4C5C-AB15-998BE9F59723}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB28F477-2BD0-4C5C-AB15-998BE9F59723}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB28F477-2BD0-4C5C-AB15-998BE9F59723}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C0A4069-2A0A-4402-9BC8-3B9CF52E7746}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C0A4069-2A0A-4402-9BC8-3B9CF52E7746}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C0A4069-2A0A-4402-9BC8-3B9CF52E7746}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C0A4069-2A0A-4402-9BC8-3B9CF52E7746}.Release|Any CPU.Build.0 = Release|Any CPU
+		{180F71F0-6833-4FA9-BAB8-539518E6D239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{180F71F0-6833-4FA9-BAB8-539518E6D239}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{180F71F0-6833-4FA9-BAB8-539518E6D239}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{180F71F0-6833-4FA9-BAB8-539518E6D239}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
