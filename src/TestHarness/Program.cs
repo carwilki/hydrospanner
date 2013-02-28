@@ -2,9 +2,9 @@
 {
 	using System;
 	using System.Threading.Tasks;
-	using Hydrospanner;
 	using Disruptor;
 	using Disruptor.Dsl;
+	using Hydrospanner;
 
 	internal static class Program
 	{
