@@ -33,12 +33,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AcknowledgementHandler.cs" />
-    <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="DeserializationHandler.cs" />
-    <Compile Include="MessageListener.cs" />
+    <Compile Include="Phase2\AcknowledgementHandler.cs" />
+    <Compile Include="Phase1\ExtensionMethods.cs" />
+    <Compile Include="Phase1\DeserializationHandler.cs" />
+    <Compile Include="IHydratable.cs" />
+    <Compile Include="IStreamIdentifier.cs" />
+    <Compile Include="Phase1\MessageListener.cs" />
+    <Compile Include="Phase2\ParsedMessage.cs" />
+    <Compile Include="Phase2\TransformationHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReceivedMessage.cs" />
+    <Compile Include="Phase1\WireMessage.cs" />
+    <Compile Include="Phase1\RepositoryHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Disruptor">
@@ -56,6 +61,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

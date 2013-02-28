@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner
+﻿namespace Hydrospanner.Phase1
 {
 	using System.IO;
 	using System.Runtime.Serialization.Formatters;
@@ -7,9 +7,9 @@
 	using Newtonsoft.Json;
 	using Newtonsoft.Json.Converters;
 
-	public class DeserializationHandler : IEventHandler<ReceivedMessage>
+	public class DeserializationHandler : IEventHandler<WireMessage>
 	{
-		public void OnNext(ReceivedMessage data, long sequence, bool endOfBatch)
+		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
 			var headers = data.Headers;
 			foreach (var key in headers.Keys)
@@ -19,6 +19,11 @@
 			using (var streamReader = new StreamReader(stream, DefaultEncoding))
 			using (new JsonTextReader(streamReader))
 				data.Body = this.serializer.Deserialize(new JsonTextReader(streamReader));
+
+			// NanoMessageBus adapter to remove the object[] channel envelope...
+			var body = data.Body as object[];
+			if (body != null && body.Length > 0)
+				data.Body = body[0];
 		}
 
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);

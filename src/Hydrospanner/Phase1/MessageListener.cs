@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner
+﻿namespace Hydrospanner.Phase1
 {
 	using System;
 	using System.Collections;
@@ -131,7 +131,7 @@
 				try
 				{
 					Console.WriteLine("Acknowledged message {0}", tag);
-					channel.BasicAck(tag, true);
+					this.channel.BasicAck(tag, true);
 				}
 // ReSharper disable EmptyGeneralCatchClause
 				catch
@@ -143,7 +143,7 @@
 			this.ring.Publish(claimed);
 		}
 
-		public MessageListener(RingBuffer<ReceivedMessage> ring)
+		public MessageListener(RingBuffer<WireMessage> ring)
 		{
 			this.ring = ring;
 		}
@@ -163,7 +163,7 @@
 		private static readonly int AwaitMessageTimeout = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
 		private static readonly Uri ServerAddress = new Uri(ConfigurationManager.AppSettings["rabbit-server"]);
 		private static readonly string QueueName = ConfigurationManager.AppSettings["queue-name"];
-		private readonly RingBuffer<ReceivedMessage> ring;
+		private readonly RingBuffer<WireMessage> ring;
 		private Subscription subscription;
 		private IConnection connection;
 		private IModel channel;
