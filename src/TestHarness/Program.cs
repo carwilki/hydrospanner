@@ -8,35 +8,41 @@
 	using Disruptor;
 	using Disruptor.Dsl;
 	using Hydrospanner;
-	using Hydrospanner.Phase1;
-	using Hydrospanner.Phase2;
+	using Hydrospanner.Inbox;
 
 	internal static class Program
 	{
 		private static void Main()
 		{
-			var identifiers = new Dictionary<Type, IStreamIdentifier>();
-			identifiers[typeof(AccountClosedEvent)] = new TestStreamIdentifier();
+			//var identifiers = new Dictionary<Type, IStreamIdentifier>();
+			//identifiers[typeof(AccountClosedEvent)] = new TestStreamIdentifier();
 
-			var phase2Disruptor = BuildDisruptor<ParsedMessage>();
-			phase2Disruptor
-				.HandleEventsWith(new TransformationHandler())
-				.Then(new DispatchHandler())
-				.Then(new AcknowledgementHandler());
-			var phase2RingBuffer = phase2Disruptor.Start();
+			//var phase3Disruptor = BuildDisruptor<DispatchMessage>();
+			//phase3Disruptor
+			//	.HandleEventsWith(new SerializationHandler())
+			//	.Then(new JournalHandler())
+			//	.Then(new DispatchHandler(), new AcknowledgementHandler()); // TODO: ack delivery to storage
+			//var phase3RingBuffer = phase3Disruptor.Start();
 
-			var phase1Disruptor = BuildDisruptor<WireMessage>();
-			phase1Disruptor
-				.HandleEventsWith(new DeserializationHandler())
-				.Then(new RepositoryHandler(new TestStreamIdentifier(), Build, phase2RingBuffer));
+			//var phase2Disruptor = BuildDisruptor<ParsedMessage>();
+			//phase2Disruptor
+			//	.HandleEventsWith(new JournaledDeserializationHandler())
+			//	.Then(new TransformationHandler())
+			//	.Then(new ReplicationHandler(phase3RingBuffer));
+			//var phase2RingBuffer = phase2Disruptor.Start();
 
-			using (var listener = new MessageListener(phase1Disruptor.Start()))
-			{
-				listener.Start();
-				Console.WriteLine("Press enter");
-				Console.ReadLine();
-				listener.Stop();
-			}
+			//var phase1Disruptor = BuildDisruptor<WireMessage>();
+			//phase1Disruptor
+			//	.HandleEventsWith(new DeserializationHandler())
+			//	.Then(new RepositoryHandler(new TestStreamIdentifier(), Build, phase2RingBuffer));
+
+			//using (var listener = new MessageListener(phase1Disruptor.Start()))
+			//{
+			//	listener.Start();
+			//	Console.WriteLine("Press enter");
+			//	Console.ReadLine();
+			//	listener.Stop();
+			//}
 		}
 		private static List<IHydratable> Build(Guid streamId)
 		{
@@ -52,7 +58,7 @@
 				TaskScheduler.Default);
 		}
 
-		private const int PreallocatedSize = 1024 * 1024;
+		private const int PreallocatedSize = 1024 * 16;
 	}
 
 	public class TestStreamIdentifier : IStreamIdentifier

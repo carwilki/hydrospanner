@@ -10,6 +10,10 @@
 		public bool IncomingWireMessage { get; set; }
 		public Guid StreamId { get; set; }
 		public List<IHydratable> Hydratables { get; set; }
+
+		public byte[] SerializedBody { get; set; }
+		public byte[] SerializedHeaders { get; set; }
+
 		public object Body { get; set; }
 		public Hashtable Headers { get; set; }
 		public Action ConfirmDelivery { get; set; }

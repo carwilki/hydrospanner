@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Phase1
+﻿namespace Hydrospanner.Inbox
 {
 	using System.IO;
 	using System.Runtime.Serialization.Formatters;

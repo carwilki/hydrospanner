@@ -33,18 +33,24 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Phase2\AcknowledgementHandler.cs" />
-    <Compile Include="Phase1\ExtensionMethods.cs" />
-    <Compile Include="Phase1\DeserializationHandler.cs" />
+    <Compile Include="Inbox\AcknowledgementHandler.cs" />
+    <Compile Include="Inbox\ExtensionMethods.cs" />
+    <Compile Include="Inbox\DeserializationHandler.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="IStreamIdentifier.cs" />
-    <Compile Include="Phase1\MessageListener.cs" />
-    <Compile Include="Phase2\DispatchHandler.cs" />
-    <Compile Include="Phase2\ParsedMessage.cs" />
-    <Compile Include="Phase2\TransformationHandler.cs" />
+    <Compile Include="Inbox\JournalHandler.cs" />
+    <Compile Include="Inbox\MessageListener.cs" />
+    <Compile Include="Outbox\BookmarkHandler.cs" />
+    <Compile Include="Outbox\DispatchHandler.cs" />
+    <Compile Include="Outbox\DispatchMessage.cs" />
+    <Compile Include="Outbox\SerializationHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Phase1\WireMessage.cs" />
-    <Compile Include="Phase1\RepositoryHandler.cs" />
+    <Compile Include="Inbox\RepositoryHandler.cs" />
+    <Compile Include="Inbox\WarmupListener.cs" />
+    <Compile Include="Inbox\WireMessage.cs" />
+    <Compile Include="Transformation\DeserializationHandler.cs" />
+    <Compile Include="Transformation\TransformationHandler.cs" />
+    <Compile Include="Transformation\TransformationMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Disruptor">

@@ -4,6 +4,7 @@
 	using System.Collections.Generic;
 	using Disruptor;
 	using Hydrospanner.Phase2;
+	using Hydrospanner.Receive;
 
 	public class RepositoryHandler : IEventHandler<WireMessage>
 	{

@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Phase1
+﻿namespace Hydrospanner.Inbox
 {
 	using System;
 	using System.Collections;
@@ -116,6 +116,9 @@
 		}
 		private void Publish(BasicDeliverEventArgs delivery)
 		{
+			// TODO: de-duplicate already receive messages
+			// TODO: at startup any journaled messages that haven't been ack'd (from bookmark forward), keep track of and de-duplicate
+
 			if (delivery == null)
 				return;
 
