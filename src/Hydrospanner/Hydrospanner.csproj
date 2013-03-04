@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Extensions.cs" />
     <Compile Include="Inbox\AcknowledgementHandler.cs" />
     <Compile Include="Inbox\ExtensionMethods.cs" />
     <Compile Include="Inbox\DeserializationHandler.cs" />
@@ -64,6 +65,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
