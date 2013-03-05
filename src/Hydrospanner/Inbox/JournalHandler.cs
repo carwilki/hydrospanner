@@ -51,7 +51,7 @@
 			}
 		}
 
-		public JournalHandler(string connectionName, IStreamIdentifier identifier)
+		public JournalHandler(string connectionName, IStreamIdentifier<object> identifier)
 		{
 			this.identifier = identifier;
 			// TODO: get max sequence number
@@ -71,7 +71,7 @@
 		private const string InsertStatement = "INSERT INTO [messages] VALUES ( @seq{0}, @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
 		private readonly List<WireMessage> buffer = new List<WireMessage>();
 		private readonly ConnectionStringSettings settings;
-		private readonly IStreamIdentifier identifier;
+		private readonly IStreamIdentifier<object> identifier;
 		private long storedSequence;
 	}
 }

@@ -4,9 +4,9 @@
 	using System.Collections;
 	using System.Collections.Generic;
 
-	public class RoutingStreamIdentifier : IStreamIdentifier
+	public class StreamIdentifierRoutingTable : IStreamIdentifier<object>
 	{
-		public Guid DiscoverStreams(object message, Hashtable headers)
+		Guid IStreamIdentifier<object>.DiscoverStreams(object message, Hashtable headers)
 		{
 			if (message == null)
 				return Guid.Empty;
@@ -24,6 +24,11 @@
 		}
 
 		private readonly Dictionary<Type, IStreamIdentifier> identifiers = new Dictionary<Type, IStreamIdentifier>();
+
+		private interface IStreamIdentifier
+		{
+			Guid DiscoverStreams(object message, Hashtable headers);
+		}
 
 		private class GenericIdentifier<T> : IStreamIdentifier
 		{

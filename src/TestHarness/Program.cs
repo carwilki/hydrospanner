@@ -31,7 +31,7 @@
 			//	.Then(new ReplicationHandler(phase3RingBuffer));
 			//var phase2RingBuffer = phase2Disruptor.Start();
 
-			var identifier = new RoutingStreamIdentifier();
+			var identifier = new StreamIdentifierRoutingTable();
 			identifier.Register(new TestStreamIdentifier());
 
 			var phase1Disruptor = BuildDisruptor<WireMessage>();
