@@ -20,7 +20,7 @@
 			using (var connection = this.settings.OpenConnection())
 			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = "UPDATE bookmarks SET sequence = {0} WHERE sequence < {0};".FormatWith(this.largest);
+				command.CommandText = UpdateStatement.FormatWith(this.largest);
 				command.ExecuteNonQuery(); // TODO: circuit breaker pattern
 			}
 		}
@@ -30,6 +30,7 @@
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
 		}
 
+		private const string UpdateStatement = "UPDATE bookmarks SET sequence = {0} WHERE sequence < {0}; INSERT INTO bookmarks VALUES {0} WHERE @@rowcount = 0;";
 		private readonly ConnectionStringSettings settings;
 		private long largest;
 	}
