@@ -5,7 +5,7 @@
 	using System.Configuration;
 	using System.Threading;
 	using Disruptor;
-	using Hydrospanner.Inbox;
+	using Inbox;
 	using RabbitMQ.Client;
 
 	public class DispatchHandler : IEventHandler<DispatchMessage>

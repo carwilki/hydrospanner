@@ -36,6 +36,8 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestHydratable.cs" />
+    <Compile Include="TestStreamIdentifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Hydrospanner\Hydrospanner.csproj">

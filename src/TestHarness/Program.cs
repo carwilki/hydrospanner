@@ -1,47 +1,22 @@
 ﻿namespace TestHarness
 {
 	using System;
-	using System.Collections;
 	using System.Collections.Generic;
 	using System.Threading.Tasks;
-	using Accounting.Events;
 	using Disruptor;
 	using Disruptor.Dsl;
 	using Hydrospanner;
 	using Hydrospanner.Inbox;
+    using Hydrospanner.Outbox;
+    using Hydrospanner.Transformation;
 
 	internal static class Program
 	{
 		private static void Main()
 		{
-			////var identifiers = new Dictionary<Type, IStreamIdentifier>();
-			////identifiers[typeof(AccountClosedEvent)] = new TestStreamIdentifier();
+		    var inboxPhase = ConfigurePhases();
 
-			////var phase3Disruptor = BuildDisruptor<DispatchMessage>();
-			////phase3Disruptor
-			////	.HandleEventsWith(new SerializationHandler())
-			////	.Then(new JournalHandler())
-			////	.Then(new DispatchHandler(), new AcknowledgementHandler()); // TODO: ack delivery to storage
-			////var phase3RingBuffer = phase3Disruptor.Start();
-
-			////var phase2Disruptor = BuildDisruptor<ParsedMessage>();
-			////phase2Disruptor
-			////	.HandleEventsWith(new JournaledDeserializationHandler())
-			////	.Then(new TransformationHandler())
-			////	.Then(new ReplicationHandler(phase3RingBuffer));
-			////var phase2RingBuffer = phase2Disruptor.Start();
-
-			var identifierTable = new StreamIdentifierRoutingTable();
-			identifierTable.Register(new TestStreamIdentifier());
-
-			var phase1Disruptor = BuildDisruptor<WireMessage>();
-			phase1Disruptor
-				.HandleEventsWith(new DeserializationHandler())
-				.Then(new JournalHandler("Hydrospanner", identifierTable))
-				.Then(new RepositoryHandler())
-				.Then(new AcknowledgementHandler());
-
-			using (var listener = new MessageListener(phase1Disruptor.Start()))
+		    using (var listener = new MessageListener(inboxPhase.Start()))
 			{
 				listener.Start();
 				Console.WriteLine("Press enter");
@@ -49,7 +24,35 @@
 				listener.Stop();
 			}
 		}
-		private static List<IHydratable> Build(Guid streamId)
+
+	    private static Disruptor<WireMessage> ConfigurePhases()
+	    {
+            var identifierTable = new StreamIdentifierRoutingTable();
+            identifierTable.Register(new TestStreamIdentifier());
+
+	        var outboxPhase = BuildDisruptor<DispatchMessage>();
+	        outboxPhase
+	            .HandleEventsWith(new SerializationHandler())
+	            .Then(new DispatchHandler())
+	            .Then(new BookmarkHandler(ConnectionName));
+	            // TODO: need handler to put newly generated events back into the hydrospanner
+
+	        var transformationPhase = BuildDisruptor<TransformationMessage>();
+	        transformationPhase
+	            .HandleEventsWith(new TransformationDeserializationHandler())
+	            .Then(new TransformationHandler(outboxPhase.Start()));
+
+	        var inboxPhase = BuildDisruptor<WireMessage>();
+	        inboxPhase
+	            .HandleEventsWith(new InboxDeserializationHandler())
+	            .Then(new JournalHandler(ConnectionName, identifierTable))
+	            .Then(new RepositoryHandler(ConnectionName, BuildHydratables, transformationPhase.Start()))
+	            .Then(new AcknowledgementHandler());
+	        
+            return inboxPhase;
+	    }
+
+	    private static List<IHydratable> BuildHydratables()
 		{
 			return new List<IHydratable>(new[] { new TestHydratable() });
 		}
@@ -64,37 +67,6 @@
 		}
 
 		private const int PreallocatedSize = 1024 * 16;
-	}
-
-	public class TestStreamIdentifier : IStreamIdentifier<AccountClosedEvent>
-	{
-		public Guid DiscoverStreams(AccountClosedEvent message, Hashtable headers)
-		{
-			return message.AccountId;
-		}
-	}
-	public class TestHydratable : IHydratable
-	{
-		public void Hydrate(object message, Hashtable headers)
-		{
-			// provide to underlying aggregate/saga/projector
-		}
-
-		public IEnumerable<object> GatherMessages()
-		{
-			return new object[]
-			{
-				new AccountClosedEvent
-				{
-					AccountId = Guid.NewGuid(),
-					Description = "Hello, World!",
-					Dispatched = DateTime.UtcNow,
-					MessageId = Guid.NewGuid(),
-					Reason = CloseReason.Abuse,
-					UserId = Guid.NewGuid(),
-					Username = "test@test.com"
-				}
-			};
-		}
+	    private const string ConnectionName = "Hydrospanner";
 	}
 }

@@ -30,7 +30,7 @@
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
 		}
 
-		private const string UpdateStatement = "UPDATE bookmarks SET sequence = {0} WHERE sequence < {0}; INSERT INTO bookmarks VALUES {0} WHERE @@rowcount = 0;";
+		private const string UpdateStatement = "UPDATE bookmarks SET sequence = {0} WHERE sequence < {0}; INSERT INTO bookmarks SELECT {0} WHERE @@rowcount = 0;";
 		private readonly ConnectionStringSettings settings;
 		private long largest;
 	}

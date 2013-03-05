@@ -36,7 +36,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Inbox\AcknowledgementHandler.cs" />
     <Compile Include="Inbox\ExtensionMethods.cs" />
-    <Compile Include="Inbox\DeserializationHandler.cs" />
+    <Compile Include="Inbox\InboxDeserializationHandler.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="IStreamIdentifier.cs" />
     <Compile Include="Inbox\JournalHandler.cs" />
@@ -50,7 +50,7 @@
     <Compile Include="Inbox\WarmupListener.cs" />
     <Compile Include="Inbox\WireMessage.cs" />
     <Compile Include="StreamIdentifierRoutingTable.cs" />
-    <Compile Include="Transformation\DeserializationHandler.cs" />
+    <Compile Include="Transformation\TransformationDeserializationHandler.cs" />
     <Compile Include="Transformation\TransformationHandler.cs" />
     <Compile Include="Transformation\TransformationMessage.cs" />
   </ItemGroup>
