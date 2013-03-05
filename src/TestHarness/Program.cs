@@ -31,10 +31,13 @@
 			//	.Then(new ReplicationHandler(phase3RingBuffer));
 			//var phase2RingBuffer = phase2Disruptor.Start();
 
+			var identifier = new RoutingStreamIdentifier();
+			identifier.Register(new TestStreamIdentifier());
+
 			var phase1Disruptor = BuildDisruptor<WireMessage>();
 			phase1Disruptor
 				.HandleEventsWith(new DeserializationHandler())
-				.Then(new JournalHandler("Hydrospanner"))
+				.Then(new JournalHandler("Hydrospanner", identifier))
 				.Then(new RepositoryHandler())
 				.Then(new AcknowledgementHandler());
 
@@ -63,12 +66,15 @@
 		private const int PreallocatedSize = 1024 * 16;
 	}
 
-	public class TestStreamIdentifier : IStreamIdentifier
+	public class TestStreamIdentifier : IStreamIdentifier<AccountClosedEvent>
 	{
 		public Guid DiscoverStreams(object message, Hashtable headers)
 		{
-			var closedEvent = message as AccountClosedEvent;
-			return closedEvent == null ? Guid.Empty : closedEvent.AccountId;
+			throw new NotImplementedException();
+		}
+		public Guid DiscoverStreams(AccountClosedEvent message, Hashtable headers)
+		{
+			return message.AccountId;
 		}
 	}
 	public class TestHydratable : IHydratable

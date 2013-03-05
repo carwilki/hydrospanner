@@ -49,6 +49,7 @@
     <Compile Include="Inbox\RepositoryHandler.cs" />
     <Compile Include="Inbox\WarmupListener.cs" />
     <Compile Include="Inbox\WireMessage.cs" />
+    <Compile Include="RoutingStreamIdentifier.cs" />
     <Compile Include="Transformation\DeserializationHandler.cs" />
     <Compile Include="Transformation\TransformationHandler.cs" />
     <Compile Include="Transformation\TransformationMessage.cs" />

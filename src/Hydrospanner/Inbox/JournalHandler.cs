@@ -12,11 +12,11 @@
 		{
 			// TODO: where does de-duplication happen?
 
+			data.StreamId = this.identifier.DiscoverStreams(data.Body, data.Headers);
 			data.IncomingSequence = ++this.storedSequence;
-			// TODO: callback into application code to determine the stream of a given message
 
 			this.buffer.Add(data);
-			if (endOfBatch || buffer.Count > 420)
+			if (endOfBatch || buffer.Count > 418)
 				this.JournalMessages();
 		}
 		private void JournalMessages()
@@ -51,8 +51,9 @@
 			}
 		}
 
-		public JournalHandler(string connectionName)
+		public JournalHandler(string connectionName, IStreamIdentifier identifier)
 		{
+			this.identifier = identifier;
 			// TODO: get max sequence number
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
 
@@ -70,6 +71,7 @@
 		private const string InsertStatement = "INSERT INTO [messages] VALUES ( @seq{0}, @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
 		private readonly List<WireMessage> buffer = new List<WireMessage>();
 		private readonly ConnectionStringSettings settings;
+		private readonly IStreamIdentifier identifier;
 		private long storedSequence;
 	}
 }
