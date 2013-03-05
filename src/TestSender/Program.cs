@@ -21,6 +21,7 @@
 				var properties = channel.CreateBasicProperties();
 				properties.SetPersistent(false);
 				properties.Headers = new Hashtable();
+				// properties.MessageId = Guid.NewGuid().ToString();
 
 				var message = BuildMessage();
 				var json = JsonConvert.SerializeObject(message, Formatting.Indented, Settings);
@@ -30,6 +31,8 @@
 				{
 					for (var i = 0; i < 1000; i++)
 					{
+						properties.MessageId = (i + 1).ToString();
+
 						channel.BasicPublish(string.Empty, QueueName, properties, payload);
 					}
 				}

@@ -122,11 +122,17 @@
 			if (delivery == null)
 				return;
 
+			var properties = delivery.BasicProperties;
+			if (properties == null)
+				return;
+			
 			var claimed = this.ring.Next();
 			var message = this.ring[claimed];
 			message.Clear();
 			message.Payload = delivery.Body;
-			message.Headers = (Hashtable)delivery.BasicProperties.Headers;
+			message.Headers = (Hashtable)properties.Headers;
+			message.WireId = GetMessageId(properties.MessageId);
+
 			var tag = delivery.DeliveryTag;
 
 			message.ConfirmDelivery = () =>
@@ -145,6 +151,22 @@
 
 			this.ring.Publish(claimed);
 		}
+		private static Guid GetMessageId(string raw)
+		{
+			if (string.IsNullOrWhiteSpace(raw))
+				return Guid.Empty;
+
+			Guid id;
+			if (Guid.TryParse(raw, out id))
+				return id;
+
+			long numeric;
+			if (!long.TryParse(raw, out numeric))
+				return Guid.Empty;
+
+			BitConverter.GetBytes(numeric).CopyTo(MessageIdBytes, 0);
+			return new Guid(MessageIdBytes);
+		}
 
 		public MessageListener(RingBuffer<WireMessage> ring)
 		{
@@ -162,6 +184,7 @@
 				this.Stop();
 		}
 
+		private static readonly byte[] MessageIdBytes = new byte[16];
 		private static readonly TimeSpan DelayBeforeReconnect = TimeSpan.FromSeconds(1);
 		private static readonly int AwaitMessageTimeout = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
 		private static readonly Uri ServerAddress = new Uri(ConfigurationManager.AppSettings["rabbit-server"]);

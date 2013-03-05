@@ -31,18 +31,20 @@
 			//	.Then(new ReplicationHandler(phase3RingBuffer));
 			//var phase2RingBuffer = phase2Disruptor.Start();
 
-			//var phase1Disruptor = BuildDisruptor<WireMessage>();
-			//phase1Disruptor
-			//	.HandleEventsWith(new DeserializationHandler())
-			//	.Then(new RepositoryHandler(new TestStreamIdentifier(), Build, phase2RingBuffer));
+			var phase1Disruptor = BuildDisruptor<WireMessage>();
+			phase1Disruptor
+				.HandleEventsWith(new DeserializationHandler())
+				.Then(new JournalHandler("Hydrospanner"))
+				.Then(new RepositoryHandler())
+				.Then(new AcknowledgementHandler());
 
-			//using (var listener = new MessageListener(phase1Disruptor.Start()))
-			//{
-			//	listener.Start();
-			//	Console.WriteLine("Press enter");
-			//	Console.ReadLine();
-			//	listener.Stop();
-			//}
+			using (var listener = new MessageListener(phase1Disruptor.Start()))
+			{
+				listener.Start();
+				Console.WriteLine("Press enter");
+				Console.ReadLine();
+				listener.Stop();
+			}
 		}
 		private static List<IHydratable> Build(Guid streamId)
 		{
