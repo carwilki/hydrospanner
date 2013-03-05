@@ -12,13 +12,13 @@
 	{
 		public void OnNext(DispatchMessage data, long sequence, bool endOfBatch)
 		{
-			this.messages.Add(data);
+			this.buffer.Add(data);
 
 			if (!endOfBatch)
 				return;
 
 			this.TryPublish();
-			this.messages.Clear();
+			this.buffer.Clear();
 		}
 		private void TryPublish()
 		{
@@ -35,14 +35,14 @@
 		}
 		private void Publish()
 		{
-			for (var i = 0; i < this.messages.Count; i++)
+			for (var i = 0; i < this.buffer.Count; i++)
 			{
 				var properties = this.channel.CreateBasicProperties();
 
 				// TODO: append headers
 				properties.MessageId = null; // TODO: unique AND deterministic sequence number (CRITICAL for de-duplication)
-				var message = this.messages[i];
-				var exchange = message.Body.GetType().FullName.ToLower().Replace(".", "-");
+				var message = this.buffer[i];
+				var exchange = message.Body.GetType().FullName.ToLower().Replace(".", "-"); // NanoMessageBus convention
 				this.channel.BasicPublish(exchange, null, false, false, properties, message.Payload);
 			}
 
@@ -97,7 +97,7 @@
 
 		private static readonly TimeSpan DelayBeforeReconnect = TimeSpan.FromSeconds(1);
 		private static readonly Uri ServerAddress = new Uri(ConfigurationManager.AppSettings["rabbit-server"]);
-		private readonly List<DispatchMessage> messages = new List<DispatchMessage>();
+		private readonly List<DispatchMessage> buffer = new List<DispatchMessage>();
 		private IConnection connection;
 		private IModel channel;
 	}

@@ -20,12 +20,13 @@
 		}
 		private void JournalMessages()
 		{
-			// TODO: append sequence number to each journaled message
 			using (var connection = this.settings.OpenConnection())
 			using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
 			using (var command = connection.CreateCommand())
 			{
 				// TODO: optimize with less writes to database and optimize loop to operate within the same transaction
+				// (aggregate unique values such as stream id or wire id when null.  Sequence can be derived from the first or *database-provided*)
+				// we don't technically need 
 
 				var builder = new StringBuilder(this.buffer.Count * InsertStatement.Length);
 
@@ -53,14 +54,13 @@
 		{
 			this.identifier = identifier;
 
-			// TODO: get max sequence number
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
 
 			using (var connection = this.settings.OpenConnection())
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = "SELECT MAX(sequence) FROM [messages];";
-				var value = command.ExecuteScalar() ?? 0L;
+				var value = command.ExecuteScalar();
 				if (value is long)
 					this.storedSequence = (long)value;
 			}

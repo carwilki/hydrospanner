@@ -68,10 +68,6 @@
 
 	public class TestStreamIdentifier : IStreamIdentifier<AccountClosedEvent>
 	{
-		public Guid DiscoverStreams(object message, Hashtable headers)
-		{
-			throw new NotImplementedException();
-		}
 		public Guid DiscoverStreams(AccountClosedEvent message, Hashtable headers)
 		{
 			return message.AccountId;

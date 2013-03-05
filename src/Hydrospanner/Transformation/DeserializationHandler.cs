@@ -19,6 +19,8 @@
 			using (new JsonTextReader(streamReader))
 				data.Body = this.serializer.Deserialize(new JsonTextReader(streamReader));
 
+			// TODO: headers?
+
 			// deserialize anything that hasn't already been deserialized.
 		}
 
