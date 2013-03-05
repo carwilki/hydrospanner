@@ -6,9 +6,8 @@
 	{
 		public Guid StreamId { get; set; }
 
-		public long StreamLength { get; set; }
 		public long StreamIndex { get; set; }
-		public long BookmarkIndex { get; set; } // stream index > bookmark index means
+		public long BookmarkIndex { get; set; } // stream index > bookmark index means that this is the first time handling this message
 
 		public byte[] Payload { get; set; }
 		public byte[] Headers { get; set; }
@@ -23,7 +22,6 @@
 		public void Clear()
 		{
 			this.StreamId = Guid.Empty;
-			this.StreamLength = 0;
 			this.StreamIndex = 0;
 			this.BookmarkIndex = 0;
 			this.Payload = null;

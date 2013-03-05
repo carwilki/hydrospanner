@@ -11,7 +11,7 @@
 			if (message == null)
 				return Guid.Empty;
 
-			IStreamIdentifier registered;
+			IStreamIdentifier<object> registered;
 			if (this.identifiers.TryGetValue(message.GetType(), out registered))
 				return registered.DiscoverStreams(message, headers);
 
@@ -23,14 +23,9 @@
 			this.identifiers[typeof(T)] = new GenericIdentifier<T>(identifier);
 		}
 
-		private readonly Dictionary<Type, IStreamIdentifier> identifiers = new Dictionary<Type, IStreamIdentifier>();
+		private readonly Dictionary<Type, IStreamIdentifier<object>> identifiers = new Dictionary<Type, IStreamIdentifier<object>>();
 
-		private interface IStreamIdentifier
-		{
-			Guid DiscoverStreams(object message, Hashtable headers);
-		}
-
-		private class GenericIdentifier<T> : IStreamIdentifier
+		private class GenericIdentifier<T> : IStreamIdentifier<object>
 		{
 			public Guid DiscoverStreams(object message, Hashtable headers)
 			{

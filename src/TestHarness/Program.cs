@@ -31,13 +31,13 @@
 			////	.Then(new ReplicationHandler(phase3RingBuffer));
 			////var phase2RingBuffer = phase2Disruptor.Start();
 
-			var identifier = new StreamIdentifierRoutingTable();
-			identifier.Register(new TestStreamIdentifier());
+			var identifierTable = new StreamIdentifierRoutingTable();
+			identifierTable.Register(new TestStreamIdentifier());
 
 			var phase1Disruptor = BuildDisruptor<WireMessage>();
 			phase1Disruptor
 				.HandleEventsWith(new DeserializationHandler())
-				.Then(new JournalHandler("Hydrospanner", identifier))
+				.Then(new JournalHandler("Hydrospanner", identifierTable))
 				.Then(new RepositoryHandler())
 				.Then(new AcknowledgementHandler());
 

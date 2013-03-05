@@ -1,24 +1,72 @@
 ﻿namespace Hydrospanner.Inbox
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Configuration;
+	using System.Text;
 	using Disruptor;
 
 	public class RepositoryHandler : IEventHandler<WireMessage>
 	{
 		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
-			// if !endOfBatch, add to list
-			// at end of batch, for any stream that isn't in memory, create a set of hydratables and load the entire stream
-			// push set of hydratables along with loaded stream (if any) to next phase
-			// push each wire message and set of hydratables to next phase
+			this.buffer.Add(data);
 
-			// callback into application code:
-			// 1. ignore vs handle (e.g. it's a command and we've already handled this message before)
-			// 2. new hydratables
+			if (!this.cache.ContainsKey(data.StreamId))
+				this.missingStreams.Add(data.StreamId);
 
-			// if incoming message should be ignored, drop the message by not pushing it to the next phase
-			// and don't worry about newing up hydratables or loading up the event stream for the incoming message
+			if (!endOfBatch)
+				return;
 
-			// TODO: figure out how snapshotting works here
+			// for each stream that is NOT in memory, create a set of hydratables and cache them, then load the stream from disk (and push each event to the next phase)
+			// now push each incoming message (in this.buffer) to the next phase
+
+			this.LoadStreams();
+			// future: snapshots?
 		}
+		private void LoadStreams()
+		{
+			using (var connection = this.settings.OpenConnection())
+			using (var command = connection.CreateCommand())
+			{
+				var builder = new StringBuilder();
+
+				foreach (var item in this.missingStreams)
+				{
+					builder.AppendFormat("\"{0}\",", item);
+					cache[item] = this.factory();
+				}
+
+				var value = builder.ToString();
+				value = value.Substring(0, value.Length - 1);
+				
+				command.CommandText = "SELECT * FROM [messages] WHERE stream_id IN ({0});".FormatWith(value);
+
+				using (var reader = command.ExecuteReader())
+				{
+					if (reader == null)
+						return;
+
+					while (reader.Read())
+					{
+						// TODO: claim a sequence and push to the next phase
+					}
+				}
+			}
+
+			this.buffer.Clear();
+		}
+
+		public RepositoryHandler(string connectionName, Func<List<IHydratable>> factory)
+		{
+			this.factory = factory;
+			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
+		}
+
+		private readonly Dictionary<Guid, List<IHydratable>> cache = new Dictionary<Guid, List<IHydratable>>();
+		private readonly List<WireMessage> buffer = new List<WireMessage>();
+		private readonly HashSet<Guid> missingStreams = new HashSet<Guid>();
+		private readonly Func<List<IHydratable>> factory;
+		private readonly ConnectionStringSettings settings;
 	}
 }
