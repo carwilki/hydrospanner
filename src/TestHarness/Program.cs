@@ -14,22 +14,22 @@
 	{
 		private static void Main()
 		{
-			//var identifiers = new Dictionary<Type, IStreamIdentifier>();
-			//identifiers[typeof(AccountClosedEvent)] = new TestStreamIdentifier();
+			////var identifiers = new Dictionary<Type, IStreamIdentifier>();
+			////identifiers[typeof(AccountClosedEvent)] = new TestStreamIdentifier();
 
-			//var phase3Disruptor = BuildDisruptor<DispatchMessage>();
-			//phase3Disruptor
-			//	.HandleEventsWith(new SerializationHandler())
-			//	.Then(new JournalHandler())
-			//	.Then(new DispatchHandler(), new AcknowledgementHandler()); // TODO: ack delivery to storage
-			//var phase3RingBuffer = phase3Disruptor.Start();
+			////var phase3Disruptor = BuildDisruptor<DispatchMessage>();
+			////phase3Disruptor
+			////	.HandleEventsWith(new SerializationHandler())
+			////	.Then(new JournalHandler())
+			////	.Then(new DispatchHandler(), new AcknowledgementHandler()); // TODO: ack delivery to storage
+			////var phase3RingBuffer = phase3Disruptor.Start();
 
-			//var phase2Disruptor = BuildDisruptor<ParsedMessage>();
-			//phase2Disruptor
-			//	.HandleEventsWith(new JournaledDeserializationHandler())
-			//	.Then(new TransformationHandler())
-			//	.Then(new ReplicationHandler(phase3RingBuffer));
-			//var phase2RingBuffer = phase2Disruptor.Start();
+			////var phase2Disruptor = BuildDisruptor<ParsedMessage>();
+			////phase2Disruptor
+			////	.HandleEventsWith(new JournaledDeserializationHandler())
+			////	.Then(new TransformationHandler())
+			////	.Then(new ReplicationHandler(phase3RingBuffer));
+			////var phase2RingBuffer = phase2Disruptor.Start();
 
 			var identifier = new StreamIdentifierRoutingTable();
 			identifier.Register(new TestStreamIdentifier());

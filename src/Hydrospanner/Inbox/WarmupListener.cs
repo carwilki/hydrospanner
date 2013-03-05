@@ -11,7 +11,5 @@
 		public void Stop()
 		{
 		}
-
-		private readonly MessageListener listener;
 	}
 }

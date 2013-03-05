@@ -11,12 +11,11 @@
 		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
 			// TODO: where does de-duplication happen?
-
 			data.StreamId = this.identifier.DiscoverStreams(data.Body, data.Headers);
 			data.IncomingSequence = ++this.storedSequence;
 
 			this.buffer.Add(data);
-			if (endOfBatch || buffer.Count > 418)
+			if (endOfBatch || this.buffer.Count > 418)
 				this.JournalMessages();
 		}
 		private void JournalMessages()
@@ -28,14 +27,14 @@
 			{
 				// TODO: optimize with less writes to database and optimize loop to operate within the same transaction
 
-				var builder = new StringBuilder(buffer.Count * InsertStatement.Length);
+				var builder = new StringBuilder(this.buffer.Count * InsertStatement.Length);
 
-				for (var i = 0; i < buffer.Count; i++)
+				for (var i = 0; i < this.buffer.Count; i++)
 				{
-					command.WithParameter("@seq{0}".FormatWith(i), buffer[i].IncomingSequence);
-					command.WithParameter("@stream{0}".FormatWith(i), buffer[i].StreamId);
-					command.WithParameter("@wire{0}".FormatWith(i), buffer[i].WireId);
-					command.WithParameter("@payload{0}".FormatWith(i), buffer[i].Payload);
+					command.WithParameter("@seq{0}".FormatWith(i), this.buffer[i].IncomingSequence);
+					command.WithParameter("@stream{0}".FormatWith(i), this.buffer[i].StreamId);
+					command.WithParameter("@wire{0}".FormatWith(i), this.buffer[i].WireId);
+					command.WithParameter("@payload{0}".FormatWith(i), this.buffer[i].Payload);
 					command.WithParameter("@headers{0}".FormatWith(i), new byte[0]);
 					builder.AppendFormat(InsertStatement, i);
 				}
@@ -47,13 +46,13 @@
 				transaction.Commit();
 
 				this.buffer.Clear();
-				
 			}
 		}
 
 		public JournalHandler(string connectionName, IStreamIdentifier<object> identifier)
 		{
 			this.identifier = identifier;
+
 			// TODO: get max sequence number
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
 
@@ -65,7 +64,6 @@
 				if (value is long)
 					this.storedSequence = (long)value;
 			}
-
 		}
 
 		private const string InsertStatement = "INSERT INTO [messages] VALUES ( @seq{0}, @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";

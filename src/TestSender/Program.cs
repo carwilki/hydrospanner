@@ -21,7 +21,6 @@
 				var properties = channel.CreateBasicProperties();
 				properties.SetPersistent(false);
 				properties.Headers = new Hashtable();
-				// properties.MessageId = Guid.NewGuid().ToString();
 
 				var message = BuildMessage();
 				var json = JsonConvert.SerializeObject(message, Formatting.Indented, Settings);
