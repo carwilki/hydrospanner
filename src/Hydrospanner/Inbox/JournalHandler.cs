@@ -2,6 +2,8 @@
 {
 	using System.Collections.Generic;
 	using System.Configuration;
+	using System.Data;
+	using System.Text;
 	using Disruptor;
 
 	public class JournalHandler : IEventHandler<WireMessage>
@@ -14,17 +16,38 @@
 			// TODO: callback into application code to determine the stream of a given message
 
 			this.buffer.Add(data);
-			if (endOfBatch)
+			if (endOfBatch || buffer.Count > 420)
 				this.JournalMessages();
 		}
 		private void JournalMessages()
 		{
 			// TODO: append sequence number to each journaled message
 			using (var connection = this.settings.OpenConnection())
+			using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
 			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = string.Empty;
+				// TODO: optimize with less writes to database and optimize loop to operate within the same transaction
+
+				var builder = new StringBuilder(buffer.Count * InsertStatement.Length);
+
+				for (var i = 0; i < buffer.Count; i++)
+				{
+					command.WithParameter("@seq{0}".FormatWith(i), buffer[i].IncomingSequence);
+					command.WithParameter("@stream{0}".FormatWith(i), buffer[i].StreamId);
+					command.WithParameter("@wire{0}".FormatWith(i), buffer[i].WireId);
+					command.WithParameter("@payload{0}".FormatWith(i), buffer[i].Payload);
+					command.WithParameter("@headers{0}".FormatWith(i), new byte[0]);
+					builder.AppendFormat(InsertStatement, i);
+				}
+
+				command.Transaction = transaction;
+				command.CommandText = builder.ToString();
+
 				command.ExecuteNonQuery(); // TODO: circuit breaker pattern
+				transaction.Commit();
+
+				this.buffer.Clear();
+				
 			}
 		}
 
@@ -32,8 +55,19 @@
 		{
 			// TODO: get max sequence number
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
+
+			using (var connection = this.settings.OpenConnection())
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = "SELECT MAX(sequence) FROM [messages];";
+				var value = command.ExecuteScalar() ?? 0L;
+				if (value is long)
+					this.storedSequence = (long)value;
+			}
+
 		}
 
+		private const string InsertStatement = "INSERT INTO [messages] VALUES ( @seq{0}, @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
 		private readonly List<WireMessage> buffer = new List<WireMessage>();
 		private readonly ConnectionStringSettings settings;
 		private long storedSequence;

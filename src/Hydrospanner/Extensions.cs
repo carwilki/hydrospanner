@@ -50,7 +50,7 @@
 			{
 				var parameter = command.CreateParameter();
 				parameter.ParameterName = name;
-				parameter.Value = value;
+				parameter.Value = value ?? DBNull.Value;
 				command.Parameters.Add(parameter);
 				return command;
 			}
