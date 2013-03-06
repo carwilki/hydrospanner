@@ -16,7 +16,7 @@
 		public object Body { get; set; }
 		public object Metadata { get; set; }
 
-		public IHydratable[] Hydratables { get; set; }
+		public IHydratable<object>[] Hydratables { get; set; }
 
 		public long IncomingSequence { get; set; }
 

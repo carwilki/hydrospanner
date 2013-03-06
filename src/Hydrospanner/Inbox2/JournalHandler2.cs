@@ -11,8 +11,9 @@
 	{
 		public void OnNext(WireMessage2 data, long sequence, bool endOfBatch)
 		{
-			// TODO: where does de-duplication happen?
-			// data.StreamId = this.identifier.DiscoverStreams(data.Body, data.Headers);
+			// TODO: de-duplicate happens here
+
+			data.StreamId = this.identifier.DiscoverStreams(data.Body, data.Headers);
 			data.MessageSequence = ++this.currentSequence;
 
 			this.maxBookmark = Math.Max(data.SourceSequence, this.maxBookmark);

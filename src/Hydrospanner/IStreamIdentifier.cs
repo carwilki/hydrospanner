@@ -1,15 +1,10 @@
 ﻿namespace Hydrospanner
 {
 	using System;
-	using System.Collections;
-
-	public interface IStreamIdentifier
-	{
-		Guid DiscoverStreams(object message, Hashtable headers);
-	}
+	using System.Collections.Generic;
 
 	public interface IStreamIdentifier<T>
 	{
-		Guid DiscoverStreams(T message, Hashtable headers);
+		Guid DiscoverStreams(T message, Dictionary<string, string> headers);
 	}
 }

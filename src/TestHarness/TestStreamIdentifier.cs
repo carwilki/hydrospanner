@@ -1,15 +1,14 @@
 ﻿namespace TestHarness
 {
     using System;
-    using System.Collections;
-    using Accounting.Events;
+    using System.Collections.Generic;
     using Hydrospanner;
 
-    public class TestStreamIdentifier : IStreamIdentifier<AccountClosedEvent>
+    public class TestStreamIdentifier : IStreamIdentifier<object>
     {
-        public Guid DiscoverStreams(AccountClosedEvent message, Hashtable headers)
+        public Guid DiscoverStreams(object message, Dictionary<string, string> headers)
         {
-            return message.AccountId;
+	        return Guid.Empty;
         }
     }
 }

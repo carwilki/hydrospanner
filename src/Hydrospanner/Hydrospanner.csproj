@@ -34,31 +34,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Extensions.cs" />
+    <Compile Include="Inbox2\AcknowledgementHandler2.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Inbox2\ExtensionMethods.cs" />
     <Compile Include="Inbox2\JournalHandler2.cs" />
     <Compile Include="Inbox2\MessageListener2.cs" />
     <Compile Include="Inbox2\SerializationHandler2.cs" />
     <Compile Include="Inbox2\WireMessage2.cs" />
-    <Compile Include="Inbox\AcknowledgementHandler.cs" />
-    <Compile Include="Inbox\ExtensionMethods.cs" />
-    <Compile Include="Inbox\InboxDeserializationHandler.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="IStreamIdentifier.cs" />
-    <Compile Include="Inbox\JournalHandler.cs" />
-    <Compile Include="Inbox\MessageListener.cs" />
     <Compile Include="DefaultSerializer.cs" />
-    <Compile Include="Outbox\BookmarkHandler.cs" />
-    <Compile Include="Outbox\DispatchHandler.cs" />
-    <Compile Include="Outbox\DispatchMessage.cs" />
-    <Compile Include="Outbox\SerializationHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Inbox\RepositoryHandler.cs" />
-    <Compile Include="Inbox\WarmupListener.cs" />
-    <Compile Include="Inbox\WireMessage.cs" />
-    <Compile Include="StreamIdentifierRoutingTable.cs" />
-    <Compile Include="Transformation\TransformationDeserializationHandler.cs" />
-    <Compile Include="Transformation\TransformationHandler.cs" />
-    <Compile Include="Transformation\TransformationMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Disruptor">

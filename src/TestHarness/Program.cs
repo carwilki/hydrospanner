@@ -6,9 +6,7 @@
 	using Disruptor;
 	using Disruptor.Dsl;
 	using Hydrospanner;
-	using Hydrospanner.Inbox;
-    using Hydrospanner.Outbox;
-    using Hydrospanner.Transformation;
+	using Hydrospanner.Inbox2;
 
 	internal static class Program
 	{
@@ -16,7 +14,7 @@
 		{
 		    var inboxPhase = ConfigurePhases();
 
-		    using (var listener = new MessageListener(inboxPhase.Start()))
+		    using (var listener = new MessageListener2(inboxPhase.Start()))
 			{
 				listener.Start();
 				Console.WriteLine("Press enter");
@@ -25,38 +23,16 @@
 			}
 		}
 
-	    private static Disruptor<WireMessage> ConfigurePhases()
+	    private static Disruptor<WireMessage2> ConfigurePhases()
 	    {
-            var identifierTable = new StreamIdentifierRoutingTable();
-            identifierTable.Register(new TestStreamIdentifier());
-
-	        var outboxPhase = BuildDisruptor<DispatchMessage>();
-	        outboxPhase
-	            .HandleEventsWith(new SerializationHandler())
-	            .Then(new DispatchHandler())
-	            .Then(new BookmarkHandler(ConnectionName));
-
-	            // TODO: need handler to put newly generated events back into the hydrospanner
-
-	        var transformationPhase = BuildDisruptor<TransformationMessage>();
-	        transformationPhase
-	            .HandleEventsWith(new TransformationDeserializationHandler())
-	            .Then(new TransformationHandler(outboxPhase.Start()));
-
-	        var inboxPhase = BuildDisruptor<WireMessage>();
+	        var inboxPhase = BuildDisruptor<WireMessage2>();
 	        inboxPhase
-	            .HandleEventsWith(new InboxDeserializationHandler())
-	            .Then(new JournalHandler(ConnectionName, identifierTable))
-	            .Then(new RepositoryHandler(ConnectionName, BuildHydratables, transformationPhase.Start()))
-	            .Then(new AcknowledgementHandler());
+	            .HandleEventsWith(new SerializationHandler2())
+	            .Then(new JournalHandler2(ConnectionName, new TestStreamIdentifier()))
+	            .Then(new AcknowledgementHandler2());
 	        
             return inboxPhase;
 	    }
-
-	    private static List<IHydratable> BuildHydratables()
-		{
-			return new List<IHydratable>(new[] { new TestHydratable() });
-		}
 
 		private static Disruptor<T> BuildDisruptor<T>() where T : class, new()
 		{

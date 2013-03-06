@@ -106,7 +106,7 @@
 	    }
 
 	    public RepositoryHandler(
-            string connectionName, Func<List<IHydratable>> factory, RingBuffer<TransformationMessage> transformationPhase)
+            string connectionName, Func<List<IHydratable<object>>> factory, RingBuffer<TransformationMessage> transformationPhase)
 		{
 			this.factory = factory;
 	        this.settings = ConfigurationManager.ConnectionStrings[connectionName];
@@ -123,10 +123,10 @@
             SELECT sequence, stream_id, payload, headers 
               FROM [messages] 
              WHERE stream_id IN ({1});";
-        private readonly Dictionary<Guid, List<IHydratable>> cache = new Dictionary<Guid, List<IHydratable>>();
+        private readonly Dictionary<Guid, List<IHydratable<object>>> cache = new Dictionary<Guid, List<IHydratable<object>>>();
 		private readonly List<WireMessage> buffer = new List<WireMessage>();
 		private readonly HashSet<Guid> missingStreams = new HashSet<Guid>();
-		private readonly Func<List<IHydratable>> factory;
+		private readonly Func<List<IHydratable<object>>> factory;
 	    private readonly ConnectionStringSettings settings;
 	    private readonly RingBuffer<TransformationMessage> transformationPhase;
 	}
