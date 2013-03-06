@@ -1,13 +1,18 @@
-﻿namespace Hydrospanner.Inbox
+﻿namespace Hydrospanner
 {
+	using System;
 	using Disruptor;
 
 	public class AcknowledgementHandler : IEventHandler<WireMessage>
 	{
 		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
-			if (endOfBatch)
-				data.ConfirmDelivery();
+			this.ack = data.AcknowledgeDelivery ?? this.ack;
+
+			if (endOfBatch && this.ack != null)
+				this.ack();
 		}
+
+		private Action ack;
 	}
 }

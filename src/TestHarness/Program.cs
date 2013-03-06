@@ -5,7 +5,6 @@
 	using Disruptor;
 	using Disruptor.Dsl;
 	using Hydrospanner;
-	using Hydrospanner.Inbox2;
 
 	internal static class Program
 	{

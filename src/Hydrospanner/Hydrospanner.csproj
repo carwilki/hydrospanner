@@ -35,17 +35,17 @@
   <ItemGroup>
     <Compile Include="DuplicateStore.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="Inbox2\AcknowledgementHandler.cs">
+    <Compile Include="AcknowledgementHandler.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Inbox2\DispatchHandler.cs">
+    <Compile Include="DispatchHandler.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Inbox2\IdentificationHandler.cs" />
-    <Compile Include="Inbox2\JournalHandler.cs" />
-    <Compile Include="Inbox2\MessageListener.cs" />
-    <Compile Include="Inbox2\SerializationHandler.cs" />
-    <Compile Include="Inbox2\WireMessage.cs" />
+    <Compile Include="IdentificationHandler.cs" />
+    <Compile Include="JournalHandler.cs" />
+    <Compile Include="MessageListener.cs" />
+    <Compile Include="SerializationHandler.cs" />
+    <Compile Include="WireMessage.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="IStreamIdentifier.cs" />
     <Compile Include="DefaultSerializer.cs" />

@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Inbox2
+﻿namespace Hydrospanner
 {
 	using System;
 	using System.Collections.Generic;
