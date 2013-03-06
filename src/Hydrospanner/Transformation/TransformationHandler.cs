@@ -49,7 +49,6 @@
 	        }
 	    }
 
-
 	    public TransformationHandler(RingBuffer<DispatchMessage> outboxPhase)
 	    {
 	        this.outboxPhase = outboxPhase;

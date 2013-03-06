@@ -47,6 +47,7 @@
     <Compile Include="IStreamIdentifier.cs" />
     <Compile Include="Inbox\JournalHandler.cs" />
     <Compile Include="Inbox\MessageListener.cs" />
+    <Compile Include="DefaultSerializer.cs" />
     <Compile Include="Outbox\BookmarkHandler.cs" />
     <Compile Include="Outbox\DispatchHandler.cs" />
     <Compile Include="Outbox\DispatchMessage.cs" />

@@ -35,6 +35,7 @@
 	            .HandleEventsWith(new SerializationHandler())
 	            .Then(new DispatchHandler())
 	            .Then(new BookmarkHandler(ConnectionName));
+
 	            // TODO: need handler to put newly generated events back into the hydrospanner
 
 	        var transformationPhase = BuildDisruptor<TransformationMessage>();
