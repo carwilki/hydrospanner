@@ -22,11 +22,25 @@
 				foreach (var item in keys)
 					this.duplicates.Contains(item);
 
-				var ring = this.input.Start();
+				long checkpoint = 0;
 				var outstanding = this.storage.LoadSinceCheckpoint();
-
 				if (outstanding.Count > 0)
-					this.checkpointAtStartup = outstanding[0].Sequence - 1;
+					checkpoint = outstanding[0].Sequence - 1;
+
+				var repository = new RepositoryHandler(this.transformationDisruptor.RingBuffer, this.settings.Name, checkpoint, factory);
+
+				this.journalDisruptor
+					.HandleEventsWith(new SerializationHandler())
+					.Then(new IdentificationHandler(identifier, this.duplicates))
+					.Then(new JournalHandler(this.settings.Name))
+					.Then(new DispatchHandler(), repository, new AcknowledgementHandler());
+
+				this.transformationDisruptor
+					.HandleEventsWith(new SerializationHandler())
+					.Then(new TransformationHandler(this.journalDisruptor.RingBuffer));
+
+				this.transformationDisruptor.Start();
+				var ring = this.journalDisruptor.Start();
 
 				foreach (var message in outstanding)
 					PublishToRing(ring, message);
@@ -48,20 +62,18 @@
 			ring.Publish(claimed);
 		}
 
-		public Bootstrapper(IStreamIdentifier identifier, string connectionName)
+		public Bootstrapper(IStreamIdentifier identifier, string connectionName, Func<Guid, IHydratable[]> factory)
 		{
-			var settings = ConfigurationManager.ConnectionStrings[connectionName];
+			this.identifier = identifier;
+			this.factory = factory;
+			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
 
-			this.storage = new MessageStore(settings);
+			this.storage = new MessageStore(this.settings);
 			this.duplicates = new DuplicateStore(MaxDuplicates);
-			this.input = BuildDisruptor<WireMessage>();
-	        this.input
-	            .HandleEventsWith(new SerializationHandler())
-				.Then(new IdentificationHandler(identifier, this.duplicates))
-	            .Then(new JournalHandler(connectionName))
-	            .Then(new AcknowledgementHandler());
 
-			this.listener = new MessageListener(this.input.RingBuffer);
+			this.journalDisruptor = BuildDisruptor<WireMessage>();
+			this.transformationDisruptor = BuildDisruptor<TransformationMessage>();
+			this.listener = new MessageListener(this.journalDisruptor.RingBuffer);
 		}
 		private static Disruptor<T> BuildDisruptor<T>() where T : class, new()
 		{
@@ -74,7 +86,8 @@
 
 		public void Dispose()
 		{
-			this.input.Shutdown();
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 		protected virtual void Dispose(bool disposing)
 		{
@@ -87,16 +100,20 @@
 			this.started = false;
 			this.listener.Stop();
 			Thread.Sleep(TimeSpan.FromSeconds(1)); // TODO: optimize this
-			this.input.Shutdown();
+			this.journalDisruptor.Shutdown();
+			this.transformationDisruptor.Shutdown();
 		}
 
 		private const int MaxDuplicates = 1024 * 32;
 		private const int PreallocatedSize = 1024 * 16;
+		private readonly ConnectionStringSettings settings;
 		private readonly MessageStore storage;
 		private readonly DuplicateStore duplicates;
-		private readonly Disruptor<WireMessage> input;
+		private readonly Disruptor<WireMessage> journalDisruptor;
+		private readonly Disruptor<TransformationMessage> transformationDisruptor;
 		private readonly MessageListener listener;
+		private readonly IStreamIdentifier identifier;
+		private readonly Func<Guid, IHydratable[]> factory;
 		private bool started;
-		private long checkpointAtStartup; // now we know if a given message has been handled before or if it's the first occurrence.
 	}
 }

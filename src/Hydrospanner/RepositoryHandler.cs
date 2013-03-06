@@ -23,7 +23,7 @@
 			using (var connection = this.settings.OpenConnection())
 			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = "SELECT stream_id, payload, headers FROM messages WHERE sequence <= (SELECT sequence FROM checkpoints) AND stream_id IN ({1});".FormatWith(this.checkpoint, this.GetUncachedStreamIdentifiers());
+				command.CommandText = "SELECT stream_id, payload, headers FROM messages WHERE sequence <= (SELECT sequence FROM checkpoints) AND stream_id IN ({0});".FormatWith(this.GetUncachedStreamIdentifiers());
 				using (var reader = command.ExecuteReader())
 				{
 					if (reader == null)
@@ -36,10 +36,10 @@
 
 						var streamId = reader.GetGuid(0);
 						message.Hydratables = this.cache[streamId];
-						message.SerializedBody = (reader[1] as byte[]);
-						message.SerializedHeaders = (reader[2] as byte[]);
+						message.SerializedBody = reader[1] as byte[];
+						message.SerializedHeaders = reader[2] as byte[];
 
-						ring.Publish(claimed);
+						this.ring.Publish(claimed);
 					}
 				}
 			}
@@ -54,7 +54,7 @@
 				message.Hydratables = this.cache[item.StreamId];
 				message.Replay = item.MessageSequence > this.checkpoint;
 
-				ring.Publish(claimed);
+				this.ring.Publish(claimed);
 			}
 
 			this.buffer.Clear();
@@ -76,11 +76,7 @@
 			return identifiers.Substring(0, identifiers.Length - 1);
 		}
 
-		public RepositoryHandler(
-			RingBuffer<TransformationMessage> ring,
-			string connectionName,
-			long checkpoint,
-			Func<Guid, IHydratable[]> factory)
+		public RepositoryHandler(RingBuffer<TransformationMessage> ring, string connectionName, long checkpoint, Func<Guid, IHydratable[]> factory)
 		{
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
 			this.checkpoint = checkpoint;
@@ -93,7 +89,7 @@
 		private readonly HashSet<Guid> missingStreams = new HashSet<Guid>();
 		private readonly RingBuffer<TransformationMessage> ring;
 		private readonly ConnectionStringSettings settings;
-		private readonly long checkpoint;
 		private readonly Func<Guid, IHydratable[]> factory;
+		private long checkpoint;
 	}
 }
