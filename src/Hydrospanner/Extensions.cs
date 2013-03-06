@@ -8,6 +8,22 @@
 	using System.Dynamic;
 	using System.Globalization;
 
+	internal static class DisposableExtensions
+	{
+		public static IDisposable TryDispose(this IDisposable resource)
+		{
+			try
+			{
+				resource.Dispose();
+				return resource;
+			}
+			catch
+			{
+				return resource;
+			}
+		}
+	}
+
 	internal static class StringExtensions
 	{
 		public static string FormatWith(this string format, params object[] args)
