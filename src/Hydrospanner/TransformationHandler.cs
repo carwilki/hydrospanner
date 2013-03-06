@@ -8,7 +8,7 @@
 		public void OnNext(TransformationMessage data, long sequence, bool endOfBatch)
 		{
 			this.Hydrate(data);
-			this.PublishMessage(data.MessageSequence);
+			this.PublishMessageBatch(data.MessageSequence);
 		}
 
 		private void Hydrate(TransformationMessage data)
@@ -22,11 +22,12 @@
 					this.messages.AddRange(hydratable.GatherMessages());
 			}
 		}
-		private void PublishMessage(long sourceSequence)
+		private void PublishMessageBatch(long sourceSequence)
 		{
 			if (this.messages.Count == 0)
 				return;
 
+			// all of these messages MUST be published together
 			var descriptor = this.ring.NewBatchDescriptor(this.messages.Count);
 			descriptor = this.ring.Next(descriptor);
 
