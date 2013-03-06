@@ -13,8 +13,8 @@
 	{
 		public void OnNext(WireMessage2 data, long sequence, bool endOfBatch)
 		{
-			if (!data.LocalMessage)
-				return; // only dispatch work which originates from here
+			if (data.WireId != Guid.Empty)
+				return; // don't send anything that came off the wire
 
 			this.buffer.Add(data);
 

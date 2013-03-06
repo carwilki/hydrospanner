@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Inbox2
 {
+	using System;
 	using System.Collections.Generic;
 	using Disruptor;
 
@@ -10,7 +11,7 @@
 			if (data.Body == null && data.SerializedBody != null)
 				data.Body = this.serializer.Deserialize<object>(data.SerializedBody);
 
-			if (!data.LocalMessage)
+			if (data.WireId != Guid.Empty)
 				data.Body = (data.Body as object[]) ?? data.Body; // adapt NanoMessageBus
 
 			if (data.Body != null && data.SerializedBody == null)

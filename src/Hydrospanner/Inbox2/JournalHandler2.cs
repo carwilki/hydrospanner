@@ -11,15 +11,16 @@
 	{
 		public void OnNext(WireMessage2 data, long sequence, bool endOfBatch)
 		{
-			data.DuplicateMessage = this.duplicates.Contains(data.WireId);
 			if (data.DuplicateMessage)
-				return;
+				return; // everything hereafter should ignore this message
 
-			data.StreamId = this.identifier.DiscoverStreams(data.Body, data.Headers);
+			if (data.MessageSequence > 0)
+				return; // this message has already been journaled
+
 			data.MessageSequence = ++this.currentSequence;
 
 			this.buffer.Add(data);
-			this.bookmark = Math.Max(data.SourceSequence, this.bookmark); // only works on wire messages
+			this.checkpoint = Math.Max(data.SourceSequence, this.checkpoint); // checkpoint the source message sequence that caused this message
 
 			if (endOfBatch)
 				this.JournalMessages();
@@ -46,7 +47,7 @@
 					builder.AppendFormat(AppendMessage, i);
 				}
 
-				builder.AppendFormat(UpdateBookmark, this.bookmark);
+				builder.AppendFormat(UpdateCheckpoint, this.checkpoint);
 
 				command.Transaction = transaction;
 				command.CommandText = builder.ToString();
@@ -58,10 +59,8 @@
 			}
 		}
 
-		public JournalHandler2(string connectionName, IStreamIdentifier identifier)
+		public JournalHandler2(string connectionName)
 		{
-			this.identifier = identifier;
-
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
 
 			using (var connection = this.settings.OpenConnection())
@@ -74,13 +73,11 @@
 			}
 		}
 
-		private const string AppendMessage = "INSERT INTO [messages] VALUES ( @seq{0}, @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
-		private const string UpdateBookmark = "UPDATE bookmarks SET sequence = {0} WHERE sequence < {0};";
-		private readonly DuplicateStore duplicates = new DuplicateStore(1024 * 64);
+		private const string AppendMessage = "INSERT INTO messages (stream_id, wire_id, payload, headers) VALUES ( @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
+		private const string UpdateCheckpoint = "UPDATE checkpoints SET sequence = {0} WHERE sequence < {0};";
 		private readonly List<WireMessage2> buffer = new List<WireMessage2>();
 		private readonly ConnectionStringSettings settings;
-		private readonly IStreamIdentifier identifier;
 		private long currentSequence;
-		private long bookmark;
+		private long checkpoint;
 	}
 }

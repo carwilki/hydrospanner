@@ -41,6 +41,7 @@
     <Compile Include="Inbox2\DispatchHandler.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Inbox2\IdentificationHandler.cs" />
     <Compile Include="Inbox2\JournalHandler2.cs" />
     <Compile Include="Inbox2\MessageListener2.cs" />
     <Compile Include="Inbox2\SerializationHandler2.cs" />

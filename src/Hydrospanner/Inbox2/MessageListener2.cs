@@ -118,9 +118,6 @@
 		}
 		private void Publish(BasicDeliverEventArgs delivery)
 		{
-			// TODO: de-duplicate already receive messages
-			// TODO: at startup any journaled messages that haven't been ack'd (from bookmark forward), keep track of and de-duplicate
-
 			if (delivery == null)
 				return;
 
@@ -134,8 +131,9 @@
 
 			message.SerializedBody = delivery.Body;
 			message.Headers = ParseHeaders(properties.Headers);
-			message.WireId = GetMessageId(properties.MessageId);
-			message.LocalMessage = false;
+
+			var id = GetMessageId(properties.MessageId);
+			message.WireId = id == Guid.Empty ? Guid.NewGuid() : id;
 
 			var tag = delivery.DeliveryTag;
 
@@ -156,13 +154,13 @@
 			this.ring.Publish(claimed);
 		}
 
-		private static Dictionary<string, string> ParseHeaders(IDictionary wire)
+		private static Dictionary<string, string> ParseHeaders(IDictionary source)
 		{
-			var headers = new Dictionary<string, string>(wire.Count);
-			foreach (var key in wire.Keys)
-				headers[key as string ?? string.Empty] = Encoding.UTF8.GetString(wire[key] as byte[] ?? new byte[0]);
+			var target = new Dictionary<string, string>(source.Count);
+			foreach (var key in source.Keys)
+				target[key as string ?? string.Empty] = Encoding.UTF8.GetString(source[key] as byte[] ?? new byte[0]);
 
-			return headers;
+			return target;
 		}
 		private static Guid GetMessageId(string raw)
 		{
