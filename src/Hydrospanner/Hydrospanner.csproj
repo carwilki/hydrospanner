@@ -46,6 +46,7 @@
     <Compile Include="JournalHandler.cs" />
     <Compile Include="MessageListener.cs" />
     <Compile Include="MessageStore.cs" />
+    <Compile Include="RepositoryHandler.cs" />
     <Compile Include="SerializationHandler.cs" />
     <Compile Include="TransformationHandler.cs" />
     <Compile Include="TransformationMessage.cs" />
