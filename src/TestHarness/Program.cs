@@ -13,7 +13,7 @@
 		{
 		    var inboxPhase = ConfigurePhases();
 
-		    using (var listener = new MessageListener2(inboxPhase.Start()))
+		    using (var listener = new MessageListener(inboxPhase.Start()))
 			{
 				listener.Start();
 				Console.WriteLine("Press enter");
@@ -22,14 +22,14 @@
 			}
 		}
 
-	    private static Disruptor<WireMessage2> ConfigurePhases()
+	    private static Disruptor<WireMessage> ConfigurePhases()
 	    {
-	        var inboxPhase = BuildDisruptor<WireMessage2>();
+	        var inboxPhase = BuildDisruptor<WireMessage>();
 	        inboxPhase
-	            .HandleEventsWith(new SerializationHandler2())
+	            .HandleEventsWith(new SerializationHandler())
 				.Then(new IdentificationHandler(new TestStreamIdentifier(), new DuplicateStore(10000)))
-	            .Then(new JournalHandler2(ConnectionName))
-	            .Then(new AcknowledgementHandler2());
+	            .Then(new JournalHandler(ConnectionName))
+	            .Then(new AcknowledgementHandler());
 	        
             return inboxPhase;
 	    }

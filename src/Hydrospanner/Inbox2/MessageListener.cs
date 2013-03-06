@@ -11,7 +11,7 @@
 	using RabbitMQ.Client.Events;
 	using RabbitMQ.Client.MessagePatterns;
 
-	public class MessageListener2 : IDisposable
+	public class MessageListener : IDisposable
 	{
 		public void Start()
 		{
@@ -179,7 +179,7 @@
 			return new Guid(MessageIdBytes);
 		}
 
-		public MessageListener2(RingBuffer<WireMessage2> ring)
+		public MessageListener(RingBuffer<WireMessage> ring)
 		{
 			this.ring = ring;
 		}
@@ -200,7 +200,7 @@
 		private static readonly int AwaitMessageTimeout = (int)TimeSpan.FromSeconds(1).TotalMilliseconds;
 		private static readonly Uri ServerAddress = new Uri(ConfigurationManager.AppSettings["rabbit-server"]);
 		private static readonly string QueueName = ConfigurationManager.AppSettings["queue-name"];
-		private readonly RingBuffer<WireMessage2> ring;
+		private readonly RingBuffer<WireMessage> ring;
 		private Subscription subscription;
 		private IConnection connection;
 		private IModel channel;

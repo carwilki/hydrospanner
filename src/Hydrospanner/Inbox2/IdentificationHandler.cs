@@ -2,9 +2,9 @@
 {
 	using Disruptor;
 
-	public class IdentificationHandler : IEventHandler<WireMessage2>
+	public class IdentificationHandler : IEventHandler<WireMessage>
 	{
-		public void OnNext(WireMessage2 data, long sequence, bool endOfBatch)
+		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
 			data.DuplicateMessage = this.duplicates.Contains(data.WireId);
 			if (data.DuplicateMessage)

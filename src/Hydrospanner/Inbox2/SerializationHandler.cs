@@ -4,9 +4,9 @@
 	using System.Collections.Generic;
 	using Disruptor;
 
-	public class SerializationHandler2 : IEventHandler<WireMessage2>
+	public class SerializationHandler : IEventHandler<WireMessage>
 	{
-		public void OnNext(WireMessage2 data, long sequence, bool endOfBatch)
+		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
 			if (data.Body == null && data.SerializedBody != null)
 				data.Body = this.serializer.Deserialize<object>(data.SerializedBody);

@@ -7,9 +7,9 @@
 	using System.Text;
 	using Disruptor;
 
-	public class JournalHandler2 : IEventHandler<WireMessage2>
+	public class JournalHandler : IEventHandler<WireMessage>
 	{
-		public void OnNext(WireMessage2 data, long sequence, bool endOfBatch)
+		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
 			if (data.DuplicateMessage)
 				return; // everything hereafter should ignore this message
@@ -59,7 +59,7 @@
 			}
 		}
 
-		public JournalHandler2(string connectionName)
+		public JournalHandler(string connectionName)
 		{
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
 
@@ -75,7 +75,7 @@
 
 		private const string AppendMessage = "INSERT INTO messages (stream_id, wire_id, payload, headers) VALUES ( @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
 		private const string UpdateCheckpoint = "UPDATE checkpoints SET sequence = {0} WHERE sequence < {0};";
-		private readonly List<WireMessage2> buffer = new List<WireMessage2>();
+		private readonly List<WireMessage> buffer = new List<WireMessage>();
 		private readonly ConnectionStringSettings settings;
 		private long currentSequence;
 		private long checkpoint;

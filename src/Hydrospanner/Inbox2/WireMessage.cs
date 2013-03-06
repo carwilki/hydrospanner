@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	public sealed class WireMessage2
+	public sealed class WireMessage
 	{
 		public byte[] SerializedBody { get; set; }
 		public byte[] SerializedHeaders { get; set; }

@@ -9,9 +9,9 @@
 	using Disruptor;
 	using RabbitMQ.Client;
 
-	public class DispatchHandler : IEventHandler<WireMessage2>
+	public class DispatchHandler : IEventHandler<WireMessage>
 	{
-		public void OnNext(WireMessage2 data, long sequence, bool endOfBatch)
+		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
 			if (data.WireId != Guid.Empty)
 				return; // don't send anything that came off the wire
@@ -102,7 +102,7 @@
 
 		private static readonly TimeSpan DelayBeforeReconnect = TimeSpan.FromSeconds(1);
 		private static readonly Uri ServerAddress = new Uri(ConfigurationManager.AppSettings["rabbit-server"]);
-		private readonly List<WireMessage2> buffer = new List<WireMessage2>();
+		private readonly List<WireMessage> buffer = new List<WireMessage>();
 		private IConnection connection;
 		private IModel channel;
 	}
