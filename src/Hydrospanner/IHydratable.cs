@@ -9,8 +9,9 @@
 		IEnumerable<object> GatherMessages();
 	}
 
-	public interface IHydratable<T> : IHydratable
+	public interface IHydratable<T>
 	{
 		void Hydrate(T message, Hashtable headers);
+		IEnumerable<object> GatherMessages();
 	}
 }

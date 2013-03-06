@@ -10,11 +10,8 @@
 			if (data.Body == null && data.SerializedBody != null)
 				data.Body = this.serializer.Deserialize<object>(data.SerializedBody);
 
-			if (!data.LocalMessage) // adapt NanoMessageBus
-				data.Body = (data.Body as object[]) ?? data.Body;
-
-			if (data.Body != null)
-				AdaptNanoMessageBus(data);
+			if (!data.LocalMessage)
+				data.Body = (data.Body as object[]) ?? data.Body; // adapt NanoMessageBus
 
 			if (data.Body != null && data.SerializedBody == null)
 				data.SerializedBody = this.serializer.Serialize(data.Body);
@@ -24,13 +21,7 @@
 			else if (data.Headers != null && data.SerializedHeaders == null)
 				data.SerializedHeaders = this.serializer.Serialize(data.Headers);
 		}
-		private readonly DefaultSerializer serializer = new DefaultSerializer();
 
-		private static void AdaptNanoMessageBus(IMessage data)
-		{
-			var body = data.Body as object[];
-			if (body != null && body.Length > 0)
-				data.Body = body[0];
-		}
+		private readonly DefaultSerializer serializer = new DefaultSerializer();
 	}
 }

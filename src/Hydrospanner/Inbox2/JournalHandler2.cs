@@ -30,7 +30,7 @@
 				// BIG FAT TODO: we need a while loop inside of this transaction to read a slice of the buffer up to X items at once
 				// TODO: aggregate parameters to reduce payload
 
-				var builder = new StringBuilder(this.buffer.Count * InsertStatement.Length);
+				var builder = new StringBuilder(this.buffer.Count * AppendMessage.Length);
 
 				for (var i = 0; i < this.buffer.Count; i++)
 				{
@@ -40,13 +40,10 @@
 					command.WithParameter("@wire{0}".FormatWith(i), item.WireId);
 					command.WithParameter("@payload{0}".FormatWith(i), item.SerializedBody);
 					command.WithParameter("@headers{0}".FormatWith(i), item.SerializedHeaders);
-					builder.AppendFormat(InsertStatement, i);
+					builder.AppendFormat(AppendMessage, i);
 				}
 
-				if (this.maxBookmark > 0)
-					builder.AppendFormat("UPDATE bookmarks SET sequence = {0} WHERE sequence < {0}; INSERT INTO bookmarks SELECT {0} WHERE @@rowcount = 0;", this.maxBookmark);
-
-				// update bookmark to max SourceMessageId value detected
+				builder.AppendFormat(UpdateBookmark, this.maxBookmark);
 
 				command.Transaction = transaction;
 				command.CommandText = builder.ToString();
@@ -74,7 +71,8 @@
 			}
 		}
 
-		private const string InsertStatement = "INSERT INTO [messages] VALUES ( @seq{0}, @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
+		private const string AppendMessage = "INSERT INTO [messages] VALUES ( @seq{0}, @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
+		private const string UpdateBookmark = "UPDATE bookmarks SET sequence = {0} WHERE sequence < {0} AND {0} > 0; INSERT INTO bookmarks SELECT {0} WHERE @@rowcount = 0; );\n";
 		private readonly List<WireMessage2> buffer = new List<WireMessage2>();
 		private readonly ConnectionStringSettings settings;
 		private readonly IStreamIdentifier<object> identifier;

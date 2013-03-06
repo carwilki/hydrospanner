@@ -34,7 +34,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Extensions.cs" />
-    <Compile Include="IMessage.cs" />
     <Compile Include="Inbox2\ExtensionMethods.cs" />
     <Compile Include="Inbox2\JournalHandler2.cs" />
     <Compile Include="Inbox2\MessageListener2.cs" />
