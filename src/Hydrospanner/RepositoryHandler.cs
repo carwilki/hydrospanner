@@ -38,6 +38,7 @@
 						message.Hydratables = this.cache[streamId];
 						message.SerializedBody = reader[1] as byte[];
 						message.SerializedHeaders = reader[2] as byte[];
+						message.Replay = true;
 
 						this.ring.Publish(claimed);
 					}
@@ -52,7 +53,7 @@
 				message.Headers = item.Headers;
 				message.MessageSequence = item.MessageSequence;
 				message.Hydratables = this.cache[item.StreamId];
-				message.Replay = item.MessageSequence <= this.checkpoint;
+				message.Replay = false;
 
 				this.ring.Publish(claimed);
 			}
@@ -76,10 +77,9 @@
 			return identifiers.Substring(0, identifiers.Length - 1);
 		}
 
-		public RepositoryHandler(RingBuffer<TransformationMessage> ring, string connectionName, long checkpoint, Func<Guid, IHydratable[]> factory)
+		public RepositoryHandler(RingBuffer<TransformationMessage> ring, string connectionName, Func<Guid, IHydratable[]> factory)
 		{
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
-			this.checkpoint = checkpoint;
 			this.factory = factory;
 			this.ring = ring;
 		}
@@ -90,6 +90,5 @@
 		private readonly RingBuffer<TransformationMessage> ring;
 		private readonly ConnectionStringSettings settings;
 		private readonly Func<Guid, IHydratable[]> factory;
-		private long checkpoint;
 	}
 }

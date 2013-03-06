@@ -17,23 +17,25 @@
 		}
 		public byte[] Serialize(object graph)
 		{
+			if (graph == null)
+				return new byte[0];
+
 			using (var stream = new MemoryStream())
 			using (var streamWriter = new StreamWriter(stream, DefaultEncoding))
-			using (var jsonWriter = new JsonTextWriter(streamWriter))
 			{
-				this.serializer.Serialize(jsonWriter, graph);
-				stream.Position = 0;
+				using (var jsonWriter = new JsonTextWriter(streamWriter))
+					this.serializer.Serialize(jsonWriter, graph);
+
 				return stream.ToArray();
 			}
-		}
-		private static object AdaptNanoMessageBus(object message)
-		{
-			return (message as object[]) ?? message;
 		}
 
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
 		private readonly JsonSerializer serializer = new JsonSerializer
 		{
+#if DEBUG
+			Formatting = Formatting.Indented,
+#endif
 			TypeNameHandling = TypeNameHandling.All,
 			TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
 			DefaultValueHandling = DefaultValueHandling.Ignore,

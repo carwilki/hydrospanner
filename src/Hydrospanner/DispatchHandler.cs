@@ -86,13 +86,14 @@
 			foreach (var message in this.buffer)
 			{
 				var properties = this.channel.CreateBasicProperties();
+				properties.Headers = new Hashtable();
 				CopyHeaders(message.Headers, properties.Headers);
 
 				// TODO: 16-bytes: 4-byte node ID + 8-byte message sequence...
 				properties.MessageId = message.MessageSequence.ToString(CultureInfo.InvariantCulture); // deterministic
 
 				var exchange = message.Body.GetType().FullName.ToLower().Replace(".", "-"); // NanoMessageBus convention
-				this.channel.BasicPublish(exchange, null, false, false, properties, message.SerializedBody);
+				this.channel.BasicPublish(exchange, string.Empty, false, false, properties, message.SerializedBody);
 			}
 
 			this.channel.TxCommit(); // circuit breaker pattern

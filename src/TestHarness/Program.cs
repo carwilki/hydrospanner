@@ -38,7 +38,7 @@
 		{
 			var @event = new AccountClosedEvent
 			{
-				AccountId = Guid.NewGuid(),
+				AccountId = this.accountId,
 				Description = "Hello, World!",
 				Dispatched = DateTime.UtcNow,
 				MessageId = Guid.NewGuid(),

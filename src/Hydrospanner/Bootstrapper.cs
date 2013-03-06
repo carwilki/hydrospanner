@@ -22,29 +22,10 @@
 				foreach (var item in keys)
 					this.duplicates.Contains(item);
 
-				long checkpoint = 0;
-				var outstanding = this.storage.LoadSinceCheckpoint();
-				if (outstanding.Count > 0)
-					checkpoint = outstanding[0].Sequence - 1;
-
-				var repository = new RepositoryHandler(this.transformationDisruptor.RingBuffer, this.settings.Name, checkpoint, factory);
-
-				this.journalDisruptor
-				    .HandleEventsWith(new SerializationHandler())
-				    .Then(new IdentificationHandler(identifier, this.duplicates))
-				    .Then(new JournalHandler(this.settings.Name))
-					////.Then(new DispatchHandler(), repository, new AcknowledgementHandler());
-				    .Then(new DispatchHandler())
-				    .Then(repository)
-				    .Then(new AcknowledgementHandler());
-
-				this.transformationDisruptor
-					.HandleEventsWith(new SerializationHandler())
-					.Then(new TransformationHandler(this.journalDisruptor.RingBuffer));
-
 				this.transformationDisruptor.Start();
 				var ring = this.journalDisruptor.Start();
 
+				var outstanding = this.storage.LoadSinceCheckpoint();
 				foreach (var message in outstanding)
 					PublishToRing(ring, message);
 
@@ -77,6 +58,19 @@
 			this.journalDisruptor = BuildDisruptor<WireMessage>();
 			this.transformationDisruptor = BuildDisruptor<TransformationMessage>();
 			this.listener = new MessageListener(this.journalDisruptor.RingBuffer);
+
+			this.journalDisruptor
+				.HandleEventsWith(new SerializationHandler())
+				.Then(new IdentificationHandler(identifier, this.duplicates))
+				.Then(new JournalHandler(this.settings.Name))
+				////.Then(new DispatchHandler(), repository, new AcknowledgementHandler());
+				.Then(new DispatchHandler())
+				.Then(new RepositoryHandler(this.transformationDisruptor.RingBuffer, this.settings.Name, factory))
+				.Then(new AcknowledgementHandler());
+
+			this.transformationDisruptor
+				.HandleEventsWith(new SerializationHandler())
+				.Then(new TransformationHandler(this.journalDisruptor.RingBuffer));
 		}
 		private static Disruptor<T> BuildDisruptor<T>() where T : class, new()
 		{
