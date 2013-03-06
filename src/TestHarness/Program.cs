@@ -1,11 +1,9 @@
 ﻿namespace TestHarness
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Threading.Tasks;
 	using Disruptor;
 	using Disruptor.Dsl;
-	using Hydrospanner;
 	using Hydrospanner.Inbox2;
 
 	internal static class Program

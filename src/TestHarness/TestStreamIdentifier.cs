@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using Hydrospanner;
 
-    public class TestStreamIdentifier : IStreamIdentifier<object>
+    public class TestStreamIdentifier : IStreamIdentifier
     {
         public Guid DiscoverStreams(object message, Dictionary<string, string> headers)
         {

@@ -58,7 +58,7 @@
 			}
 		}
 
-		public JournalHandler2(string connectionName, IStreamIdentifier<object> identifier)
+		public JournalHandler2(string connectionName, IStreamIdentifier identifier)
 		{
 			this.identifier = identifier;
 
@@ -79,7 +79,7 @@
 		private readonly DuplicateStore duplicates = new DuplicateStore(1024 * 64);
 		private readonly List<WireMessage2> buffer = new List<WireMessage2>();
 		private readonly ConnectionStringSettings settings;
-		private readonly IStreamIdentifier<object> identifier;
+		private readonly IStreamIdentifier identifier;
 		private long currentSequence;
 		private long bookmark;
 	}
