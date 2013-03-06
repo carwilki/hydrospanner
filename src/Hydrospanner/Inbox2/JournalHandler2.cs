@@ -15,11 +15,11 @@
 			if (data.DuplicateMessage)
 				return;
 
-			this.buffer.Add(data);
-			this.maxBookmark = Math.Max(data.SourceSequence, this.maxBookmark);
-
 			data.StreamId = this.identifier.DiscoverStreams(data.Body, data.Headers);
 			data.MessageSequence = ++this.currentSequence;
+
+			this.buffer.Add(data);
+			this.bookmark = Math.Max(data.SourceSequence, this.bookmark); // only works on wire messages
 
 			if (endOfBatch)
 				this.JournalMessages();
@@ -46,7 +46,7 @@
 					builder.AppendFormat(AppendMessage, i);
 				}
 
-				builder.AppendFormat(UpdateBookmark, this.maxBookmark);
+				builder.AppendFormat(UpdateBookmark, this.bookmark);
 
 				command.Transaction = transaction;
 				command.CommandText = builder.ToString();
@@ -75,12 +75,12 @@
 		}
 
 		private const string AppendMessage = "INSERT INTO [messages] VALUES ( @seq{0}, @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
-		private const string UpdateBookmark = "UPDATE bookmarks SET sequence = {0} WHERE sequence < {0} AND {0} > 0; INSERT INTO bookmarks SELECT {0} WHERE @@rowcount = 0; );\n";
+		private const string UpdateBookmark = "UPDATE bookmarks SET sequence = {0} WHERE sequence < {0};";
 		private readonly DuplicateStore duplicates = new DuplicateStore(1024 * 64);
 		private readonly List<WireMessage2> buffer = new List<WireMessage2>();
 		private readonly ConnectionStringSettings settings;
 		private readonly IStreamIdentifier<object> identifier;
 		private long currentSequence;
-		private long maxBookmark;
+		private long bookmark;
 	}
 }

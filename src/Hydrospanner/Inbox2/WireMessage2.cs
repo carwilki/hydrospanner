@@ -22,7 +22,6 @@
 
 		public void Clear()
 		{
-
 			this.SerializedBody = null;
 			this.SerializedHeaders = null;
 			this.Body = null;
