@@ -34,6 +34,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Extensions.cs" />
+    <Compile Include="IMessage.cs" />
+    <Compile Include="Inbox2\ExtensionMethods.cs" />
+    <Compile Include="Inbox2\JournalHandler2.cs" />
+    <Compile Include="Inbox2\MessageListener2.cs" />
+    <Compile Include="Inbox2\SerializationHandler2.cs" />
+    <Compile Include="Inbox2\WireMessage2.cs" />
     <Compile Include="Inbox\AcknowledgementHandler.cs" />
     <Compile Include="Inbox\ExtensionMethods.cs" />
     <Compile Include="Inbox\InboxDeserializationHandler.cs" />
