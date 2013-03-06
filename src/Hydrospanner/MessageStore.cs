@@ -46,9 +46,10 @@
 					while (reader.Read())
 						messages.Add(new JournaledMessage
 						{
-							WireId = reader.GetGuid(0),
-							SerializedBody = reader[1] as byte[],
-							SerializedHeaders = reader[2] as byte[]
+							Sequence = reader.GetInt64(0),
+							WireId = reader.GetGuid(1),
+							SerializedBody = reader[2] as byte[],
+							SerializedHeaders = reader[3] as byte[]
 						});
 
 					return messages;

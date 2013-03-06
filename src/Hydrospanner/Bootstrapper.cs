@@ -30,10 +30,13 @@
 				var repository = new RepositoryHandler(this.transformationDisruptor.RingBuffer, this.settings.Name, checkpoint, factory);
 
 				this.journalDisruptor
-					.HandleEventsWith(new SerializationHandler())
-					.Then(new IdentificationHandler(identifier, this.duplicates))
-					.Then(new JournalHandler(this.settings.Name))
-					.Then(new DispatchHandler(), repository, new AcknowledgementHandler());
+				    .HandleEventsWith(new SerializationHandler())
+				    .Then(new IdentificationHandler(identifier, this.duplicates))
+				    .Then(new JournalHandler(this.settings.Name))
+					////.Then(new DispatchHandler(), repository, new AcknowledgementHandler());
+				    .Then(new DispatchHandler())
+				    .Then(repository)
+				    .Then(new AcknowledgementHandler());
 
 				this.transformationDisruptor
 					.HandleEventsWith(new SerializationHandler())
@@ -45,7 +48,7 @@
 				foreach (var message in outstanding)
 					PublishToRing(ring, message);
 
-				this.listener.Start();
+				// this.listener.Start();
 			}).Start();
 		}
 		private static void PublishToRing(RingBuffer<WireMessage> ring, JournaledMessage journaled)
