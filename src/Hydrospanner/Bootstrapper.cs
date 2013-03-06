@@ -14,32 +14,33 @@
 			if (this.started)
 				return;
 
+			this.started = true;
+
 			new Thread(() =>
 			{
 				var keys = this.storage.LoadWireIdentifiers(MaxDuplicates);
 				foreach (var item in keys)
 					this.duplicates.Contains(item);
 
-				this.checkpointAtStartup = 0; // TODO (grab from storage)
-
 				var ring = this.input.Start();
 				var outstanding = this.storage.LoadSinceCheckpoint();
 
-				for (var i = 0; i < outstanding.Count; i++)
-					PublishToRing(ring, outstanding[i], this.checkpointAtStartup + i + 1);
+				if (outstanding.Count > 0)
+					this.checkpointAtStartup = outstanding[0].Sequence - 1;
 
-				// this.listener.Start();
+				foreach (var message in outstanding)
+					PublishToRing(ring, message);
+
+				this.listener.Start();
 			}).Start();
-
-			this.started = true;
 		}
-		private static void PublishToRing(RingBuffer<WireMessage> ring, JournaledMessage journaled, long sequence)
+		private static void PublishToRing(RingBuffer<WireMessage> ring, JournaledMessage journaled)
 		{
 			var claimed = ring.Next();
 			var message = ring[claimed];
 			message.Clear();
 
-			message.MessageSequence = sequence;
+			message.MessageSequence = journaled.Sequence;
 			message.WireId = journaled.WireId;
 			message.SerializedBody = journaled.SerializedBody;
 			message.SerializedHeaders = journaled.SerializedHeaders;
@@ -96,6 +97,6 @@
 		private readonly Disruptor<WireMessage> input;
 		private readonly MessageListener listener;
 		private bool started;
-		private long checkpointAtStartup;
+		private long checkpointAtStartup; // now we know if a given message has been handled before or if it's the first occurrence.
 	}
 }

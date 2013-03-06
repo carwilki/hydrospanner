@@ -5,9 +5,6 @@
 
 	public class DuplicateStore
 	{
-		// TODO: At startup, populate this object instance X wire IDs all the way up to and including the checkpoint.
-		// *DO NOT* include any wire IDs after the checkpoint because this will prevent those from ever being handled.
-
 		public bool Contains(Guid key)
 		{
 			if (key == Guid.Empty)
