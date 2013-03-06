@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Bootstrapper.cs" />
     <Compile Include="DuplicateStore.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="AcknowledgementHandler.cs">
@@ -44,6 +45,7 @@
     <Compile Include="IdentificationHandler.cs" />
     <Compile Include="JournalHandler.cs" />
     <Compile Include="MessageListener.cs" />
+    <Compile Include="MessageStore.cs" />
     <Compile Include="SerializationHandler.cs" />
     <Compile Include="WireMessage.cs" />
     <Compile Include="IHydratable.cs" />

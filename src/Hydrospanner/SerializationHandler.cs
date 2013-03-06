@@ -18,7 +18,7 @@
 				data.SerializedBody = this.serializer.Serialize(data.Body);
 
 			if (data.Headers == null && data.SerializedHeaders != null)
-				data.Headers = this.serializer.Deserialize<Dictionary<string, string>>(data.SerializedHeaders);
+				data.Headers = this.serializer.Deserialize<Dictionary<string, string>>(data.SerializedHeaders) ?? new Dictionary<string, string>();
 			else if (data.Headers != null && data.SerializedHeaders == null)
 				data.SerializedHeaders = this.serializer.Serialize(data.Headers);
 		}

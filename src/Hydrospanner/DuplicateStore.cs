@@ -24,7 +24,7 @@
 
 		public DuplicateStore(int capacity)
 		{
-			if (this.capacity <= 0 || capacity > (int.MaxValue - 16))
+			if (capacity <= 0 || capacity > (int.MaxValue - 16))
 				throw new ArgumentOutOfRangeException("capacity");
 
 			this.window = new Guid[capacity];
@@ -34,6 +34,6 @@
 		private readonly HashSet<Guid> hash = new HashSet<Guid>();
 		private readonly Guid[] window;
 		private readonly int capacity;
-		private int index;
+		private int index  = -1;
 	}
 }

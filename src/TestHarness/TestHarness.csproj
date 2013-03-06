@@ -54,15 +54,6 @@
     <Reference Include="Accounting.Events">
       <HintPath>R:\qad\Accounting\4.0.13045.20\Accounting.AuthenticationHost\Accounting.Events.dll</HintPath>
     </Reference>
-    <Reference Include="Atomic">
-      <HintPath>..\packages\Disruptor.1.1.0\lib\net40\Atomic.dll</HintPath>
-    </Reference>
-    <Reference Include="Disruptor">
-      <HintPath>..\packages\Disruptor.1.1.0\lib\net40\Disruptor.dll</HintPath>
-    </Reference>
-    <Reference Include="Disruptor.Scheduler">
-      <HintPath>..\packages\Disruptor.1.1.0\lib\net40\Disruptor.Scheduler.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
