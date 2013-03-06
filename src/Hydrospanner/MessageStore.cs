@@ -64,7 +64,6 @@
 		private const string IdentifiersUpToCheckpoint = "SELECT wire_id FROM messages WHERE sequence BETWEEN (SELECT MAX(sequence) FROM checkpoints) AND (SELECT MAX(sequence) - {0} FROM checkpoints) AND wire_id IS NOT NULL;";
 		private const string MessagesSinceCheckpoint = "SELECT sequence, wire_id, payload, headers FROM messages WHERE sequence > (SELECT sequence FROM checkpoints);";
 		private readonly ConnectionStringSettings settings;
-		
 	}
 	
 	public sealed class JournaledMessage

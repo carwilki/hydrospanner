@@ -47,6 +47,8 @@
     <Compile Include="MessageListener.cs" />
     <Compile Include="MessageStore.cs" />
     <Compile Include="SerializationHandler.cs" />
+    <Compile Include="TransformationHandler.cs" />
+    <Compile Include="TransformationMessage.cs" />
     <Compile Include="WireMessage.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="IStreamIdentifier.cs" />

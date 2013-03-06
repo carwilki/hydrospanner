@@ -12,7 +12,7 @@
 
 		public bool DuplicateMessage { get; set; }
 		public Guid StreamId { get; set; }
-		public Guid WireId { get; set; } // used for de-duplication
+		public Guid WireId { get; set; } // used for de-duplication; indicates a message originated from an external source
 
 		public long SourceSequence { get; set; } // the sequence of the message from which *this* message originated (for checkpoint purposes)
 		public long MessageSequence { get; set; } // the unique ID for this message
