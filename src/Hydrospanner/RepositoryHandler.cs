@@ -52,7 +52,7 @@
 				message.Headers = item.Headers;
 				message.MessageSequence = item.MessageSequence;
 				message.Hydratables = this.cache[item.StreamId];
-				message.Replay = item.MessageSequence > this.checkpoint;
+				message.Replay = item.MessageSequence <= this.checkpoint;
 
 				this.ring.Publish(claimed);
 			}

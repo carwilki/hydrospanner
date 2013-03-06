@@ -12,15 +12,16 @@
 		{
 			using (var stream = new MemoryStream(serialized))
 			using (var streamReader = new StreamReader(stream, DefaultEncoding))
-			using (new JsonTextReader(streamReader))
-				return this.serializer.Deserialize<T>(new JsonTextReader(streamReader));
+			using (var jsonReader = new JsonTextReader(streamReader))
+				return this.serializer.Deserialize<T>(jsonReader);
 		}
 		public byte[] Serialize(object graph)
 		{
 			using (var stream = new MemoryStream())
-			using (var writer = new StreamWriter(stream, DefaultEncoding))
+			using (var streamWriter = new StreamWriter(stream, DefaultEncoding))
+			using (var jsonWriter = new JsonTextWriter(streamWriter))
 			{
-				this.serializer.Serialize(writer, graph);
+				this.serializer.Serialize(jsonWriter, graph);
 				stream.Position = 0;
 				return stream.ToArray();
 			}
@@ -31,7 +32,7 @@
 		}
 
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
-		private readonly Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer
+		private readonly JsonSerializer serializer = new JsonSerializer
 		{
 			TypeNameHandling = TypeNameHandling.All,
 			TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,

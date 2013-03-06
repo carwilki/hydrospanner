@@ -28,7 +28,7 @@
 
 				try
 				{
-					for (var i = 0; i < 1000; i++)
+					for (var i = 0; i < 1; i++)
 					{
 						properties.MessageId = (i + 1).ToString();
 

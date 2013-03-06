@@ -48,7 +48,7 @@
 				foreach (var message in outstanding)
 					PublishToRing(ring, message);
 
-				// this.listener.Start();
+				this.listener.Start();
 			}).Start();
 		}
 		private static void PublishToRing(RingBuffer<WireMessage> ring, JournaledMessage journaled)
