@@ -19,14 +19,12 @@
 
 			data.MessageSequence = ++this.currentSequence;
 
-			return;
-
 			this.buffer.Add(data);
 
 			// checkpoint the source message sequence that caused this message
 			this.transformationCheckpoint = Math.Max(data.SourceSequence, this.transformationCheckpoint);
 
-			if (endOfBatch)
+			if (endOfBatch || this.buffer.Count >= 420) // TODO: don't limit buffer size here
 				this.JournalMessages();
 		}
 		private void JournalMessages()

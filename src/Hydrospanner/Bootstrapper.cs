@@ -86,8 +86,8 @@
 		{
 			return new Disruptor<T>(
 				() => new T(),
-				new SingleThreadedClaimStrategy(PreallocatedSize), 
-				new SleepingWaitStrategy(),
+				new SingleThreadedClaimStrategy(PreallocatedSize),
+				new YieldingWaitStrategy(), // different strategies drastically affect latency
 				TaskScheduler.Default);
 		}
 
