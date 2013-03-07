@@ -23,27 +23,30 @@
 			if (!endOfBatch)
 				return;
 
-			using (var connection = this.settings.OpenConnection())
-			using (var command = connection.CreateCommand())
+			if (this.missingStreams.Count > 0)
 			{
-				command.CommandText = "SELECT stream_id, payload, headers FROM messages WHERE sequence <= (SELECT sequence FROM checkpoints) AND stream_id IN ({0});".FormatWith(this.GetUncachedStreamIdentifiers());
-				using (var reader = command.ExecuteReader())
+				using (var connection = this.settings.OpenConnection())
+				using (var command = connection.CreateCommand())
 				{
-					if (reader == null)
-						return;
-
-					while (reader.Read())
+					command.CommandText = "SELECT stream_id, payload, headers FROM messages WHERE sequence <= (SELECT sequence FROM checkpoints) AND stream_id IN ({0});".FormatWith(this.GetUncachedStreamIdentifiers());
+					using (var reader = command.ExecuteReader())
 					{
-						var claimed = this.ring.Next();
-						var message = this.ring[claimed];
+						if (reader == null)
+							return;
 
-						var streamId = reader.GetGuid(0);
-						message.Hydratables = this.cache[streamId];
-						message.SerializedBody = reader[1] as byte[];
-						message.SerializedHeaders = reader[2] as byte[];
-						message.Replay = true;
+						while (reader.Read())
+						{
+							var claimed = this.ring.Next();
+							var message = this.ring[claimed];
 
-						this.ring.Publish(claimed);
+							var streamId = reader.GetGuid(0);
+							message.Hydratables = this.cache[streamId];
+							message.SerializedBody = reader[1] as byte[];
+							message.SerializedHeaders = reader[2] as byte[];
+							message.Replay = true;
+
+							this.ring.Publish(claimed);
+						}
 					}
 				}
 			}
@@ -65,9 +68,6 @@
 		}
 		private string GetUncachedStreamIdentifiers()
 		{
-			if (this.missingStreams.Count == 0)
-				return string.Empty;
-
 			var builder = new StringBuilder();
 
 			foreach (var stream in this.missingStreams)
@@ -75,6 +75,8 @@
 				builder.AppendFormat("'{0}',", stream);
 				this.cache[stream] = this.factory(stream);
 			}
+
+			this.missingStreams.Clear();
 
 			var identifiers = builder.ToString();
 			return identifiers.Substring(0, identifiers.Length - 1);

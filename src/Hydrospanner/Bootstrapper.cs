@@ -30,11 +30,11 @@
 				var repo = new RepositoryHandler(this.transformationDisruptor.RingBuffer, this.settings.Name, transformationCheckpoint, factory);
 
 				this.journalDisruptor
-					.HandleEventsWith(new SerializationHandler())
-					.Then(new IdentificationHandler(identifier, this.duplicates))
-					.Then(new JournalHandler(this.settings.Name, maxSequence))
-					.Then(new ForwardToDispatchHandler(this.dispatchDisruptor.RingBuffer), repo, new AcknowledgementHandler())
-					.Then(new AcknowledgementHandler());
+				    .HandleEventsWith(new SerializationHandler())
+				    .Then(new IdentificationHandler(identifier, this.duplicates))
+				    .Then(new JournalHandler(this.settings.Name, maxSequence))
+				    ////.Then(repo);
+					.Then(new ForwardToDispatchHandler(this.dispatchDisruptor.RingBuffer), repo, new AcknowledgementHandler());
 
 				this.dispatchDisruptor
 				    .HandleEventsWith(new DispatchHandler(dispatchCheckpoint)); // TODO: update dispatch checkpoint
