@@ -31,11 +31,10 @@
 	{
 		public void Hydrate(object message, Dictionary<string, string> headers, bool replay)
 		{
-			if (this.counter++ % 100 == 0)
+			if (this.counter++ % 1000 == 0)
 				Console.WriteLine(this.counter - 1);
 
-			var closed = message as AccountClosedEvent;
-			this.accountId = closed.AccountId;
+			this.accountId = ((AccountClosedEvent)message).AccountId;
 		}
 		public IEnumerable<object> GatherMessages()
 		{

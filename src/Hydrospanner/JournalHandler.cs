@@ -19,6 +19,8 @@
 
 			data.MessageSequence = ++this.currentSequence;
 
+			return;
+
 			this.buffer.Add(data);
 
 			// checkpoint the source message sequence that caused this message

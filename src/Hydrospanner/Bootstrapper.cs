@@ -33,17 +33,17 @@
 				    .HandleEventsWith(new SerializationHandler())
 				    .Then(new IdentificationHandler(identifier, this.duplicates))
 				    .Then(new JournalHandler(this.settings.Name, maxSequence))
-				    ////.Then(repo);
-					.Then(new ForwardToDispatchHandler(this.dispatchDisruptor.RingBuffer), repo, new AcknowledgementHandler());
+				    .Then(repo);
+					////.Then(new ForwardToDispatchHandler(this.dispatchDisruptor.RingBuffer), repo, new AcknowledgementHandler());
 
-				this.dispatchDisruptor
-				    .HandleEventsWith(new DispatchHandler(dispatchCheckpoint)); // TODO: update dispatch checkpoint
+				////this.dispatchDisruptor
+				////	.HandleEventsWith(new DispatchHandler(dispatchCheckpoint)); // TODO: update dispatch checkpoint
 
 				this.transformationDisruptor
 					.HandleEventsWith(new SerializationHandler())
 					.Then(new TransformationHandler(this.journalDisruptor.RingBuffer));
 
-				this.dispatchDisruptor.Start();
+				////this.dispatchDisruptor.Start();
 				this.transformationDisruptor.Start();
 				var ring = this.journalDisruptor.Start();
 
@@ -79,7 +79,7 @@
 
 			this.journalDisruptor = BuildDisruptor<WireMessage>();
 			this.transformationDisruptor = BuildDisruptor<TransformationMessage>();
-			this.dispatchDisruptor = BuildDisruptor<DispatchMessage>();
+			////this.dispatchDisruptor = BuildDisruptor<DispatchMessage>();
 			this.listener = new MessageListener(this.journalDisruptor.RingBuffer);
 		}
 		private static Disruptor<T> BuildDisruptor<T>() where T : class, new()
@@ -106,20 +106,20 @@
 
 			this.started = false;
 			this.listener.Stop();
-			Thread.Sleep(TimeSpan.FromSeconds(2)); // TODO: optimize this
+			//// Thread.Sleep(TimeSpan.FromSeconds(2)); // TODO: optimize this
 			this.journalDisruptor.Shutdown();
 			this.transformationDisruptor.Shutdown();
-			this.dispatchDisruptor.Shutdown();
+			////this.dispatchDisruptor.Shutdown();
 		}
 
-		private const int MaxDuplicates = 1024 * 32;
-		private const int PreallocatedSize = 1024 * 16;
+		private const int MaxDuplicates = 1024;
+		private const int PreallocatedSize = 1024;
 		private readonly ConnectionStringSettings settings;
 		private readonly MessageStore storage;
 		private readonly DuplicateStore duplicates;
 		private readonly Disruptor<WireMessage> journalDisruptor;
 		private readonly Disruptor<TransformationMessage> transformationDisruptor;
-		private readonly Disruptor<DispatchMessage> dispatchDisruptor;
+		////private readonly Disruptor<DispatchMessage> dispatchDisruptor;
 		private readonly MessageListener listener;
 		private readonly IStreamIdentifier identifier;
 		private readonly Func<Guid, IHydratable[]> factory;
