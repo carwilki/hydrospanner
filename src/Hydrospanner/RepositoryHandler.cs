@@ -13,6 +13,9 @@
 			if (data.DuplicateMessage)
 				return;
 
+			if (this.transformationCheckpoint > data.MessageSequence)
+				return; // already handled
+
 			if (!this.cache.ContainsKey(data.StreamId))
 				this.missingStreams.Add(data.StreamId);
 
@@ -77,11 +80,16 @@
 			return identifiers.Substring(0, identifiers.Length - 1);
 		}
 
-		public RepositoryHandler(RingBuffer<TransformationMessage> ring, string connectionName, Func<Guid, IHydratable[]> factory)
+		public RepositoryHandler(
+			RingBuffer<TransformationMessage> ring,
+			string connectionName,
+			long transformationCheckpoint,
+			Func<Guid, IHydratable[]> factory)
 		{
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
 			this.factory = factory;
 			this.ring = ring;
+			this.transformationCheckpoint = transformationCheckpoint;
 		}
 
 		private readonly Dictionary<Guid, IHydratable[]> cache = new Dictionary<Guid, IHydratable[]>(); // TODO: MRU
@@ -90,5 +98,6 @@
 		private readonly RingBuffer<TransformationMessage> ring;
 		private readonly ConnectionStringSettings settings;
 		private readonly Func<Guid, IHydratable[]> factory;
+		private readonly long transformationCheckpoint;
 	}
 }

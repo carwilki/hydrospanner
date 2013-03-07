@@ -9,12 +9,12 @@
 	using Disruptor;
 	using RabbitMQ.Client;
 
-	public class DispatchHandler : IEventHandler<WireMessage>
+	public class DispatchHandler : IEventHandler<DispatchMessage>
 	{
-		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
+		public void OnNext(DispatchMessage data, long sequence, bool endOfBatch)
 		{
-			if (data.WireId != Guid.Empty)
-				return; // don't send anything that came off the wire
+			if (this.dispatchCheckpoint >= data.MessageSequence)
+				return; // already published
 
 			this.buffer.Add(data);
 
@@ -104,9 +104,15 @@
 				target[item.Key] = item.Value;
 		}
 
+		public DispatchHandler(long dispatchCheckpoint)
+		{
+			this.dispatchCheckpoint = dispatchCheckpoint;
+		}
+
 		private static readonly TimeSpan DelayBeforeReconnect = TimeSpan.FromSeconds(1);
 		private static readonly Uri ServerAddress = new Uri(ConfigurationManager.AppSettings["rabbit-server"]);
-		private readonly List<WireMessage> buffer = new List<WireMessage>();
+		private readonly List<DispatchMessage> buffer = new List<DispatchMessage>();
+		private readonly long dispatchCheckpoint;
 		private IConnection connection;
 		private IModel channel;
 	}

@@ -22,10 +22,32 @@
 				foreach (var item in keys)
 					this.duplicates.Contains(item);
 
+				var maxSequence = this.storage.LoadMaxSequence();
+				var transformationCheckpoint = this.storage.LoadTransformationCheckpoint();
+				var dispatchCheckpoint = this.storage.LoadTransformationCheckpoint();
+				var minCheckpoint = Math.Min(transformationCheckpoint, dispatchCheckpoint);
+
+				var repo = new RepositoryHandler(this.transformationDisruptor.RingBuffer, this.settings.Name, transformationCheckpoint, factory);
+
+				this.journalDisruptor
+					.HandleEventsWith(new SerializationHandler())
+					.Then(new IdentificationHandler(identifier, this.duplicates))
+					.Then(new JournalHandler(this.settings.Name, maxSequence))
+					.Then(new ForwardToDispatchHandler(this.dispatchDisruptor.RingBuffer), repo, new AcknowledgementHandler())
+					.Then(new AcknowledgementHandler());
+
+				this.dispatchDisruptor
+				    .HandleEventsWith(new DispatchHandler(dispatchCheckpoint)); // TODO: update dispatch checkpoint
+
+				this.transformationDisruptor
+					.HandleEventsWith(new SerializationHandler())
+					.Then(new TransformationHandler(this.journalDisruptor.RingBuffer));
+
+				this.dispatchDisruptor.Start();
 				this.transformationDisruptor.Start();
 				var ring = this.journalDisruptor.Start();
 
-				var outstanding = this.storage.LoadSinceCheckpoint();
+				var outstanding = this.storage.LoadSinceCheckpoint(minCheckpoint);
 				foreach (var message in outstanding)
 					PublishToRing(ring, message);
 
@@ -57,20 +79,8 @@
 
 			this.journalDisruptor = BuildDisruptor<WireMessage>();
 			this.transformationDisruptor = BuildDisruptor<TransformationMessage>();
+			this.dispatchDisruptor = BuildDisruptor<DispatchMessage>();
 			this.listener = new MessageListener(this.journalDisruptor.RingBuffer);
-
-			this.journalDisruptor
-				.HandleEventsWith(new SerializationHandler())
-				.Then(new IdentificationHandler(identifier, this.duplicates))
-				.Then(new JournalHandler(this.settings.Name))
-				////.Then(new DispatchHandler(), repository, new AcknowledgementHandler());
-				.Then(new DispatchHandler())
-				.Then(new RepositoryHandler(this.transformationDisruptor.RingBuffer, this.settings.Name, factory))
-				.Then(new AcknowledgementHandler());
-
-			this.transformationDisruptor
-				.HandleEventsWith(new SerializationHandler())
-				.Then(new TransformationHandler(this.journalDisruptor.RingBuffer));
 		}
 		private static Disruptor<T> BuildDisruptor<T>() where T : class, new()
 		{
@@ -96,9 +106,10 @@
 
 			this.started = false;
 			this.listener.Stop();
-			Thread.Sleep(TimeSpan.FromSeconds(1)); // TODO: optimize this
+			Thread.Sleep(TimeSpan.FromSeconds(2)); // TODO: optimize this
 			this.journalDisruptor.Shutdown();
 			this.transformationDisruptor.Shutdown();
+			this.dispatchDisruptor.Shutdown();
 		}
 
 		private const int MaxDuplicates = 1024 * 32;
@@ -108,6 +119,7 @@
 		private readonly DuplicateStore duplicates;
 		private readonly Disruptor<WireMessage> journalDisruptor;
 		private readonly Disruptor<TransformationMessage> transformationDisruptor;
+		private readonly Disruptor<DispatchMessage> dispatchDisruptor;
 		private readonly MessageListener listener;
 		private readonly IStreamIdentifier identifier;
 		private readonly Func<Guid, IHydratable[]> factory;

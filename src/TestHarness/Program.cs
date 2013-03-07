@@ -31,8 +31,8 @@
 	{
 		public void Hydrate(object message, Dictionary<string, string> headers, bool replay)
 		{
-			if (counter++ % 100 == 0)
-				Console.WriteLine(counter - 1);
+			if (this.counter++ % 100 == 0)
+				Console.WriteLine(this.counter - 1);
 
 			var closed = message as AccountClosedEvent;
 			this.accountId = closed.AccountId;

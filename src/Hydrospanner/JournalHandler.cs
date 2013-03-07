@@ -20,7 +20,9 @@
 			data.MessageSequence = ++this.currentSequence;
 
 			this.buffer.Add(data);
-			this.checkpoint = Math.Max(data.SourceSequence, this.checkpoint); // checkpoint the source message sequence that caused this message
+
+			// checkpoint the source message sequence that caused this message
+			this.transformationCheckpoint = Math.Max(data.SourceSequence, this.transformationCheckpoint);
 
 			if (endOfBatch)
 				this.JournalMessages();
@@ -47,37 +49,29 @@
 					builder.AppendFormat(AppendMessage, i);
 				}
 
-				builder.AppendFormat(UpdateCheckpoint, this.checkpoint);
+				builder.AppendFormat(UpdateTransformationCheckpoint, this.transformationCheckpoint);
 
 				command.Transaction = transaction;
 				command.CommandText = builder.ToString();
 
-				command.ExecuteNonQuery(); // TODO: circuit breaker pattern
+				command.ExecuteNonQuery();
 				transaction.Commit();
 
 				this.buffer.Clear();
 			}
 		}
 
-		public JournalHandler(string connectionName)
+		public JournalHandler(string connectionName, long maxSequence)
 		{
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
-
-			using (var connection = this.settings.OpenConnection())
-			using (var command = connection.CreateCommand())
-			{
-				command.CommandText = "SELECT MAX(sequence) FROM [messages];";
-				var value = command.ExecuteScalar();
-				if (value is long)
-					this.currentSequence = (long)value;
-			}
+			this.currentSequence = maxSequence;
 		}
 
 		private const string AppendMessage = "INSERT INTO messages (stream_id, wire_id, payload, headers) VALUES ( @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
-		private const string UpdateCheckpoint = "UPDATE checkpoints SET sequence = {0} WHERE sequence < {0};";
+		private const string UpdateTransformationCheckpoint = "UPDATE checkpoints SET transformation = {0} WHERE transformation < {0};";
 		private readonly List<WireMessage> buffer = new List<WireMessage>();
 		private readonly ConnectionStringSettings settings;
 		private long currentSequence;
-		private long checkpoint;
+		private long transformationCheckpoint;
 	}
 }

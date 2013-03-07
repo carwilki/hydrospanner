@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="DispatchMessage.cs" />
     <Compile Include="DuplicateStore.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="AcknowledgementHandler.cs">
@@ -42,6 +43,7 @@
     <Compile Include="DispatchHandler.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ForwardToDispatchHandler.cs" />
     <Compile Include="IdentificationHandler.cs" />
     <Compile Include="JournalHandler.cs" />
     <Compile Include="MessageListener.cs" />

@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections;
 	using System.Configuration;
+	using System.Globalization;
 	using System.Runtime.Serialization.Formatters;
 	using System.Text;
 	using Accounting.Events;
@@ -30,7 +31,7 @@
 				{
 					for (var i = 0; i < 1; i++)
 					{
-						properties.MessageId = (i + 1).ToString();
+						properties.MessageId = (i + 1).ToString(CultureInfo.InvariantCulture);
 
 						channel.BasicPublish(string.Empty, QueueName, properties, payload);
 					}
