@@ -5,6 +5,7 @@
 	using System.Configuration;
 	using System.Data;
 	using System.Text;
+	using System.Threading;
 	using Disruptor;
 
 	public class JournalHandler : IEventHandler<WireMessage>
@@ -19,13 +20,20 @@
 
 			data.MessageSequence = ++this.currentSequence;
 
+			return;
+
 			this.buffer.Add(data);
 
 			// checkpoint the source message sequence that caused this message
 			this.transformationCheckpoint = Math.Max(data.SourceSequence, this.transformationCheckpoint);
 
-			if (endOfBatch || this.buffer.Count >= 420) // TODO: don't limit buffer size here
+			// TODO: don't limit buffer size here
+			if (endOfBatch || this.buffer.Count >= 420)
+			{
+				Console.WriteLine("Buffer Size: " + this.buffer.Count);
+				////System.Diagnostics.Debug.WriteLine();
 				this.JournalMessages();
+			}
 		}
 		private void JournalMessages()
 		{

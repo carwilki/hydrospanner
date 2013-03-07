@@ -77,16 +77,16 @@
 			this.storage = new MessageStore(this.settings);
 			this.duplicates = new DuplicateStore(MaxDuplicates);
 
-			this.journalDisruptor = BuildDisruptor<WireMessage>();
-			this.transformationDisruptor = BuildDisruptor<TransformationMessage>();
+			this.journalDisruptor = BuildDisruptor<WireMessage>(new MultiThreadedLowContentionClaimStrategy(PreallocatedSize));
+			this.transformationDisruptor = BuildDisruptor<TransformationMessage>(new SingleThreadedClaimStrategy(PreallocatedSize));
 			////this.dispatchDisruptor = BuildDisruptor<DispatchMessage>();
 			this.listener = new MessageListener(this.journalDisruptor.RingBuffer);
 		}
-		private static Disruptor<T> BuildDisruptor<T>() where T : class, new()
+		private static Disruptor<T> BuildDisruptor<T>(IClaimStrategy strategy) where T : class, new()
 		{
 			return new Disruptor<T>(
 				() => new T(),
-				new SingleThreadedClaimStrategy(PreallocatedSize),
+				strategy,
 				new YieldingWaitStrategy(), // different strategies drastically affect latency
 				TaskScheduler.Default);
 		}
@@ -112,8 +112,8 @@
 			////this.dispatchDisruptor.Shutdown();
 		}
 
-		private const int MaxDuplicates = 1024;
-		private const int PreallocatedSize = 1024;
+		private const int MaxDuplicates = 1024 * 64;
+		private const int PreallocatedSize = 1024 * 64;
 		private readonly ConnectionStringSettings settings;
 		private readonly MessageStore storage;
 		private readonly DuplicateStore duplicates;
