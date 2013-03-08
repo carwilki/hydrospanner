@@ -11,9 +11,9 @@
 		public object Body { get; set; }
 		public Dictionary<string, string> Headers { get; set; }
 
+		public bool Replay { get; set; }
 		public bool DuplicateMessage { get; set; }
 		public Guid WireId { get; set; } // used for de-duplication; indicates a message originated from an external source
-
 		public Action AcknowledgeDelivery { get; set; }
 
 		public void Clear()
@@ -25,6 +25,7 @@
 			this.Headers = null;
 
 			this.DuplicateMessage = false;
+			this.Replay = false;
 			this.WireId = Guid.Empty;
 
 			this.AcknowledgeDelivery = null;
