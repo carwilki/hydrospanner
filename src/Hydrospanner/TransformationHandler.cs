@@ -16,7 +16,7 @@
 		{
 			foreach (var key in this.selector.Keys(data.Body, data.Headers))
 			{
-				var hydratable = this.LoadHydratable(key, data.Body);
+				var hydratable = this.LoadHydratable(key);
 				if (hydratable == null)
 					continue;
 
@@ -35,7 +35,7 @@
 				this.repository[key.Name] = null;
 			}
 		}
-		private IHydratable LoadHydratable(IHydratableKey key, object message)
+		private IHydratable LoadHydratable(IHydratableKey key)
 		{
 			IHydratable hydratable;
 			if (this.repository.TryGetValue(key.Name, out hydratable))
