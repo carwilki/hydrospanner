@@ -131,10 +131,7 @@
 
 			message.SerializedBody = delivery.Body;
 			message.Headers = ParseHeaders(properties.Headers);
-
-			var id = GetMessageId(properties.MessageId);
-			message.WireId = id == Guid.Empty ? Guid.NewGuid() : id;
-
+			message.WireId = GetMessageId(properties.MessageId);
 			var tag = delivery.DeliveryTag;
 
 			message.AcknowledgeDelivery = () =>

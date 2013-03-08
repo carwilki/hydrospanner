@@ -33,30 +33,46 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Bootstrapper.cs" />
-    <Compile Include="DispatchMessage.cs" />
-    <Compile Include="DuplicateStore.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="AcknowledgementHandler.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DefaultSerializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DispatchCheckpointHandler.cs" />
     <Compile Include="DispatchHandler.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ForwardToDispatchHandler.cs" />
-    <Compile Include="IdentificationHandler.cs" />
-    <Compile Include="JournalHandler.cs" />
-    <Compile Include="MessageListener.cs" />
-    <Compile Include="MessageStore.cs" />
-    <Compile Include="RepositoryHandler.cs" />
-    <Compile Include="SerializationHandler.cs" />
-    <Compile Include="TransformationHandler.cs" />
-    <Compile Include="TransformationMessage.cs" />
-    <Compile Include="WireMessage.cs" />
-    <Compile Include="IHydratable.cs" />
-    <Compile Include="IStreamIdentifier.cs" />
-    <Compile Include="DefaultSerializer.cs" />
+    <Compile Include="DispatchMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DuplicateHandler.cs" />
+    <Compile Include="DuplicateStore.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JournalHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MessageListener.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MessageStore.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializationHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SnapshotMessage.cs" />
+    <Compile Include="TransformationHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WireMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Disruptor">

@@ -1,39 +1,25 @@
 ﻿namespace Hydrospanner
 {
-	using System;
 	using System.Collections.Generic;
 	using System.Configuration;
 	using System.Data;
 	using System.Text;
-	using System.Threading;
 	using Disruptor;
 
-	public class JournalHandler : IEventHandler<WireMessage>
+	public class JournalHandler : IEventHandler<DispatchMessage>
 	{
-		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
+		public void OnNext(DispatchMessage data, long sequence, bool endOfBatch)
 		{
-			if (data.DuplicateMessage)
-				return; // everything hereafter should ignore this message
-
 			if (data.MessageSequence > 0)
 				return; // this message has already been journaled
 
 			data.MessageSequence = ++this.currentSequence;
 
-			return;
-
 			this.buffer.Add(data);
-
-			// checkpoint the source message sequence that caused this message
-			this.transformationCheckpoint = Math.Max(data.SourceSequence, this.transformationCheckpoint);
 
 			// TODO: don't limit buffer size here
 			if (endOfBatch || this.buffer.Count >= 420)
-			{
-				Console.WriteLine("Buffer Size: " + this.buffer.Count);
-				////System.Diagnostics.Debug.WriteLine();
 				this.JournalMessages();
-			}
 		}
 		private void JournalMessages()
 		{
@@ -50,14 +36,11 @@
 				{
 					var item = this.buffer[i];
 
-					command.WithParameter("@stream{0}".FormatWith(i), item.StreamId);
 					command.WithParameter("@wire{0}".FormatWith(i), item.WireId);
 					command.WithParameter("@payload{0}".FormatWith(i), item.SerializedBody);
 					command.WithParameter("@headers{0}".FormatWith(i), item.SerializedHeaders);
 					builder.AppendFormat(AppendMessage, i);
 				}
-
-				builder.AppendFormat(UpdateTransformationCheckpoint, this.transformationCheckpoint);
 
 				command.Transaction = transaction;
 				command.CommandText = builder.ToString();
@@ -69,17 +52,15 @@
 			}
 		}
 
-		public JournalHandler(string connectionName, long maxSequence)
+		public JournalHandler(ConnectionStringSettings settings, long maxSequence)
 		{
-			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
+			this.settings = settings;
 			this.currentSequence = maxSequence;
 		}
 
-		private const string AppendMessage = "INSERT INTO messages (stream_id, wire_id, payload, headers) VALUES ( @stream{0}, @wire{0}, @payload{0}, @headers{0} );\n";
-		private const string UpdateTransformationCheckpoint = "UPDATE checkpoints SET transformation = {0} WHERE transformation < {0};";
-		private readonly List<WireMessage> buffer = new List<WireMessage>();
+		private const string AppendMessage = "INSERT INTO messages (wire_id, payload, headers) SELECT @wire{0}, @payload{0}, @headers{0};\n";
+		private readonly List<DispatchMessage> buffer = new List<DispatchMessage>();
 		private readonly ConnectionStringSettings settings;
 		private long currentSequence;
-		private long transformationCheckpoint;
 	}
 }

@@ -3,9 +3,9 @@
 	using System;
 	using Disruptor;
 
-	public class AcknowledgementHandler : IEventHandler<WireMessage>
+	public class AcknowledgementHandler : IEventHandler<DispatchMessage>
 	{
-		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
+		public void OnNext(DispatchMessage data, long sequence, bool endOfBatch)
 		{
 			this.ack = data.AcknowledgeDelivery ?? this.ack;
 

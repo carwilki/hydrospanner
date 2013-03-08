@@ -1,56 +1,21 @@
 ﻿namespace Hydrospanner
 {
-	using System.Collections.Generic;
 	using Disruptor;
 
-	public class TransformationHandler : IEventHandler<TransformationMessage>
+	public class TransformationHandler : IEventHandler<WireMessage>
 	{
-		public void OnNext(TransformationMessage data, long sequence, bool endOfBatch)
+		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
-			this.Hydrate(data);
-			this.PublishMessageBatch(data.MessageSequence);
+			// all complexity 
 		}
 
-		private void Hydrate(TransformationMessage data)
+		public TransformationHandler(RingBuffer<DispatchMessage> dispatch, RingBuffer<SnapshotMessage> snapshot)
 		{
-			foreach (var hydratable in data.Hydratables)
-			{
-				hydratable.Hydrate(data.Body, data.Headers, data.Replay);
-
-				// TODO: need to understand the ramifications of rebuilding a given projection...(or aggregate or saga???)
-				if (!data.Replay)
-					this.messages.AddRange(hydratable.GatherMessages());
-			}
-		}
-		private void PublishMessageBatch(long sourceSequence)
-		{
-			if (this.messages.Count == 0)
-				return;
-
-			// all of these messages MUST be published together
-			var descriptor = this.ring.NewBatchDescriptor(this.messages.Count);
-			descriptor = this.ring.Next(descriptor);
-
-			for (var i = 0; i < this.messages.Count; i++)
-			{
-				var claimed = this.ring[descriptor.Start + i];
-				claimed.Clear();
-
-				claimed.Body = this.messages[i];
-				claimed.Headers = new Dictionary<string, string>(); // TODO
-				claimed.SourceSequence = sourceSequence;
-			}
-
-			this.ring.Publish(descriptor);
-			this.messages.Clear();
+			this.dispatch = dispatch;
+			this.snapshot = snapshot;
 		}
 
-		public TransformationHandler(RingBuffer<WireMessage> ring)
-		{
-			this.ring = ring;
-		}
-
-		private readonly List<object> messages = new List<object>();
-		private readonly RingBuffer<WireMessage> ring;
+		private readonly RingBuffer<SnapshotMessage> snapshot;
+		private readonly RingBuffer<DispatchMessage> dispatch;
 	}
 }
