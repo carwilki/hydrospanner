@@ -54,6 +54,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="IHydratable.cs" />
+    <Compile Include="IHydratableKey.cs" />
     <Compile Include="IHydratableSelector.cs" />
     <Compile Include="JournalHandler.cs">
       <SubType>Code</SubType>

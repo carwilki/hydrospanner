@@ -5,14 +5,14 @@
 
 	public sealed class DispatchMessage
 	{
-		public long MessageSequence { get; set; }
+		public long MessageSequence { get; set; } // assigned by the journaler
 
 		public byte[] SerializedBody { get; set; }
 		public byte[] SerializedHeaders { get; set; }
 		public object Body { get; set; }
 		public Dictionary<string, string> Headers { get; set; }
 
-		public Guid WireId { get; set; } // used for de-duplication; indicates a message originated from an external source
+		public Guid WireId { get; set; } // journaled for later use with de-duplication
 		public Action AcknowledgeDelivery { get; set; }
 
 		public void Clear()
