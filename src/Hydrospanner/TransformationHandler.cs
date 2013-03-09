@@ -7,9 +7,11 @@
 	{
 		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
+			if (data.DuplicateMessage)
+				return;
+
 			this.Hydrate(data);
-			this.ForwardWireMessage(data); // TODO: combine with publishing of gathered to facilitate batching
-			this.PublishGatheredMessages();
+			this.PublishMessages(data);
 			this.SaveSnapshot(data.MessageSequence);
 		}
 		private void Hydrate(WireMessage data)
@@ -44,38 +46,30 @@
 			// TODO: it doesn't exist in the repo, check the tombstone/completed collection
 			return this.repository[key.Name] = key.Create();
 		}
-		private void ForwardWireMessage(WireMessage data)
+		private void PublishMessages(WireMessage data)
 		{
-			if (data.MessageSequence > 0)
-				return; // not a message off the wire; already journaled
-
-			var claimed = this.dispatch.Next();
-			var item = this.dispatch[claimed];
-
-			item.Clear();
-			item.Body = data.Body;
-			item.Headers = data.Headers;
-			item.SerializedBody = data.SerializedBody;
-			item.SerializedHeaders = data.SerializedHeaders;
-			item.WireId = data.WireId;
-			item.AcknowledgeDelivery = data.AcknowledgeDelivery;
-
-			this.dispatch.Publish(claimed);
-		}
-		private void PublishGatheredMessages()
-		{
-			if (this.gathered.Count == 0)
+			var forwardIncomingMessage = data.MessageSequence == 0;
+			var batchSize = this.gathered.Count + (forwardIncomingMessage ? 1 : 0);
+			if (batchSize == 0)
 				return;
 
-			// note: we must ALWAYS publish gathered messages as a batch
-			var batch = this.dispatch.NewBatchDescriptor(this.gathered.Count);
-			batch = this.dispatch.Next(batch);
-
-			for (var i = 0; i < this.gathered.Count; i++)
+			var batch = this.dispatch.NewBatchDescriptor(batchSize);
+			if (forwardIncomingMessage)
 			{
-				var pending = this.gathered[i];
+				var item = this.dispatch[batch.Start];
+				item.Clear();
+				item.Body = data.Body;
+				item.Headers = data.Headers;
+				item.SerializedBody = data.SerializedBody;
+				item.SerializedHeaders = data.SerializedHeaders;
+				item.WireId = data.WireId;
+				item.AcknowledgeDelivery = data.AcknowledgeDelivery;
+			}
 
-				var item = this.dispatch[i + batch.Start];
+			for (var i = 1; i < batchSize; i++)
+			{
+				var pending = this.gathered[i - 1];
+				var item = this.dispatch[batch.Start + i];
 				item.Clear();
 				item.Body = pending;
 				item.Headers = null; // TODO: where do these come from???
