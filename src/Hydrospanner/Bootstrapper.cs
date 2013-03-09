@@ -90,7 +90,7 @@
 		}
 		private static Disruptor<T> BuildDisruptor<T>(IClaimStrategy strategy) where T : class, new()
 		{
-			return new Disruptor<T>(() => new T(), strategy, new YieldingWaitStrategy(), TaskScheduler.Default);
+			return new Disruptor<T>(() => new T(), strategy, new SleepingWaitStrategy(), TaskScheduler.Default);
 		}
 
 		public void Dispose()

@@ -28,9 +28,9 @@
 				if (!data.LiveMessage && !complete)
 					continue; // replay mode and there's more to do.
 
-				this.gathered.AddRange(hydratable.GatherMessages());
+				this.gathered.AddRange(hydratable.GatherMessages() ?? new object[0]);
 
-				if (complete)
+				if (!complete)
 					continue;
 
 				// this.tombstone.Add(key);

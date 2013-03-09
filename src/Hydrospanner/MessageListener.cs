@@ -135,6 +135,7 @@
 			message.SerializedBody = delivery.Body;
 			message.Headers = ParseHeaders(properties.Headers);
 			message.WireId = GetMessageId(properties.MessageId);
+			message.LiveMessage = true;
 			var tag = delivery.DeliveryTag;
 
 			message.AcknowledgeDelivery = () =>
