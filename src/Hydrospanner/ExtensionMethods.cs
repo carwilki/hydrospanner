@@ -67,7 +67,7 @@
 		}
 	}
 
-	public static class ReflectionExtensions
+	public static class HydratableExtensions
 	{
 		public static void Hydrate(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool replay)
 		{
@@ -76,26 +76,25 @@
 
 			var type = message.GetType();
 			Action<IHydratable, object, Dictionary<string, string>, bool> callback;
-
-			if (!Cache.TryGetValue(type, out callback))
-				Cache[type] = callback = MakeGeneric(type);
+			if (!MethodCache.TryGetValue(type, out callback))
+				MethodCache[type] = callback = MakeHydrateDelegate(type);
 
 			callback(hydratable, message, headers, replay);
 		}
 
-		private static Action<IHydratable, object, Dictionary<string, string>, bool> MakeGeneric(Type messageType)
+		private static Action<IHydratable, object, Dictionary<string, string>, bool> MakeHydrateDelegate(Type messageType)
 		{
-			var method = HydrateMethod.MakeGenericMethod(messageType);
+			var method = DelegateMethod.MakeGenericMethod(messageType);
 			var callback = Delegate.CreateDelegate(typeof(Action<IHydratable, object, Dictionary<string, string>, bool>), method);
 			return (Action<IHydratable, object, Dictionary<string, string>, bool>)callback;
 		}
-
-		private static void HydrateWrapper<T>(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool replay)
+		private static void HydrateDelegate<T>(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool replay)
 		{
 			((IHydratable<T>)hydratable).Hydrate((T)message, headers, replay);
 		}
 
-		private static readonly MethodInfo HydrateMethod = typeof(ReflectionExtensions).GetMethod("HydrateWrapper", BindingFlags.Static | BindingFlags.NonPublic);
-		private static readonly Dictionary<Type, Action<IHydratable, object, Dictionary<string, string>, bool>> Cache = new Dictionary<Type, Action<IHydratable, object, Dictionary<string, string>, bool>>();
+		private static readonly MethodInfo DelegateMethod = typeof(HydratableExtensions).GetMethod("HydrateDelegate", BindingFlags.Static | BindingFlags.NonPublic);
+		private static readonly Dictionary<Type, Action<IHydratable, object, Dictionary<string, string>, bool>> MethodCache =
+			new Dictionary<Type, Action<IHydratable, object, Dictionary<string, string>, bool>>();
 	}
 }

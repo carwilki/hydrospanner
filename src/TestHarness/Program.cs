@@ -19,8 +19,7 @@
 
 			sw.Stop();
 
-			var perOp = sw.ElapsedTicks / count;
-			Console.WriteLine("{0}: Ticks per operation: {1}", sw.Elapsed, perOp);
+			Console.WriteLine(sw.Elapsed);
 			Console.ReadLine();
 		}
 	}
