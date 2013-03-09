@@ -42,7 +42,7 @@
 		public bool IsComplete { get; private set; }
 		public IEnumerable<object> GatherMessages()
 		{
-			return null;
+			yield return this.stored;
 		}
 
 		public object GetMemento()
@@ -57,6 +57,9 @@
 		public void Hydrate(AccountClosedEvent message, Dictionary<string, string> headers, bool live)
 		{
 			Console.WriteLine("Hello, World!");
+			this.stored = message;
 		}
+
+		private AccountClosedEvent stored;
 	}
 }
