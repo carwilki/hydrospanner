@@ -96,7 +96,7 @@
 				item.Clear();
 				item.CurrentSequence = currentSequence;
 				item.Memento = hydratable.GetMemento();
-				item.MementosRemaining = count - published++; // off by one?
+				item.MementosRemaining = count - ++published; // off by one?
 				this.snapshot.Publish(claimed);
 			}
 		}
