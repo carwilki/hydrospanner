@@ -19,10 +19,6 @@
 				command.ExecuteNonQuery();
 			}
 		}
-		public long LoadTransformationCheckpoint()
-		{
-			return this.LoadSequence("SELECT transformation FROM checkpoints;");
-		}
 		public long LoadDispatchCheckpoint()
 		{
 			return this.LoadSequence("SELECT dispatch FROM checkpoints;");
@@ -38,15 +34,15 @@
 			}
 		}
 
-		public IEnumerable<Guid> LoadWireIdentifiers(int count)
+		public IEnumerable<Guid> LoadWireIdentifiers(long maxSequence, int count)
 		{
-			if (count <= 0)
+			if (count <= 0 || maxSequence < 0)
 				yield break;
 
 			using (var connection = this.settings.OpenConnection())
 			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = IdentifiersUpToTransformationCheckpoint.FormatWith(count);
+				command.CommandText = "SELECT wire_id FROM messages WHERE sequence >= {0};".FormatWith(maxSequence - count);
 				using (var reader = command.ExecuteReader())
 				{
 					if (reader == null)
@@ -62,7 +58,7 @@
 			using (var connection = this.settings.OpenConnection())
 			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = MessagesSinceCheckpoint.FormatWith(checkpoint);
+				command.CommandText = "SELECT wire_id, payload, headers FROM messages WHERE sequence > {0};".FormatWith(checkpoint);
 				using (var reader = command.ExecuteReader())
 				{
 					if (reader == null)
@@ -71,7 +67,6 @@
 					while (reader.Read())
 						yield return new JournaledMessage
 						{
-							Sequence = reader.GetInt64(0),
 							WireId = reader.GetGuid(1),
 							SerializedBody = reader[2] as byte[],
 							SerializedHeaders = reader[3] as byte[]
@@ -85,14 +80,11 @@
 			this.settings = settings;
 		}
 
-		private const string IdentifiersUpToTransformationCheckpoint = "SELECT wire_id FROM messages WHERE sequence BETWEEN (SELECT transformation - {0} FROM checkpoints) AND (SELECT transformation FROM checkpoints) AND wire_id IS NOT NULL;";
-		private const string MessagesSinceCheckpoint = "SELECT sequence, wire_id, payload, headers FROM messages WHERE sequence > {0};";
 		private readonly ConnectionStringSettings settings;
 	}
 	
 	public sealed class JournaledMessage
 	{
-		public long Sequence { get; set; }
 		public Guid WireId { get; set; }
 		public byte[] SerializedBody { get; set; }
 		public byte[] SerializedHeaders { get; set; }

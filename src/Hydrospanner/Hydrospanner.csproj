@@ -39,7 +39,7 @@
     <Compile Include="DefaultSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DispatchCheckpointHandler.cs" />
+    <Compile Include="CheckpointHandler.cs" />
     <Compile Include="DispatchHandler.cs">
       <SubType>Code</SubType>
     </Compile>

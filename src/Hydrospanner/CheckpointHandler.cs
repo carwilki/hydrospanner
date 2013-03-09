@@ -2,7 +2,7 @@
 {
 	using Disruptor;
 
-	public class DispatchCheckpointHandler : IEventHandler<DispatchMessage>
+	public class CheckpointHandler : IEventHandler<DispatchMessage>
 	{
 		public void OnNext(DispatchMessage data, long sequence, bool endOfBatch)
 		{
@@ -10,7 +10,7 @@
 				this.store.UpdateDispatchCheckpoint(data.MessageSequence);
 		}
 
-		public DispatchCheckpointHandler(MessageStore store)
+		public CheckpointHandler(MessageStore store)
 		{
 			this.store = store;
 		}
