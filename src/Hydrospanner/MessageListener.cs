@@ -34,7 +34,8 @@
 
 		private void TryConsume()
 		{
-			this.Connect();
+			if (!this.Connect())
+				return;
 
 			try
 			{
@@ -69,13 +70,13 @@
 
 			return args;
 		}
-		private void Connect()
+		private bool Connect()
 		{
 			var local = this.channel;
 			if (local != null && local.CloseReason != null)
 				this.Disconnect();
 
-			while (this.channel == null)
+			while (this.started && this.channel == null)
 			{
 				try
 				{
@@ -87,6 +88,8 @@
 					Thread.Sleep(DelayBeforeReconnect);
 				}
 			}
+
+			return this.channel != null;
 		}
 		private void TryConnect()
 		{
