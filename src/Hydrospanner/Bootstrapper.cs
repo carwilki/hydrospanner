@@ -65,7 +65,7 @@
 			message.Clear();
 
 			message.MessageSequence = journaled.MessageSequence;
-			message.WireId = journaled.WireId;
+			message.LiveMessage = false;
 			message.SerializedBody = journaled.SerializedBody;
 			message.SerializedHeaders = journaled.SerializedHeaders;
 
@@ -109,10 +109,12 @@
 			Console.WriteLine("Stopping message listener.");
 			this.started = false;
 			this.listener.Dispose();
-			Thread.Sleep(TimeSpan.FromSeconds(2));
+			Thread.Sleep(TimeSpan.FromSeconds(1));
 			Console.WriteLine("Stopping disruptors.");
 			this.receivingDisruptor.Shutdown();
+			Thread.Sleep(TimeSpan.FromSeconds(1));
 			this.dispatchDisruptor.Shutdown();
+			Thread.Sleep(TimeSpan.FromSeconds(1));
 			this.snapshotDisruptor.Shutdown();
 		}
 
