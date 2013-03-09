@@ -6,7 +6,6 @@
 	using System.Data;
 	using System.Data.Common;
 	using System.Globalization;
-	using System.Linq;
 
 	internal static class DisposableExtensions
 	{
@@ -67,14 +66,10 @@
 		}
 	}
 
-	internal static class ReflectionExtensions
+	public static class ReflectionExtensions
 	{
 		public static void Hydrate(this IHydratable hydratable, object message, Dictionary<string, string> headers = null)
 		{
-			// TODO: first verify if this works, and then cache it if it works.
-			var method = typeof(IHydratable<>).GetMethods().First().MakeGenericMethod(message.GetType());
-			var invoker = Delegate.CreateDelegate(hydratable.GetType(), method, false);
-			invoker.DynamicInvoke(message, headers);
 		}
 	}
 }
