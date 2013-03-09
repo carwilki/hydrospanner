@@ -1,11 +1,9 @@
 ﻿namespace Hydrospanner
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Configuration;
 	using System.Data;
 	using System.Data.Common;
-	using System.Dynamic;
 	using System.Globalization;
 
 	internal static class DisposableExtensions
@@ -49,17 +47,6 @@
 			connection.Open();
 			return connection;
 		}
-		public static IDbCommand WithCommand(
-			this IDbConnection connection, string statement, params object[] numberedArgs)
-		{
-			var command = connection.CreateCommand();
-			command.CommandText = statement;
-			if (numberedArgs != null)
-				foreach (var arg in numberedArgs)
-					command = command.WithNumberedParameter(arg);
-
-			return command;
-		}
 		public static IDbCommand WithParameter(this IDbCommand command, string name, object value)
 		{
 			try
@@ -75,56 +62,6 @@
 				command.Dispose();
 				throw;
 			}
-		}
-		public static IDbCommand WithNumberedParameter(this IDbCommand command, object value)
-		{
-			return command.WithParameter("@" + command.Parameters.Count, value);
-		}
-		public static object AndExecuteScalar(this IDbCommand command)
-		{
-			using (command)
-				return command.ExecuteScalar();
-		}
-		public static int AndExecuteNonQuery(this IDbCommand command)
-		{
-			using (command)
-				return command.ExecuteNonQuery();
-		}
-		public static IEnumerable<IDataReader> AndExecuteReader(this IDbCommand command)
-		{
-			using (command)
-			using (var reader = command.ExecuteReader())
-			{
-				if (reader == null)
-					yield break;
-
-				while (reader.Read())
-					yield return reader;
-			}
-		}
-
-		// Credits for the dynamic reader method: https://github.com/robconery/massive
-
-		public static IEnumerable<dynamic> AndExecuteDynamicReader(this IDbCommand command)
-		{
-			using (var reader = command.ExecuteReader())
-			{
-				if (reader == null)
-					yield break;
-
-				while (reader.Read())
-					yield return ToExpando(reader);
-			}
-		}
-		private static dynamic ToExpando(IDataRecord record)
-		{
-			var e = new ExpandoObject();
-			var d = e as IDictionary<string, object>;
-
-			for (var i = 0; i < record.FieldCount; i++)
-				d.Add(record.GetName(i), DBNull.Value.Equals(record[i]) ? null : record[i]);
-
-			return e;
 		}
 	}
 }
