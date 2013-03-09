@@ -36,6 +36,7 @@
     <Compile Include="AcknowledgementHandler.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Bootstrapper.cs" />
     <Compile Include="DefaultSerializer.cs">
       <SubType>Code</SubType>
     </Compile>

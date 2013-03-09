@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Configuration;
 	using System.Threading;
 	using System.Threading.Tasks;
@@ -16,42 +17,44 @@
 
 			this.started = true;
 
+			Console.WriteLine("Starting...");
+
 			new Thread(() =>
 			{
-				var keys = this.storage.LoadWireIdentifiers(MaxDuplicates);
+				var maxSequence = this.storage.LoadMaxSequence();
+				var dispatchCheckpoint = this.storage.LoadDispatchCheckpoint();
+
+				var keys = this.storage.LoadWireIdentifiers(maxSequence, MaxDuplicates);
 				foreach (var item in keys)
 					this.duplicates.Contains(item);
 
-				var maxSequence = this.storage.LoadMaxSequence();
-				var transformationCheckpoint = this.storage.LoadTransformationCheckpoint();
-				var dispatchCheckpoint = this.storage.LoadTransformationCheckpoint();
-				var minCheckpoint = Math.Min(transformationCheckpoint, dispatchCheckpoint);
+				var repo = new Dictionary<string, IHydratable>();
 
-				var repo = new RepositoryHandler(this.transformationDisruptor.RingBuffer, this.settings.Name, transformationCheckpoint, factory);
+				this.receivingDisruptor
+				    .HandleEventsWith(new SerializationHandler(), new DuplicateHandler(this.duplicates))
+				    .Then(new TransformationHandler(repo, this.dispatchDisruptor.RingBuffer, this.snapshotDisruptor.RingBuffer, 1, this.selector));
+				this.dispatchDisruptor
+				    .HandleEventsWith(new SerializationHandler(), new ForwardLocalHandler(this.receivingDisruptor.RingBuffer))
+				    .HandleEventsWith(new JournalHandler(this.settings, maxSequence))
+				    .HandleEventsWith(new DispatchHandler(0, dispatchCheckpoint))
+				    .HandleEventsWith(new AcknowledgementHandler(), new CheckpointHandler(this.storage));
+				this.snapshotDisruptor.HandleEventsWith(new SnapshotHandler());
 
-				this.journalDisruptor
-				    .HandleEventsWith(new SerializationHandler())
-				    .Then(new IdentificationHandler(identifier, this.duplicates))
-				    .Then(new JournalHandler(this.settings.Name, maxSequence))
-				    .Then(repo);
-					////.Then(new ForwardToDispatchHandler(this.dispatchDisruptor.RingBuffer), repo, new AcknowledgementHandler());
+				var receivingRing = this.receivingDisruptor.Start();
+				this.dispatchDisruptor.Start();
+				this.snapshotDisruptor.Start();
 
-				////this.dispatchDisruptor
-				////	.HandleEventsWith(new DispatchHandler(dispatchCheckpoint)); // TODO: update dispatch checkpoint
-
-				this.transformationDisruptor
-					.HandleEventsWith(new SerializationHandler())
-					.Then(new TransformationHandler(this.journalDisruptor.RingBuffer));
-
-				////this.dispatchDisruptor.Start();
-				this.transformationDisruptor.Start();
-				var ring = this.journalDisruptor.Start();
-
-				var outstanding = this.storage.LoadSinceCheckpoint(minCheckpoint);
+				var outstanding = this.storage.LoadSinceCheckpoint(0); // when snapshots work, we will load from that point
 				foreach (var message in outstanding)
-					PublishToRing(ring, message);
+					PublishToRing(receivingRing, message);
+
+				// TODO: dispatcher need to push journaled messages out
+				// problem: does the ForwardLocalHandler cause problems related to duplicate messages during the startup
+				// phase where journaled messages from dispatch checkpoint forward pushed to the wire?
 
 				this.listener.Start();
+
+				Console.WriteLine("Startup Complete");
 			}).Start();
 		}
 		private static void PublishToRing(RingBuffer<WireMessage> ring, JournaledMessage journaled)
@@ -60,7 +63,7 @@
 			var message = ring[claimed];
 			message.Clear();
 
-			message.MessageSequence = journaled.Sequence;
+			message.MessageSequence = journaled.MessageSequence;
 			message.WireId = journaled.WireId;
 			message.SerializedBody = journaled.SerializedBody;
 			message.SerializedHeaders = journaled.SerializedHeaders;
@@ -68,27 +71,21 @@
 			ring.Publish(claimed);
 		}
 
-		public Bootstrapper(IStreamIdentifier identifier, string connectionName, Func<Guid, IHydratable[]> factory)
+		public Bootstrapper(IHydratableSelector selector, string connectionName)
 		{
-			this.identifier = identifier;
-			this.factory = factory;
+			this.selector = selector;
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
+			this.receivingDisruptor = BuildDisruptor<WireMessage>(new MultiThreadedLowContentionClaimStrategy(PreallocatedSize));
+			this.dispatchDisruptor = BuildDisruptor<DispatchMessage>(new SingleThreadedClaimStrategy(PreallocatedSize));
+			this.snapshotDisruptor = BuildDisruptor<SnapshotMessage>(new SingleThreadedClaimStrategy(PreallocatedSize));
 
 			this.storage = new MessageStore(this.settings);
 			this.duplicates = new DuplicateStore(MaxDuplicates);
-
-			this.journalDisruptor = BuildDisruptor<WireMessage>(new MultiThreadedLowContentionClaimStrategy(PreallocatedSize));
-			this.transformationDisruptor = BuildDisruptor<TransformationMessage>(new SingleThreadedClaimStrategy(PreallocatedSize));
-			////this.dispatchDisruptor = BuildDisruptor<DispatchMessage>();
-			this.listener = new MessageListener(this.journalDisruptor.RingBuffer);
+			this.listener = new MessageListener(this.receivingDisruptor.RingBuffer);
 		}
 		private static Disruptor<T> BuildDisruptor<T>(IClaimStrategy strategy) where T : class, new()
 		{
-			return new Disruptor<T>(
-				() => new T(),
-				strategy,
-				new YieldingWaitStrategy(), // different strategies drastically affect latency
-				TaskScheduler.Default);
+			return new Disruptor<T>(() => new T(), strategy, new YieldingWaitStrategy(), TaskScheduler.Default);
 		}
 
 		public void Dispose()
@@ -104,25 +101,26 @@
 			if (!this.started)
 				return;
 
+			Console.WriteLine("Stopping message listener.");
 			this.started = false;
-			this.listener.Stop();
-			//// Thread.Sleep(TimeSpan.FromSeconds(2)); // TODO: optimize this
-			this.journalDisruptor.Shutdown();
-			this.transformationDisruptor.Shutdown();
-			////this.dispatchDisruptor.Shutdown();
+			this.listener.Dispose();
+			Thread.Sleep(TimeSpan.FromSeconds(2));
+			Console.WriteLine("Stopping disruptors.");
+			this.receivingDisruptor.Shutdown();
+			this.dispatchDisruptor.Shutdown();
+			this.snapshotDisruptor.Shutdown();
 		}
 
 		private const int MaxDuplicates = 1024 * 64;
-		private const int PreallocatedSize = 1024 * 64;
+		private const int PreallocatedSize = 1024 * 32;
 		private readonly ConnectionStringSettings settings;
+		private readonly Disruptor<WireMessage> receivingDisruptor;
+		private readonly Disruptor<DispatchMessage> dispatchDisruptor;
+		private readonly Disruptor<SnapshotMessage> snapshotDisruptor;
+		private readonly IHydratableSelector selector;
 		private readonly MessageStore storage;
 		private readonly DuplicateStore duplicates;
-		private readonly Disruptor<WireMessage> journalDisruptor;
-		private readonly Disruptor<TransformationMessage> transformationDisruptor;
-		////private readonly Disruptor<DispatchMessage> dispatchDisruptor;
 		private readonly MessageListener listener;
-		private readonly IStreamIdentifier identifier;
-		private readonly Func<Guid, IHydratable[]> factory;
 		private bool started;
 	}
 }

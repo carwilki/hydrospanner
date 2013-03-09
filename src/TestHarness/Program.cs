@@ -2,25 +2,19 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Diagnostics;
 	using Hydrospanner;
 
 	internal static class Program
 	{
 		private static void Main()
 		{
-			var sw = new Stopwatch();
-			IHydratable test = new TestHydratable();
-
-			var count = 10000000;
-			sw.Start();
-			for (int i = 0; i < count; i++)
-				test.Hydrate(1, null, false);
-
-			sw.Stop();
-
-			Console.WriteLine(sw.Elapsed);
-			Console.ReadLine();
+			using (var bootstrapper = new Bootstrapper(null, "Hydrospanner"))
+			{
+				bootstrapper.Start();
+				Console.WriteLine("Press any key to exit.");
+				Console.ReadLine();
+				Console.WriteLine("Shutting down");
+			}
 		}
 	}
 

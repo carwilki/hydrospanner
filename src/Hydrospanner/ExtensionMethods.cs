@@ -67,7 +67,7 @@
 		}
 	}
 
-	public static class HydratableExtensions
+	internal static class HydratableExtensions
 	{
 		public static void Hydrate(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool replay)
 		{

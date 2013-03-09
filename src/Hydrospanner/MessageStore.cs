@@ -58,7 +58,7 @@
 			using (var connection = this.settings.OpenConnection())
 			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = "SELECT wire_id, payload, headers FROM messages WHERE sequence > {0};".FormatWith(checkpoint);
+				command.CommandText = "SELECT sequence, wire_id, payload, headers FROM messages WHERE sequence > {0};".FormatWith(checkpoint);
 				using (var reader = command.ExecuteReader())
 				{
 					if (reader == null)
@@ -67,6 +67,7 @@
 					while (reader.Read())
 						yield return new JournaledMessage
 						{
+							MessageSequence = reader.GetInt64(0),
 							WireId = reader.GetGuid(1),
 							SerializedBody = reader[2] as byte[],
 							SerializedHeaders = reader[3] as byte[]
@@ -85,6 +86,7 @@
 	
 	public sealed class JournaledMessage
 	{
+		public long MessageSequence { get; set; }
 		public Guid WireId { get; set; }
 		public byte[] SerializedBody { get; set; }
 		public byte[] SerializedHeaders { get; set; }
