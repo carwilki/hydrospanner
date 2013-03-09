@@ -72,7 +72,7 @@
 				var item = this.dispatch[batch.Start + i];
 				item.Clear();
 				item.Body = pending;
-				item.Headers = null; // TODO: where do these come from???
+				item.Headers = new Dictionary<string, string>(); // TODO: where do these come from???
 			}
 
 			this.dispatch.Publish(batch);

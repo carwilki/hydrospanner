@@ -53,6 +53,7 @@
     <Compile Include="Extensions.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ForwardLocalHandler.cs" />
     <Compile Include="GenericHydratableSelector.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="IHydratableKey.cs" />
