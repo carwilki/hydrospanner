@@ -13,6 +13,6 @@
 
 	public interface IHydratable<T>
 	{
-		void Hydrate(T message, Dictionary<string, string> headers, bool replay);
+		void Hydrate(T message, Dictionary<string, string> headers, bool live);
 	}
 }

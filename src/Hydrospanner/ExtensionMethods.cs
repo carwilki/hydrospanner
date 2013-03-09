@@ -69,7 +69,7 @@
 
 	internal static class HydratableExtensions
 	{
-		public static void Hydrate(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool replay)
+		public static void Hydrate(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool live)
 		{
 			if (message == null)
 				return;
@@ -79,7 +79,7 @@
 			if (!MethodCache.TryGetValue(type, out callback))
 				MethodCache[type] = callback = MakeHydrateDelegate(type);
 
-			callback(hydratable, message, headers, replay);
+			callback(hydratable, message, headers, live);
 		}
 
 		private static Action<IHydratable, object, Dictionary<string, string>, bool> MakeHydrateDelegate(Type messageType)
@@ -88,9 +88,9 @@
 			var callback = Delegate.CreateDelegate(typeof(Action<IHydratable, object, Dictionary<string, string>, bool>), method);
 			return (Action<IHydratable, object, Dictionary<string, string>, bool>)callback;
 		}
-		private static void HydrateDelegate<T>(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool replay)
+		private static void HydrateDelegate<T>(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool live)
 		{
-			((IHydratable<T>)hydratable).Hydrate((T)message, headers, replay);
+			((IHydratable<T>)hydratable).Hydrate((T)message, headers, live);
 		}
 
 		private static readonly MethodInfo DelegateMethod = typeof(HydratableExtensions).GetMethod("HydrateDelegate", BindingFlags.Static | BindingFlags.NonPublic);

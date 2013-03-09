@@ -36,7 +36,7 @@
 		{
 		}
 
-		public void Hydrate(int message, Dictionary<string, string> headers, bool replay)
+		public void Hydrate(int message, Dictionary<string, string> headers, bool live)
 		{
 			// Console.WriteLine("Hello, World!");
 		}

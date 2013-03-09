@@ -22,10 +22,10 @@
 				if (hydratable == null)
 					continue;
 
-				hydratable.Hydrate(data.Body, data.Headers, data.Replay);
+				hydratable.Hydrate(data.Body, data.Headers, data.LiveMessage);
 
 				var complete = hydratable.IsComplete;
-				if (data.Replay && !complete)
+				if (!data.LiveMessage && !complete)
 					continue; // replay mode and there's more to do.
 
 				this.gathered.AddRange(hydratable.GatherMessages());
