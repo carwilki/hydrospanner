@@ -71,18 +71,31 @@
 	{
 		public static void Hydrate(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool replay)
 		{
-			// TODO: http://msmvps.com/blogs/jon_skeet/archive/2008/08/09/making-reflection-fly-and-exploring-delegates.aspx
 			if (message == null)
 				return;
 
 			var type = message.GetType();
-			MethodInfo method;
-			if (!Cache.TryGetValue(type, out method))
-				Cache[type] = method = typeof(IHydratable<>).MakeGenericType(type).GetMethods()[0];
+			Action<IHydratable, object, object, bool> callback;
 
-			method.Invoke(hydratable, new[] { message, headers, replay });
+			if (!Cache.TryGetValue(type, out callback))
+				Cache[type] = callback = MakeGeneric(type);
+
+			callback(hydratable, message, headers, replay);
 		}
 
-		private static readonly Dictionary<Type, MethodInfo> Cache = new Dictionary<Type, MethodInfo>();
+		private static Action<IHydratable, object, object, bool> MakeGeneric(Type messageType)
+		{
+			var method = HydrateMethod.MakeGenericMethod(messageType);
+			var callback = Delegate.CreateDelegate(typeof(Action<IHydratable, object, object, bool>), method);
+			return (Action<IHydratable, object, object, bool>)callback;
+		}
+
+		private static void HydrateWrapper<T>(this IHydratable hydratable, object message, object headers, bool replay)
+		{
+			((IHydratable<T>)hydratable).Hydrate((T)message, (Dictionary<string, string>)headers, replay);
+		}
+
+		private static readonly MethodInfo HydrateMethod = typeof(ReflectionExtensions).GetMethod("HydrateWrapper", BindingFlags.Static | BindingFlags.NonPublic);
+		private static readonly Dictionary<Type, Action<IHydratable, object, object, bool>> Cache = new Dictionary<Type, Action<IHydratable, object, object, bool>>();
 	}
 }

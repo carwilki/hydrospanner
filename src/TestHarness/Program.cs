@@ -12,7 +12,7 @@
 			var sw = new Stopwatch();
 			IHydratable test = new TestHydratable();
 
-			var count = 1000000;
+			var count = 10000000;
 			sw.Start();
 			for (int i = 0; i < count; i++)
 				test.Hydrate(1, null, false);
@@ -45,7 +45,7 @@
 
 		public void Hydrate(int message, Dictionary<string, string> headers, bool replay)
 		{
-			//Console.WriteLine("Hello, World!");
+			// Console.WriteLine("Hello, World!");
 		}
 	}
 }
