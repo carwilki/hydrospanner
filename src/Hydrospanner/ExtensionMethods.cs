@@ -75,7 +75,7 @@
 				return;
 
 			var type = message.GetType();
-			Action<IHydratable, object, object, bool> callback;
+			Action<IHydratable, object, Dictionary<string, string>, bool> callback;
 
 			if (!Cache.TryGetValue(type, out callback))
 				Cache[type] = callback = MakeGeneric(type);
@@ -83,19 +83,19 @@
 			callback(hydratable, message, headers, replay);
 		}
 
-		private static Action<IHydratable, object, object, bool> MakeGeneric(Type messageType)
+		private static Action<IHydratable, object, Dictionary<string, string>, bool> MakeGeneric(Type messageType)
 		{
 			var method = HydrateMethod.MakeGenericMethod(messageType);
-			var callback = Delegate.CreateDelegate(typeof(Action<IHydratable, object, object, bool>), method);
-			return (Action<IHydratable, object, object, bool>)callback;
+			var callback = Delegate.CreateDelegate(typeof(Action<IHydratable, object, Dictionary<string, string>, bool>), method);
+			return (Action<IHydratable, object, Dictionary<string, string>, bool>)callback;
 		}
 
-		private static void HydrateWrapper<T>(this IHydratable hydratable, object message, object headers, bool replay)
+		private static void HydrateWrapper<T>(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool replay)
 		{
-			((IHydratable<T>)hydratable).Hydrate((T)message, (Dictionary<string, string>)headers, replay);
+			((IHydratable<T>)hydratable).Hydrate((T)message, headers, replay);
 		}
 
 		private static readonly MethodInfo HydrateMethod = typeof(ReflectionExtensions).GetMethod("HydrateWrapper", BindingFlags.Static | BindingFlags.NonPublic);
-		private static readonly Dictionary<Type, Action<IHydratable, object, object, bool>> Cache = new Dictionary<Type, Action<IHydratable, object, object, bool>>();
+		private static readonly Dictionary<Type, Action<IHydratable, object, Dictionary<string, string>, bool>> Cache = new Dictionary<Type, Action<IHydratable, object, Dictionary<string, string>, bool>>();
 	}
 }
