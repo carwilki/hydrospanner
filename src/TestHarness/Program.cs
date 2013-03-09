@@ -2,14 +2,26 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics;
 	using Hydrospanner;
 
 	internal static class Program
 	{
 		private static void Main()
 		{
+			var sw = new Stopwatch();
 			IHydratable test = new TestHydratable();
-			test.Hydrate(1, null);
+
+			var count = 1000000;
+			sw.Start();
+			for (int i = 0; i < count; i++)
+				test.Hydrate(1, null, false);
+
+			sw.Stop();
+
+			var perOp = sw.ElapsedTicks / count;
+			Console.WriteLine("{0}: Ticks per operation: {1}", sw.Elapsed, perOp);
+			Console.ReadLine();
 		}
 	}
 
@@ -33,7 +45,7 @@
 
 		public void Hydrate(int message, Dictionary<string, string> headers, bool replay)
 		{
-			Console.WriteLine("Hello, World!");
+			//Console.WriteLine("Hello, World!");
 		}
 	}
 }

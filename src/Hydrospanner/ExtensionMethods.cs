@@ -6,6 +6,7 @@
 	using System.Data;
 	using System.Data.Common;
 	using System.Globalization;
+	using System.Reflection;
 
 	internal static class DisposableExtensions
 	{
@@ -68,8 +69,19 @@
 
 	public static class ReflectionExtensions
 	{
-		public static void Hydrate(this IHydratable hydratable, object message, Dictionary<string, string> headers = null)
+		public static void Hydrate(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool replay)
 		{
+			if (message == null)
+				return;
+
+			var type = message.GetType();
+			MethodInfo method;
+			if (!Cache.TryGetValue(type, out method))
+				Cache[type] = method = typeof(IHydratable<>).MakeGenericType(type).GetMethods()[0];
+
+			method.Invoke(hydratable, new[] { message, headers, replay });
 		}
+
+		private static readonly Dictionary<Type, MethodInfo> Cache = new Dictionary<Type, MethodInfo>();
 	}
 }

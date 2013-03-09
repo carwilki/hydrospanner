@@ -22,7 +22,7 @@
 				if (hydratable == null)
 					continue;
 
-				hydratable.Hydrate(data.Body, data.Headers);
+				hydratable.Hydrate(data.Body, data.Headers, data.Replay);
 
 				var complete = hydratable.IsComplete;
 				if (data.Replay && !complete)
