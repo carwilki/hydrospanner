@@ -12,6 +12,7 @@
 		public object Body { get; set; }
 		public Dictionary<string, string> Headers { get; set; }
 
+		public bool ForwardLocal { get; set; }
 		public Guid WireId { get; set; } // journaled for later use with de-duplication
 		public Action AcknowledgeDelivery { get; set; }
 
@@ -23,6 +24,7 @@
 			this.Body = null;
 			this.Headers = null;
 			this.WireId = Guid.Empty;
+			this.ForwardLocal = false;
 			this.AcknowledgeDelivery = null;
 		}
 	}

@@ -6,7 +6,7 @@
 
 	public class MessageStore
 	{
-		public long LoadMaxSequence()
+		public long LoadJournalCheckpoint()
 		{
 			return this.LoadSequence("SELECT MAX(sequence) FROM messages;");
 		}

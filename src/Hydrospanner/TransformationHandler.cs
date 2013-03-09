@@ -73,6 +73,7 @@
 				item.Clear();
 				item.Body = pending;
 				item.Headers = new Dictionary<string, string>(); // TODO: where do these come from???
+				item.ForwardLocal = true;
 			}
 
 			this.dispatch.Publish(batch);

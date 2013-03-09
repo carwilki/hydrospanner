@@ -52,10 +52,10 @@
 			}
 		}
 
-		public JournalHandler(ConnectionStringSettings settings, long maxSequence)
+		public JournalHandler(ConnectionStringSettings settings, long currentSequence)
 		{
 			this.settings = settings;
-			this.currentSequence = maxSequence;
+			this.currentSequence = currentSequence;
 		}
 
 		private const string AppendMessage = "INSERT INTO messages (wire_id, payload, headers) SELECT @wire{0}, @payload{0}, @headers{0};\n";

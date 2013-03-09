@@ -21,10 +21,10 @@
 
 			new Thread(() =>
 			{
-				var maxSequence = this.storage.LoadMaxSequence();
+				var journalCheckpoint = this.storage.LoadJournalCheckpoint();
 				var dispatchCheckpoint = this.storage.LoadDispatchCheckpoint();
 
-				var keys = this.storage.LoadWireIdentifiers(maxSequence, MaxDuplicates);
+				var keys = this.storage.LoadWireIdentifiers(journalCheckpoint, MaxDuplicates);
 				foreach (var item in keys)
 					this.duplicates.Contains(item);
 
@@ -32,18 +32,19 @@
 
 				this.receivingDisruptor
 				    .HandleEventsWith(new SerializationHandler(), new DuplicateHandler(this.duplicates))
-				    .Then(new TransformationHandler(repo, this.dispatchDisruptor.RingBuffer, this.snapshotDisruptor.RingBuffer, 1, this.selector));
+					.Then(new TransformationHandler(repo, this.dispatchRing, this.snapshotRing, SnapshotFrequence, this.selector));
 				this.dispatchDisruptor
-				    .HandleEventsWith(new SerializationHandler(), new ForwardLocalHandler(this.receivingDisruptor.RingBuffer))
-				    .HandleEventsWith(new JournalHandler(this.settings, maxSequence))
+				    .HandleEventsWith(new SerializationHandler(), new ForwardLocalHandler(this.receivingRing))
+				    .HandleEventsWith(new JournalHandler(this.settings, journalCheckpoint))
 				    .HandleEventsWith(new DispatchHandler(0, dispatchCheckpoint))
 				    .HandleEventsWith(new AcknowledgementHandler(), new CheckpointHandler(this.storage));
 				this.snapshotDisruptor.HandleEventsWith(new SnapshotHandler());
 
-				var receivingRing = this.receivingDisruptor.Start();
+				this.receivingDisruptor.Start();
 				this.dispatchDisruptor.Start();
 				this.snapshotDisruptor.Start();
 
+				// TODO: when snapshot behavior exists, stream mementos from into hydratables and into repository
 				var outstanding = this.storage.LoadSinceCheckpoint(0); // when snapshots work, we will load from that point
 				foreach (var message in outstanding)
 					PublishToRing(receivingRing, message);
@@ -52,7 +53,7 @@
 				// problem: does the ForwardLocalHandler cause problems related to duplicate messages during the startup
 				// phase where journaled messages from dispatch checkpoint forward pushed to the wire?
 
-				this.listener.Start();
+				this.listener.Start(); // now start listening on the wire
 
 				Console.WriteLine("Startup Complete");
 			}).Start();
@@ -75,9 +76,13 @@
 		{
 			this.selector = selector;
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
+
 			this.receivingDisruptor = BuildDisruptor<WireMessage>(new MultiThreadedLowContentionClaimStrategy(PreallocatedSize));
 			this.dispatchDisruptor = BuildDisruptor<DispatchMessage>(new SingleThreadedClaimStrategy(PreallocatedSize));
 			this.snapshotDisruptor = BuildDisruptor<SnapshotMessage>(new SingleThreadedClaimStrategy(PreallocatedSize));
+			this.receivingRing = this.receivingDisruptor.RingBuffer;
+			this.dispatchRing = this.dispatchDisruptor.RingBuffer;
+			this.snapshotRing = this.snapshotDisruptor.RingBuffer;
 
 			this.storage = new MessageStore(this.settings);
 			this.duplicates = new DuplicateStore(MaxDuplicates);
@@ -111,12 +116,16 @@
 			this.snapshotDisruptor.Shutdown();
 		}
 
+		private const int SnapshotFrequence = 100;
 		private const int MaxDuplicates = 1024 * 64;
 		private const int PreallocatedSize = 1024 * 32;
 		private readonly ConnectionStringSettings settings;
 		private readonly Disruptor<WireMessage> receivingDisruptor;
 		private readonly Disruptor<DispatchMessage> dispatchDisruptor;
 		private readonly Disruptor<SnapshotMessage> snapshotDisruptor;
+		private readonly RingBuffer<WireMessage> receivingRing;
+		private readonly RingBuffer<DispatchMessage> dispatchRing;
+		private readonly RingBuffer<SnapshotMessage> snapshotRing;
 		private readonly IHydratableSelector selector;
 		private readonly MessageStore storage;
 		private readonly DuplicateStore duplicates;
