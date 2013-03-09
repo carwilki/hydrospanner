@@ -71,6 +71,7 @@
 	{
 		public static void Hydrate(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool replay)
 		{
+			// TODO: http://msmvps.com/blogs/jon_skeet/archive/2008/08/09/making-reflection-fly-and-exploring-delegates.aspx
 			if (message == null)
 				return;
 
