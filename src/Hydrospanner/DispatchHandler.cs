@@ -89,8 +89,8 @@
 				properties.Headers = new Hashtable();
 				CopyHeaders(message.Headers, properties.Headers);
 
-				// TODO: 16-bytes: 4-byte node ID + 8-byte message sequence...
-				properties.MessageId = message.MessageSequence.ToString(CultureInfo.InvariantCulture); // deterministic
+				var messageId = this.nodeId.ToString(CultureInfo.InvariantCulture) + message.MessageSequence.ToString(CultureInfo.InvariantCulture); // deterministic
+				properties.MessageId = messageId;
 
 				var exchange = message.Body.GetType().FullName.ToLower().Replace(".", "-"); // NanoMessageBus convention
 				this.channel.BasicPublish(exchange, string.Empty, false, false, properties, message.SerializedBody);
@@ -104,14 +104,16 @@
 				target[item.Key] = item.Value;
 		}
 
-		public DispatchHandler(long dispatchCheckpoint)
+		public DispatchHandler(short nodeId, long dispatchCheckpoint)
 		{
+			this.nodeId = nodeId;
 			this.dispatchCheckpoint = dispatchCheckpoint;
 		}
 
 		private static readonly TimeSpan DelayBeforeReconnect = TimeSpan.FromSeconds(1);
 		private static readonly Uri ServerAddress = new Uri(ConfigurationManager.AppSettings["rabbit-server"]);
 		private readonly List<DispatchMessage> buffer = new List<DispatchMessage>();
+		private readonly short nodeId;
 		private readonly long dispatchCheckpoint;
 		private IConnection connection;
 		private IModel channel;

@@ -22,7 +22,7 @@
 				if (hydratable == null)
 					continue;
 
-				// TODO: hydrate
+				hydratable.Hydrate(data.Body, data.Headers);
 
 				var complete = hydratable.IsComplete;
 				if (data.Replay && !complete)
@@ -102,19 +102,21 @@
 		}
 
 		public TransformationHandler(
+			Dictionary<string, IHydratable> repository,
 			RingBuffer<DispatchMessage> dispatch,
 			RingBuffer<SnapshotMessage> snapshot,
 			int snapshotFrequency,
 			IHydratableSelector selector)
 		{
+			this.repository = repository;
 			this.dispatch = dispatch;
 			this.snapshot = snapshot;
 			this.snapshotFrequency = snapshotFrequency;
 			this.selector = selector;
 		}
 
-		private readonly Dictionary<string, IHydratable> repository = new Dictionary<string, IHydratable>(); // TODO: set initial capacity?
 		private readonly List<object> gathered = new List<object>();
+		private readonly Dictionary<string, IHydratable> repository;
 		private readonly RingBuffer<SnapshotMessage> snapshot;
 		private readonly RingBuffer<DispatchMessage> dispatch;
 		private readonly int snapshotFrequency;
