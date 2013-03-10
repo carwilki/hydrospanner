@@ -15,7 +15,7 @@
 
 			this.Hydrate(data);
 			this.PublishMessages(data);
-			this.SaveSnapshot(data);
+			this.SaveSystemSnapshot(data);
 		}
 		private void Hydrate(WireMessage data)
 		{
@@ -27,15 +27,18 @@
 
 				hydratable.Hydrate(data.Body, data.Headers, data.LiveMessage);
 
-				var complete = hydratable.IsComplete;
-				if (!data.LiveMessage && !complete)
-					continue; // replay mode and there's more to do.
+				if (data.LiveMessage)
+					this.gathered.AddRange(hydratable.GatherMessages() ?? new object[0]);
 
-				this.gathered.AddRange(hydratable.GatherMessages() ?? new object[0]);
+				if (hydratable.IsComplete || data.MessageSequence % hydratable.SnapshotFrequency == 0)
+				{
+					// TODO: capture individual "item" snapshot (same state as "system" snapshot, but pushed to snapshot ring and typically used for projections)
+				}
 
-				if (!complete)
+				if (!hydratable.IsComplete)
 					continue;
 
+				// TODO; large tombstone until we reach live at which point it contracts to a smaller size?
 				// this.tombstone.Add(key);
 				this.repository[key.Name] = null;
 			}
@@ -83,12 +86,12 @@
 			this.dispatch.Publish(batch);
 			this.gathered.Clear();
 		}
-		private void SaveSnapshot(WireMessage data)
+		private void SaveSystemSnapshot(WireMessage data)
 		{
 			if (data.AcknowledgeDelivery != null)
 				return; // message is coming in from the wire, don't do anything
 
-			if (this.journaledMessagesSinceLastSnapshot++ % this.snapshotFrequency != 0)
+			if (this.currentSequence % this.snapshotFrequency != 0)
 				return; // not enough messages have occurred since the last snapshot
 
 			var published = 0;
@@ -128,7 +131,6 @@
 		private readonly RingBuffer<DispatchMessage> dispatch;
 		private readonly int snapshotFrequency;
 		private readonly IHydratableSelector selector;
-		private int journaledMessagesSinceLastSnapshot;
 		private long currentSequence;
 	}
 }

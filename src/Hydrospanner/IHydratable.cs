@@ -6,6 +6,7 @@
 	{
 		string Key { get; }
 		bool IsComplete { get; }
+		int SnapshotFrequency { get; }
 		IEnumerable<object> GatherMessages();
 		object GetMemento();
 		void LoadFromMemento(object memento);

@@ -40,6 +40,7 @@
 	{
 		public string Key { get; private set; }
 		public bool IsComplete { get; private set; }
+		public int SnapshotFrequency { get; private set; }
 		public IEnumerable<object> GatherMessages()
 		{
 			yield return this.stored;
