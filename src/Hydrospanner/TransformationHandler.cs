@@ -10,8 +10,12 @@
 			if (data.DuplicateMessage)
 				return;
 
-			if (data.MessageSequence == 0)
+			var reachedLive = !this.live && data.LiveMessage;
+
+			if (data.LiveMessage)
 				data.MessageSequence = ++this.currentSequence;
+
+			this.live = this.live || reachedLive; // TODO: once we've reach the live stream, we may want to consider doing a snapshot among other things
 
 			this.Hydrate(data);
 			this.PublishMessages(data);
@@ -33,6 +37,10 @@
 				if (hydratable.IsComplete || data.MessageSequence % hydratable.SnapshotFrequency == 0)
 				{
 					// TODO: capture individual "item" snapshot (same state as "system" snapshot, but pushed to snapshot ring and typically used for projections)
+					// for aggregates/sagas which are complete, it returns null
+					// for a projection, it returns the projection payload
+					// snapshots also have the interesting property of "last one wins" which means that if 100K updates occur, we only need the last one
+					// and if saving to disk is slow, only the last one will be saved during each disk write.
 				}
 
 				if (!hydratable.IsComplete)
@@ -54,7 +62,7 @@
 		}
 		private void PublishMessages(WireMessage data)
 		{
-			var forwardIncomingMessage = data.MessageSequence == 0;
+			var forwardIncomingMessage = data.LiveMessage;
 			var batchSize = this.gathered.Count + (forwardIncomingMessage ? 1 : 0);
 			if (batchSize == 0)
 				return;
@@ -88,7 +96,11 @@
 		}
 		private void SaveSystemSnapshot(WireMessage data)
 		{
-			if (data.AcknowledgeDelivery != null)
+			// TODO: this method needs to consider what will happen when we reach the live stream
+			// for example, if the last snapshot was over X messages ago and we reach the live stream
+			// we may decide to perform a system-wide snapshot
+
+			if (data.LiveMessage)
 				return; // message is coming in from the wire, don't do anything
 
 			if (this.currentSequence % this.snapshotFrequency != 0)
@@ -123,6 +135,7 @@
 			this.snapshotFrequency = snapshotFrequency;
 			this.selector = selector;
 			this.currentSequence = currentSequence;
+			this.live = false;
 		}
 
 		private readonly List<object> gathered = new List<object>();
@@ -132,5 +145,6 @@
 		private readonly int snapshotFrequency;
 		private readonly IHydratableSelector selector;
 		private long currentSequence;
+		private bool live;
 	}
 }

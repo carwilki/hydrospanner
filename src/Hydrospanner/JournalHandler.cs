@@ -21,6 +21,12 @@
 		}
 		private void JournalMessages()
 		{
+			// TODO: how much value would their be in having some kind of meta-data table?
+			// message_type (accountclosedevent), encoding (utf8), format (json), compression: gzip
+			// all of this could be a single table read into memory at startup with a ushort key
+			// and this key could then be utilized when journaling a given message to tell us a little
+			// bit about it, e.g. meta_id in the messages table.
+
 			using (var connection = this.settings.OpenConnection())
 			using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
 			using (var command = connection.CreateCommand())
