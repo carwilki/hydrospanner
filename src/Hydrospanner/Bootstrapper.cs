@@ -31,13 +31,13 @@
 				var repo = new Dictionary<string, IHydratable>();
 
 				this.receivingDisruptor
-				    .HandleEventsWith(new SerializationHandler(), new DuplicateHandler(this.duplicates))
-					.Then(new TransformationHandler(repo, this.dispatchRing, this.snapshotRing, SnapshotFrequence, this.selector));
+					.HandleEventsWith(new SerializationHandler(), new DuplicateHandler(this.duplicates))
+					.Then(new TransformationHandler(repo, this.dispatchRing, this.snapshotRing, SnapshotFrequence, this.selector, journalCheckpoint));
 				this.dispatchDisruptor
-				    .HandleEventsWith(new SerializationHandler(), new ForwardLocalHandler(this.receivingRing))
-				    .HandleEventsWith(new JournalHandler(this.settings, journalCheckpoint))
-				    .HandleEventsWith(new DispatchHandler(0, dispatchCheckpoint))
-				    .HandleEventsWith(new AcknowledgementHandler(), new CheckpointHandler(this.storage));
+					.HandleEventsWith(new SerializationHandler(), new ForwardLocalHandler(this.receivingRing))
+					.HandleEventsWith(new JournalHandler(this.settings))
+					.HandleEventsWith(new DispatchHandler(0, dispatchCheckpoint))
+					.HandleEventsWith(new AcknowledgementHandler(), new CheckpointHandler(this.storage));
 				this.snapshotDisruptor.HandleEventsWith(new SnapshotHandler());
 
 				this.receivingDisruptor.Start();

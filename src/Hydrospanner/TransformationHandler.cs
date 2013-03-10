@@ -10,9 +10,12 @@
 			if (data.DuplicateMessage)
 				return;
 
+			if (data.MessageSequence == 0)
+				data.MessageSequence = ++this.currentSequence;
+
 			this.Hydrate(data);
 			this.PublishMessages(data);
-			this.SaveSnapshot(data.MessageSequence);
+			this.SaveSnapshot(data);
 		}
 		private void Hydrate(WireMessage data)
 		{
@@ -58,6 +61,7 @@
 			{
 				var item = this.dispatch[batch.Start];
 				item.Clear();
+				item.MessageSequence = data.MessageSequence;
 				item.Body = data.Body;
 				item.Headers = data.Headers;
 				item.SerializedBody = data.SerializedBody;
@@ -71,17 +75,17 @@
 				var pending = this.gathered[i - 1];
 				var item = this.dispatch[batch.Start + i];
 				item.Clear();
+				item.MessageSequence = ++this.currentSequence;
 				item.Body = pending;
 				item.Headers = new Dictionary<string, string>(); // TODO: where do these come from???
-				item.ForwardLocal = true;
 			}
 
 			this.dispatch.Publish(batch);
 			this.gathered.Clear();
 		}
-		private void SaveSnapshot(long currentSequence)
+		private void SaveSnapshot(WireMessage data)
 		{
-			if (currentSequence == 0)
+			if (data.AcknowledgeDelivery != null)
 				return; // message is coming in from the wire, don't do anything
 
 			if (this.journaledMessagesSinceLastSnapshot++ % this.snapshotFrequency != 0)
@@ -95,7 +99,7 @@
 				var claimed = this.snapshot.Next();
 				var item = this.snapshot[claimed];
 				item.Clear();
-				item.CurrentSequence = currentSequence;
+				item.CurrentSequence = data.MessageSequence;
 				item.Memento = hydratable.GetMemento();
 				item.MementosRemaining = count - ++published; // off by one?
 				this.snapshot.Publish(claimed);
@@ -107,13 +111,15 @@
 			RingBuffer<DispatchMessage> dispatch,
 			RingBuffer<SnapshotMessage> snapshot,
 			int snapshotFrequency,
-			IHydratableSelector selector)
+			IHydratableSelector selector,
+			long currentSequence)
 		{
 			this.repository = repository;
 			this.dispatch = dispatch;
 			this.snapshot = snapshot;
 			this.snapshotFrequency = snapshotFrequency;
 			this.selector = selector;
+			this.currentSequence = currentSequence;
 		}
 
 		private readonly List<object> gathered = new List<object>();
@@ -123,5 +129,6 @@
 		private readonly int snapshotFrequency;
 		private readonly IHydratableSelector selector;
 		private int journaledMessagesSinceLastSnapshot;
+		private long currentSequence;
 	}
 }

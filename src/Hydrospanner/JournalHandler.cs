@@ -13,8 +13,6 @@
 			if (data.MessageSequence > 0)
 				return; // this message has already been journaled
 
-			data.MessageSequence = ++this.currentSequence;
-
 			this.buffer.Add(data);
 
 			// TODO: don't limit buffer size here
@@ -52,15 +50,13 @@
 			}
 		}
 
-		public JournalHandler(ConnectionStringSettings settings, long currentSequence)
+		public JournalHandler(ConnectionStringSettings settings)
 		{
 			this.settings = settings;
-			this.currentSequence = currentSequence;
 		}
 
 		private const string AppendMessage = "INSERT INTO messages (wire_id, payload, headers) SELECT @wire{0}, @payload{0}, @headers{0};\n";
 		private readonly List<DispatchMessage> buffer = new List<DispatchMessage>();
 		private readonly ConnectionStringSettings settings;
-		private long currentSequence;
 	}
 }
