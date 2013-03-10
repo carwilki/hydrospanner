@@ -8,7 +8,7 @@
 	{
 		public void OnNext(DispatchMessage data, long sequence, bool endOfBatch)
 		{
-			if (!data.ForwardLocal)
+			if (data.DispatchOnly)
 				return; // instructed to not forward back to local ring buffer
 
 			if (data.AcknowledgeDelivery != null)
