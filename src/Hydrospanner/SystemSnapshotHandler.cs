@@ -9,14 +9,14 @@
 			if (data.IsolatedSnapshot)
 				return;
 
-			if (data.MementosRemaining != this.remaining--)
+			if (data.MementosRemaining == 0 || data.MementosRemaining != this.remaining--)
 			{
 				this.remaining = data.MementosRemaining;
 
 				if (this.stream != null)
 					this.stream.Dispose();
 
-				this.stream = this.recorder.Create(data.CurrentSequence, data.MementosRemaining);
+				this.stream = this.recorder.Create(data.CurrentSequence, data.MementosRemaining + 1);
 			}
 
 			this.stream.WriteItem(data.Serialized);

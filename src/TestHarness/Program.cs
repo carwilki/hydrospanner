@@ -38,9 +38,9 @@
 
 	public class TestHydratable : IHydratable, IHydratable<AccountClosedEvent>
 	{
-		public string Key { get; private set; }
-		public bool IsComplete { get; private set; }
-		public int SnapshotFrequency { get; private set; }
+		public string Key { get { return "test-key"; } }
+		public bool IsComplete { get { return false; } }
+		public bool IsolatedSnapshot { get { return false; } }
 		public IEnumerable<object> GatherMessages()
 		{
 			yield return this.stored;
@@ -48,7 +48,12 @@
 
 		public object GetMemento()
 		{
-			return null;
+			return new TestHydratableMemento
+			{
+				Key = this.Key,
+				Counter = this.counter,
+				Event = this.stored
+			};
 		}
 
 		public void LoadFromMemento(object memento)
@@ -64,5 +69,12 @@
 
 		private AccountClosedEvent stored;
 		private long counter;
+	}
+
+	public class TestHydratableMemento
+	{
+		public string Key { get; set; }
+		public long Counter { get; set; }
+		public AccountClosedEvent Event { get; set; }
 	}
 }

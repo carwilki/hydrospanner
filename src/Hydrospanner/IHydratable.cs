@@ -10,7 +10,7 @@
 		object GetMemento();
 
 		void LoadFromMemento(object memento);
-		int SnapshotFrequency { get; }
+		bool IsolatedSnapshot { get; }
 	}
 
 	public interface IHydratable<T>

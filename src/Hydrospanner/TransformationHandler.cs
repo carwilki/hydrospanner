@@ -10,18 +10,14 @@
 			if (data.DuplicateMessage)
 				return;
 
-			var reachedLive = !this.live && data.LiveMessage;
+			if (data.LiveMessage)
+				this.SaveSystemSnapshot();
 
 			if (data.AcknowledgeDelivery != null)
 				data.MessageSequence = ++this.currentSequence; // coming off the wire, assign a sequence value to it
 
-			this.live = this.live || reachedLive; // TODO: once we've reach the live stream, we may want to consider doing a snapshot among other things
-
 			this.Hydrate(data);
 			this.Dispatch(data);
-
-			if (endOfBatch)
-				this.SaveSystemSnapshot(data);
 		}
 		private void Hydrate(WireMessage data)
 		{
@@ -36,7 +32,7 @@
 				if (data.LiveMessage)
 					this.pendingDispatch.AddRange(hydratable.GatherMessages() ?? new object[0]);
 
-				if (hydratable.IsComplete || (hydratable.SnapshotFrequency > 0 && data.MessageSequence % hydratable.SnapshotFrequency == 0))
+				if (hydratable.IsComplete || hydratable.IsolatedSnapshot)
 				{
 					// TODO: capture individual "item" snapshot (same state as "system" snapshot, but pushed to snapshot ring and typically used for projections)
 					// for aggregates/sagas which are complete, it returns null
@@ -97,16 +93,11 @@
 
 			this.pendingDispatch.Clear();
 		}
-		private void SaveSystemSnapshot(WireMessage data)
+		private void SaveSystemSnapshot()
 		{
-			// TODO: this method needs to consider what will happen when we reach the live stream
-			// for example, if the last snapshot was over X messages ago and we reach the live stream
-			// we may decide to perform a system-wide snapshot
-
-			if (data.LiveMessage)
-				return; // message is coming in from the wire, don't do anything
-
-			if (this.currentSequence % this.snapshotFrequency != 0)
+			// TODO: what happens if frequency occurs exactly at a incoming wire message?
+			// we should probably snapshot the very first non-wire message thereafter
+			if (this.currentSequence == 0 || this.currentSequence % this.snapshotFrequency != 0)
 				return; // not enough messages have occurred since the last snapshot
 
 			var published = 0;
@@ -117,7 +108,7 @@
 				var claimed = this.snapshot.Next();
 				var item = this.snapshot[claimed];
 				item.Clear();
-				item.CurrentSequence = data.MessageSequence;
+				item.CurrentSequence = this.currentSequence;
 				item.Memento = hydratable.GetMemento();
 				item.MementosRemaining = count - ++published; // off by one?
 				this.snapshot.Publish(claimed);
@@ -147,6 +138,5 @@
 		private readonly int snapshotFrequency;
 		private readonly IHydratableSelector selector;
 		private long currentSequence;
-		private bool live;
 	}
 }

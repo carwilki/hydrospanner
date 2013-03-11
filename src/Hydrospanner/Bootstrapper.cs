@@ -32,7 +32,7 @@
 
 				this.receivingDisruptor
 					.HandleEventsWith(new SerializationHandler(), new DuplicateHandler(this.duplicates))
-					.Then(new TransformationHandler(repo, this.snapshotRing, this.dispatchRing, SnapshotFrequence, this.selector, journalCheckpoint));
+					.Then(new TransformationHandler(repo, this.snapshotRing, this.dispatchRing, SnapshotFrequency, this.selector, journalCheckpoint));
 				this.dispatchDisruptor
 					.HandleEventsWith(new SerializationHandler(), new ForwardLocalHandler(this.receivingDisruptor.RingBuffer))
 					.Then(new JournalHandler(this.settings))
@@ -41,7 +41,7 @@
 					.Then(new CheckpointHandler(this.storage));
 				this.snapshotDisruptor
 					.HandleEventsWith(new SerializationHandler())
-					.Then(new SystemSnapshotHandler(null), new IsolatedSnapshotHandler());
+					.Then(new SystemSnapshotHandler(this.snapshotRecorder), new IsolatedSnapshotHandler());
 
 				this.receivingDisruptor.Start();
 				this.dispatchDisruptor.Start();
@@ -124,7 +124,7 @@
 			this.snapshotDisruptor.Shutdown();
 		}
 
-		private const int SnapshotFrequence = 100;
+		private const int SnapshotFrequency = 25000;
 		private const int MaxDuplicates = 1024 * 64;
 		private const int PreallocatedSize = 1024 * 128;
 		private readonly ConnectionStringSettings settings;
