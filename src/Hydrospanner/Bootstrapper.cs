@@ -46,14 +46,15 @@
 				this.dispatchDisruptor.Start();
 				this.snapshotDisruptor.Start();
 
-				// TODO: when snapshot behavior exists, stream mementos from into hydratables and into repository
-				var outstanding = this.storage.LoadSinceCheckpoint(0); // when snapshots work, we will load from that point
-				foreach (var message in outstanding)
-					PublishToRing(receivingRing, message);
+				// TODO: min of snapshot checkpoint and dispatch checkpoint
+				// foreach message, push to receiving ring and dispatch ring
+				// if msg seq > snapshot checkpoint, push to receiving ring
+				// if msg seq > dispatch checkpoint, push to dispatch ring
 
-				// TODO: dispatcher need to push journaled messages out
-				// problem: does the ForwardLocalHandler cause problems related to duplicate messages during the startup
-				// phase where journaled messages from dispatch checkpoint forward pushed to the wire?
+				// TODO: when snapshot behavior exists, stream mementos from into hydratables and into repository
+				var replay = this.storage.LoadSinceCheckpoint(0); // when snapshots work, we will load from that point
+				foreach (var message in replay)
+					PublishToRing(receivingRing, message);
 
 				this.listener.Start(); // now start listening on the wire
 
