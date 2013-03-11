@@ -10,27 +10,26 @@
 			if (key == Guid.Empty)
 				return false;
 
-			if (this.hash.Contains(key))
+			if (this.entries.Contains(key))
 				return true;
 
-			this.index = (this.index + 1) % this.capacity;
-			this.hash.Remove(this.window[this.index]);
-			this.window[this.index] = key;
+			while (this.cache.Count >= this.capacity)
+				this.entries.Remove(this.cache.Dequeue());
+
+			this.entries.Add(key);
+			this.cache.Enqueue(key);
+
 			return false;
 		}
 
 		public DuplicateStore(int capacity)
 		{
-			if (capacity <= 0 || capacity > (int.MaxValue - 16))
-				throw new ArgumentOutOfRangeException("capacity");
-
-			this.window = new Guid[capacity];
 			this.capacity = capacity;
+			this.entries = new HashSet<Guid>();
 		}
 
-		private readonly HashSet<Guid> hash = new HashSet<Guid>();
-		private readonly Guid[] window;
-		private readonly int capacity;
-		private int index  = -1;
+		private readonly Queue<Guid> cache = new Queue<Guid>();
+		private readonly HashSet<Guid> entries; 
+		private readonly long capacity;
 	}
 }
