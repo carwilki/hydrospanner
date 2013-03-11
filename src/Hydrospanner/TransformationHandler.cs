@@ -12,12 +12,13 @@
 
 			var reachedLive = !this.live && data.LiveMessage;
 
-			if (data.LiveMessage)
-				data.MessageSequence = ++this.currentSequence;
+			if (data.AcknowledgeDelivery != null)
+				data.MessageSequence = ++this.currentSequence; // coming off the wire, assign a sequence value to it
 
 			this.live = this.live || reachedLive; // TODO: once we've reach the live stream, we may want to consider doing a snapshot among other things
 
 			this.Hydrate(data);
+			this.Dispatch(data);
 
 			if (endOfBatch)
 				this.SaveSystemSnapshot(data);
@@ -33,10 +34,7 @@
 				hydratable.Hydrate(data.Body, data.Headers, data.LiveMessage);
 
 				if (data.LiveMessage)
-				{
-					data.DispatchMessages.AddRange(hydratable.GatherMessages() ?? new object[0]);
-					this.currentSequence += data.DispatchMessages.Count;
-				}
+					this.pendingDispatch.AddRange(hydratable.GatherMessages() ?? new object[0]);
 
 				if (hydratable.IsComplete || (hydratable.SnapshotFrequency > 0 && data.MessageSequence % hydratable.SnapshotFrequency == 0))
 				{
@@ -63,6 +61,41 @@
 
 			// TODO: it doesn't exist in the repo, check the tombstone/completed collection
 			return this.repository[key.Name] = key.Create();
+		}
+		private void Dispatch(WireMessage data)
+		{
+			var wireMessage = data.AcknowledgeDelivery != null;
+			var batchSize = this.pendingDispatch.Count + (wireMessage ? 1 : 0);
+
+			var batch = this.dispatch.NewBatchDescriptor(batchSize);
+			batch = this.dispatch.Next(batch);
+
+			if (wireMessage)
+			{
+				var target = this.dispatch[batch.Start];
+				target.Clear();
+				target.MessageSequence = data.MessageSequence;
+				target.Body = data.Body;
+				target.Headers = data.Headers;
+				target.SerializedBody = data.SerializedBody;
+				target.SerializedHeaders = data.SerializedHeaders;
+				target.WireId = data.WireId;
+				target.AcknowledgeDelivery = data.AcknowledgeDelivery;
+			}
+			
+			for (var i = 0; i < this.pendingDispatch.Count; i++)
+			{
+				var pending = this.pendingDispatch[i];
+				var item = this.dispatch[batch.Start + i + (wireMessage ? 1 : 0)];
+				item.Clear();
+				item.MessageSequence = ++this.currentSequence;
+				item.Body = pending;
+				item.Headers = new Dictionary<string, string>(); // TODO: where do these come from???
+			}
+
+			this.dispatch.Publish(batch);
+
+			this.pendingDispatch.Clear();
 		}
 		private void SaveSystemSnapshot(WireMessage data)
 		{
@@ -94,19 +127,23 @@
 		public TransformationHandler(
 			Dictionary<string, IHydratable> repository,
 			RingBuffer<SnapshotMessage> snapshot,
+			RingBuffer<DispatchMessage> dispatch,
 			int snapshotFrequency,
 			IHydratableSelector selector,
 			long currentSequence)
 		{
 			this.repository = repository;
 			this.snapshot = snapshot;
+			this.dispatch = dispatch;
 			this.snapshotFrequency = snapshotFrequency;
 			this.selector = selector;
 			this.currentSequence = currentSequence;
 		}
 
+		private readonly List<object> pendingDispatch = new List<object>();
 		private readonly Dictionary<string, IHydratable> repository;
 		private readonly RingBuffer<SnapshotMessage> snapshot;
+		private readonly RingBuffer<DispatchMessage> dispatch;
 		private readonly int snapshotFrequency;
 		private readonly IHydratableSelector selector;
 		private long currentSequence;

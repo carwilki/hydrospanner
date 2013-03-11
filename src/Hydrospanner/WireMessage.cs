@@ -16,8 +16,6 @@
 		public Guid WireId { get; set; } // used for de-duplication; indicates a message originated from an external source
 		public Action AcknowledgeDelivery { get; set; }
 
-		public List<object> DispatchMessages { get; private set; }
-
 		public void Clear()
 		{
 			this.MessageSequence = 0;
@@ -31,12 +29,6 @@
 			this.WireId = Guid.Empty;
 
 			this.AcknowledgeDelivery = null;
-			this.DispatchMessages.Clear();
-		}
-
-		public WireMessage()
-		{
-			this.DispatchMessages = new List<object>();
 		}
 	}
 }

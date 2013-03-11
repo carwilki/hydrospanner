@@ -50,13 +50,7 @@
 				command.Transaction = transaction;
 				command.CommandText = builder.ToString();
 
-				try
-				{
-					command.ExecuteNonQuery();
-				}
-				catch (DbException e)
-				{
-				}
+				command.ExecuteNonQuery();
 				transaction.Commit();
 
 				this.buffer.Clear();

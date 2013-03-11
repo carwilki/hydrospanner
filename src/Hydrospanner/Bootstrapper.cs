@@ -32,10 +32,10 @@
 
 				this.receivingDisruptor
 					.HandleEventsWith(new SerializationHandler(), new DuplicateHandler(this.duplicates))
-					.Then(new TransformationHandler(repo, this.snapshotRing, SnapshotFrequence, this.selector, journalCheckpoint))
-					.Then(new ForwardLocalHandler(this.receivingRing, this.dispatchRing));
+					.Then(new TransformationHandler(repo, this.snapshotRing, this.dispatchRing, SnapshotFrequence, this.selector, journalCheckpoint));
+
 				this.dispatchDisruptor
-					.HandleEventsWith(new SerializationHandler())
+					.HandleEventsWith(new SerializationHandler(), new ForwardLocalHandler(this.receivingDisruptor.RingBuffer))
 					.Then(new JournalHandler(this.settings))
 					.Then(new DispatchHandler(0, dispatchCheckpoint))
 					.Then(new AcknowledgementHandler()) // TODO: put this inline with the DispatchHandler
@@ -122,7 +122,7 @@
 
 		private const int SnapshotFrequence = 100;
 		private const int MaxDuplicates = 1024 * 64;
-		private const int PreallocatedSize = 1024 * 32;
+		private const int PreallocatedSize = 1024 * 128;
 		private readonly ConnectionStringSettings settings;
 		private readonly Disruptor<WireMessage> receivingDisruptor;
 		private readonly Disruptor<DispatchMessage> dispatchDisruptor;

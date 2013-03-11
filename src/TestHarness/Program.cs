@@ -57,10 +57,12 @@
 
 		public void Hydrate(AccountClosedEvent message, Dictionary<string, string> headers, bool live)
 		{
-			Console.WriteLine("Hello, World!");
+			if (++this.counter % 10000 == 0)
+				Console.WriteLine(this.counter);
 			this.stored = message;
 		}
 
 		private AccountClosedEvent stored;
+		private long counter;
 	}
 }

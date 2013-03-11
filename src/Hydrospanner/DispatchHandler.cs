@@ -93,6 +93,8 @@
 				var messageId = this.nodeId.ToString(CultureInfo.InvariantCulture) + message.MessageSequence.ToString(CultureInfo.InvariantCulture); // deterministic
 				properties.MessageId = messageId;
 
+				properties.DeliveryMode = 1; // TODO: may depend upon message type?
+
 				var exchange = message.Body.GetType().FullName.ToLower().Replace(".", "-"); // NanoMessageBus convention
 				this.channel.BasicPublish(exchange, string.Empty, false, false, properties, message.SerializedBody);
 			}
