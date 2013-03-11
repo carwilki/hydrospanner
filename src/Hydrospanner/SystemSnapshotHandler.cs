@@ -16,7 +16,7 @@
 				if (this.stream != null)
 					this.stream.Dispose();
 
-				this.stream = this.snapshotter.Create(data.CurrentSequence, data.MementosRemaining);
+				this.stream = this.recorder.Create(data.CurrentSequence, data.MementosRemaining);
 			}
 
 			this.stream.WriteItem(data.Serialized);
@@ -28,12 +28,12 @@
 			this.remaining = 0;
 		}
 
-		public SystemSnapshotHandler(SystemSnapshotter snapshotter)
+		public SystemSnapshotHandler(SystemSnapshotRecorder recorder)
 		{
-			this.snapshotter = snapshotter;
+			this.recorder = recorder;
 		}
 
-		private readonly SystemSnapshotter snapshotter;
+		private readonly SystemSnapshotRecorder recorder;
 		private SnapshotOutputStream stream;
 		private long remaining;
 	}

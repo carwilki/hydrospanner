@@ -41,7 +41,7 @@
 					.Then(new CheckpointHandler(this.storage));
 				this.snapshotDisruptor
 					.HandleEventsWith(new SerializationHandler())
-					.Then(new SystemSnapshotHandler(), new IsolatedSnapshotHandler());
+					.Then(new SystemSnapshotHandler(null), new IsolatedSnapshotHandler());
 
 				this.receivingDisruptor.Start();
 				this.dispatchDisruptor.Start();
@@ -80,6 +80,8 @@
 		{
 			this.selector = selector;
 			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
+			this.snapshotRecorder = new SystemSnapshotRecorder(
+				ConfigurationManager.AppSettings["snapshot-path"], ConfigurationManager.AppSettings["snapshot-prefix"]);
 
 			this.receivingDisruptor = BuildDisruptor<WireMessage>(new MultiThreadedLowContentionClaimStrategy(PreallocatedSize));
 			this.dispatchDisruptor = BuildDisruptor<DispatchMessage>(new SingleThreadedClaimStrategy(PreallocatedSize));
@@ -136,6 +138,7 @@
 		private readonly MessageStore storage;
 		private readonly DuplicateStore duplicates;
 		private readonly MessageListener listener;
+		private readonly SystemSnapshotRecorder snapshotRecorder;
 		private bool started;
 	}
 }

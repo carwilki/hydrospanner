@@ -7,7 +7,7 @@
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
 
-	public class SystemSnapshotter
+	public class SystemSnapshotRecorder
 	{
 		public SnapshotInputStream Read()
 		{
@@ -37,11 +37,11 @@
 			var name = Format.FormatWith(this.prefix, messageSequence);
 			var fullname = Path.Combine(this.path, name);
 
-			var stream = new FileStream(fullname, FileMode.Create, FileAccess.Write, FileShare.Read, BufferSize, FileOptions.SequentialScan);
+			var stream = new FileStream(fullname, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, BufferSize, FileOptions.RandomAccess);
 			return new SnapshotOutputStream(stream, itemCount, checksum => File.Move(fullname, Format.FormatWith(fullname, checksum)));
 		}
 
-		public SystemSnapshotter(string path, string prefix)
+		public SystemSnapshotRecorder(string path, string prefix)
 		{
 			this.path = path;
 			this.prefix = prefix;
@@ -67,6 +67,17 @@
 			{
 				if (this.ItemCount == 0)
 					yield break;
+
+				var lengthBuffer = new byte[4];
+				while (this.stream.Position < this.stream.Length)
+				{
+					this.stream.Read(lengthBuffer, 0, lengthBuffer.Length);
+					var length = BitConverter.ToInt32(lengthBuffer, 0);
+
+					var itemBuffer = new byte[length];
+					this.stream.Read(itemBuffer, 0, itemBuffer.Length);
+					yield return itemBuffer;
+				}
 			}
 		}
 
