@@ -12,32 +12,36 @@
 				return;
 
 			this.BatchPublish(data);
-
 			this.buffer.Enqueue(data); // avoid Disruptor ring buffer deadlocks by enqueuing locally and then attempting to forward if a slot is available
 			this.CopyLocal();
 		}
 
 		private void BatchPublish(WireMessage data)
 		{
+			var wireMessage = data.AcknowledgeDelivery != null;
 			var gathered = data.DispatchMessages;
-			var batchSize = gathered.Count + 1;
+			var batchSize = gathered.Count + (wireMessage ? 1 : 0);
 
 			var batch = this.dispatch.NewBatchDescriptor(batchSize);
+			batch = this.dispatch.Next(batch);
 
-			var target = this.dispatch[batch.Start];
-			target.Clear();
-			target.MessageSequence = data.MessageSequence;
-			target.Body = data.Body;
-			target.Headers = data.Headers;
-			target.SerializedBody = data.SerializedBody;
-			target.SerializedHeaders = data.SerializedHeaders;
-			target.WireId = data.WireId;
-			target.AcknowledgeDelivery = data.AcknowledgeDelivery;
-
+			if (wireMessage)
+			{
+				var target = this.dispatch[batch.Start];
+				target.Clear();
+				target.MessageSequence = data.MessageSequence;
+				target.Body = data.Body;
+				target.Headers = data.Headers;
+				target.SerializedBody = data.SerializedBody;
+				target.SerializedHeaders = data.SerializedHeaders;
+				target.WireId = data.WireId;
+				target.AcknowledgeDelivery = data.AcknowledgeDelivery;
+			}
+			
 			for (var i = 0; i < gathered.Count; i++)
 			{
 				var pending = gathered[i];
-				var item = this.dispatch[batch.Start + i + 1];
+				var item = this.dispatch[batch.Start + i + (wireMessage ? 1 : 0)];
 				item.Clear();
 				item.MessageSequence = data.MessageSequence + i + 1;
 				item.Body = pending;
@@ -61,6 +65,7 @@
 				item.MessageSequence = message.MessageSequence;
 				item.Body = message.Body;
 				item.Headers = message.Headers;
+				item.LiveMessage = true;
 
 				this.wire.Publish(claimed);
 			}

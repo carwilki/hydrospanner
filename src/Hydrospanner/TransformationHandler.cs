@@ -38,7 +38,7 @@
 					this.currentSequence += data.DispatchMessages.Count;
 				}
 
-				if (hydratable.IsComplete || data.MessageSequence % hydratable.SnapshotFrequency == 0)
+				if (hydratable.IsComplete || (hydratable.SnapshotFrequency > 0 && data.MessageSequence % hydratable.SnapshotFrequency == 0))
 				{
 					// TODO: capture individual "item" snapshot (same state as "system" snapshot, but pushed to snapshot ring and typically used for projections)
 					// for aggregates/sagas which are complete, it returns null

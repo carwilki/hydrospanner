@@ -36,9 +36,10 @@
 					.Then(new ForwardLocalHandler(this.receivingRing, this.dispatchRing));
 				this.dispatchDisruptor
 					.HandleEventsWith(new SerializationHandler())
-					.HandleEventsWith(new JournalHandler(this.settings))
-					.HandleEventsWith(new DispatchHandler(0, dispatchCheckpoint), new AcknowledgementHandler())
-					.HandleEventsWith(new CheckpointHandler(this.storage));
+					.Then(new JournalHandler(this.settings))
+					.Then(new DispatchHandler(0, dispatchCheckpoint))
+					.Then(new AcknowledgementHandler()) // TODO: put this inline with the DispatchHandler
+					.Then(new CheckpointHandler(this.storage));
 				this.snapshotDisruptor.HandleEventsWith(new SnapshotHandler());
 
 				this.receivingDisruptor.Start();

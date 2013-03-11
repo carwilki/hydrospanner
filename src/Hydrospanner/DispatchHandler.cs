@@ -16,7 +16,8 @@
 			if (this.dispatchCheckpoint >= data.MessageSequence)
 				return; // already published
 
-			this.buffer.Add(data);
+			if (data.AcknowledgeDelivery == null)
+				this.buffer.Add(data); // only dispatch locally generated messages, not messages already coming off the wire
 
 			if (!endOfBatch)
 				return;

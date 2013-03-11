@@ -3,6 +3,7 @@
 	using System.Collections.Generic;
 	using System.Configuration;
 	using System.Data;
+	using System.Data.Common;
 	using System.Text;
 	using Disruptor;
 
@@ -10,7 +11,7 @@
 	{
 		public void OnNext(DispatchMessage data, long sequence, bool endOfBatch)
 		{
-			if (data.MessageSequence > 0)
+			if (data.DispatchOnly)
 				return; // this message has already been journaled
 
 			this.buffer.Add(data);
@@ -49,7 +50,13 @@
 				command.Transaction = transaction;
 				command.CommandText = builder.ToString();
 
-				command.ExecuteNonQuery();
+				try
+				{
+					command.ExecuteNonQuery();
+				}
+				catch (DbException e)
+				{
+				}
 				transaction.Commit();
 
 				this.buffer.Clear();
