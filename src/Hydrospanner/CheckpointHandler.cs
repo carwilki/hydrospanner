@@ -2,7 +2,7 @@
 {
 	using Disruptor;
 
-	public class CheckpointHandler : IEventHandler<DispatchMessage>
+	public sealed class CheckpointHandler : IEventHandler<DispatchMessage>
 	{
 		public void OnNext(DispatchMessage data, long sequence, bool endOfBatch)
 		{

@@ -3,7 +3,7 @@
 	using System;
 	using Disruptor;
 
-	public class AcknowledgementHandler : IEventHandler<DispatchMessage>
+	public sealed class AcknowledgementHandler : IEventHandler<DispatchMessage>
 	{
 		public void OnNext(DispatchMessage data, long sequence, bool endOfBatch)
 		{

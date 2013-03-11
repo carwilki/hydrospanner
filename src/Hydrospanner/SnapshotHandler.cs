@@ -2,7 +2,7 @@
 {
 	using Disruptor;
 
-	public class SnapshotHandler : IEventHandler<SnapshotMessage>
+	public sealed class SnapshotHandler : IEventHandler<SnapshotMessage>
 	{
 		public void OnNext(SnapshotMessage data, long sequence, bool endOfBatch)
 		{

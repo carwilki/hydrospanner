@@ -2,7 +2,7 @@
 {
 	using Disruptor;
 
-	public class DuplicateHandler : IEventHandler<WireMessage>
+	public sealed class DuplicateHandler : IEventHandler<WireMessage>
 	{
 		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{

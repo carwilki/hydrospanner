@@ -4,7 +4,7 @@
 	using System.Collections.Generic;
 	using Disruptor;
 
-	public class SerializationHandler : IEventHandler<WireMessage>, IEventHandler<DispatchMessage>
+	public sealed class SerializationHandler : IEventHandler<WireMessage>, IEventHandler<DispatchMessage>
 	{
 		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{

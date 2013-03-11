@@ -9,7 +9,7 @@
 	using Disruptor;
 	using RabbitMQ.Client;
 
-	public class DispatchHandler : IEventHandler<DispatchMessage>
+	public sealed class DispatchHandler : IEventHandler<DispatchMessage>
 	{
 		public void OnNext(DispatchMessage data, long sequence, bool endOfBatch)
 		{
