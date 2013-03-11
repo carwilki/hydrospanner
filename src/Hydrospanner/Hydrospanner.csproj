@@ -62,7 +62,7 @@
     <Compile Include="JournalHandler.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="IsolatedSnapshotHandler.cs" />
+    <Compile Include="PublicSnapshotHandler.cs" />
     <Compile Include="MessageListener.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -2,7 +2,7 @@
 {
 	public class SnapshotMessage
 	{
-		public bool IsolatedSnapshot { get; set; }
+		public bool PublicSnapshot { get; set; }
 		public long CurrentSequence { get; set; }
 		public int MementosRemaining { get; set; }
 
@@ -12,7 +12,7 @@
 
 		public void Clear()
 		{
-			this.IsolatedSnapshot = false;
+			this.PublicSnapshot = false;
 			this.CurrentSequence = 0;
 			this.MementosRemaining = 0;
 			this.Key = null;

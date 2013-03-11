@@ -32,7 +32,7 @@
 				if (data.LiveMessage)
 					this.pendingDispatch.AddRange(hydratable.GatherMessages() ?? new object[0]);
 
-				if (hydratable.IsComplete || hydratable.IsolatedSnapshot)
+				if (hydratable.IsComplete || hydratable.PublicSnapshot)
 				{
 					// TODO: capture individual "item" snapshot (same state as "system" snapshot, but pushed to snapshot ring and typically used for projections)
 					// for aggregates/sagas which are complete, it returns null

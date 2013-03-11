@@ -10,7 +10,7 @@
 		object GetMemento();
 
 		void LoadFromMemento(object memento);
-		bool IsolatedSnapshot { get; }
+		bool PublicSnapshot { get; }
 	}
 
 	public interface IHydratable<T>

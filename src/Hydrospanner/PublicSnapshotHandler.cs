@@ -2,12 +2,14 @@
 {
 	using Disruptor;
 
-	public class IsolatedSnapshotHandler : IEventHandler<SnapshotMessage>
+	public class PublicSnapshotHandler : IEventHandler<SnapshotMessage>
 	{
 		public void OnNext(SnapshotMessage data, long sequence, bool endOfBatch)
 		{
-			if (!data.IsolatedSnapshot)
+			if (!data.PublicSnapshot)
 				return;
+
+			// push to KVS @ endOfBatch
 		}
 	}
 }

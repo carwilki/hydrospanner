@@ -40,7 +40,7 @@
 	{
 		public string Key { get { return "test-key"; } }
 		public bool IsComplete { get { return false; } }
-		public bool IsolatedSnapshot { get { return false; } }
+		public bool PublicSnapshot { get { return false; } }
 		public IEnumerable<object> GatherMessages()
 		{
 			yield return this.stored;

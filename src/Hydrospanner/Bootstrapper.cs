@@ -41,7 +41,7 @@
 					.Then(new CheckpointHandler(this.storage));
 				this.snapshotDisruptor
 					.HandleEventsWith(new SerializationHandler())
-					.Then(new SystemSnapshotHandler(this.snapshotRecorder), new IsolatedSnapshotHandler());
+					.Then(new SystemSnapshotHandler(this.snapshotRecorder), new PublicSnapshotHandler());
 
 				this.receivingDisruptor.Start();
 				this.dispatchDisruptor.Start();

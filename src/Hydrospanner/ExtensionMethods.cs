@@ -88,7 +88,7 @@
 			var callback = Delegate.CreateDelegate(typeof(Action<IHydratable, object, Dictionary<string, string>, bool>), method);
 			return (Action<IHydratable, object, Dictionary<string, string>, bool>)callback;
 		}
-		private static void HydrateDelegate<T>(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool live)
+		private static void HydrateDelegate<T>(IHydratable hydratable, object message, Dictionary<string, string> headers, bool live)
 		{
 			((IHydratable<T>)hydratable).Hydrate((T)message, headers, live);
 		}

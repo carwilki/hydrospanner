@@ -6,7 +6,7 @@
 	{
 		public void OnNext(SnapshotMessage data, long sequence, bool endOfBatch)
 		{
-			if (data.IsolatedSnapshot)
+			if (data.PublicSnapshot)
 				return;
 
 			if (data.MementosRemaining == 0 || data.MementosRemaining != this.remaining--)
