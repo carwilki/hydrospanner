@@ -75,6 +75,7 @@
     </Compile>
     <Compile Include="SystemSnapshotHandler.cs" />
     <Compile Include="SnapshotMessage.cs" />
+    <Compile Include="SystemSnapshotter.cs" />
     <Compile Include="TransformationHandler.cs">
       <SubType>Code</SubType>
     </Compile>
