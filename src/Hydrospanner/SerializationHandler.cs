@@ -4,7 +4,7 @@
 	using System.Collections.Generic;
 	using Disruptor;
 
-	public sealed class SerializationHandler : IEventHandler<WireMessage>, IEventHandler<DispatchMessage>
+	public sealed class SerializationHandler : IEventHandler<WireMessage>, IEventHandler<DispatchMessage>, IEventHandler<SnapshotMessage>
 	{
 		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
@@ -25,6 +25,10 @@
 
 			if (data.SerializedHeaders == null)
 				data.SerializedHeaders = this.serializer.Serialize(data.Headers);
+		}
+		public void OnNext(SnapshotMessage data, long sequence, bool endOfBatch)
+		{
+			data.Serialized = this.serializer.Serialize(data.Memento);
 		}
 
 		private readonly DefaultSerializer serializer = new DefaultSerializer();

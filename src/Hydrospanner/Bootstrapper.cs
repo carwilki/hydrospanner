@@ -33,14 +33,15 @@
 				this.receivingDisruptor
 					.HandleEventsWith(new SerializationHandler(), new DuplicateHandler(this.duplicates))
 					.Then(new TransformationHandler(repo, this.snapshotRing, this.dispatchRing, SnapshotFrequence, this.selector, journalCheckpoint));
-
 				this.dispatchDisruptor
 					.HandleEventsWith(new SerializationHandler(), new ForwardLocalHandler(this.receivingDisruptor.RingBuffer))
 					.Then(new JournalHandler(this.settings))
 					.Then(new DispatchHandler(0, dispatchCheckpoint))
 					.Then(new AcknowledgementHandler()) // TODO: put this inline with the DispatchHandler
 					.Then(new CheckpointHandler(this.storage));
-				this.snapshotDisruptor.HandleEventsWith(new SnapshotHandler());
+				this.snapshotDisruptor
+					.HandleEventsWith(new SerializationHandler())
+					.Then(new SystemSnapshotHandler(), new IsolatedSnapshotHandler());
 
 				this.receivingDisruptor.Start();
 				this.dispatchDisruptor.Start();
