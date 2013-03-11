@@ -25,6 +25,10 @@
 		{
 			return new[] { new TestKey() };
 		}
+		public IHydratable Create(object memento)
+		{
+			return null; // TODO
+		}
 	}
 
 	public class TestKey : IHydratableKey
@@ -54,10 +58,6 @@
 				Counter = this.counter,
 				Event = this.stored
 			};
-		}
-
-		public void LoadFromMemento(object memento)
-		{
 		}
 
 		public void Hydrate(AccountClosedEvent message, Dictionary<string, string> headers, bool live)
