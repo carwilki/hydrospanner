@@ -1,0 +1,14 @@
+obj
+bin
+Bin
+*.user
+*.suo
+_ReSharper.*
+*.ReSharper*
+*.Cache
+*.cache
+~$*
+default*.js
+packages
+*.pyc
+.idea
