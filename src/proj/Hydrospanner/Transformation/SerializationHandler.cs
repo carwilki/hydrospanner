@@ -6,6 +6,14 @@
 	{
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
+			data.Deserialize(this.serializer);
 		}
+
+		public SerializationHandler(JsonSerializer serializer)
+		{
+			this.serializer = serializer;
+		}
+
+		readonly JsonSerializer serializer;
 	}
 }

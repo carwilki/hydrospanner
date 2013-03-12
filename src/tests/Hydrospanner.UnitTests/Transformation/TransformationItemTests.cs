@@ -88,6 +88,49 @@ namespace Hydrospanner.Transformation
 		static object body;
 		static Dictionary<string, string> headers;
 	}
+
+	public class when_initializing_a_journaled_message
+	{
+		Establish context = () =>
+		{
+			item = new TransformationItem();
+			sequence = 42;
+			body = new byte[] { 1, 2, 3 };
+			headers = new byte[] { 4, 5, 6 };
+			type = "System.String, mscorlib";
+			foreignId = Guid.NewGuid();
+		};
+
+		Because of = () =>
+			item.AsJournaledMessage(sequence, body, type, headers, foreignId);
+
+		It should_set_the_following_properties_according_to_the_provided_arguments = () =>
+		{
+			item.MessageSequence.ShouldEqual(sequence);
+			item.SerializedType.ShouldStartWith("System.String, mscorlib");
+			item.SerializedBody.ShouldEqual(body);
+			item.SerializedHeaders.ShouldEqual(headers);
+			item.IsLocal.ShouldBeTrue();
+			item.IsDocumented.ShouldBeTrue();
+			item.ForeignId.ShouldEqual(foreignId);
+		};
+
+		It should_set_the_following_properties_to_their_default_values = () =>
+		{
+			item.Body.ShouldBeNull();;
+			item.Headers.ShouldBeNull();
+			item.CanJournal.ShouldBeFalse();
+			item.IsDuplicate.ShouldBeFalse();
+			item.Acknowledgement.ShouldBeNull();
+		};
+
+		static TransformationItem item;
+		static long sequence;
+		static byte[] body;
+		static byte[] headers;
+		static string type;
+		static Guid foreignId;
+	}
 }
 
 // ReSharper restore InconsistentNaming

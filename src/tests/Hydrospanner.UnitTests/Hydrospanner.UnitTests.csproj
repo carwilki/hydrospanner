@@ -32,6 +32,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>Hydrospanner.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="JsonSerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -40,14 +46,16 @@
     <Compile Include="Transformation\TransformationItemTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Disruptor">
-      <HintPath>..\..\packages\Disruptor.1.1.0\lib\net40\Disruptor.dll</HintPath>
+    <Reference Include="Atomic, Version=1.1.1.0, Culture=neutral, PublicKeyToken=979700c3ff7272ae, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\disruptor-fork.1.1.1\lib\net40\Atomic.dll</HintPath>
+    </Reference>
+    <Reference Include="Disruptor, Version=1.1.1.0, Culture=neutral, PublicKeyToken=979700c3ff7272ae, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\disruptor-fork.1.1.1\lib\net40\Disruptor.dll</HintPath>
     </Reference>
     <Reference Include="Machine.Specifications">
       <HintPath>..\..\packages\Machine.Specifications-Signed.0.5.12\lib\net40\Machine.Specifications.dll</HintPath>
-    </Reference>
-    <Reference Include="Machine.Specifications.Clr4">
-      <HintPath>..\..\packages\Machine.Specifications-Signed.0.5.12\lib\net40\Machine.Specifications.Clr4.dll</HintPath>
     </Reference>
     <Reference Include="NSubstitute">
       <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
@@ -55,6 +63,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Hydrospanner.snk" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

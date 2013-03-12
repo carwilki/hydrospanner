@@ -50,5 +50,30 @@
 			this.ForeignId = Guid.Empty;
 			this.Acknowledgement = null;
 		}
+		public void AsJournaledMessage(long sequence, byte[] body, string type, byte[] headers, Guid foreignId)
+		{
+			this.MessageSequence = sequence;
+			this.SerializedBody = body;
+			this.SerializedType = type;
+			this.SerializedHeaders = headers;
+			this.Body = null;
+			this.Headers = null;
+			this.CanJournal = false;
+			this.IsDocumented = true;
+			this.IsLocal = true;
+			this.IsDuplicate = false;
+			this.ForeignId = foreignId;
+			this.Acknowledgement = null;
+
+		}
+
+		public void Deserialize(JsonSerializer serializer)
+		{
+			if (this.Body == null)
+				this.Body = serializer.Deserialize(this.SerializedBody, this.SerializedType);
+
+			if (this.Headers == null)
+				this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
+		}
 	}
 }
