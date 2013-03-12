@@ -31,8 +31,9 @@
 				var repo = new Dictionary<string, IHydratable>();
 
 				this.receivingDisruptor
-					.HandleEventsWith(new SerializationHandler(), new DuplicateHandler(this.duplicates))
-					.Then(new TransformationHandler(repo, this.snapshotRing, this.dispatchRing, SnapshotFrequency, this.selector, journalCheckpoint));
+					.HandleEventsWith(new SerializationHandler())
+					.Then(new TransformationHandler(repo, this.snapshotRing, this.dispatchRing, SnapshotFrequency, this.selector, journalCheckpoint, this.duplicates));
+
 				this.dispatchDisruptor
 					.HandleEventsWith(new SerializationHandler(), new ForwardLocalHandler(this.receivingDisruptor.RingBuffer))
 					.Then(new JournalHandler(this.settings))
@@ -83,20 +84,25 @@
 			this.snapshotRecorder = new SystemSnapshotRecorder(
 				ConfigurationManager.AppSettings["snapshot-path"], ConfigurationManager.AppSettings["snapshot-prefix"]);
 
-			this.receivingDisruptor = BuildDisruptor<WireMessage>(new MultiThreadedLowContentionClaimStrategy(PreallocatedSize));
-			this.dispatchDisruptor = BuildDisruptor<DispatchMessage>(new SingleThreadedClaimStrategy(PreallocatedSize));
-			this.snapshotDisruptor = BuildDisruptor<SnapshotMessage>(new SingleThreadedClaimStrategy(PreallocatedSize));
+			this.receivingDisruptor = BuildDisruptor<WireMessage>(
+				new MultiThreadedLowContentionClaimStrategy(PreallocatedSize), new SleepingWaitStrategy());
 			this.receivingRing = this.receivingDisruptor.RingBuffer;
+
+			this.dispatchDisruptor = BuildDisruptor<DispatchMessage>(
+				new SingleThreadedClaimStrategy(PreallocatedSize), new SleepingWaitStrategy());
 			this.dispatchRing = this.dispatchDisruptor.RingBuffer;
+
+			this.snapshotDisruptor = BuildDisruptor<SnapshotMessage>(
+				new SingleThreadedClaimStrategy(PreallocatedSize), new SleepingWaitStrategy());
 			this.snapshotRing = this.snapshotDisruptor.RingBuffer;
 
 			this.storage = new MessageStore(this.settings);
 			this.duplicates = new DuplicateStore(MaxDuplicates);
 			this.listener = new MessageListener(this.receivingDisruptor.RingBuffer);
 		}
-		private static Disruptor<T> BuildDisruptor<T>(IClaimStrategy strategy) where T : class, new()
+		private static Disruptor<T> BuildDisruptor<T>(IClaimStrategy claim, IWaitStrategy wait) where T : class, new()
 		{
-			return new Disruptor<T>(() => new T(), strategy, new SleepingWaitStrategy(), TaskScheduler.Default);
+			return new Disruptor<T>(() => new T(), claim, wait, TaskScheduler.Default);
 		}
 
 		public void Dispose()
@@ -126,7 +132,7 @@
 
 		private const int SnapshotFrequency = 25000;
 		private const int MaxDuplicates = 1024 * 64;
-		private const int PreallocatedSize = 1024 * 128;
+		private const int PreallocatedSize = 1024 * 64;
 		private readonly ConnectionStringSettings settings;
 		private readonly Disruptor<WireMessage> receivingDisruptor;
 		private readonly Disruptor<DispatchMessage> dispatchDisruptor;

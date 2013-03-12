@@ -7,6 +7,9 @@
 	{
 		public void OnNext(WireMessage data, long sequence, bool endOfBatch)
 		{
+			if (data.MessageSequence == 0)
+				data.DuplicateMessage = this.duplicates.Contains(data.WireId);
+
 			if (data.DuplicateMessage)
 				return;
 
@@ -125,7 +128,8 @@
 			RingBuffer<DispatchMessage> dispatch,
 			int snapshotFrequency,
 			IHydratableSelector selector,
-			long currentSequence)
+			long currentSequence,
+			DuplicateStore duplicates)
 		{
 			this.repository = repository;
 			this.snapshot = snapshot;
@@ -133,6 +137,7 @@
 			this.snapshotFrequency = snapshotFrequency;
 			this.selector = selector;
 			this.currentSequence = currentSequence;
+			this.duplicates = duplicates;
 		}
 
 		private readonly List<object> pendingDispatch = new List<object>();
@@ -142,5 +147,6 @@
 		private readonly int snapshotFrequency;
 		private readonly IHydratableSelector selector;
 		private long currentSequence;
+		private readonly DuplicateStore duplicates;
 	}
 }

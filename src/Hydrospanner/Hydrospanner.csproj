@@ -47,7 +47,6 @@
     <Compile Include="DispatchMessage.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DuplicateHandler.cs" />
     <Compile Include="DuplicateStore.cs">
       <SubType>Code</SubType>
     </Compile>
