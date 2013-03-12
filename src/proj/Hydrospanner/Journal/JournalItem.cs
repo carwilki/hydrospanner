@@ -1,9 +1,9 @@
-﻿namespace Hydrospanner
+﻿namespace Hydrospanner.Journal
 {
 	using System;
 	using System.Collections.Generic;
 
-	internal class TransformationItem
+	public class JournalItem
 	{
 		public long MessageSequence { get; private set; }
 
@@ -13,11 +13,17 @@
 		public object Body { get; private set; }
 		public Dictionary<string, string> Headers { get; private set; }
 
-		public bool CanJournal { get; private set; }
-		public bool IsDocumented { get; private set; }
-		public bool IsLocal { get; private set; }
-		public bool IsDuplicate { get; private set; }
+		public JournalItemAction ItemActions { get; private set; }
 		public Guid ForeignId { get; private set; }
 		public Action Acknowledgement { get; private set; }
+	}
+
+	[Flags]
+	public enum JournalItemAction
+	{
+		None = 0,
+		Journal = 1,
+		Dispatch = 2,
+		Acknowledge = 4
 	}
 }

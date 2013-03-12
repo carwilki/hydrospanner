@@ -9,7 +9,7 @@ namespace Hydrospanner
 	using Machine.Specifications;
 
 	[Subject(typeof(JsonSerializer))]
-	internal class when_serializing_and_deserializing_objects
+	public class when_serializing_and_deserializing_objects
 	{
 		public class during_serialization
 		{

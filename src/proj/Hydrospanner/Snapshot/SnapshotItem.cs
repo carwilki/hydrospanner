@@ -1,6 +1,6 @@
-﻿namespace Hydrospanner
+﻿namespace Hydrospanner.Snapshot
 {
-	internal class SnapshotItem
+	public class SnapshotItem
 	{
 		public bool IsPublicSnapshot { get; private set; }
 		public long CurrentSequence { get; private set; }

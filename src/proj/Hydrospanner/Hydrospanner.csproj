@@ -32,12 +32,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\Hydrospanner.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
@@ -48,9 +42,10 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Transformation\SerializationHandler.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IHydratable.cs" />
-    <Compile Include="JournalItem.cs" />
+    <Compile Include="Journal\JournalItem.cs" />
     <Compile Include="JsonSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -60,8 +55,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SnapshotItem.cs" />
-    <Compile Include="TransformationItem.cs" />
+    <Compile Include="Snapshot\SnapshotItem.cs" />
+    <Compile Include="Transformation\TransformationItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\CustomDictionary.xml">
@@ -70,9 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Bootstrap\" />
-    <Folder Include="Dispatch\" />
-    <Folder Include="Snapshot\" />
-    <Folder Include="Transformation\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Disruptor">
@@ -90,7 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
