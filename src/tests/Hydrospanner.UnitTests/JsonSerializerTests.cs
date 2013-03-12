@@ -40,7 +40,7 @@ namespace Hydrospanner
 					Fifth = 5,
 					Sixth = Guid.NewGuid(),
 					Seventh = "Hello, World!",
-					//Eighth = new Uri("http://www.google.com"), // TODO
+					Eighth = new Uri("http://www.google.com/"),
 					Ninth = Instant,
 					Tenth = Values.First
 				};
@@ -149,7 +149,7 @@ namespace Hydrospanner
 		public byte Fifth { get; set; }
 		public Guid Sixth { get; set; }
 		public string Seventh { get; set; }
-		// public Uri Eighth { get; set; }
+		public Uri Eighth { get; set; }
 		public DateTime Ninth { get; set; }
 		public Values Tenth { get; set; }
 	}
