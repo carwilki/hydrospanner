@@ -22,7 +22,6 @@
 
 		public void AsForeignMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action ack)
 		{
-			// TODO: get this under test
 			this.MessageSequence = 0;
 			this.SerializedBody = body;
 			this.SerializedType = type;
@@ -38,7 +37,6 @@
 		}
 		public void AsLocalMessage(long sequence, object body, Dictionary<string, string> headers)
 		{
-			// TODO: get this under test
 			this.MessageSequence = sequence;
 			this.SerializedBody = null;
 			this.SerializedType = body.GetType().AssemblyQualifiedName;

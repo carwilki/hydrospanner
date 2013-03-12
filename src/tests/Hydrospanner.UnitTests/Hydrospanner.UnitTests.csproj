@@ -37,6 +37,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringExtensionsTests.cs" />
     <Compile Include="Transformation\SerializationHandlerTests.cs" />
+    <Compile Include="Transformation\TransformationItemTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Disruptor">
