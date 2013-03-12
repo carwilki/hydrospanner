@@ -22,49 +22,46 @@
 
 		public void AsForeignMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action ack)
 		{
-			this.MessageSequence = 0;
+			this.Clear();
+			this.CanJournal = true;
 			this.SerializedBody = body;
 			this.SerializedType = type;
-			this.SerializedHeaders = null;
-			this.Body = null;
 			this.Headers = headers;
-			this.CanJournal = true;
-			this.IsDocumented = false;
-			this.IsLocal = false;
-			this.IsDuplicate = false;
 			this.ForeignId = foreignId;
 			this.Acknowledgement = ack;
 		}
+
 		public void AsLocalMessage(long sequence, object body, Dictionary<string, string> headers)
 		{
+			this.Clear();
+			this.IsLocal = true;
 			this.MessageSequence = sequence;
-			this.SerializedBody = null;
 			this.SerializedType = body.GetType().AssemblyQualifiedName;
-			this.SerializedHeaders = null;
 			this.Body = body;
 			this.Headers = headers;
-			this.CanJournal = false;
-			this.IsDocumented = false;
-			this.IsLocal = true;
-			this.IsDuplicate = false;
-			this.ForeignId = Guid.Empty;
-			this.Acknowledgement = null;
 		}
+
 		public void AsJournaledMessage(long sequence, byte[] body, string type, byte[] headers, Guid foreignId)
 		{
+			this.Clear();
 			this.MessageSequence = sequence;
 			this.SerializedBody = body;
 			this.SerializedType = type;
 			this.SerializedHeaders = headers;
-			this.Body = null;
-			this.Headers = null;
-			this.CanJournal = false;
 			this.IsDocumented = true;
 			this.IsLocal = true;
-			this.IsDuplicate = false;
 			this.ForeignId = foreignId;
-			this.Acknowledgement = null;
+		}
 
+		private void Clear()
+		{
+			this.MessageSequence = 0;
+			this.SerializedBody = SerializedHeaders = null;
+			this.Body = this.Headers = null;
+			this.SerializedType = null;
+			this.CanJournal = this.IsDocumented = this.IsLocal = this.IsDuplicate = false;
+			this.ForeignId = Guid.Empty;
+			this.Acknowledgement = null;
 		}
 
 		public void Deserialize(JsonSerializer serializer)

@@ -12,13 +12,19 @@
 
 		public void AsPublicSnapshot(string key, object memento)
 		{
+			this.Clear();
 			this.IsPublicSnapshot = true;
 			this.Key = key;
 			this.Memento = memento;
-			
-			this.CurrentSequence = 0;
-			this.MementosRemaining = 0;
+		}
+
+		private void Clear()
+		{
+			this.IsPublicSnapshot = false;
+			this.Key = null;
+			this.Memento = null;
 			this.Serialized = null;
+			this.CurrentSequence = this.MementosRemaining = 0;
 		}
 
 		public void Serialize(JsonSerializer serializer)
