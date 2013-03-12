@@ -42,7 +42,9 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="DispatchItem.cs" />
     <Compile Include="IHydratable.cs" />
+    <Compile Include="SnapshotItem.cs" />
     <Compile Include="TransformationItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -54,8 +56,8 @@
   <ItemGroup>
     <Folder Include="Bootstrap\" />
     <Folder Include="Dispatch\" />
-    <Folder Include="Incoming\" />
     <Folder Include="Snapshot\" />
+    <Folder Include="Transformation\" />
     <Folder Include="UnitTests\" />
   </ItemGroup>
   <ItemGroup>

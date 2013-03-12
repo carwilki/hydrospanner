@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	public class TransformationItem
+	public class DispatchItem
 	{
 		public long MessageSequence { get; private set; }
 
@@ -13,9 +13,8 @@
 		public object Body { get; private set; }
 		public Dictionary<string, string> Headers { get; private set; }
 
+		public bool DispatchOnly { get; private set; }
 		public bool WriteToJournal { get; private set; }
-		public bool LiveMessage { get; private set; }
-		public bool DuplicateMessage { get; private set; }
 		public Guid WireId { get; private set; }
 		public Action AcknowledgeDelivery { get; private set; }
 	}
