@@ -133,9 +133,11 @@
 			message.Clear();
 
 			message.SerializedBody = delivery.Body;
+			message.SerializedType = properties.Type;
 			message.Headers = ParseHeaders(properties.Headers);
 			message.WireId = GetMessageId(properties.MessageId);
 			message.LiveMessage = true;
+			message.WriteToJournal = properties.DeliveryMode == 2;
 			var tag = delivery.DeliveryTag;
 
 			message.AcknowledgeDelivery = () =>

@@ -32,6 +32,7 @@
 					for (var i = 0; i < 1; i++)
 					{
 						properties.MessageId = (i + 1).ToString(CultureInfo.InvariantCulture);
+						properties.Type = message.GetType().AssemblyQualifiedName;
 
 						channel.BasicPublish(string.Empty, QueueName, properties, payload);
 					}

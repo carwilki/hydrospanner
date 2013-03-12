@@ -5,9 +5,10 @@
 
 	public sealed class DispatchMessage
 	{
-		public long MessageSequence { get; set; } // assigned by the journaler
+		public long MessageSequence { get; set; } // assigned by the transformer
 
 		public byte[] SerializedBody { get; set; }
+		public string SerializedType { get; set; }
 		public byte[] SerializedHeaders { get; set; }
 		public object Body { get; set; }
 		public Dictionary<string, string> Headers { get; set; }
@@ -21,6 +22,7 @@
 		{
 			this.MessageSequence = 0;
 			this.SerializedBody = null;
+			this.SerializedType = null;
 			this.SerializedHeaders = null;
 			this.Body = null;
 			this.Headers = null;

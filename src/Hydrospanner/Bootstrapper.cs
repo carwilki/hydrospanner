@@ -70,9 +70,11 @@
 			message.Clear();
 
 			message.MessageSequence = journaled.MessageSequence;
-			message.LiveMessage = false;
 			message.SerializedBody = journaled.SerializedBody;
+			message.SerializedType = journaled.SerializedType;
 			message.SerializedHeaders = journaled.SerializedHeaders;
+			message.WriteToJournal = true;
+			message.LiveMessage = false;
 
 			ring.Publish(claimed);
 		}

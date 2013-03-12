@@ -8,6 +8,14 @@
 	using System.Globalization;
 	using System.Reflection;
 
+	internal static class GuidExtensions
+	{
+		public static object ToNull(this Guid value)
+		{
+			return value == Guid.Empty ? null : (object)value;
+		}
+	}
+
 	internal static class DisposableExtensions
 	{
 		public static IDisposable TryDispose(this IDisposable resource)
@@ -49,13 +57,14 @@
 			connection.Open();
 			return connection;
 		}
-		public static IDbCommand WithParameter(this IDbCommand command, string name, object value)
+		public static IDbCommand WithParameter(this IDbCommand command, string name, object value, DbType type)
 		{
 			try
 			{
 				var parameter = command.CreateParameter();
 				parameter.ParameterName = name;
 				parameter.Value = value ?? DBNull.Value;
+				parameter.DbType = type;
 				command.Parameters.Add(parameter);
 				return command;
 			}

@@ -16,7 +16,7 @@
 			if (data.LiveMessage)
 				this.SaveSystemSnapshot();
 
-			if (data.AcknowledgeDelivery != null)
+			if (data.AcknowledgeDelivery != null && data.WriteToJournal)
 				data.MessageSequence = ++this.currentSequence; // coming off the wire, assign a sequence value to it
 
 			this.Hydrate(data);
@@ -81,8 +81,7 @@
 				target.WireId = data.WireId;
 				target.AcknowledgeDelivery = data.AcknowledgeDelivery;
 
-				// TODO: this could be part of the message discovery
-				target.WriteToJournal = data.Body.GetType().FullName.EndsWith("Event"); // don't write commands
+				target.WriteToJournal = data.WriteToJournal; // TODO: this could be part of the message discovery
 			}
 			
 			for (var i = 0; i < this.pendingDispatch.Count; i++)
