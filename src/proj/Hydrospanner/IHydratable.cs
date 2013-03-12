@@ -6,11 +6,9 @@
 	{
 		string Key { get; }
 		bool IsComplete { get; }
+		bool IsPublicSnapshot { get; }
 		IEnumerable<object> GatherMessages();
 		object GetMemento();
-
-		void LoadFromMemento(object memento);
-		bool PublicSnapshot { get; }
 	}
 
 	public interface IHydratable<T>
