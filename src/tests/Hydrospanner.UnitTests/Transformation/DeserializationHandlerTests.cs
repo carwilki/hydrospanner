@@ -8,7 +8,7 @@ namespace Hydrospanner.Transformation
 	using System.Text;
 	using Machine.Specifications;
 
-	[Subject(typeof(SerializationHandler))]
+	[Subject(typeof(DeserializationHandler))]
 	public class when_SerializationHandlerTests
 	{
 		public class when_the_body_exists
@@ -54,7 +54,7 @@ namespace Hydrospanner.Transformation
 
 		Establish context = () =>
 		{
-			handler = new SerializationHandler(new JsonSerializer());
+			handler = new DeserializationHandler(new JsonSerializer());
 			item = new TransformationItem();
 		};
 
@@ -65,7 +65,7 @@ namespace Hydrospanner.Transformation
 		const string Value = "hi";
 		static readonly string Body = "{{ \"{0}\": \"{1}\" }}".FormatWith(Key, Value);
 		static readonly Dictionary<string, string> Headers = new Dictionary<string, string> { { Key, Value } };
-		static SerializationHandler handler;
+		static DeserializationHandler handler;
 		static TransformationItem item;
 	}
 }

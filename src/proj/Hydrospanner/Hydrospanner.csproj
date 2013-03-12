@@ -48,7 +48,7 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Transformation\SerializationHandler.cs" />
+    <Compile Include="Transformation\DeSerializationHandler.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="Journal\JournalItem.cs" />
