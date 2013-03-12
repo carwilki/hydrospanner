@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Hydrospanner")]
 [assembly: AssemblyDescription("")]
 [assembly: Guid("cfe2f2c2-aeda-4b9e-be32-de293e744b95")]
+[assembly: InternalsVisibleTo("Hydrospanner.UnitTests, PublicKey=00240000048000009400000006020000002400005253413100040000010001005d80ae14a14167643b5ab08685a9e7fc5412c42b0c54a50add9fed6082740e129b6146e8a123ea5301420a63e2c19094d53f50dc5ed7db2c2e7e97407c028a889b6008bcf9ddbfcd7acd7dfc5cfa916dda8e9e2514dac168d1c4ed2edcbb2b0db18386b85d6aa74a8f6df942cdee632b788a81e3b977d9f316c6bda5c05077b5")]

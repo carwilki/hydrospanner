@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 169
 // ReSharper disable InconsistentNaming
 
-namespace Hydrospanner.UnitTests
+namespace Hydrospanner
 {
 	using Machine.Specifications;
 

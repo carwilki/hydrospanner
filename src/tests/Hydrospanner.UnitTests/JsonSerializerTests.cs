@@ -1,12 +1,11 @@
 ﻿#pragma warning disable 169
 // ReSharper disable InconsistentNaming
 
-namespace Hydrospanner.UnitTests
+namespace Hydrospanner
 {
 	using System;
 	using System.Runtime.Serialization;
 	using Machine.Specifications;
-	using fastJSON;
 
 	[Subject(typeof(JsonSerializer))]
 	internal class when_serializing_and_deserializing_objects

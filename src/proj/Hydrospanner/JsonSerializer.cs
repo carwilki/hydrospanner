@@ -3,7 +3,7 @@
 	using System;
 	using System.Runtime.Serialization;
 	using System.Text;
-	using fastJSON;
+	using Newtonsoft.Json;
 
 	internal class JsonSerializer
 	{
@@ -14,7 +14,7 @@
 			
 			try
 			{
-				var serialized = Serializer.ToJSON(graph);
+				var serialized = JsonConvert.SerializeObject(graph);
 				return DefaultEncoding.GetBytes(serialized);
 			}
 			catch (Exception e)
@@ -26,17 +26,9 @@
 		public object Deserialize<T>(byte[] serialize)
 		{
 			var json = DefaultEncoding.GetString(serialize);
-			
-			return Serializer.ToObject<T>(json);
+			return JsonConvert.DeserializeObject<T>(json);
 		}
 
-		static JsonSerializer()
-		{
-			Serializer.Parameters.UseUTCDateTime = false;
-			Serializer.Parameters.EnabledNameNameVariantFlags = NameVariants.WithUnderscoresLowercase;
-		}
-
-		private static readonly JSON Serializer = JSON.Instance;
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
 	}
 }
