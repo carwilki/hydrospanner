@@ -77,6 +77,9 @@
 				target.SerializedHeaders = data.SerializedHeaders;
 				target.WireId = data.WireId;
 				target.AcknowledgeDelivery = data.AcknowledgeDelivery;
+
+				// TODO: this could be part of the message discovery
+				target.WriteToJournal = data.Body.GetType().FullName.EndsWith("Event"); // don't write commands
 			}
 			
 			for (var i = 0; i < this.pendingDispatch.Count; i++)

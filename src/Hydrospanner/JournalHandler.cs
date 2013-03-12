@@ -3,7 +3,6 @@
 	using System.Collections.Generic;
 	using System.Configuration;
 	using System.Data;
-	using System.Data.Common;
 	using System.Text;
 	using Disruptor;
 
@@ -14,7 +13,8 @@
 			if (data.DispatchOnly)
 				return; // this message has already been journaled
 
-			this.buffer.Add(data);
+			if (data.WriteToJournal)
+				this.buffer.Add(data);
 
 			// TODO: don't limit buffer size here
 			if (endOfBatch || this.buffer.Count >= 420)

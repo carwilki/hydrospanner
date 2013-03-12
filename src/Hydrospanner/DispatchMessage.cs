@@ -13,6 +13,7 @@
 		public Dictionary<string, string> Headers { get; set; }
 
 		public bool DispatchOnly { get; set; }
+		public bool WriteToJournal { get; set; }
 		public Guid WireId { get; set; } // journaled for later use with de-duplication
 		public Action AcknowledgeDelivery { get; set; }
 
@@ -25,6 +26,7 @@
 			this.Headers = null;
 			this.WireId = Guid.Empty;
 			this.DispatchOnly = false;
+			this.WriteToJournal = false;
 			this.AcknowledgeDelivery = null;
 		}
 	}
