@@ -90,6 +90,7 @@
 				item.MessageSequence = ++this.currentSequence;
 				item.Body = pending;
 				item.Headers = new Dictionary<string, string>(); // TODO: where do these come from???
+				item.WriteToJournal = true;
 			}
 
 			this.dispatch.Publish(batch);

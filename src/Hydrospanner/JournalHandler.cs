@@ -17,7 +17,7 @@
 				this.buffer.Add(data);
 
 			// TODO: don't limit buffer size here
-			if (endOfBatch || this.buffer.Count >= 420)
+			if ((endOfBatch && this.buffer.Count > 0) || this.buffer.Count >= 420)
 				this.JournalMessages();
 		}
 		private void JournalMessages()
