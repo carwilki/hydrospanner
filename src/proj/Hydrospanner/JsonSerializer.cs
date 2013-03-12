@@ -24,10 +24,45 @@
 			}
 		}
 
-		public object Deserialize<T>(byte[] serialize)
+		public object Deserialize(byte[] serialized, string typeName)
 		{
-			var json = DefaultEncoding.GetString(serialize);
-			return JsonConvert.DeserializeObject<T>(json, Settings);
+			if (serialized == null || serialized.Length == 0)
+				return null;
+
+			var type = LoadType(typeName);
+			if (type == null)
+				throw new SerializationException("Type '{0}' not found.".FormatWith(typeName));
+
+			try
+			{
+				return JsonConvert.DeserializeObject(DefaultEncoding.GetString(serialized), type, Settings);
+			}
+			catch (Exception e)
+			{
+				throw new SerializationException(e.Message, e);
+			}
+		}
+		private static Type LoadType(string typeName)
+		{
+			if (string.IsNullOrWhiteSpace(typeName))
+				return null;
+
+			return Type.GetType(typeName);
+		}
+		public T Deserialize<T>(byte[] serialized)
+		{
+			if (serialized == null || serialized.Length == 0)
+				return default(T);
+
+			try
+			{
+				var json = DefaultEncoding.GetString(serialized);
+				return JsonConvert.DeserializeObject<T>(json, Settings);
+			}
+			catch (Exception e)
+			{
+				throw new SerializationException(e.Message, e);
+			}
 		}
 
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);

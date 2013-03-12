@@ -5,6 +5,7 @@ namespace Hydrospanner
 {
 	using System;
 	using System.Runtime.Serialization;
+	using System.Text;
 	using Machine.Specifications;
 
 	[Subject(typeof(JsonSerializer))]
@@ -62,7 +63,9 @@ namespace Hydrospanner
 
 				class Cycle
 				{
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 					public Cycle Inner { get; set; }
+// ReSharper restore UnusedAutoPropertyAccessor.Local
 				}
 
 				static Cycle thing;
@@ -74,32 +77,44 @@ namespace Hydrospanner
 		{
 			public class when_the_serialized_content_is_null
 			{
-				
+				It should_return_null = () =>
+					serializer.Deserialize(null, null).ShouldBeNull();
 			}
 
 			public class when_the_serialized_content_is_empty
 			{
-				
+				It should_return_null = () =>
+					serializer.Deserialize(new byte[0], null).ShouldBeNull();
 			}
 
-			public class when_the_serialized_content_represents_primatives
+			public class when_the_serialized_content_is_deserialized
 			{
-				
-			}
+				It should_return_the_expected_object = () =>
+					serializer.Deserialize(Json, "System.Int32").ShouldEqual(1);
 
-			public class when_the_serialized_content_represents_complex_types
-			{
-				
+				static readonly byte[] Json = Encoding.UTF8.GetBytes("1");
 			}
 
 			public class when_the_typename_is_NOT_found
 			{
-				
+				Because of = () =>
+					raised = Catch.Exception(() => serializer.Deserialize(new byte[] {0}, "invalid-type"));
+
+				It should_throw_an_exception = () =>
+					raised.ShouldBeOfType<SerializationException>();
+
+				It should_throw_an_exception_because_of_type_name_resolution_failure = () =>
+					raised.Message.ShouldEqual("Type 'invalid-type' not found.");
+
+				static Exception raised;
 			}
 
-			public class when_deserialization_raises_an_exception
+			public class when_deserialization_fails_because_of_malformed_content
 			{
-				
+				It should_throw_an_exception = () =>
+					Catch.Exception(() => serializer.Deserialize(Malformed, "System.Int32")).ShouldBeOfType<SerializationException>();
+
+				static readonly byte[] Malformed = Encoding.UTF8.GetBytes("Not a json object.");
 			}
 		}
 
@@ -107,34 +122,35 @@ namespace Hydrospanner
 		{
 			public class when_the_serialized_content_is_null
 			{
-
+				It should_return_the_default_value_of_the_type_supplied = () =>
+					serializer.Deserialize<int>(null).ShouldEqual(default(int));
 			}
 
 			public class when_the_serialized_content_is_empty
 			{
-
+				It should_return_the_default_value_of_the_type_supplied = () =>
+					serializer.Deserialize<int>(new byte[0]).ShouldEqual(default(int));
 			}
 
-			public class when_the_serialized_content_represents_primatives
+			public class when_the_serialized_content_is_deserialized
 			{
+				It should_return_the_expected_object = () =>
+					serializer.Deserialize<int>(Json).ShouldEqual(1);
 
+				static readonly byte[] Json = Encoding.UTF8.GetBytes("1");
 			}
 
-			public class when_the_serialized_content_represents_complex_types
+			public class when_deserialization_fails_because_of_malformed_content
 			{
+				It should_throw_an_exception = () =>
+					Catch.Exception(() => serializer.Deserialize<int>(Malformed)).ShouldBeOfType<SerializationException>();
 
-			}
-			
-			public class when_deserialization_raises_an_exception
-			{
-
+				static readonly byte[] Malformed = Encoding.UTF8.GetBytes("Not a json object.");
 			}
 		}
 
 		Establish context = () =>
-		{
 			serializer = new JsonSerializer();
-		};
 
 		static JsonSerializer serializer;
 	}
