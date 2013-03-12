@@ -41,6 +41,8 @@
   <ItemGroup>
     <Compile Include="JsonSerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Snapshot\SerializationHandlerTests.cs" />
+    <Compile Include="Snapshot\SnapshotItemTests.cs" />
     <Compile Include="StringExtensionsTests.cs" />
     <Compile Include="Transformation\DeserializationHandlerTests.cs" />
     <Compile Include="Transformation\TransformationItemTests.cs" />

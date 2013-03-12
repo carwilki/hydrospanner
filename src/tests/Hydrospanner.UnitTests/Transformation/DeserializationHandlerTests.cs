@@ -9,7 +9,7 @@ namespace Hydrospanner.Transformation
 	using Machine.Specifications;
 
 	[Subject(typeof(DeserializationHandler))]
-	public class when_SerializationHandlerTests
+	public class when_deserializing_the_transformation_item
 	{
 		public class when_the_body_exists
 		{
