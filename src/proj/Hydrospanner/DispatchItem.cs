@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	public class DispatchItem
+	internal class DispatchItem
 	{
 		public long MessageSequence { get; private set; }
 

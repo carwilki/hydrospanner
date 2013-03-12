@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	public class TransformationItem
+	internal class TransformationItem
 	{
 		public long MessageSequence { get; private set; }
 
