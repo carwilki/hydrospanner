@@ -43,10 +43,12 @@
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DispatchItem.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="SnapshotItem.cs" />
     <Compile Include="TransformationItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitTests\StringExtensionsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\CustomDictionary.xml">
@@ -58,7 +60,6 @@
     <Folder Include="Dispatch\" />
     <Folder Include="Snapshot\" />
     <Folder Include="Transformation\" />
-    <Folder Include="UnitTests\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Disruptor">
