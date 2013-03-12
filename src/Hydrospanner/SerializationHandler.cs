@@ -20,7 +20,7 @@
 			if (data.SerializedBody == null)
 			{
 				data.SerializedBody = this.serializer.Serialize(data.Body);
-				data.SerializedType = data.Body.GetType().FullName;
+				data.SerializedType = data.Body.GetType().AssemblyQualifiedName;
 			}
 
 			if (data.SerializedHeaders == null && data.Headers != null && data.Headers.Count > 0)

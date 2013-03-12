@@ -49,7 +49,10 @@
 						yield break;
 
 					while (reader.Read())
-						yield return reader.GetGuid(0);
+					{
+						var value = reader[0];
+						yield return value == DBNull.Value ? Guid.Empty : (Guid)value;
+					}
 				}
 			}
 		}
