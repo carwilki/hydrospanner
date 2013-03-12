@@ -65,7 +65,7 @@
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
 		private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
 		{
-			TypeNameHandling = TypeNameHandling.All,
+			TypeNameHandling = TypeNameHandling.None,
 			TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
 			DefaultValueHandling = DefaultValueHandling.Ignore,
 			NullValueHandling = NullValueHandling.Ignore,

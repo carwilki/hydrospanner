@@ -2,41 +2,34 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.IO;
-	using System.Runtime.Serialization.Formatters;
 	using System.Text;
-	using Newtonsoft.Json;
-	using Newtonsoft.Json.Converters;
+	using fastJSON;
 
 	public sealed class DefaultSerializer
 	{
 		public object Deserialize(byte[] serialized, string typeName)
 		{
-			using (var stream = new MemoryStream(serialized))
-			using (var streamReader = new StreamReader(stream, DefaultEncoding))
-			using (var jsonReader = new JsonTextReader(streamReader))
-				return this.serializer.Deserialize(jsonReader, this.ResolveType(typeName));
+			if (serialized == null || serialized.Length == 0)
+				return null;
+
+			var raw = DefaultEncoding.GetString(serialized);
+			return FastSerializer.ToObject(raw, this.ResolveType(typeName));
 		}
 		public T Deserialize<T>(byte[] serialized)
 		{
-			using (var stream = new MemoryStream(serialized))
-			using (var streamReader = new StreamReader(stream, DefaultEncoding))
-			using (var jsonReader = new JsonTextReader(streamReader))
-				return this.serializer.Deserialize<T>(jsonReader);
+			if (serialized == null || serialized.Length == 0)
+				return default(T);
+
+			var raw = DefaultEncoding.GetString(serialized);
+			return (T)FastSerializer.ToObject(raw, typeof(T));
 		}
 		public byte[] Serialize(object graph)
 		{
 			if (graph == null)
-				return new byte[0];
+				return null;
 
-			using (var stream = new MemoryStream())
-			using (var streamWriter = new StreamWriter(stream, DefaultEncoding))
-			{
-				using (var jsonWriter = new JsonTextWriter(streamWriter))
-					this.serializer.Serialize(jsonWriter, graph);
-
-				return stream.ToArray();
-			}
+			var serialized = FastSerializer.ToJSON(graph, DefaultParameters);
+			return DefaultEncoding.GetBytes(serialized);
 		}
 
 		private Type ResolveType(string typeName)
@@ -50,22 +43,14 @@
 			return registered;
 		}
 
-		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>();
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
-		private readonly JsonSerializer serializer = new JsonSerializer
+		private static readonly JSON FastSerializer = JSON.Instance;
+		private static readonly JSONParameters DefaultParameters = new JSONParameters
 		{
-#if DEBUG
-			Formatting = Formatting.Indented,
-#endif
-			TypeNameHandling = TypeNameHandling.None,
-			TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-			DefaultValueHandling = DefaultValueHandling.Ignore,
-			NullValueHandling = NullValueHandling.Ignore,
-			MissingMemberHandling = MissingMemberHandling.Ignore,
-			DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-			DateFormatHandling = DateFormatHandling.IsoDateFormat,
-			DateParseHandling = DateParseHandling.DateTime,
-			Converters = { new StringEnumConverter() }
-		}; 
+			IgnoreCaseOnDeserialize = true,
+			SerializeNullValues = false,
+			UseFastGuid = true,
+		};
+		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>();
 	}
 }
