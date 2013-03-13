@@ -7,8 +7,8 @@ namespace Hydrospanner.Phases.Journal
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Text;
-	using Serialization;
 	using Machine.Specifications;
+	using Serialization;
 
 	[Subject(typeof(SerializationHandler))]
 	public class when_serializing_journal_items
@@ -57,7 +57,7 @@ namespace Hydrospanner.Phases.Journal
 		public class when_the_headers_need_to_be_serialized
 		{
 			Establish context = () =>
-				item.AsTransformationResultMessage(0, new object(), new Dictionary<string, string> { { "Value", "42"} });
+				item.AsTransformationResultMessage(0, new object(), new Dictionary<string, string> { { "Value", "42" } });
 
 			It should_serialize_the_headers = () =>
 				item.SerializedHeaders.SequenceEqual(SerializedValue).ShouldBeTrue();
