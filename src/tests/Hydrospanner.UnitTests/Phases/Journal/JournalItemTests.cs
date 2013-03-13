@@ -23,7 +23,6 @@ namespace Hydrospanner.Phases.Journal
 			item.SerializedBody.ShouldEqual(serializedBody);
 			item.Headers.ShouldEqual(headers);
 			item.ForeignId.ShouldEqual(ForeignId);
-			item.SerializedType.ShouldStartWith("System.String, mscorlib");
 			item.Body.ShouldEqual(Body);
 		};
 
@@ -31,6 +30,7 @@ namespace Hydrospanner.Phases.Journal
 		{
 			item.MessageSequence.ShouldEqual(0);
 			item.SerializedHeaders.ShouldBeNull();
+			item.SerializedType.ShouldBeNull();
 		};
 
 		const string Body = "Body";
@@ -48,14 +48,13 @@ namespace Hydrospanner.Phases.Journal
 			item = new JournalItem();
 
 		Because of = () =>
-			item.AsLocalMessage(42, Body, headers);
+			item.AsTransformationResultMessage(42, Body, headers);
 
 		It should_set_the_following_properties_according_to_the_input_arguments = () =>
 		{
 			item.ItemActions.ShouldEqual(JournalItemAction.Dispatch | JournalItemAction.Journal);
 			item.MessageSequence.ShouldEqual(42);
 			item.Headers.ShouldEqual(headers);
-			item.SerializedType.ShouldStartWith("System.String, mscorlib");
 			item.Body.ShouldEqual(Body);
 		};
 
@@ -65,6 +64,7 @@ namespace Hydrospanner.Phases.Journal
 			item.Acknowledgement.ShouldBeNull();
 			item.ForeignId.ShouldEqual(Guid.Empty);
 			item.SerializedBody.ShouldBeNull();
+			item.SerializedType.ShouldBeNull();
 		};
 
 		const string Body = "Body";

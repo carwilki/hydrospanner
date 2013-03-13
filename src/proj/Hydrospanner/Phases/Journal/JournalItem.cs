@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using Serialization;
 
 	public class JournalItem
 	{
@@ -22,21 +23,30 @@
 			this.Clear();
 			this.ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal;
 			this.SerializedBody = serializedBody;
-			this.SerializedType = body.GetType().AssemblyQualifiedName;
 			this.Body = body;
 			this.Headers = headers;
 			this.ForeignId = foreignId;
 			this.Acknowledgement = acknowledgement;
 		}
 
-		public void AsLocalMessage(long sequence, object body, Dictionary<string, string> headers)
+		public void AsTransformationResultMessage(long sequence, object body, Dictionary<string, string> headers)
 		{
 			this.Clear();
 			this.ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal;
 			this.MessageSequence = sequence;
 			this.Body = body;
-			this.SerializedType = body.GetType().AssemblyQualifiedName;
 			this.Headers = headers;
+		}
+
+		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, byte[] headers, Guid foreignId)
+		{
+			// TODO: test
+			this.Clear();
+			this.ItemActions = JournalItemAction.Dispatch;
+			this.MessageSequence = sequence;
+			this.SerializedBody = body;
+			this.SerializedHeaders = headers;
+			this.ForeignId = foreignId;
 		}
 
 		private void Clear()
@@ -49,6 +59,19 @@
 			this.ItemActions = JournalItemAction.None;
 			this.ForeignId = Guid.Empty;
 			this.Acknowledgement = null;
+		}
+
+		public void Serialize(JsonSerializer serializer)
+		{
+			if (this.SerializedBody == null)
+			{
+				this.SerializedBody = serializer.Serialize(this.Body);
+				if (this.Body != null)
+					this.SerializedType = this.Body.GetType().AssemblyQualifiedName;
+			}
+
+			if (this.SerializedHeaders == null)
+				this.SerializedHeaders = serializer.Serialize(this.Headers);
 		}
 	}
 

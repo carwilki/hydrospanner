@@ -1,13 +1,13 @@
 ﻿namespace Hydrospanner.Phases.Journal
 {
 	using Disruptor;
-	using Hydrospanner.Serialization;
+	using Serialization;
 
 	public class SerializationHandler : IEventHandler<JournalItem>
 	{
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{
-			// TODO: test
+			data.Serialize(this.serializer);
 		}
 
 		public SerializationHandler(JsonSerializer serializer)
