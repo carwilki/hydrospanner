@@ -42,7 +42,7 @@ namespace Hydrospanner.Phases.Journal
 	}
 
 	[Subject(typeof(JournalItem))]
-	public class when_initializing_a_local_message
+	public class when_initializing_a_tranformation_message
 	{
 		Establish context = () =>
 			item = new JournalItem();
@@ -70,6 +70,38 @@ namespace Hydrospanner.Phases.Journal
 		const string Body = "Body";
 		static readonly Dictionary<string, string> headers = new Dictionary<string, string>();
 		static JournalItem item;
+	}
+
+	public class when_initializing_a_boostrapped_for_dispatch_purposes
+	{
+		Establish context = () =>
+			item = new JournalItem();
+
+		Because of = () =>
+			item.AsBootstrappedDispatchMessage(42, Body, TypeName, Headers, ForeignId);
+
+		It should_set_the_following_properties_according_to_the_input_arguments = () =>
+		{
+			item.ItemActions.ShouldEqual(JournalItemAction.Dispatch);
+			item.MessageSequence.ShouldEqual(42);
+			item.SerializedBody.ShouldEqual(Body);
+			item.SerializedType.ShouldEqual(TypeName);
+			item.SerializedHeaders.ShouldEqual(Headers);
+			item.ForeignId.ShouldEqual(ForeignId);
+		};
+
+		It should_set_the_following_properties_to_their_default_values = () =>
+		{
+			item.Acknowledgement.ShouldBeNull();
+			item.Body.ShouldBeNull();
+			item.Headers.ShouldBeNull();
+		};
+
+		static JournalItem item;
+		const string TypeName = "TypeName";
+		static readonly Guid ForeignId = Guid.NewGuid();
+		static readonly byte[] Body = new byte[] { 1, 2, 3 };
+		static readonly byte[] Headers = new byte[] { 4, 5, 6 };
 	}
 }
 

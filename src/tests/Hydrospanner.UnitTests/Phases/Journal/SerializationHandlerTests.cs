@@ -48,7 +48,7 @@ namespace Hydrospanner.Phases.Journal
 		public class when_the_headers_have_already_been_serialized
 		{
 			Establish context = () =>
-				item.AsBootstrappedDispatchMessage(0, new byte[0], SerializedValue, Guid.Empty);
+				item.AsBootstrappedDispatchMessage(0, new byte[0], string.Empty, SerializedValue, Guid.Empty);
 
 			It should_NOT_serialize_the_headers = () =>
 				item.SerializedHeaders.SequenceEqual(SerializedValue).ShouldBeTrue();
