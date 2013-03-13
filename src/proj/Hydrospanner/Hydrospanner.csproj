@@ -51,6 +51,7 @@
     </Compile>
     <Compile Include="Messaging\IMessageReceiver.cs" />
     <Compile Include="Messaging\IMessageSender.cs" />
+    <Compile Include="Messaging\MessageDelivery.cs" />
     <Compile Include="Phases\Journal\SerializationHandler.cs" />
     <Compile Include="Phases\Snapshot\SerializationHandler.cs" />
     <Compile Include="Phases\Transformation\DeserializationHandler.cs" />
