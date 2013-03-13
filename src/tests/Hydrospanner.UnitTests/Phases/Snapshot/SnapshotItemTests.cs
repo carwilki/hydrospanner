@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 169
 // ReSharper disable InconsistentNaming
 
-namespace Hydrospanner.Snapshot
+namespace Hydrospanner.Phases.Snapshot
 {
 	using Machine.Specifications;
 

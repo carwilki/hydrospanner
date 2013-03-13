@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 169
 // ReSharper disable InconsistentNaming
 
-namespace Hydrospanner
+namespace Hydrospanner.Serialization
 {
 	using System;
 	using System.Runtime.Serialization;

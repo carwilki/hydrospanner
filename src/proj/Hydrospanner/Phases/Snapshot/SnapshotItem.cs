@@ -1,5 +1,7 @@
-﻿namespace Hydrospanner.Snapshot
+﻿namespace Hydrospanner.Phases.Snapshot
 {
+	using Hydrospanner.Serialization;
+
 	public class SnapshotItem
 	{
 		public bool IsPublicSnapshot { get; private set; }

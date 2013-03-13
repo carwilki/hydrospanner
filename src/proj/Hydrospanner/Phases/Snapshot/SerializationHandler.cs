@@ -1,6 +1,7 @@
-﻿namespace Hydrospanner.Snapshot
+﻿namespace Hydrospanner.Phases.Snapshot
 {
 	using Disruptor;
+	using Hydrospanner.Serialization;
 
 	public class SerializationHandler : IEventHandler<SnapshotItem>
 	{

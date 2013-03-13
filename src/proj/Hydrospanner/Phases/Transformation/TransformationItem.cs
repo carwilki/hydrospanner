@@ -1,7 +1,8 @@
-﻿namespace Hydrospanner.Transformation
+﻿namespace Hydrospanner.Phases.Transformation
 {
 	using System;
 	using System.Collections.Generic;
+	using Hydrospanner.Serialization;
 
 	public sealed class TransformationItem
 	{
@@ -56,7 +57,7 @@
 		private void Clear()
 		{
 			this.MessageSequence = 0;
-			this.SerializedBody = SerializedHeaders = null;
+			this.SerializedBody = this.SerializedHeaders = null;
 			this.Body = this.Headers = null;
 			this.SerializedType = null;
 			this.CanJournal = this.IsDocumented = this.IsLocal = this.IsDuplicate = false;

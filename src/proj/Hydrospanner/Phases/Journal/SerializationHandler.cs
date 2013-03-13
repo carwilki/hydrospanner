@@ -1,6 +1,7 @@
-﻿namespace Hydrospanner.Journal
+﻿namespace Hydrospanner.Phases.Journal
 {
 	using Disruptor;
+	using Hydrospanner.Serialization;
 
 	public class SerializationHandler : IEventHandler<JournalItem>
 	{

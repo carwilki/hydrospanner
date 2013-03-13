@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Journal
+﻿namespace Hydrospanner.Phases.Journal
 {
 	using System;
 	using System.Collections.Generic;

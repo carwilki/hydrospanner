@@ -1,11 +1,12 @@
 ﻿#pragma warning disable 169
 // ReSharper disable InconsistentNaming
 
-namespace Hydrospanner.Transformation
+namespace Hydrospanner.Phases.Transformation
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Text;
+	using Hydrospanner.Serialization;
 	using Machine.Specifications;
 
 	[Subject(typeof(DeserializationHandler))]

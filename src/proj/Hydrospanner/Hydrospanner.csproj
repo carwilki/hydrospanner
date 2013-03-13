@@ -49,13 +49,13 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Journal\SerializationHandler.cs" />
-    <Compile Include="Snapshot\SerializationHandler.cs" />
-    <Compile Include="Transformation\DeserializationHandler.cs" />
+    <Compile Include="Phases\Journal\SerializationHandler.cs" />
+    <Compile Include="Phases\Snapshot\SerializationHandler.cs" />
+    <Compile Include="Phases\Transformation\DeserializationHandler.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IHydratable.cs" />
-    <Compile Include="Journal\JournalItem.cs" />
-    <Compile Include="JsonSerializer.cs">
+    <Compile Include="Phases\Journal\JournalItem.cs" />
+    <Compile Include="Serialization\JsonSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,8 +64,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Snapshot\SnapshotItem.cs" />
-    <Compile Include="Transformation\TransformationItem.cs" />
+    <Compile Include="Phases\Snapshot\SnapshotItem.cs" />
+    <Compile Include="Phases\Transformation\TransformationItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\CustomDictionary.xml">
@@ -73,7 +73,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Bootstrap\" />
+    <Folder Include="Messaging\" />
+    <Folder Include="Persistence\" />
+    <Folder Include="Phases\Bootstrap\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Atomic, Version=1.1.1.0, Culture=neutral, PublicKeyToken=979700c3ff7272ae, processorArchitecture=MSIL">

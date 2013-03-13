@@ -40,15 +40,15 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Journal\JournalItemTests.cs" />
-    <Compile Include="Journal\SerializationHandlerTests.cs" />
-    <Compile Include="JsonSerializerTests.cs" />
+    <Compile Include="Phases\Journal\JournalItemTests.cs" />
+    <Compile Include="Phases\Journal\SerializationHandlerTests.cs" />
+    <Compile Include="Serialization\JsonSerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Snapshot\SerializationHandlerTests.cs" />
-    <Compile Include="Snapshot\SnapshotItemTests.cs" />
+    <Compile Include="Phases\Snapshot\SerializationHandlerTests.cs" />
+    <Compile Include="Phases\Snapshot\SnapshotItemTests.cs" />
     <Compile Include="ExtensionsTests.cs" />
-    <Compile Include="Transformation\DeserializationHandlerTests.cs" />
-    <Compile Include="Transformation\TransformationItemTests.cs" />
+    <Compile Include="Phases\Transformation\DeserializationHandlerTests.cs" />
+    <Compile Include="Phases\Transformation\TransformationItemTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Atomic, Version=1.1.1.0, Culture=neutral, PublicKeyToken=979700c3ff7272ae, processorArchitecture=MSIL">

@@ -1,6 +1,7 @@
-﻿namespace Hydrospanner.Transformation
+﻿namespace Hydrospanner.Phases.Transformation
 {
 	using Disruptor;
+	using Hydrospanner.Serialization;
 
 	public class DeserializationHandler : IEventHandler<TransformationItem>
 	{
