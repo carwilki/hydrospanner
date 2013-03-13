@@ -6,19 +6,51 @@
 
 	public class SnapshotLoader
 	{
-		public SnapshotStreamReader LoadMostRecent()
+		public SnapshotStreamReader Load(long maxSequence, int minIteration)
 		{
 			return this.directory
 				.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly)
-				.Select(this.OpenOrBlank)
-				.Where(x => x != null)
+				.Select(ParsedSnapshotFilename.Parse)
+				.Where(x => x != null && x.Sequence <= maxSequence && x.Iteration >= minIteration)
 				.OrderByDescending(x => x.Iteration)
-				.FirstOrDefault(x => x.Count > 0) ?? new SnapshotStreamReader();
+				.Select(this.OpenOrDefault)
+				.FirstOrDefault(x => x != null && x.Count > 0)
+				?? new SnapshotStreamReader();
 		}
 
-		private SnapshotStreamReader OpenOrBlank(string fullPath)
+		private SnapshotStreamReader OpenOrDefault(ParsedSnapshotFilename snapshot)
 		{
-			var filename = Path.GetFileNameWithoutExtension(fullPath) ?? string.Empty;
+			var fileStream = new BufferedStream(this.file.OpenRead(snapshot.FullPath), BufferSize);
+
+			return SnapshotStreamReader.Open(snapshot.Sequence, snapshot.Iteration, snapshot.Hash, fileStream);
+		}
+
+		public SnapshotLoader(DirectoryBase directory, FileBase file, string path)
+		{
+			this.directory = directory;
+			this.file = file;
+			this.path = path;
+			this.searchPattern = WildcardPattern;
+		}
+
+		const string WildcardPattern = "*";
+		const int BufferSize = 1024 * 10;
+		readonly DirectoryBase directory;
+		readonly FileBase file;
+		readonly string path;
+		readonly string searchPattern;
+	}
+
+	public class ParsedSnapshotFilename
+	{
+		public string FullPath { get; set; }
+		public int Iteration { get; set; }
+		public long Sequence { get; set; }
+		public string Hash { get; set; }
+
+		public static ParsedSnapshotFilename Parse(string path)
+		{
+			var filename = Path.GetFileNameWithoutExtension(path) ?? string.Empty;
 			var values = filename.Split(FieldDelimiter.ToCharArray());
 			if (values.Length != SnapshotFilenameFieldCount)
 				return null;
@@ -31,18 +63,13 @@
 			if (!long.TryParse(values[SequenceField], out sequence))
 				return null;
 
-			var hash = values[HashField];
-			var fileStream = this.file.OpenRead(fullPath);
-
-			return SnapshotStreamReader.Open(sequence, iteration, hash, fileStream);
-		}
-
-		public SnapshotLoader(DirectoryBase directory, FileBase file, string path)
-		{
-			this.directory = directory;
-			this.file = file;
-			this.path = path;
-			this.searchPattern = WildcardPattern;
+			return new ParsedSnapshotFilename
+			{
+				FullPath = path,
+				Iteration = iteration,
+				Sequence = sequence,
+				Hash = values[HashField]
+			};
 		}
 
 		const int IterationField = 0;
@@ -50,10 +77,5 @@
 		const int HashField = 2;
 		const int SnapshotFilenameFieldCount = 3;
 		const string FieldDelimiter = "-";
-		const string WildcardPattern = "*";
-		readonly DirectoryBase directory;
-		readonly FileBase file;
-		readonly string path;
-		readonly string searchPattern;
 	}
 }

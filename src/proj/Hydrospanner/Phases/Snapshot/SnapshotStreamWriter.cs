@@ -1,7 +1,7 @@
 ﻿namespace Hydrospanner.Phases.Snapshot
 {
 	using System;
-	using System.IO.Abstractions;
+	using System.IO;
 
 	public class SnapshotStreamWriter : IDisposable
 	{
@@ -10,14 +10,10 @@
 			// TODO
 		}
 
-		public static SnapshotStreamWriter Create(FileBase file, string location, int iteration, long messageSequence, int itemCount)
+		private SnapshotStreamWriter(Stream stream, int items)
 		{
-			return new SnapshotStreamWriter();
-		}
-
-		private SnapshotStreamWriter()
-		{
-			// TODO
+			this.stream = stream;
+			this.items = items;
 		}
 
 		public void Dispose()
@@ -29,5 +25,8 @@
 		{
 			// TODO
 		}
+
+		readonly Stream stream;
+		readonly int items;
 	}
 }

@@ -76,7 +76,7 @@ namespace Hydrospanner.Phases.Snapshot
 		};
 
 		Because of = () =>
-			reader = loader.LoadMostRecent();
+			reader = loader.Load(long.MaxValue, 0); // TODO: tests for these params
 
 		const string Path = "./path/to/snapshots/";
 		const string EarlierIteration = "1";

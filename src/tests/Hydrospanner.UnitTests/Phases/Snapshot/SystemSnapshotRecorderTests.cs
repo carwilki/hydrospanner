@@ -6,11 +6,32 @@ namespace Hydrospanner.Phases.Snapshot
 	using Machine.Specifications;
 
 	[Subject(typeof(SystemSnapshotRecorder))]
-	public class when_all_parts_of_a_snapshot_have_been_gathered
+	public class when_the_first_snapshot_item_is_received
 	{
-		It should_flush_the_current_snapshot_to_disk;
+		It should_open_a_new_snapshot;
+		It should_include_that_item_in_the_new_snapshot;
+	}
 
-		It should_begin_recording_the_next_snapshot; // how to test??
+	[Subject(typeof(SystemSnapshotRecorder))]
+	public class when_a_subsequent_snapshot_item_is_received
+	{
+		It should_be_included_in_the_snapshot;
+	}
+
+	[Subject(typeof(SystemSnapshotRecorder))]
+	public class when_the_final_snapshot_item_is_received
+	{
+		It should_include_that_item_in_the_snapshot;
+		It should_finalize_the_snapshot;
+		It should_fingerprint_the_snapshot_with_an_incremented_iteration_number;
+		It should_fingerprint_the_snapshot_with_the_current_message_sequence;
+		It should_fingerprint_the_snapshot_with_the_sha1_hash_of_the_file_contents;
+	}
+
+	[Subject(typeof(SystemSnapshotRecorder))]
+	public class when_finalizing_subsequent_snapshots
+	{
+		It should_continue_to_increment_the_iteration_number;
 	}
 }
 
