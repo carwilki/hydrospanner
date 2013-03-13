@@ -18,6 +18,8 @@ namespace Hydrospanner
 	{
 		It should_register_inclusion_appropriately = () =>
 		{
+			First.HasFlag(MyEnum.First).ShouldBeTrue(); // TODO: how about this? It's built in to .NET 4
+
 			First.Includes(MyEnum.First).ShouldBeTrue();
 			First.Includes(MyEnum.Second).ShouldBeFalse();
 			First.Includes(MyEnum.Third).ShouldBeFalse();
