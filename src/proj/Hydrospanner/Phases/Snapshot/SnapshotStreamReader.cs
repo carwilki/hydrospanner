@@ -9,8 +9,8 @@
 	public class SnapshotStreamReader : IDisposable
 	{
 		public int Count { get; private set; }
-
 		public long MessageSequence { get; private set; }
+		public int Iteration { get; private set; }
 
 		public IEnumerable<byte[]> Read()
 		{
@@ -29,14 +29,14 @@
 			}
 		}
 
-		public static SnapshotStreamReader Open(long sequence, string hash, Stream stream)
+		public static SnapshotStreamReader Open(long sequence, int snapshotIteration, string hash, Stream stream)
 		{
 			hash = hash.Trim().ToUpperInvariant();
 			var computed = ComputeHash(stream).ToUpperInvariant();
 			stream.Position = 0;
 
 			if (hash == computed)
-				return new SnapshotStreamReader(sequence, stream);
+				return new SnapshotStreamReader(sequence, snapshotIteration, stream);
 
 			return null;
 		}
@@ -49,9 +49,10 @@
 			}
 		}
 
-		private SnapshotStreamReader(long sequence, Stream stream)
+		private SnapshotStreamReader(long sequence, int snapshotIteration, Stream stream)
 		{
 			this.MessageSequence = sequence;
+			this.Iteration = snapshotIteration;
 			this.stream = stream;
 
 			var countBuffer = new byte[sizeof(int)];

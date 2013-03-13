@@ -47,6 +47,7 @@
     <Compile Include="Phases\Snapshot\SnapshotLoaderTests.cs" />
     <Compile Include="Phases\Snapshot\SnapshotStreamReaderTests.cs" />
     <Compile Include="Phases\RingBufferHarness.cs" />
+    <Compile Include="Phases\Snapshot\SystemSnapshotHandlerTests.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotRecorderTests.cs" />
     <Compile Include="Phases\Transformation\MessageListenerTests.cs" />
     <Compile Include="Serialization\JsonSerializerTests.cs" />

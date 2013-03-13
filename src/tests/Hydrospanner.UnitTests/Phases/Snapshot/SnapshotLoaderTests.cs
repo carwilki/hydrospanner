@@ -19,8 +19,8 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			Establish context = () =>
 				directory
-					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(Prefix)), SearchOption.TopDirectoryOnly)
-					.Returns(new[] { "hi", "not-a-snapshot", "blah-blah-blah" });
+					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierIteration)), SearchOption.TopDirectoryOnly)
+					.Returns(new[] { "hi", "not-a-snapshot", "blah-blah-blah", "bad_iteration-42-hash" });
 
 			It should_return_a_blank_snapshot = () =>
 				reader.Count.ShouldEqual(0);
@@ -32,8 +32,8 @@ namespace Hydrospanner.Phases.Snapshot
 			{
 				file.OpenRead(Arg.Any<string>()).Returns(new MemoryStream(new byte[] { 0, 0, 0, 0 }));
 				directory
-					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(Prefix)), SearchOption.TopDirectoryOnly)
-					.Returns(new[] { Path + Prefix + "-" + MessageSequence + "-bad_hash" });
+					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierIteration)), SearchOption.TopDirectoryOnly)
+					.Returns(new[] { Path + EarlierIteration + "-" + MessageSequence + "-bad_hash" });
 			};
 
 			It should_return_a_blank_snapshot = () =>
@@ -48,18 +48,22 @@ namespace Hydrospanner.Phases.Snapshot
 				var firstRecordLength = BitConverter.GetBytes(4);
 				var contents = oneRecord.Concat(firstRecordLength).Concat(FirstRecord).ToArray();
 				var hash = new SoapHexBinary(new SHA1Managed().ComputeHash(contents));
-				var path = Path + Prefix + "-" + MessageSequence + "-" + hash;
+				var earlierPath = Path + EarlierIteration + "-" + MessageSequence + "-" + hash;
+				var laterPath = Path + LaterIteration + "-" + MessageSequence + "-" + hash;
 
 				directory
-					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(Prefix)), SearchOption.TopDirectoryOnly)
-					.Returns(new[] { path });
-				
-				file.OpenRead(path)
-					.Returns(new MemoryStream(contents));
+					.GetFiles(Path, "*", SearchOption.TopDirectoryOnly)
+					.Returns(new[] { earlierPath, laterPath });
+
+				file.OpenRead(earlierPath).Returns(new MemoryStream(contents));
+				file.OpenRead(laterPath).Returns(new MemoryStream(contents));
 			};
 
-			It should_load_the_most_recent_viable_snapshot = () =>
+			It should_load_the_snapshot_with_the_highest_iteration = () =>
+			{
+				reader.Iteration.ShouldEqual(int.Parse(LaterIteration));
 				reader.Read().First().ShouldBeLike(FirstRecord);
+			};
 
 			static readonly byte[] FirstRecord = BitConverter.GetBytes(42);
 		}
@@ -68,14 +72,15 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			file = Substitute.For<FileBase>();
 			directory = Substitute.For<DirectoryBase>();
-			loader = new SnapshotLoader(directory, file, Path, Prefix);
+			loader = new SnapshotLoader(directory, file, Path);
 		};
 
 		Because of = () =>
 			reader = loader.LoadMostRecent();
 
 		const string Path = "./path/to/snapshots/";
-		const string Prefix = "1";
+		const string EarlierIteration = "1";
+		const string LaterIteration = "2";
 		const int MessageSequence = 42;
 		static SnapshotLoader loader;
 		static SnapshotStreamReader reader;
