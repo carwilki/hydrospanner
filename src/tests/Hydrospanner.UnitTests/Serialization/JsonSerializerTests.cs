@@ -98,7 +98,7 @@ namespace Hydrospanner.Serialization
 			public class when_the_typename_is_NOT_found
 			{
 				Because of = () =>
-					raised = Catch.Exception(() => serializer.Deserialize(new byte[] {0}, "invalid-type"));
+					raised = Catch.Exception(() => serializer.Deserialize(new byte[] { 0 }, "invalid-type"));
 
 				It should_throw_an_exception = () =>
 					raised.ShouldBeOfType<SerializationException>();
@@ -177,7 +177,6 @@ namespace Hydrospanner.Serialization
 		Third,
 		Fourth
 	}
-
 }
 
 // ReSharper restore InconsistentNaming

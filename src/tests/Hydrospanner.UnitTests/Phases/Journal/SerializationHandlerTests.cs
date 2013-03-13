@@ -11,22 +11,18 @@ namespace Hydrospanner.Phases.Journal
 	{
 		public class when_the_body_has_already_been_serialized
 		{
-			
 		}
 
 		public class when_the_body_needs_to_be_serialized
 		{
-			
 		}
 
 		public class when_the_headers_have_already_been_serialized
 		{
-			
 		}
 
 		public class when_the_headers_need_to_be_serialized
 		{
-			
 		}
 
 		Establish context = () =>
