@@ -28,7 +28,7 @@ namespace Hydrospanner.Phases.Transformation
 				listener.Start();
 
 			It should_attempt_to_receive_from_the_underlying_messaging_handler = () =>
-				receiver.Received(1).Receive(Arg.Any<TimeSpan>());
+				receiver.Received().Receive(Arg.Any<TimeSpan>());
 
 			It should_timeout_after_two_seconds = () =>
 				receiver.Received().Receive(TimeSpan.FromSeconds(2));
