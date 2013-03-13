@@ -1,6 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Snapshot
 {
-	using Hydrospanner.Serialization;
+	using Serialization;
 
 	public class SnapshotItem
 	{

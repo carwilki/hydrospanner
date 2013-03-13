@@ -54,6 +54,10 @@
     <Compile Include="Messaging\MessageDelivery.cs" />
     <Compile Include="Phases\Journal\SerializationHandler.cs" />
     <Compile Include="Phases\Snapshot\SerializationHandler.cs" />
+    <Compile Include="Phases\Snapshot\SnapshotStreamReader.cs" />
+    <Compile Include="Phases\Snapshot\SnapshotLoader.cs" />
+    <Compile Include="Phases\Snapshot\SnapshotStreamWriter.cs" />
+    <Compile Include="Phases\Snapshot\SnapshotRecorder.cs" />
     <Compile Include="Phases\Transformation\DeserializationHandler.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IHydratable.cs" />
@@ -101,6 +105,9 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Abstractions">
+      <HintPath>..\..\packages\System.IO.Abstractions.1.4.0.41\lib\net35\System.IO.Abstractions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">

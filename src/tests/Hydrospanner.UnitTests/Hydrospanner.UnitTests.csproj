@@ -42,9 +42,9 @@
   <ItemGroup>
     <Compile Include="Phases\Journal\JournalItemTests.cs" />
     <Compile Include="Phases\Journal\SerializationHandlerTests.cs" />
-    <Compile Include="Phases\RingBufferHarness.cs" />
-    <Compile Include="Phases\Transformation\MessageListenerTests.cs" />
-    <Compile Include="Serialization\JsonSerializerTests.cs" />
+    <Compile Include="Phases\Snapshot\SnapshotLoaderTests.cs" />
+    <Compile Include="Phases\Snapshot\SnapshotStreamReaderTests.cs" />    <Compile Include="Phases\RingBufferHarness.cs" />
+    <Compile Include="Phases\Transformation\MessageListenerTests.cs" />    <Compile Include="Serialization\JsonSerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Phases\Snapshot\SerializationHandlerTests.cs" />
     <Compile Include="Phases\Snapshot\SnapshotItemTests.cs" />
@@ -68,6 +68,12 @@
       <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.IO.Abstractions">
+      <HintPath>..\..\packages\System.IO.Abstractions.1.4.0.41\lib\net35\System.IO.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Abstractions.TestingHelpers">
+      <HintPath>..\..\packages\System.IO.Abstractions.TestingHelpers.1.4.0.41\lib\net35\System.IO.Abstractions.TestingHelpers.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
