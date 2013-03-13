@@ -52,6 +52,9 @@
     <Compile Include="Messaging\IMessageReceiver.cs" />
     <Compile Include="Messaging\IMessageSender.cs" />
     <Compile Include="Messaging\MessageDelivery.cs" />
+    <Compile Include="Messaging\Rabbit\RabbitChannel.cs" />
+    <Compile Include="Messaging\Rabbit\RabbitConnector.cs" />
+    <Compile Include="Messaging\Rabbit\RabbitSubscription.cs" />
     <Compile Include="Phases\Journal\SerializationHandler.cs" />
     <Compile Include="Phases\Snapshot\ISnapshotRecorder.cs" />
     <Compile Include="Phases\Snapshot\PublicSnapshotHandler.cs" />
