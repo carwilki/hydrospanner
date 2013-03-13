@@ -49,12 +49,15 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Messaging\IMessageReceiver.cs" />
+    <Compile Include="Messaging\IMessageSender.cs" />
     <Compile Include="Phases\Journal\SerializationHandler.cs" />
     <Compile Include="Phases\Snapshot\SerializationHandler.cs" />
     <Compile Include="Phases\Transformation\DeserializationHandler.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="Phases\Journal\JournalItem.cs" />
+    <Compile Include="Phases\Transformation\MessageListener.cs" />
     <Compile Include="Serialization\JsonSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -73,7 +76,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Messaging\" />
     <Folder Include="Persistence\" />
     <Folder Include="Phases\Bootstrap\" />
   </ItemGroup>
