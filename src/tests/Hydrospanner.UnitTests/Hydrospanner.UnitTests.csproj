@@ -42,9 +42,13 @@
   <ItemGroup>
     <Compile Include="Phases\Journal\JournalItemTests.cs" />
     <Compile Include="Phases\Journal\SerializationHandlerTests.cs" />
+    <Compile Include="Phases\Snapshot\PublicSnapshotHandlerTests.cs" />
     <Compile Include="Phases\Snapshot\SnapshotLoaderTests.cs" />
-    <Compile Include="Phases\Snapshot\SnapshotStreamReaderTests.cs" />    <Compile Include="Phases\RingBufferHarness.cs" />
-    <Compile Include="Phases\Transformation\MessageListenerTests.cs" />    <Compile Include="Serialization\JsonSerializerTests.cs" />
+    <Compile Include="Phases\Snapshot\SnapshotStreamReaderTests.cs" />
+    <Compile Include="Phases\RingBufferHarness.cs" />
+    <Compile Include="Phases\Snapshot\SystemSnapshotRecorderTests.cs" />
+    <Compile Include="Phases\Transformation\MessageListenerTests.cs" />
+    <Compile Include="Serialization\JsonSerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Phases\Snapshot\SerializationHandlerTests.cs" />
     <Compile Include="Phases\Snapshot\SnapshotItemTests.cs" />

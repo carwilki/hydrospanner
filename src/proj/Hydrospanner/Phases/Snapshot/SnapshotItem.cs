@@ -4,13 +4,13 @@
 
 	public class SnapshotItem
 	{
-		public bool IsPublicSnapshot { get; private set; }
-		public long CurrentSequence { get; private set; }
-		public int MementosRemaining { get; private set; }
+		public bool IsPublicSnapshot { get; set; }
+		public long CurrentSequence { get; set; }
+		public int MementosRemaining { get; set; }
 
-		public string Key { get; private set; }
-		public object Memento { get; private set; }
-		public byte[] Serialized { get; private set; }
+		public string Key { get; set; }
+		public object Memento { get; set; }
+		public byte[] Serialized { get; set; }
 
 		public void AsPublicSnapshot(string key, object memento)
 		{
@@ -18,6 +18,15 @@
 			this.IsPublicSnapshot = true;
 			this.Key = key;
 			this.Memento = memento;
+		}
+
+		public void AsPartOfSystemSnapshot(long sequence, int remaining, string key, object memento)
+		{
+			this.Clear();
+			this.Key = key;
+			this.Memento = memento;
+			this.CurrentSequence = sequence;
+			this.MementosRemaining = remaining;
 		}
 
 		private void Clear()
