@@ -8,14 +8,18 @@
 	{
 		public SnapshotStreamReader Load(long maxSequence, int minIteration)
 		{
-			return this.directory
-				.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly)
+			var files = this.directory.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly);
+			
+			var snapshots = files
 				.Select(ParsedSnapshotFilename.Parse)
-				.Where(x => x != null && x.Sequence <= maxSequence && x.Iteration >= minIteration)
+				.Where(x => x != null && x.Sequence <= maxSequence);
+
+			var mostRecentViableSnapshot = snapshots
 				.OrderByDescending(x => x.Iteration)
 				.Select(this.OpenOrDefault)
-				.FirstOrDefault(x => x != null && x.Count > 0)
-				?? new SnapshotStreamReader();
+				.FirstOrDefault(x => x != null && x.Count > 0);
+
+			return mostRecentViableSnapshot ?? new SnapshotStreamReader();
 		}
 
 		private SnapshotStreamReader OpenOrDefault(ParsedSnapshotFilename snapshot)
