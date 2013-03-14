@@ -167,9 +167,23 @@ namespace Hydrospanner.Messaging.Rabbit
 
 		public class when_sending_a_message_after_a_previously_failed_attempt
 		{
-			It should_attempt_to_reconnect_to_the_broker;
-			It should_pass_the_message_to_the_underlying_channel;
-			It should_indicate_success_to_the_caller;
+			Establish context = () =>
+			{
+				connector.OpenChannel().Returns(null, actualChannel);
+				channel.Send(messageToSend);
+			};
+
+			Because of = () =>
+				result = channel.Send(messageToSend);
+
+			It should_attempt_to_reconnect_to_the_broker = () =>
+				connector.Received(2).OpenChannel();
+
+			It should_pass_the_message_to_the_underlying_channel = () =>
+				actualChannel.Received(1).BasicPublish("some-type", string.Empty, properties, messageToSend.SerializedBody);
+
+			It should_indicate_success_to_the_caller = () =>
+				result.ShouldBeTrue();
 		}
 
 		public class when_disposing_after_sending_a_message
@@ -228,29 +242,47 @@ namespace Hydrospanner.Messaging.Rabbit
 			Because of = () =>
 				result = channel.Commit();
 
-			It should_indicate_success = () =>
-				result.ShouldBeTrue();
+			It should_indicate_failure_to_the_caller = () =>
+				result.ShouldBeFalse();
+
+			It should_NOT_commit_against_the_underlying_channel = () =>
+				actualChannel.Received(0).TxCommit();
 		}
 
-		[Ignore]
 		public class when_committing_a_transaction
 		{
+			Establish context = () =>
+				channel.Send(messageToSend);
+
 			Because of = () =>
 				channel.Commit();
 
-			It should_commit_against_the_underlying_broker = () =>
+			It should_commit_against_the_underlying_channel = () =>
 				actualChannel.Received(1).TxCommit();
 
 			It should_indicate_success_to_the_caller = () =>
 				result.ShouldBeTrue();
 		}
 
-		[Ignore]
 		public class when_committing_a_transaction_throws
 		{
-			It should_dispose_the_underlying_channel;
-			It should_NOT_throw_an_exception;
-			It should_indicate_failure_to_the_caller;
+			Establish context = () =>
+			{
+				actualChannel.When(x => x.TxCommit()).Do(x => { throw new Exception(); });
+				channel.Send(messageToSend);
+			};
+
+			Because of = () =>
+				result = channel.Commit();
+
+			It should_dispose_the_underlying_channel = () =>
+				actualChannel.Received(1).Dispose();
+
+			It should_NOT_throw_an_exception = () =>
+				thrown.ShouldBeNull();
+
+			It should_indicate_failure_to_the_caller = () =>
+				result.ShouldBeFalse();
 		}
 
 		public class when_committing_against_a_disposed_channel

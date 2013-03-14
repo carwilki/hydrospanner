@@ -16,11 +16,11 @@
 				return false;
 
 			if (!message.ItemActions.HasFlag(JournalItemAction.Dispatch))
-				return true;
+				return true; // no op
 
 			var instance = this.channel;
 			if (instance == null)
-				this.channel = instance = connector.OpenChannel();
+				this.channel = instance = this.connector.OpenChannel();
 
 			if (instance == null)
 				return false;
@@ -37,8 +37,7 @@
 			}
 			catch
 			{
-				instance.TryDispose();
-				this.channel = null; // TODO: get this under test
+				this.CloseChannel();
 				return false;
 			}
 
@@ -49,11 +48,34 @@
 			if (this.disposed)
 				return false;
 
-			return true;
+			var instance = this.channel;
+			if (instance == null)
+				return false;
+
+			try
+			{
+				instance.TxCommit();
+				return true;
+			}
+			catch
+			{
+				this.CloseChannel();
+				return false;
+			}
 		}
+
 		public MessageDelivery Receive(TimeSpan timeout)
 		{
 			throw new NotImplementedException();
+		}
+
+		private void CloseChannel()
+		{
+			var instance = this.channel;
+			if (instance != null)
+				instance.TryDispose();
+
+			this.channel = null;
 		}
 
 		public RabbitChannel(RabbitConnector connector)
@@ -76,10 +98,7 @@
 
 			this.disposed = true;
 
-			var instance = this.channel;
-			if (instance != null)
-				instance.TryDispose();
-
+			this.CloseChannel();
 			this.connector.TryDispose();
 			this.channel = null;
 		}
