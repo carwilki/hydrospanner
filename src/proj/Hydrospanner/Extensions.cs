@@ -11,14 +11,6 @@
 		}
 	}
 
-	public static class EnumerationExtensions
-	{
-		public static bool Includes<T>(this Enum type, T value)
-		{
-			return ((int)(object)type & (int)(object)value) == (int)(object)value;
-		}
-	}
-
 	public static class DisposableExtensions
 	{
 		public static void TryDispose(this IDisposable resource)
