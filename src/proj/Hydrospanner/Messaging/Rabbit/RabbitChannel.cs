@@ -39,14 +39,15 @@
 			meta.Type = message.SerializedType;
 			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
 			meta.ContentType = ContentType;
+			meta.DeliveryMode = Persistent;
 			var headers = meta.Headers = meta.Headers ?? new Hashtable();
 			foreach (var item in message.Headers)
 				headers[item.Key] = item.Value;
 
 			// FUTURE: Any correlation ID could potentially be stored in the message headers and then extracted.
-			// Also, on the receiving side we could do the same thing...
+			// Also, on the receiving side we could do the same thing in reverse.
 
-			// FUTURE: TTL and DeliveryMode could be an application-defined dictionary that is available for lookup here
+			// FUTURE: TTL and DeliveryMode could be in an application-defined dictionary that is available for lookup here
 			// based upon message type.  Default to Persistent, no TTL if an entry is not found.
 
 			// TODO: Content Encoding
@@ -129,6 +130,7 @@
 			this.channel = null;
 		}
 
+		private const byte Persistent = 2;
 		private const string ContentType = "application/vnd.nmb.hydrospanner-msg";
 		private readonly RabbitConnector connector;
 		private readonly short nodeId;

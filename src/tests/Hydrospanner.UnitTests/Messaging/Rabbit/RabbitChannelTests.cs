@@ -165,6 +165,9 @@ namespace Hydrospanner.Messaging.Rabbit
 					properties.Headers[item.Key].ShouldEqual(item.Value);
 			};
 
+			It should_mark_the_message_as_persistent = () =>
+				properties.DeliveryMode.ShouldEqual((byte)PersistMessage);
+
 			It should_pass_the_message_to_the_underlying_channel = () =>
 				actualChannel.Received(1).BasicPublish("some-type", string.Empty, properties, messageToSend.SerializedBody);
 
@@ -208,6 +211,8 @@ namespace Hydrospanner.Messaging.Rabbit
 					properties.Headers[item.Key].ShouldEqual(item.Value);
 			};
 
+			It should_mark_the_message_as_persistent = () =>
+				properties.DeliveryMode.ShouldEqual((byte)PersistMessage);
 
 			It should_pass_the_message_to_the_underlying_channel = () =>
 				actualChannel.Received(2).BasicPublish("some-type", string.Empty, properties, messageToSend.SerializedBody);
@@ -409,6 +414,7 @@ namespace Hydrospanner.Messaging.Rabbit
 
 		public class when_receiving_a_message
 		{
+			// FUTURE: any message originating from this node should be discarded during receive
 		}
 
 		Establish context = () =>
@@ -442,6 +448,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			Headers = new Dictionary<string, string>()
 		};
 
+		const short PersistMessage = 2;
 		const short NodeId = 42;
 		const string ContentType = "application/vnd.nmb.hydrospanner-msg";
 		static bool result;
