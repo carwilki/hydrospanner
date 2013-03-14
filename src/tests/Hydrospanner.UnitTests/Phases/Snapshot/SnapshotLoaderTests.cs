@@ -9,6 +9,7 @@ namespace Hydrospanner.Phases.Snapshot
 	using System.Linq;
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
+	using System.Text;
 	using Machine.Specifications;
 	using NSubstitute;
 
@@ -46,14 +47,19 @@ namespace Hydrospanner.Phases.Snapshot
 				reader.Count.ShouldEqual(0);
 		}
 
-		[Ignore] // TODO
 		public class and_there_is_at_least_one_viable_snapshot
 		{
 			Establish context = () =>
 			{
 				var oneRecord = BitConverter.GetBytes(1);
+				var firstRecordType = Encoding.UTF8.GetBytes(FirstRecord.GetType().AssemblyQualifiedName ?? string.Empty);
+				var firstRecordTypeLength = BitConverter.GetBytes(firstRecordType.Length);
 				var firstRecordLength = BitConverter.GetBytes(4);
-				var contents = oneRecord.Concat(firstRecordLength).Concat(FirstRecord).ToArray();
+				var contents = oneRecord
+					.Concat(firstRecordTypeLength)
+					.Concat(firstRecordType)
+					.Concat(firstRecordLength)
+					.Concat(FirstRecord).ToArray();
 				var hash = new SoapHexBinary(new SHA1Managed().ComputeHash(contents));
 				var earlierPath = Path + EarlierIteration + "-" + MessageSequence + "-" + hash;
 				var laterPath = Path + LaterIteration + "-" + MessageSequence + "-" + hash;
@@ -72,7 +78,7 @@ namespace Hydrospanner.Phases.Snapshot
 			It should_load_the_snapshot_with_the_highest_iteration = () =>
 			{
 				reader.Iteration.ShouldEqual(int.Parse(LaterIteration));
-				reader.Read().First().ShouldBeLike(FirstRecord);
+				reader.Read().First().Value.ShouldBeLike(FirstRecord);
 			};
 
 			static readonly byte[] FirstRecord = BitConverter.GetBytes(42);
@@ -98,14 +104,19 @@ namespace Hydrospanner.Phases.Snapshot
 	[Subject(typeof(SnapshotLoader))]
 	public class when_loading_snapshots_using_parameterized_constraints
 	{
-		[Ignore] // TODO
 		public class when_loading_a_snapshot_based_on_message_sequence
 		{
 			Establish context = () =>
 			{
 				var oneRecord = BitConverter.GetBytes(1);
+				var firstRecordType = Encoding.UTF8.GetBytes(FirstRecord.GetType().AssemblyQualifiedName ?? string.Empty);
+				var firstRecordTypeLength = BitConverter.GetBytes(firstRecordType.Length);
 				var firstRecordLength = BitConverter.GetBytes(4);
-				var contents = oneRecord.Concat(firstRecordLength).Concat(FirstRecord).ToArray();
+				var contents = oneRecord
+					.Concat(firstRecordTypeLength)
+					.Concat(firstRecordType)
+					.Concat(firstRecordLength)
+					.Concat(FirstRecord).ToArray();
 				var hash = new SoapHexBinary(new SHA1Managed().ComputeHash(contents));
 				var earlierPath = Path + EarlierIteration + "-" + EarlySnapshotSequence + "-" + hash;
 				var laterPath = Path + EarlierIteration + "-" + LaterSnapshotSequence + "-" + hash;
@@ -124,21 +135,26 @@ namespace Hydrospanner.Phases.Snapshot
 			It should_load_the_snapshot_whose_message_sequence_is_at_or_lower_the_provided_sequence = () =>
 			{
 				reader.MessageSequence.ShouldEqual(EarlySnapshotSequence);
-				reader.Read().First().ShouldBeLike(FirstRecord);
+				reader.Read().First().Value.ShouldBeLike(FirstRecord);
 			};
 
 			const long EarlySnapshotSequence = StoredMessageSequence;
 			const long LaterSnapshotSequence = StoredMessageSequence + 1;
 		}
 
-		[Ignore] // TODO
 		public class when_loading_a_snapshot_based_on_snapshot_iteration
 		{
 			Establish context = () =>
 			{
 				var oneRecord = BitConverter.GetBytes(1);
+				var firstRecordType = Encoding.UTF8.GetBytes(FirstRecord.GetType().AssemblyQualifiedName ?? string.Empty);
+				var firstRecordTypeLength = BitConverter.GetBytes(firstRecordType.Length);
 				var firstRecordLength = BitConverter.GetBytes(4);
-				var contents = oneRecord.Concat(firstRecordLength).Concat(FirstRecord).ToArray();
+				var contents = oneRecord
+					.Concat(firstRecordTypeLength)
+					.Concat(firstRecordType)
+					.Concat(firstRecordLength)
+					.Concat(FirstRecord).ToArray();
 				var hash = new SoapHexBinary(new SHA1Managed().ComputeHash(contents));
 				var earlierPath = Path + EarlierIteration + "-" + StoredMessageSequence + "-" + hash;
 				var laterPath = Path + LaterIteration + "-" + StoredMessageSequence + "-" + hash;
@@ -157,7 +173,7 @@ namespace Hydrospanner.Phases.Snapshot
 			It should_ignore_snapshots_with_iterations_lower_than_the_provided_iteration = () =>
 			{
 				reader.Iteration.ShouldEqual(int.Parse(LaterIteration));
-				reader.Read().First().ShouldBeLike(FirstRecord);
+				reader.Read().First().Value.ShouldBeLike(FirstRecord);
 			};
 		}
 
