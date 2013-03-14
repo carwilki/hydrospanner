@@ -43,6 +43,12 @@
 
 		public MessageListener(IMessageReceiver receiver, RingBuffer<TransformationItem> ring)
 		{
+			if (receiver == null)
+				throw new ArgumentNullException("receiver");
+
+			if (ring == null)
+				throw new ArgumentNullException("ring");
+
 			this.receiver = receiver;
 			this.ring = ring;
 		}

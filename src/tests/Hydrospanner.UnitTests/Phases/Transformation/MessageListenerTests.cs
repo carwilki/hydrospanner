@@ -13,6 +13,24 @@ namespace Hydrospanner.Phases.Transformation
 	[Subject(typeof(MessageListener))]
 	public class when_listening_for_a_foreign_message_from_the_wire
 	{
+		public class when_no_receiver_is_provided
+		{
+			Because of = () =>
+				Try(() => new MessageListener(null, harness.RingBuffer));
+
+			It should_throw_an_exception = () =>
+				thrown.ShouldBeOfType<ArgumentNullException>();
+		}
+
+		public class when_no_ring_buffer_is_provided
+		{
+			Because of = () =>
+				Try(() => new MessageListener(receiver, null));
+
+			It should_throw_an_exception = () =>
+				thrown.ShouldBeOfType<ArgumentNullException>();
+		}
+
 		public class when_the_listener_has_not_started 
 		{
 			It should_NOT_attempt_to_receive_from_the_underlying_messaging_handler = () =>
