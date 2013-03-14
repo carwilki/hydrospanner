@@ -5,6 +5,7 @@
 	using System.IO;
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
+	using System.Text;
 
 	public class SnapshotStreamReader : IDisposable
 	{
@@ -12,21 +13,32 @@
 		public long MessageSequence { get; private set; }
 		public int Iteration { get; private set; }
 
-		public IEnumerable<byte[]> Read()
+		public IEnumerable<KeyValuePair<Type, byte[]>> Read()
 		{
 			if (this.Count == 0)
 				yield break;
 
-			var lengthBuffer = new byte[sizeof(int)];
 			while (this.stream.Position < this.stream.Length)
 			{
-				this.stream.Read(lengthBuffer, 0, lengthBuffer.Length);
-				var length = BitConverter.ToInt32(lengthBuffer, 0);
-
-				var itemBuffer = new byte[length];
-				this.stream.Read(itemBuffer, 0, itemBuffer.Length);
-				yield return itemBuffer;
+				var type = this.ResolveType(this.Next());
+				var item = this.Next();
+				yield return new KeyValuePair<Type, byte[]>(type, item);
 			}
+		}
+
+		private Type ResolveType(byte[] rawType)
+		{
+			var typeName = Encoding.UTF8.GetString(rawType);
+			return this.types.ValueOrDefault(typeName) ?? (this.types[typeName] = Type.GetType(typeName));
+		}
+
+		private byte[] Next()
+		{
+			this.stream.Read(lengthBuffer, 0, lengthBuffer.Length);
+			var length = BitConverter.ToInt32(lengthBuffer, 0);
+			var thingBuffer = new byte[length];
+			this.stream.Read(thingBuffer, 0, length);
+			return thingBuffer;
 		}
 
 		public static SnapshotStreamReader Open(long sequence, int snapshotIteration, string hash, Stream stream)
@@ -75,5 +87,7 @@
 		}
 
 		readonly Stream stream;
+		readonly IDictionary<string, Type> types = new Dictionary<string, Type>();
+		readonly byte[] lengthBuffer = new byte[sizeof(int)];
 	}
 }

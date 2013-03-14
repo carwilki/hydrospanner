@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Globalization;
 
 	public static class StringExtensions
@@ -26,6 +27,15 @@
 			{
 				return;
 			}
+		}
+	}
+
+	public static class CollectionExtensions
+	{
+		public static TValue ValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> collection, TKey key)
+		{
+			TValue value;
+			return collection.TryGetValue(key, out value) ? value : default(TValue);
 		}
 	}
 }

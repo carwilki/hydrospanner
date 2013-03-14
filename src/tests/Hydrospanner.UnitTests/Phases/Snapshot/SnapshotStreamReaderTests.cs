@@ -6,6 +6,7 @@ namespace Hydrospanner.Phases.Snapshot
 	using System;
 	using System.Collections.Generic;
 	using System.IO;
+	using System.Linq;
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
 	using System.Text;
@@ -65,10 +66,14 @@ namespace Hydrospanner.Phases.Snapshot
 			var contents = new List<byte>();
 			contents.AddRange(BitConverter.GetBytes(Records.Count));
 
+			var type = Encoding.UTF8.GetBytes(string.Empty.GetType().AssemblyQualifiedName ?? string.Empty);
 			foreach (var record in Records)
 			{
-				contents.AddRange(BitConverter.GetBytes(record.Length));
-				contents.AddRange(record);
+				var item = record.Value;
+				contents.AddRange(BitConverter.GetBytes(type.Length));
+				contents.AddRange(type);
+				contents.AddRange(BitConverter.GetBytes(item.Length));
+				contents.AddRange(item);
 			}
 
 			stream = new MemoryStream(contents.ToArray());
@@ -78,21 +83,25 @@ namespace Hydrospanner.Phases.Snapshot
 		};
 
 		Because of = () =>
-			recordsReadFromSnapshot = reader.Read();
+			recordsReadFromSnapshot = reader.Read().ToList();
 
 		It should_yield_each_record_in_turn = () =>
-			recordsReadFromSnapshot.ShouldBeLike(Records);
+		{
+			recordsReadFromSnapshot[0].ShouldBeEqual(Records[0]);
+			recordsReadFromSnapshot[1].ShouldBeEqual(Records[1]);
+			recordsReadFromSnapshot[2].ShouldBeEqual(Records[2]);
+		};
 
 		const int NumberOfRecords = 42;
-		static readonly List<byte[]> Records = new List<byte[]>
+		static readonly List<KeyValuePair<Type, byte[]>> Records = new List<KeyValuePair<Type, byte[]>>
 		{
-			Encoding.UTF8.GetBytes("First"),
-			Encoding.UTF8.GetBytes("Second"),
-			Encoding.UTF8.GetBytes("Third")
+			new KeyValuePair<Type, byte[]>(typeof(string), Encoding.UTF8.GetBytes("First")),
+			new KeyValuePair<Type, byte[]>(typeof(string), Encoding.UTF8.GetBytes("Second")),
+			new KeyValuePair<Type, byte[]>(typeof(string), Encoding.UTF8.GetBytes("Third"))
 		};
 		static MemoryStream stream;
 		static SnapshotStreamReader reader;
-		static IEnumerable<byte[]> recordsReadFromSnapshot;
+		static List<KeyValuePair<Type, byte[]>> recordsReadFromSnapshot;
 	}
 
 	[Subject(typeof(SnapshotStreamReader))]
@@ -117,6 +126,15 @@ namespace Hydrospanner.Phases.Snapshot
 		static string correctHash;
 		static MemoryStream stream;
 		static SnapshotStreamReader reader;
+	}
+
+	public static class ShouldExtensions
+	{
+		public static void ShouldBeEqual(this KeyValuePair<Type, byte[]> pair, KeyValuePair<Type, byte[]> other)
+		{
+			pair.Key.ShouldEqual(other.Key);
+			pair.Value.ShouldBeLike(other.Value);
+		}
 	}
 }
 
