@@ -5,7 +5,6 @@
 	using System.IO;
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
-	using System.Text;
 
 	public class SnapshotStreamReader : IDisposable
 	{
@@ -28,14 +27,14 @@
 
 		private Type ResolveType(byte[] rawType)
 		{
-			var typeName = Encoding.UTF8.GetString(rawType);
+			var typeName = rawType.SliceString(0);
 			return this.types.ValueOrDefault(typeName) ?? (this.types[typeName] = Type.GetType(typeName));
 		}
 
 		private byte[] Next()
 		{
 			this.stream.Read(this.lengthBuffer, 0, this.lengthBuffer.Length);
-			var length = BitConverter.ToInt32(this.lengthBuffer, 0);
+			var length = this.lengthBuffer.SliceInt32(0);
 			var itemBuffer = new byte[length];
 			this.stream.Read(itemBuffer, 0, length);
 			return itemBuffer;		}
@@ -67,7 +66,7 @@
 
 			var countBuffer = new byte[sizeof(int)];
 			stream.Read(countBuffer, 0, sizeof(int));
-			this.Count = BitConverter.ToInt32(countBuffer, 0);
+			this.Count = countBuffer.SliceInt32(0);
 		}
 		public SnapshotStreamReader()
 		{

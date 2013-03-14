@@ -2,7 +2,6 @@
 {
 	using System.IO;
 	using System.IO.Abstractions;
-	using System.Text;
 
 	public class SystemSnapshotRecorder : ISnapshotRecorder
 	{
@@ -17,7 +16,7 @@
 				
 				var typeName = item.Memento.GetType().AssemblyQualifiedName ?? string.Empty;
 				writer.Write(typeName.Length);
-				writer.Write(Encoding.UTF8.GetBytes(typeName));
+				writer.Write(typeName.ToByteArray());
 
 				writer.Write(item.Serialized.Length);
 				writer.Write(item.Serialized);
