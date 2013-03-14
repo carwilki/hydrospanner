@@ -29,6 +29,7 @@
 
 			// TODO: message id, delivery mode, copy headers, expiration, timestamp, app id (this node id?)
 			// TODO: content encoding, content-type, correlation id?
+			// TODO: what happens if the serialized body is null and/or the serialized type is null/empty?
 			var exchange = message.SerializedType.ToLowerInvariant().Replace(".", "-");
 
 			try
