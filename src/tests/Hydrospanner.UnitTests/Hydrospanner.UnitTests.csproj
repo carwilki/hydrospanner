@@ -44,7 +44,9 @@
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Phases\Journal\JournalItemTests.cs" />
     <Compile Include="Phases\Journal\SerializationHandlerTests.cs" />
+    <Compile Include="Phases\Snapshot\PhotographicMemoryStream.cs" />
     <Compile Include="Phases\Snapshot\PublicSnapshotHandlerTests.cs" />
+    <Compile Include="Phases\Snapshot\ShouldExtensions.cs" />
     <Compile Include="Phases\Snapshot\SnapshotLoaderTests.cs" />
     <Compile Include="Phases\Snapshot\SnapshotStreamReaderTests.cs" />
     <Compile Include="Phases\RingBufferHarness.cs" />

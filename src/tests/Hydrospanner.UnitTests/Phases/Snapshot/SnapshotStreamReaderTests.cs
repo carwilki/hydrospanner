@@ -127,15 +127,6 @@ namespace Hydrospanner.Phases.Snapshot
 		static MemoryStream stream;
 		static SnapshotStreamReader reader;
 	}
-
-	public static class ShouldExtensions
-	{
-		public static void ShouldBeEqual(this KeyValuePair<Type, byte[]> pair, KeyValuePair<Type, byte[]> other)
-		{
-			pair.Key.ShouldEqual(other.Key);
-			pair.Value.ShouldBeLike(other.Value);
-		}
-	}
 }
 
 // ReSharper restore InconsistentNaming

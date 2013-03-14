@@ -45,7 +45,6 @@
 			hash = hash.Trim().ToUpperInvariant();
 			var computed = ComputeHash(stream).ToUpperInvariant();
 			stream.Position = 0;
-
 			if (hash == computed)
 				return new SnapshotStreamReader(sequence, snapshotIteration, stream);
 
