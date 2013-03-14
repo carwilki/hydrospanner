@@ -2,7 +2,7 @@
 {
 	using Disruptor;
 
-	public class PublicSnapshotHandler : IEventHandler<SnapshotItem>
+	internal class PublicSnapshotHandler : IEventHandler<SnapshotItem>
 	{
 		public void OnNext(SnapshotItem data, long sequence, bool endOfBatch)
 		{

@@ -1,9 +1,9 @@
 ﻿namespace Hydrospanner.Messaging
 {
 	using System;
-	using Hydrospanner.Phases.Journal;
+	using Phases.Journal;
 
-	public interface IMessageSender : IDisposable
+	internal interface IMessageSender : IDisposable
 	{
 		bool Send(JournalItem message);
 		bool Commit();

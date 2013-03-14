@@ -6,7 +6,7 @@
 	using Newtonsoft.Json;
 	using Newtonsoft.Json.Converters;
 
-	public class JsonSerializer : ISerializer
+	internal class JsonSerializer : ISerializer
 	{
 		public string ContentEncoding
 		{

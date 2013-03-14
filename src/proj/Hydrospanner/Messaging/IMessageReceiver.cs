@@ -2,7 +2,7 @@
 {
 	using System;
 
-	public interface IMessageReceiver : IDisposable
+	internal interface IMessageReceiver : IDisposable
 	{
 		MessageDelivery Receive(TimeSpan timeout);
 	}

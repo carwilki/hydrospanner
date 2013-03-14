@@ -1,9 +1,9 @@
 ﻿namespace Hydrospanner.Phases.Snapshot
 {
 	using Disruptor;
-	using Hydrospanner.Serialization;
+	using Serialization;
 
-	public class SerializationHandler : IEventHandler<SnapshotItem>
+	internal class SerializationHandler : IEventHandler<SnapshotItem>
 	{
 		public void OnNext(SnapshotItem data, long sequence, bool endOfBatch)
 		{

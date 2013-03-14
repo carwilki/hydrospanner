@@ -2,7 +2,7 @@
 {
 	using System.IO;
 
-	public class ParsedSnapshotFilename
+	internal class ParsedSnapshotFilename
 	{
 		public string FullPath { get; set; }
 		public int Iteration { get; set; }

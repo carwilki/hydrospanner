@@ -6,7 +6,7 @@
 	using System.Security.Authentication;
 	using RabbitMQ.Client;
 
-	public class RabbitConnector : IDisposable
+	internal class RabbitConnector : IDisposable
 	{
 		public virtual IModel OpenChannel()
 		{

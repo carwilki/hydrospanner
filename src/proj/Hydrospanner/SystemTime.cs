@@ -2,7 +2,7 @@
 {
 	using System;
 
-	public static class SystemTime
+	internal static class SystemTime
 	{
 		public static DateTime UtcNow
 		{

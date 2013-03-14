@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	public struct MessageDelivery
+	internal struct MessageDelivery
 	{
 		public bool Populated { get; private set; }
 		public Guid MessageId { get; private set; }

@@ -3,7 +3,7 @@
 	using System;
 	using System.IO;
 
-	public class SnapshotStreamWriter : IDisposable
+	internal class SnapshotStreamWriter : IDisposable
 	{
 		public void Write(byte[] serialized)
 		{

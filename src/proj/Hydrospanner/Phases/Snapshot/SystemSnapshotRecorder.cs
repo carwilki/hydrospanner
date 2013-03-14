@@ -5,7 +5,7 @@
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
 
-	public class SystemSnapshotRecorder : ISnapshotRecorder
+	internal class SystemSnapshotRecorder : ISnapshotRecorder
 	{
 		public void Record(SnapshotItem item)
 		{

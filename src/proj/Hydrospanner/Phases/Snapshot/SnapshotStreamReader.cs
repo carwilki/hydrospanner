@@ -6,7 +6,7 @@
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
 
-	public class SnapshotStreamReader : IDisposable
+	internal class SnapshotStreamReader : IDisposable
 	{
 		public int Count { get; private set; }
 		public long MessageSequence { get; private set; }

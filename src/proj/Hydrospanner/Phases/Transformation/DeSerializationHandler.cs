@@ -1,9 +1,9 @@
 ﻿namespace Hydrospanner.Phases.Transformation
 {
 	using Disruptor;
-	using Hydrospanner.Serialization;
+	using Serialization;
 
-	public class DeserializationHandler : IEventHandler<TransformationItem>
+	internal class DeserializationHandler : IEventHandler<TransformationItem>
 	{
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{

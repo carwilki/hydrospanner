@@ -4,7 +4,7 @@
 	using System.Collections.Generic;
 	using Serialization;
 
-	public class JournalItem
+	internal sealed class JournalItem
 	{
 		public long MessageSequence { get; set; }
 
@@ -80,7 +80,7 @@
 	}
 
 	[Flags]
-	public enum JournalItemAction
+	internal enum JournalItemAction
 	{
 		None = 0,
 		Journal = 1,

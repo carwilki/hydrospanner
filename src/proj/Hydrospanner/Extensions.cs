@@ -5,7 +5,7 @@
 	using System.Globalization;
 	using System.Text;
 
-	public static class StringExtensions
+	internal static class StringExtensions
 	{
 		public static string FormatWith(this string template, params object[] args)
 		{
@@ -13,7 +13,7 @@
 		}
 	}
 
-	public static class ByteConversionExtensions
+	internal static class ByteConversionExtensions
 	{
 		public static int SliceInt32(this byte[] array, int index)
 		{
@@ -56,7 +56,7 @@
 		}
 	}
 
-	public static class DisposableExtensions
+	internal static class DisposableExtensions
 	{
 		public static void TryDispose(this IDisposable resource)
 		{
@@ -74,7 +74,7 @@
 		}
 	}
 
-	public static class CollectionExtensions
+	internal static class CollectionExtensions
 	{
 		public static TValue ValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> collection, TKey key)
 		{

@@ -1,6 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Snapshot
 {
-	public class PublicSnapshotRecorder : ISnapshotRecorder
+	internal class PublicSnapshotRecorder : ISnapshotRecorder
 	{
 		public void Record(SnapshotItem item)
 		{

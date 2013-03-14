@@ -2,9 +2,9 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using Hydrospanner.Serialization;
+	using Serialization;
 
-	public sealed class TransformationItem
+	internal sealed class TransformationItem
 	{
 		public long MessageSequence { get; set; }
 

@@ -3,7 +3,7 @@
 	using Disruptor;
 	using Serialization;
 
-	public class SerializationHandler : IEventHandler<JournalItem>
+	internal class SerializationHandler : IEventHandler<JournalItem>
 	{
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{

@@ -4,7 +4,7 @@
 	using System.IO.Abstractions;
 	using System.Linq;
 
-	public class SnapshotLoader
+	internal class SnapshotLoader
 	{
 		public SnapshotStreamReader Load(long maxSequence)
 		{

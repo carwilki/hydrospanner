@@ -2,10 +2,10 @@
 {
 	using System;
 	using System.Globalization;
-	using Hydrospanner.Phases.Journal;
+	using Phases.Journal;
 	using RabbitMQ.Client;
 
-	public class RabbitChannel : IMessageSender, IMessageReceiver
+	internal class RabbitChannel : IMessageSender, IMessageReceiver
 	{
 		// NOTE: caller should be responsible for while loop where all actions return success.
 		public bool Send(JournalItem message)

@@ -3,9 +3,9 @@
 	using System;
 	using System.Threading;
 	using Disruptor;
-	using Hydrospanner.Messaging;
+	using Messaging;
 
-	public class MessageListener : IDisposable
+	internal class MessageListener : IDisposable
 	{
 		public void Start()
 		{
