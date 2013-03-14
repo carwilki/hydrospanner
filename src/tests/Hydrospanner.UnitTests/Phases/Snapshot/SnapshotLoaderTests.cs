@@ -51,7 +51,6 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			Establish context = () =>
 			{
-				
 				var earlierPath = Path + EarlierIteration + "-" + MessageSequence + "-" + hash;
 				var laterPath = Path + LaterIteration + "-" + MessageSequence + "-" + hash;
 
@@ -168,8 +167,6 @@ namespace Hydrospanner.Phases.Snapshot
 		static byte[] contents;
 		static string hash;
 	}
-
-	
 }
 
 // ReSharper restore InconsistentNaming

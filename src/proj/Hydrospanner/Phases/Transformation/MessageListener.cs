@@ -20,8 +20,9 @@
 		}
 		private void StartListening()
 		{
-			while (this.started)
-				this.Publish(this.receiver.Receive(DefaultTimeout));
+			using (var receiver = this.receiverFactory())
+				while (this.started)
+					this.Publish(receiver.Receive(DefaultTimeout));
 		}
 		private void Publish(MessageDelivery delivery)
 		{
@@ -41,15 +42,15 @@
 			this.ring.Publish(claimed);
 		}
 
-		public MessageListener(IMessageReceiver receiver, RingBuffer<TransformationItem> ring)
+		public MessageListener(Func<IMessageReceiver> receiverFactory, RingBuffer<TransformationItem> ring)
 		{
-			if (receiver == null)
-				throw new ArgumentNullException("receiver");
+			if (receiverFactory == null)
+				throw new ArgumentNullException("receiverFactory");
 
 			if (ring == null)
 				throw new ArgumentNullException("ring");
 
-			this.receiver = receiver;
+			this.receiverFactory = receiverFactory;
 			this.ring = ring;
 		}
 
@@ -65,11 +66,10 @@
 
 			this.started = false;
 			this.disposed = true;
-			this.receiver.Dispose();
 		}
 
 		private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(2);
-		private readonly IMessageReceiver receiver;
+		private readonly Func<IMessageReceiver> receiverFactory;
 		private readonly RingBuffer<TransformationItem> ring;
 		private bool started;
 		private bool disposed;

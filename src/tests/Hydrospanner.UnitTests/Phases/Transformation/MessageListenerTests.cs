@@ -25,7 +25,7 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_no_ring_buffer_is_provided
 		{
 			Because of = () =>
-				Try(() => new MessageListener(receiver, null));
+				Try(() => new MessageListener(() => receiver, null));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
@@ -120,25 +120,44 @@ namespace Hydrospanner.Phases.Transformation
 			static int counter;
 		}
 
-		public class when_the_listener_is_disposed
+		public class when_the_listener_is_disposed_after_starting
 		{
+			Establish context = () =>
+				listener.Start();
+
 			Because of = () =>
+			{
 				listener.Dispose();
+				Thread.Sleep(10);
+			};
 
 			It should_dispose_the_underlying_messaging_handle = () =>
 				receiver.Received(1).Dispose();
 		}
 
-		public class when_the_listener_is_disposed_more_than_once
+		public class when_the_listener_is_disposed_more_than_once_after_starting
 		{
 			Establish context = () =>
+			{
+				listener.Start();
 				listener.Dispose();
+				Thread.Sleep(10);
+			};
 
 			Because of = () =>
 				listener.Dispose();
 
-			It should_dispose_the_underlying_messaging_handle = () =>
+			It should_dispose_the_underlying_messaging_handle_exactly_once = () =>
 				receiver.Received(1).Dispose();
+		}
+
+		public class when_the_listener_is_disposed_WITHOUT_starting
+		{
+			Because of = () =>
+				listener.Dispose();
+
+			It should_NOT_dispose_the_underlying_messaging_handle = () =>
+				receiver.Received(0).Dispose();
 		}
 
 		public class when_the_listener_is_started_after_being_disposed
@@ -162,7 +181,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			receiver = Substitute.For<IMessageReceiver>();
 			harness = new RingBufferHarness<TransformationItem>();
-			listener = new MessageListener(receiver, harness.RingBuffer);
+			listener = new MessageListener(() => receiver, harness.RingBuffer);
 		};
 
 		Cleanup after = () =>
