@@ -218,6 +218,21 @@ namespace Hydrospanner.Messaging.Rabbit
 				connection.Received(1).Dispose();
 		}
 
+		public class when_disposing_a_connection_throws_an_exception
+		{
+			Establish context = () =>
+			{
+				connection.When(x => x.Dispose()).Do(x => { throw new Exception(); });
+				connector.OpenChannel();
+			};
+
+			Because of = () =>
+				connector.Dispose();
+
+			It should_NOT_throw_an_exception = () =>
+				thrown.ShouldBeNull();
+		}
+
 		public class when_open_a_channel_after_disposal
 		{
 			Establish context = () =>

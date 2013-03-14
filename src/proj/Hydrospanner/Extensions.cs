@@ -18,4 +18,22 @@
 			return ((int)(object)type & (int)(object)value) == (int)(object)value;
 		}
 	}
+
+	public static class DisposableExtensions
+	{
+		public static void TryDispose(this IDisposable resource)
+		{
+			if (resource == null)
+				return;
+
+			try
+			{
+				resource.Dispose();
+			}
+			catch
+			{
+				return;
+			}
+		}
+	}
 }

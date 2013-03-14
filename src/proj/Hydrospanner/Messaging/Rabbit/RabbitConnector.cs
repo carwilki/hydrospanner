@@ -17,28 +17,37 @@
 		}
 		private IModel TryOpenChannel()
 		{
-			IConnection conn = null;
 			try
 			{
-				conn = this.OpenConnection();
-				return conn.CreateModel();
+				var conn = this.Connect();
+				return conn == null ? null : conn.CreateModel();
 			}
 			catch
 			{
-				if (conn != null)
-					conn.Dispose();
-
-				this.connection = null;
+				this.Disconnect();
 				return null;
 			}
 		}
-		private IConnection OpenConnection()
+		private IConnection Connect()
 		{
-			var local = this.connection;
-			if (local == null)
-				this.connection = local = this.factory.CreateConnection();
+			lock (this.sync)
+			{
+				var local = this.connection;
+				if (local == null)
+					this.connection = local = this.factory.CreateConnection();
 
-			return local;
+				return local;
+			}
+		}
+		private void Disconnect()
+		{
+			lock (this.sync)
+			{
+				var local = this.connection;
+				this.connection = null;
+				if (local != null)
+					local.TryDispose();
+			}
 		}
 
 		public RabbitConnector(Uri address) : this(address, new ConnectionFactory())
@@ -91,17 +100,13 @@
 				return;
 
 			this.disposed = true;
-
-			var conn = this.connection;
-			if (conn != null)
-				conn.Dispose();
-
-			this.connection = null;
+			this.Disconnect();
 		}
 
 		private const string IgnoreIssuer = "ignore-issuer=true";
 		private const string SecureConnection = "amqps";
 		private const string Guest = "guest";
+		private readonly object sync = new object();
 		private readonly ConnectionFactory factory;
 		private IConnection connection;
 		private bool disposed;
