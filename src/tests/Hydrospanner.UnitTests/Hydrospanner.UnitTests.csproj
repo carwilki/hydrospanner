@@ -59,6 +59,7 @@
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="Phases\Transformation\DeserializationHandlerTests.cs" />
     <Compile Include="Phases\Transformation\TransformationItemTests.cs" />
+    <Compile Include="SystemTimeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Atomic, Version=1.1.1.0, Culture=neutral, PublicKeyToken=979700c3ff7272ae, processorArchitecture=MSIL">

@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="Phases\Snapshot\SnapshotItem.cs" />
     <Compile Include="Phases\Transformation\TransformationItem.cs" />
+    <Compile Include="SystemTime.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\CustomDictionary.xml">
