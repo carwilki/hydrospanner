@@ -6,20 +6,20 @@
 
 	public sealed class TransformationItem
 	{
-		public long MessageSequence { get; private set; }
+		public long MessageSequence { get; set; }
 
-		public byte[] SerializedBody { get; private set; }
-		public string SerializedType { get; private set; }
-		public byte[] SerializedHeaders { get; private set; }
-		public object Body { get; private set; }
-		public Dictionary<string, string> Headers { get; private set; }
+		public byte[] SerializedBody { get; set; }
+		public string SerializedType { get; set; }
+		public byte[] SerializedHeaders { get; set; }
+		public object Body { get; set; }
+		public Dictionary<string, string> Headers { get; set; }
 
-		public bool CanJournal { get; private set; }
-		public bool IsDocumented { get; private set; }
-		public bool IsLocal { get; private set; }
-		public bool IsDuplicate { get; private set; }
-		public Guid ForeignId { get; private set; }
-		public Action Acknowledgement { get; private set; }
+		public bool CanJournal { get; set; }
+		public bool IsDocumented { get; set; }
+		public bool IsLocal { get; set; }
+		public bool IsDuplicate { get; set; }
+		public Guid ForeignId { get; set; }
+		public Action Acknowledgement { get; set; }
 
 		public void AsForeignMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action ack)
 		{

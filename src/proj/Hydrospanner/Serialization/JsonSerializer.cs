@@ -6,8 +6,17 @@
 	using Newtonsoft.Json;
 	using Newtonsoft.Json.Converters;
 
-	public class JsonSerializer
+	public class JsonSerializer : ISerializer
 	{
+		public string ContentEncoding
+		{
+			get { return "utf8"; }
+		}
+		public string ContentFormat
+		{
+			get { return "json"; }
+		}
+
 		public byte[] Serialize(object graph)
 		{
 			if (graph == null)

@@ -70,6 +70,7 @@
     <Compile Include="IHydratable.cs" />
     <Compile Include="Phases\Journal\JournalItem.cs" />
     <Compile Include="Phases\Transformation\MessageListener.cs" />
+    <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Serialization\JsonSerializer.cs">
       <SubType>Code</SubType>
     </Compile>

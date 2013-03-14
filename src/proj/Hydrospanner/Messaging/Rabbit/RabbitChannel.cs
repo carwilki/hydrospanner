@@ -38,7 +38,7 @@
 			meta.AppId = this.appId;
 			meta.Type = message.SerializedType;
 			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
-			meta.ContentType = ContentType;
+			meta.ContentType = ContentType; // TODO: +json, +pb, +msgpack, +kryo, etc.
 			meta.DeliveryMode = Persistent;
 			var headers = meta.Headers = meta.Headers ?? new Hashtable();
 			foreach (var item in message.Headers)
