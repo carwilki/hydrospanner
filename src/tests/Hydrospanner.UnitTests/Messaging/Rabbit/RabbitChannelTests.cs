@@ -5,6 +5,7 @@ namespace Hydrospanner.Messaging.Rabbit
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Globalization;
 	using Hydrospanner.Phases.Journal;
 	using Machine.Specifications;
 	using NSubstitute;
@@ -17,10 +18,28 @@ namespace Hydrospanner.Messaging.Rabbit
 		public class when_a_null_connector_is_provided
 		{
 			Because of = () =>
-				Try(() => new RabbitChannel(null));
+				Try(() => new RabbitChannel(null, NodeId));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
+		}
+
+		public class when_a_zero_is_provided_as_the_node_id
+		{
+			Because of = () =>
+				Try(() => new RabbitChannel(connector, 0));
+
+			It should_throw_an_exception = () =>
+				thrown.ShouldBeOfType<ArgumentOutOfRangeException>();
+		}
+
+		public class when_a_negative_number_is_provided_as_the_node_id
+		{
+			Because of = () =>
+				Try(() => new RabbitChannel(connector, -1));
+
+			It should_throw_an_exception = () =>
+				thrown.ShouldBeOfType<ArgumentOutOfRangeException>();
 		}
 
 		public class when_disposing_the_channel
@@ -77,6 +96,42 @@ namespace Hydrospanner.Messaging.Rabbit
 				result.ShouldBeTrue();
 		}
 
+		public class when_attempting_to_send_a_message_without_a_payload
+		{
+			Because of = () =>
+				result = channel.Send(NoPayload);
+
+			It should_not_pass_the_message_to_underlying_channel = () =>
+				actualChannel.Received(0).BasicPublish(Arg.Any<string>(), string.Empty, Arg.Any<IBasicProperties>(), Arg.Any<byte[]>());
+
+			It should_indicate_success_to_the_caller = () =>
+				result.ShouldBeTrue();
+
+			static readonly JournalItem NoPayload = new JournalItem
+			{
+				ItemActions = JournalItemAction.Dispatch,
+			};
+		}
+
+		public class when_attempting_to_send_a_message_with_an_unknown_type
+		{
+			Because of = () =>
+				result = channel.Send(NoMessageType);
+
+			It should_not_pass_the_message_to_underlying_channel = () =>
+				actualChannel.Received(0).BasicPublish(Arg.Any<string>(), string.Empty, Arg.Any<IBasicProperties>(), Arg.Any<byte[]>());
+
+			It should_indicate_success_to_the_caller = () =>
+				result.ShouldBeTrue();
+
+			static readonly JournalItem NoMessageType = new JournalItem
+			{
+				ItemActions = JournalItemAction.Dispatch,
+				SerializedBody = new byte[] { 1, 2, 3, 4 },
+				SerializedType = null
+			};
+		}
+
 		public class when_sending_a_message
 		{
 			Establish context = () =>
@@ -96,6 +151,12 @@ namespace Hydrospanner.Messaging.Rabbit
 
 			It should_indicate_the_content_type = () =>
 				properties.ContentType.ShouldEqual(ContentType);
+
+			It should_indicate_the_application_id = () =>
+				properties.AppId.ShouldEqual(NodeId.ToString(CultureInfo.InvariantCulture));
+
+			It should_indicate_the_outgoing_message_id = () =>
+				properties.MessageId.ShouldEqual(((messageToSend.MessageSequence << 16) + NodeId).ToString(CultureInfo.InvariantCulture));
 
 			It should_populate_the_headers = () =>
 			{
@@ -131,12 +192,22 @@ namespace Hydrospanner.Messaging.Rabbit
 			It should_indicate_the_correct_timestamp = () =>
 				properties.Timestamp.ShouldEqual(new AmqpTimestamp(SystemTime.EpochUtcNow));
 
+			It should_indicate_the_content_type = () =>
+				properties.ContentType.ShouldEqual(ContentType);
+
+			It should_indicate_the_application_id = () =>
+				properties.AppId.ShouldEqual(NodeId.ToString(CultureInfo.InvariantCulture));
+
+			It should_indicate_the_outgoing_message_id = () =>
+				properties.MessageId.ShouldEqual(((messageToSend.MessageSequence << 16) + NodeId).ToString(CultureInfo.InvariantCulture));
+
 			It should_populate_the_headers = () =>
 			{
 				properties.Headers.Count.ShouldEqual(messageToSend.Headers.Count);
 				foreach (var item in messageToSend.Headers)
 					properties.Headers[item.Key].ShouldEqual(item.Value);
 			};
+
 
 			It should_pass_the_message_to_the_underlying_channel = () =>
 				actualChannel.Received(2).BasicPublish("some-type", string.Empty, properties, messageToSend.SerializedBody);
@@ -346,7 +417,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			connector = Substitute.For<RabbitConnector>();
 			actualChannel = Substitute.For<IModel>();
 			connector.OpenChannel().Returns(actualChannel);
-			channel = new RabbitChannel(connector);
+			channel = new RabbitChannel(connector, NodeId);
 			properties = new BasicProperties();
 			actualChannel.CreateBasicProperties().Returns(properties);
 		};
@@ -371,6 +442,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			Headers = new Dictionary<string, string>()
 		};
 
+		const short NodeId = 42;
 		const string ContentType = "application/vnd.nmb.hydrospanner-msg";
 		static bool result;
 		static IModel actualChannel;

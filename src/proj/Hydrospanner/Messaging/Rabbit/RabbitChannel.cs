@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections;
+	using System.Globalization;
 	using Hydrospanner.Phases.Journal;
 	using RabbitMQ.Client;
 
@@ -19,6 +20,12 @@
 			if (!message.ItemActions.HasFlag(JournalItemAction.Dispatch))
 				return true; // no op
 
+			if (message.SerializedBody == null || message.SerializedBody.Length == 0)
+				return true; // no op
+
+			if (string.IsNullOrWhiteSpace(message.SerializedType))
+				return true;
+
 			var instance = this.channel;
 			if (instance == null)
 				this.channel = instance = this.connector.OpenChannel();
@@ -26,22 +33,28 @@
 			if (instance == null)
 				return false;
 
-			var properties = instance.CreateBasicProperties();
-			properties.Type = message.SerializedType;
-			properties.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
-			properties.ContentType = ContentType;
-			var headers = properties.Headers = properties.Headers ?? new Hashtable();
+			var meta = instance.CreateBasicProperties();
+			meta.MessageId = ((message.MessageSequence << 16) + this.nodeId).ToString(CultureInfo.InvariantCulture);
+			meta.AppId = this.appId;
+			meta.Type = message.SerializedType;
+			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
+			meta.ContentType = ContentType;
+			var headers = meta.Headers = meta.Headers ?? new Hashtable();
 			foreach (var item in message.Headers)
 				headers[item.Key] = item.Value;
 
-			// TODO: message id, delivery mode, expiration, app id (this node id?)
-			// TODO: content encoding, correlation id?
-			// TODO: what happens if the serialized body is null and/or the serialized type is null/empty?
+			// FUTURE: Any correlation ID could potentially be stored in the message headers and then extracted.
+			// Also, on the receiving side we could do the same thing...
+
+			// FUTURE: TTL and DeliveryMode could be an application-defined dictionary that is available for lookup here
+			// based upon message type.  Default to Persistent, no TTL if an entry is not found.
+
+			// TODO: Content Encoding
 			var exchange = message.SerializedType.ToLowerInvariant().Replace(".", "-");
 
 			try
 			{
-				instance.BasicPublish(exchange, string.Empty, properties, message.SerializedBody);
+				instance.BasicPublish(exchange, string.Empty, meta, message.SerializedBody);
 			}
 			catch
 			{
@@ -86,12 +99,17 @@
 			this.channel = null;
 		}
 
-		public RabbitChannel(RabbitConnector connector)
+		public RabbitChannel(RabbitConnector connector, short nodeId)
 		{
 			if (connector == null)
 				throw new ArgumentNullException();
 
+			if (nodeId <= 0)
+				throw new ArgumentOutOfRangeException("nodeId");
+
 			this.connector = connector;
+			this.nodeId = nodeId;
+			this.appId = nodeId.ToString(CultureInfo.InvariantCulture);
 		}
 
 		public void Dispose()
@@ -113,6 +131,8 @@
 
 		private const string ContentType = "application/vnd.nmb.hydrospanner-msg";
 		private readonly RabbitConnector connector;
+		private readonly short nodeId;
+		private readonly string appId;
 		private IModel channel;
 		private bool disposed;
 	}
