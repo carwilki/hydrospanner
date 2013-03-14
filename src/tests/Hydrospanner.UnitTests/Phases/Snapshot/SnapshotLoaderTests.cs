@@ -23,7 +23,7 @@ namespace Hydrospanner.Phases.Snapshot
 					.Returns(new[] { "hi", "not-a-snapshot", "blah-blah-blah", "bad_iteration-42-hash" });
 
 			Because of = () =>
-				reader = loader.Load(long.MaxValue, 0);
+				reader = loader.Load(long.MaxValue);
 
 			It should_return_a_blank_snapshot = () =>
 				reader.Count.ShouldEqual(0);
@@ -40,7 +40,7 @@ namespace Hydrospanner.Phases.Snapshot
 			};
 
 			Because of = () =>
-				reader = loader.Load(long.MaxValue, 0);
+				reader = loader.Load(long.MaxValue);
 
 			It should_return_a_blank_snapshot = () =>
 				reader.Count.ShouldEqual(0);
@@ -66,7 +66,7 @@ namespace Hydrospanner.Phases.Snapshot
 			};
 
 			Because of = () =>
-				reader = loader.Load(long.MaxValue, 0);
+				reader = loader.Load(long.MaxValue);
 
 			It should_load_the_snapshot_with_the_highest_iteration = () =>
 			{
@@ -117,7 +117,7 @@ namespace Hydrospanner.Phases.Snapshot
 			};
 
 			Because of = () =>
-				reader = loader.Load(StoredMessageSequence, 0);
+				reader = loader.Load(StoredMessageSequence);
 
 			It should_load_the_snapshot_whose_message_sequence_is_at_or_lower_the_provided_sequence = () =>
 			{
@@ -149,7 +149,7 @@ namespace Hydrospanner.Phases.Snapshot
 			};
 
 			Because of = () =>
-				reader = loader.Load(long.MaxValue, int.Parse(LaterIteration));
+				reader = loader.Load(long.MaxValue);
 
 			It should_ignore_snapshots_with_iterations_lower_than_the_provided_iteration = () =>
 			{

@@ -6,7 +6,7 @@
 
 	public class SnapshotLoader
 	{
-		public SnapshotStreamReader Load(long maxSequence, int minIteration)
+		public SnapshotStreamReader Load(long maxSequence)
 		{
 			var files = this.directory.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly);
 			
