@@ -52,6 +52,7 @@
     <Compile Include="Messaging\IMessageReceiver.cs" />
     <Compile Include="Messaging\IMessageSender.cs" />
     <Compile Include="Messaging\MessageDelivery.cs" />
+    <Compile Include="Messaging\Rabbit\ExtensionMethods.cs" />
     <Compile Include="Messaging\Rabbit\RabbitChannel.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnector.cs" />
     <Compile Include="Messaging\Rabbit\RabbitSubscription.cs" />

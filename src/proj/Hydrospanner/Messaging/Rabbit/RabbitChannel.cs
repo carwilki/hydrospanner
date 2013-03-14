@@ -1,7 +1,6 @@
 ﻿namespace Hydrospanner.Messaging.Rabbit
 {
 	using System;
-	using System.Collections;
 	using System.Globalization;
 	using Hydrospanner.Phases.Journal;
 	using RabbitMQ.Client;
@@ -33,25 +32,20 @@
 			if (instance == null)
 				return false;
 
-			var meta = instance.CreateBasicProperties();
-			meta.MessageId = ((message.MessageSequence << 16) + this.nodeId).ToString(CultureInfo.InvariantCulture);
-			meta.AppId = this.appId;
-			meta.Type = message.SerializedType;
-			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
-			meta.ContentType = ContentType; // TODO: +json, +pb, +msgpack, +kryo, etc.
-			meta.DeliveryMode = Persistent;
-			var headers = meta.Headers = meta.Headers ?? new Hashtable();
-			foreach (var item in message.Headers)
-				headers[item.Key] = item.Value;
-
 			// FUTURE: Any correlation ID could potentially be stored in the message headers and then extracted.
 			// Also, on the receiving side we could do the same thing in reverse.
-
 			// FUTURE: TTL and DeliveryMode could be in an application-defined dictionary that is available for lookup here
 			// based upon message type.  Default to Persistent, no TTL if an entry is not found.
-
-			// TODO: Content Encoding
-			var exchange = message.SerializedType.ToLowerInvariant().Replace(".", "-");
+			var meta = instance.CreateBasicProperties();
+			meta.AppId = this.appId;
+			meta.DeliveryMode = Persistent;
+			meta.Type = message.SerializedType;
+			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
+			meta.MessageId = message.MessageSequence.ToMessageId(this.nodeId);
+			meta.ContentType = ContentType; // TODO: +json, +pb, +msgpack, +kryo, etc.
+			meta.ContentEncoding = meta.ContentEncoding; // TODO
+			meta.Headers = message.Headers.CopyTo(meta.Headers);
+			var exchange = message.SerializedType.NormalizeType();
 
 			try
 			{
