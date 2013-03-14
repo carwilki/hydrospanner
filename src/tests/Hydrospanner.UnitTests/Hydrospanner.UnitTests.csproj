@@ -40,6 +40,7 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Phases\Journal\JournalItemTests.cs" />
     <Compile Include="Phases\Journal\SerializationHandlerTests.cs" />

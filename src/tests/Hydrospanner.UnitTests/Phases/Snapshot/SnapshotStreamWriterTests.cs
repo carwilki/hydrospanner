@@ -8,7 +8,6 @@ namespace Hydrospanner.Phases.Snapshot
 	[Subject(typeof(SnapshotStreamWriter))]
 	public class when_writing_snapshots_to_a_stream
 	{
-		 
 	}
 }
 

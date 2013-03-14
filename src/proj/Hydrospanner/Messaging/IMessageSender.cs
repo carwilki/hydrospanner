@@ -5,7 +5,7 @@
 
 	public interface IMessageSender : IDisposable
 	{
-		void Send(JournalItem message);
-		void Commit();
+		bool Send(JournalItem message);
+		bool Commit();
 	}
 }

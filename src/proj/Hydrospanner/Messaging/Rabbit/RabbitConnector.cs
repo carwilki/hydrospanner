@@ -77,6 +77,9 @@
 				AcceptablePolicyErrors = accepted,
 			};
 		}
+		protected RabbitConnector()
+		{
+		}
 		private static KeyValuePair<string, string> ParseUserInfo(string credentials)
 		{
 			if (string.IsNullOrWhiteSpace(credentials))

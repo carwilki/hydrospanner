@@ -245,7 +245,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				thrown.ShouldBeOfType<ObjectDisposedException>();
 		}
 
-		private static void Try(Action callback)
+		static void Try(Action callback)
 		{
 			thrown = Catch.Exception(callback);
 		}
@@ -264,9 +264,7 @@ namespace Hydrospanner.Messaging.Rabbit
 		};
 
 		Cleanup after = () =>
-		{
 			thrown = null;
-		};
 
 		static Uri address;
 		static Exception thrown;

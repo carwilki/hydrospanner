@@ -6,17 +6,17 @@
 
 	public class JournalItem
 	{
-		public long MessageSequence { get; private set; }
+		public long MessageSequence { get; set; }
 
-		public byte[] SerializedBody { get; private set; }
-		public string SerializedType { get; private set; }
-		public byte[] SerializedHeaders { get; private set; }
-		public object Body { get; private set; }
-		public Dictionary<string, string> Headers { get; private set; }
+		public byte[] SerializedBody { get; set; }
+		public string SerializedType { get; set; }
+		public byte[] SerializedHeaders { get; set; }
+		public object Body { get; set; }
+		public Dictionary<string, string> Headers { get; set; }
 
-		public JournalItemAction ItemActions { get; private set; }
-		public Guid ForeignId { get; private set; }
-		public Action Acknowledgement { get; private set; }
+		public JournalItemAction ItemActions { get; set; }
+		public Guid ForeignId { get; set; }
+		public Action Acknowledgement { get; set; }
 
 		public void AsForeignMessage(byte[] serializedBody, object body, Dictionary<string, string> headers, Guid foreignId, Action acknowledgement)
 		{
@@ -69,6 +69,10 @@
 				if (this.Body != null)
 					this.SerializedType = this.Body.GetType().AssemblyQualifiedName;
 			}
+
+			// TODO: add a test for when the bootstrapper loads the item directly from disk and pushes to be dispatched.
+			////if (this.ItemActions.HasFlag(JournalItemAction.Dispatch) && this.Headers == null)
+			////	this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
 
 			if (this.SerializedHeaders == null)
 				this.SerializedHeaders = serializer.Serialize(this.Headers);
