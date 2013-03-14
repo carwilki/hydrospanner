@@ -37,7 +37,8 @@
 			var length = this.lengthBuffer.SliceInt32(0);
 			var itemBuffer = new byte[length];
 			this.stream.Read(itemBuffer, 0, length);
-			return itemBuffer;		}
+			return itemBuffer;		
+		}
 
 		public static SnapshotStreamReader Open(long sequence, int snapshotIteration, string hash, Stream stream)
 		{
