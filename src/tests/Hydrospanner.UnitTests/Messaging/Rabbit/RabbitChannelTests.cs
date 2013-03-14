@@ -9,6 +9,7 @@ namespace Hydrospanner.Messaging.Rabbit
 	using Machine.Specifications;
 	using NSubstitute;
 	using RabbitMQ.Client;
+	using RabbitMQ.Client.Framing.v0_9_1;
 
 	[Subject(typeof(RabbitChannel))]
 	public class when_communicating_with_the_broker
@@ -78,11 +79,30 @@ namespace Hydrospanner.Messaging.Rabbit
 
 		public class when_sending_a_message
 		{
+			Establish context = () =>
+				messageToSend.Headers["test-header"] = "test-value";
+
 			Because of = () =>
 				result = channel.Send(messageToSend);
 
 			It should_attempt_to_establish_a_connection_to_the_broker = () =>
 				connector.Received(1).OpenChannel();
+
+			It should_indicate_the_message_type_in_the_metadata = () =>
+				properties.Type.ShouldEqual(messageToSend.SerializedType);
+
+			It should_indicate_the_correct_timestamp = () =>
+				properties.Timestamp.ShouldEqual(new AmqpTimestamp(SystemTime.EpochUtcNow));
+
+			It should_indicate_the_content_type = () =>
+				properties.ContentType.ShouldEqual(ContentType);
+
+			It should_populate_the_headers = () =>
+			{
+				properties.Headers.Count.ShouldEqual(messageToSend.Headers.Count);
+				foreach (var item in messageToSend.Headers)
+					properties.Headers[item.Key].ShouldEqual(item.Value);
+			};
 
 			It should_pass_the_message_to_the_underlying_channel = () =>
 				actualChannel.Received(1).BasicPublish("some-type", string.Empty, properties, messageToSend.SerializedBody);
@@ -94,13 +114,29 @@ namespace Hydrospanner.Messaging.Rabbit
 		public class when_sending_additional_messages
 		{
 			Establish context = () =>
+			{
 				channel.Send(messageToSend);
+				messageToSend.Headers["test-header"] = "test-value";
+			};
 
 			Because of = () =>
 				result = channel.Send(messageToSend);
 
 			It should_NOT_attempt_to_establish_a_connection_to_the_broker = () =>
 				connector.Received(1).OpenChannel();
+
+			It should_indicate_the_message_type_in_the_metadata = () =>
+				properties.Type.ShouldEqual(messageToSend.SerializedType);
+
+			It should_indicate_the_correct_timestamp = () =>
+				properties.Timestamp.ShouldEqual(new AmqpTimestamp(SystemTime.EpochUtcNow));
+
+			It should_populate_the_headers = () =>
+			{
+				properties.Headers.Count.ShouldEqual(messageToSend.Headers.Count);
+				foreach (var item in messageToSend.Headers)
+					properties.Headers[item.Key].ShouldEqual(item.Value);
+			};
 
 			It should_pass_the_message_to_the_underlying_channel = () =>
 				actualChannel.Received(2).BasicPublish("some-type", string.Empty, properties, messageToSend.SerializedBody);
@@ -306,10 +342,12 @@ namespace Hydrospanner.Messaging.Rabbit
 
 		Establish context = () =>
 		{
+			SystemTime.Freeze(DateTime.UtcNow);
 			connector = Substitute.For<RabbitConnector>();
 			actualChannel = Substitute.For<IModel>();
 			connector.OpenChannel().Returns(actualChannel);
 			channel = new RabbitChannel(connector);
+			properties = new BasicProperties();
 			actualChannel.CreateBasicProperties().Returns(properties);
 		};
 
@@ -319,7 +357,10 @@ namespace Hydrospanner.Messaging.Rabbit
 		}
 
 		Cleanup after = () =>
+		{
 			thrown = null;
+			SystemTime.Unfreeze();
+		};
 
 		static readonly JournalItem messageToSend = new JournalItem
 		{
@@ -329,6 +370,8 @@ namespace Hydrospanner.Messaging.Rabbit
 			SerializedBody = new byte[] { 0, 1, 2, 3, 4 },
 			Headers = new Dictionary<string, string>()
 		};
+
+		const string ContentType = "application/vnd.nmb.hydrospanner-msg";
 		static bool result;
 		static IModel actualChannel;
 		static RabbitChannel channel;

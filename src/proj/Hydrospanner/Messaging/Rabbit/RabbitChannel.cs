@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner.Messaging.Rabbit
 {
 	using System;
+	using System.Collections;
 	using Hydrospanner.Phases.Journal;
 	using RabbitMQ.Client;
 
@@ -26,9 +27,15 @@
 				return false;
 
 			var properties = instance.CreateBasicProperties();
+			properties.Type = message.SerializedType;
+			properties.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
+			properties.ContentType = ContentType;
+			var headers = properties.Headers = properties.Headers ?? new Hashtable();
+			foreach (var item in message.Headers)
+				headers[item.Key] = item.Value;
 
-			// TODO: message id, delivery mode, copy headers, expiration, timestamp, app id (this node id?)
-			// TODO: content encoding, content-type, correlation id?
+			// TODO: message id, delivery mode, expiration, app id (this node id?)
+			// TODO: content encoding, correlation id?
 			// TODO: what happens if the serialized body is null and/or the serialized type is null/empty?
 			var exchange = message.SerializedType.ToLowerInvariant().Replace(".", "-");
 
@@ -104,6 +111,7 @@
 			this.channel = null;
 		}
 
+		private const string ContentType = "application/vnd.nmb.hydrospanner-msg";
 		private readonly RabbitConnector connector;
 		private IModel channel;
 		private bool disposed;
