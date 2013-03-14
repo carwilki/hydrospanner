@@ -36,10 +36,9 @@
 		{
 			this.stream.Read(this.lengthBuffer, 0, this.lengthBuffer.Length);
 			var length = BitConverter.ToInt32(this.lengthBuffer, 0);
-			var thingBuffer = new byte[length];
-			this.stream.Read(thingBuffer, 0, length);
-			return thingBuffer;
-		}
+			var itemBuffer = new byte[length];
+			this.stream.Read(itemBuffer, 0, length);
+			return itemBuffer;		}
 
 		public static SnapshotStreamReader Open(long sequence, int snapshotIteration, string hash, Stream stream)
 		{

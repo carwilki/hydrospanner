@@ -6,6 +6,7 @@ namespace Hydrospanner.Phases.Snapshot
 	using System;
 	using System.IO;
 	using System.IO.Abstractions;
+	using System.IO.Compression;
 	using System.Linq;
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
@@ -152,6 +153,7 @@ namespace Hydrospanner.Phases.Snapshot
 				.Concat(firstRecordType)
 				.Concat(firstRecordLength)
 				.Concat(FirstRecord).ToArray();
+
 			hash = new SoapHexBinary(new SHA1Managed().ComputeHash(contents)).ToString();
 		};
 
