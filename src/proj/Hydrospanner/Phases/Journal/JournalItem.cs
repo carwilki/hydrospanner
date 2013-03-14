@@ -61,7 +61,7 @@
 			this.Acknowledgement = null;
 		}
 
-		public void Serialize(JsonSerializer serializer)
+		public void Serialize(ISerializer serializer)
 		{
 			if (this.SerializedBody == null)
 			{

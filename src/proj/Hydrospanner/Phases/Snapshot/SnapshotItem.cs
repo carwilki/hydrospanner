@@ -38,7 +38,7 @@
 			this.CurrentSequence = this.MementosRemaining = 0;
 		}
 
-		public void Serialize(JsonSerializer serializer)
+		public void Serialize(ISerializer serializer)
 		{
 			this.Serialized = serializer.Serialize(this.Memento);
 		}

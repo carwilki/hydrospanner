@@ -10,11 +10,11 @@
 			data.Serialize(this.serializer);
 		}
 
-		public SerializationHandler(JsonSerializer serializer)
+		public SerializationHandler(ISerializer serializer)
 		{
 			this.serializer = serializer;
 		}
 
-		readonly JsonSerializer serializer;
+		readonly ISerializer serializer;
 	}
 }

@@ -65,7 +65,7 @@
 			this.Acknowledgement = null;
 		}
 
-		public void Deserialize(JsonSerializer serializer)
+		public void Deserialize(ISerializer serializer)
 		{
 			if (this.Body == null)
 				this.Body = serializer.Deserialize(this.SerializedBody, this.SerializedType);
