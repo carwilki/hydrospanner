@@ -34,8 +34,8 @@
 
 		private byte[] Next()
 		{
-			this.stream.Read(lengthBuffer, 0, lengthBuffer.Length);
-			var length = BitConverter.ToInt32(lengthBuffer, 0);
+			this.stream.Read(this.lengthBuffer, 0, this.lengthBuffer.Length);
+			var length = BitConverter.ToInt32(this.lengthBuffer, 0);
 			var thingBuffer = new byte[length];
 			this.stream.Read(thingBuffer, 0, length);
 			return thingBuffer;
