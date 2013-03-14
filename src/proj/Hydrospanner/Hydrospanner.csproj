@@ -58,6 +58,7 @@
     <Compile Include="Messaging\Rabbit\RabbitSubscription.cs" />
     <Compile Include="Phases\Journal\SerializationHandler.cs" />
     <Compile Include="Phases\Snapshot\ISnapshotRecorder.cs" />
+    <Compile Include="Phases\Snapshot\ParsedSnapshotFilename.cs" />
     <Compile Include="Phases\Snapshot\PublicSnapshotHandler.cs" />
     <Compile Include="Phases\Snapshot\PublicSnapshotRecorder.cs" />
     <Compile Include="Phases\Snapshot\SerializationHandler.cs" />

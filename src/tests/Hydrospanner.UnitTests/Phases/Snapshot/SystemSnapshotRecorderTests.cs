@@ -10,7 +10,6 @@ namespace Hydrospanner.Phases.Snapshot
 	using System.Linq;
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
-	using System.Text;
 	using Machine.Specifications;
 	using NSubstitute;
 	using Serialization;
@@ -18,41 +17,68 @@ namespace Hydrospanner.Phases.Snapshot
 	[Subject(typeof(SystemSnapshotRecorder))]
 	public class when_recording_snapshots
 	{
-		public class when_the_first_snapshot_item_is_received
+		public class when_all_items_for_a_snapshot_have_been_received
 		{
-			Because of = () =>
+			Establish context = () =>
 			{
+				file.Move(Arg.Any<string>(), Arg.Do<string>(x => finalPathOfSnapshot = x));
+				file.OpenRead(Arg.Any<string>()).Returns(x => new MemoryStream(firstSnapshot.Contents));
 				recorder.Record(first);
-				var hash = new SoapHexBinary(new SHA1Managed().ComputeHash(firstSnapshot.Array)).ToString();
-				reader = SnapshotStreamReader.Open(Sequence, 1, hash, new MemoryStream(firstSnapshot.Array));
+				recorder.Record(middle);
 			};
 
-			It should_open_a_new_snapshot = () =>
-				reader.Count.ShouldEqual(3);
+			Because of = () =>
+			{
+				recorder.Record(last);
+				hash = new SoapHexBinary(new SHA1Managed().ComputeHash(firstSnapshot.Contents)).ToString();
+				reader = SnapshotStreamReader.Open(Sequence, 1, hash, new MemoryStream(firstSnapshot.Contents));
+			};
 
-			It should_include_that_item_in_the_new_snapshot = () =>
-				reader.Read().Single().ShouldBeEqual(new KeyValuePair<Type, byte[]>(typeof(string), "\"first\"".ToByteArray()));
+			It should_include_each_item_in_the_list = () =>
+			{
+				var records = reader.Read().ToList();
+				records.Count().ShouldEqual(3);
+				records.First().ShouldBeEqual(new KeyValuePair<Type, byte[]>(typeof(string), "\"first\"".ToByteArray()));
+				records.ElementAt(1).ShouldBeEqual(new KeyValuePair<Type, byte[]>(typeof(string), "\"middle\"".ToByteArray()));
+				records.Last().ShouldBeEqual(new KeyValuePair<Type, byte[]>(typeof(string), "\"last\"".ToByteArray()));
+			};
 
-			static SnapshotStreamReader reader;
-		}
+			It should_finalize_the_snapshot = () =>
+				firstSnapshot.Disposed.ShouldBeTrue();
 
-		public class when_a_subsequent_snapshot_item_is_received
-		{
-			It should_be_included_in_the_snapshot;
-		}
-
-		public class when_the_final_snapshot_item_is_received
-		{
-			It should_include_that_item_in_the_snapshot;
-			It should_finalize_the_snapshot;
-			It should_fingerprint_the_snapshot_with_an_incremented_iteration_number;
-			It should_fingerprint_the_snapshot_with_the_current_message_sequence;
-			It should_fingerprint_the_snapshot_with_the_sha1_hash_of_the_file_contents;
+			It should_name_the_snapshot_using_the_iteration_and_sequence_numbers_and_hash = () =>
+				finalPathOfSnapshot.ShouldEqual("{0}{1}-{2}-{3}".FormatWith(Location, LatestIteration, Sequence, hash));
 		}
 
 		public class when_finalizing_subsequent_snapshots
 		{
-			It should_continue_to_increment_the_iteration_number;
+			Establish context = () =>
+			{
+				file.Move(Arg.Any<string>(), Arg.Do<string>(x => finalPathOfSnapshot = x));
+				file.OpenRead(Arg.Any<string>())
+					.Returns(
+						x => new MemoryStream(firstSnapshot.Contents), 
+						x => new MemoryStream(subsequentSnapshot.Contents));
+				
+				recorder.Record(first);
+				recorder.Record(middle);
+				recorder.Record(last);
+
+				first.AsPartOfSystemSnapshot(Sequence + 1, 0, "key", "memento");
+				first.Serialize(serializer);
+			};
+
+			Because of = () =>
+			{
+				recorder.Record(first);
+				hash = new SoapHexBinary(new SHA1Managed().ComputeHash(subsequentSnapshot.Contents)).ToString();
+			};
+
+			It should_finalize_the_subsequent_snapshot = () =>
+				subsequentSnapshot.Disposed.ShouldBeTrue();
+
+			It should_continue_to_increment_the_iteration_number_and_stamp_the_filename = () =>
+				finalPathOfSnapshot.ShouldEqual("{0}{1}-{2}-{3}".FormatWith(Location, LatestIteration + 1, Sequence + 1, hash));
 		}
 
 		Establish context = () =>
@@ -64,7 +90,7 @@ namespace Hydrospanner.Phases.Snapshot
 			firstSnapshot = new PhotographicMemoryStream();
 			subsequentSnapshot = new PhotographicMemoryStream();
 			file.Create(Arg.Is<string>(x => x == Location + LatestIteration + "-" + Sequence)).Returns(firstSnapshot);
-			file.Create(Arg.Is<string>(x => x == Location + (LatestIteration + 1) + "-" + Sequence)).Returns(subsequentSnapshot);
+			file.Create(Arg.Is<string>(x => x == Location + (LatestIteration + 1) + "-" + (Sequence + 1))).Returns(subsequentSnapshot);
 
 			first = new SnapshotItem();
 			middle = new SnapshotItem();
@@ -83,6 +109,8 @@ namespace Hydrospanner.Phases.Snapshot
 		const string Location = "/";
 		const int LatestIteration = 39;
 		const string Key = "key";
+		static string hash;
+		static string finalPathOfSnapshot;
 		static FileBase file;
 		static SystemSnapshotRecorder recorder;
 		static PhotographicMemoryStream firstSnapshot;
@@ -91,6 +119,7 @@ namespace Hydrospanner.Phases.Snapshot
 		static SnapshotItem middle;
 		static SnapshotItem last;
 		static JsonSerializer serializer;
+		static SnapshotStreamReader reader;
 	}
 }
 
