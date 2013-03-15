@@ -520,6 +520,24 @@ namespace Hydrospanner.Messaging.Rabbit
 				factoryInvocations.ShouldEqual(1);
 		}
 
+		public class when_setting_the_incoming_buffer_size_throws_an_exception
+		{
+			Establish context = () =>
+			{
+				actualChannel.When(x => x.BasicQos(0, ushort.MaxValue, false)).Do(x => { throw new Exception(); });
+				actualChannel.When(x => x.Dispose()).Do(x => { throw new Exception(); });
+			};
+
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_return_an_empty_message = () =>
+				delivery.Populated.ShouldBeFalse();
+
+			It should_SAFELY_dispose_the_underlying_channel = () =>
+				actualChannel.Received(1).Dispose();
+		}
+
 		public class when_attempting_to_receive_messages_against_a_disposed_channel
 		{
 			Establish context = () =>

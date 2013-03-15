@@ -122,6 +122,7 @@
 				}
 			});
 		}
+
 		private IModel OpenChannel(bool qos = true)
 		{
 			var currentChannel = this.channel;
@@ -132,12 +133,19 @@
 			if (currentChannel == null)
 				return null;
 
-			if (qos)
-				currentChannel.BasicQos(0, ushort.MaxValue, false); // TODO: this might throw & this only needs to be performed ONCE per channel
+			try
+			{
+				if (qos)
+					currentChannel.BasicQos(0, ushort.MaxValue, false); // TODO: this might throw & this only needs to be performed ONCE per channel
+			}
+			catch
+			{
+				this.Close();
+				return null;
+			}
 
 			return currentChannel;
 		}
-
 		private void Close()
 		{
 			this.subscription = this.subscription.TryDispose();
