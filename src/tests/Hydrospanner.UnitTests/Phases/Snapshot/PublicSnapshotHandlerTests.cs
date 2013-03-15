@@ -5,6 +5,7 @@ namespace Hydrospanner.Phases.Snapshot
 {
 	using Machine.Specifications;
 	using NSubstitute;
+	using NSubstitute.Experimental;
 
 	[Subject(typeof(PublicSnapshotHandler))]
 	public class when_recording_a_public_snapshot
@@ -30,11 +31,16 @@ namespace Hydrospanner.Phases.Snapshot
 				handler.OnNext(systemSnapshot, 1, true);
 			};
 
-			It should_record_the_public_snapshot_and_ignore_the_system_snapshot = () =>
-			{
-				recorder.Received(1).Record(publicSnapshot);
+			It should_record_the_snapshot = () =>
+				Received.InOrder(() =>
+				{
+					recorder.StartRecording(publicSnapshot.MementosRemaining + 1);
+					recorder.Record(publicSnapshot);
+					recorder.FinishRecording();
+				});
+
+			It should_ignore_the_system_snapshot = () =>
 				recorder.Received(0).Record(systemSnapshot);
-			};
 		}
 
 		public class at_end_of_subsequent_batch
@@ -67,8 +73,7 @@ namespace Hydrospanner.Phases.Snapshot
 			recorder = Substitute.For<ISnapshotRecorder>();
 			handler = new PublicSnapshotHandler(recorder);
 		};
-		
-		static PublicSnapshotHandler handler;
+				static PublicSnapshotHandler handler;
 		static ISnapshotRecorder recorder;
 		static SnapshotItem publicSnapshot;
 		static SnapshotItem systemSnapshot;

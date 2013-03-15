@@ -2,8 +2,8 @@
 {
 	internal interface ISnapshotRecorder
 	{
-		void StartRecording(long sequence, int iteration, int expectedItems);
+		void StartRecording(int expectedItems);
 		void Record(SnapshotItem item);
-		void FinishRecording();
+		void FinishRecording(int iteration = 0, long sequence = 0);
 	}
 }

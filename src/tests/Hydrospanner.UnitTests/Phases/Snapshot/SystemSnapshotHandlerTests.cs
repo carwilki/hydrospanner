@@ -17,9 +17,9 @@ namespace Hydrospanner.Phases.Snapshot
 
 			It should_not_do_any_recording_operations = () =>
 			{
-				recorder.Received(0).StartRecording(Arg.Any<long>(), Arg.Any<int>(), Arg.Any<int>());
+				recorder.Received(0).StartRecording(Arg.Any<int>());
 				recorder.Received(0).Record(Arg.Any<SnapshotItem>());
-				recorder.Received(0).FinishRecording();
+				recorder.Received(0).FinishRecording(Arg.Any<int>(), Arg.Any<long>());
 			};
 		}
 
@@ -31,7 +31,7 @@ namespace Hydrospanner.Phases.Snapshot
 					handler.OnNext(first, 0, false);
 
 				It should_start_recording_a_new_snapshot = () =>
-					recorder.Received(1).StartRecording(first.CurrentSequence, LatestIteration, 3);
+					recorder.Received(1).StartRecording(3);
 
 				It should_record_the_item = () =>
 					recorder.Received(1).Record(first);
@@ -46,7 +46,7 @@ namespace Hydrospanner.Phases.Snapshot
 					handler.OnNext(middle, 0, false);
 
 				It should_not_start_a_new_snapshot = () =>
-					recorder.Received(1).StartRecording(Arg.Any<long>(), Arg.Any<int>(), Arg.Any<int>());
+					recorder.Received(1).StartRecording(Arg.Any<int>());
 
 				It should_record_the_item = () =>
 					recorder.Received(1).Record(middle);
@@ -64,13 +64,13 @@ namespace Hydrospanner.Phases.Snapshot
 					handler.OnNext(last, 0, false);
 
 				It should_not_start_a_new_snapshot = () =>
-					recorder.Received(1).StartRecording(Arg.Any<long>(), Arg.Any<int>(), Arg.Any<int>());
+					recorder.Received(1).StartRecording(Arg.Any<int>());
 					
 				It should_record_the_item = () =>
 					recorder.Received(1).Record(last);
 
 				It should_finish_the_snapshot = () =>
-					recorder.Received(1).FinishRecording();
+					recorder.Received(1).FinishRecording(LatestIteration, last.CurrentSequence);
 			}
 
 			public class and_the_item_is_for_a_subsequent_snapshot
@@ -78,7 +78,7 @@ namespace Hydrospanner.Phases.Snapshot
 				Establish context = () =>
 				{
 					firstOfNextSnapshot = new SnapshotItem();
-					firstOfNextSnapshot.AsPartOfSystemSnapshot(42, 2, "newKey", "newMemento");
+					firstOfNextSnapshot.AsPartOfSystemSnapshot(42, ItemsInNextSnapshot - 1, "newKey", "newMemento");
 					firstOfNextSnapshot.Serialize(new JsonSerializer());
 
 					handler.OnNext(first, 0, false);
@@ -90,11 +90,12 @@ namespace Hydrospanner.Phases.Snapshot
 					handler.OnNext(firstOfNextSnapshot, 0, false);
 
 				It should_start_a_new_snapshot = () =>
-					recorder.Received(1).StartRecording(firstOfNextSnapshot.CurrentSequence, LatestIteration + 1, 3);
+					recorder.Received(1).StartRecording(ItemsInNextSnapshot);
 
 				It should_record_the_item = () =>
 					recorder.Received(1).Record(firstOfNextSnapshot);
 
+				const int ItemsInNextSnapshot = 10;
 				static SnapshotItem firstOfNextSnapshot;
 			}
 		}

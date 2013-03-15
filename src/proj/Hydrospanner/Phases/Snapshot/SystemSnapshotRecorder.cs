@@ -7,12 +7,12 @@
 
 	internal class SystemSnapshotRecorder : ISnapshotRecorder
 	{
-		public void StartRecording(long sequence, int iteration, int expectedItems)
+		public void StartRecording(int expectedItems)
 		{
 			if (this.currentSnapshot != null)
 				this.CloseSnapshot();
 
-			this.pathToCurrentSnapshot = Path.Combine(this.location, iteration + "-" + sequence);
+			this.pathToCurrentSnapshot = Path.Combine(this.location, "current_snapshot");
 			this.currentSnapshot = new BinaryWriter(new BufferedStream(this.file.Create(this.pathToCurrentSnapshot)));
 			this.currentSnapshot.Write(expectedItems);
 		}
@@ -30,19 +30,20 @@
 			this.currentSnapshot.Write(item.Serialized);
 		}
 
-		public void FinishRecording()
+		public void FinishRecording(int iteration = 0, long sequence = 0)
 		{
 			if (this.currentSnapshot == null)
 				return;
 
 			this.CloseSnapshot();
-			this.FingerprintSnapshot();
+			this.FingerprintSnapshot(iteration, sequence);
 		}
 
-		void FingerprintSnapshot()
+		void FingerprintSnapshot(int iteration = 0, long sequence = 0)
 		{
 			var hash = this.GenerateFingerprint();
-			this.file.Move(this.pathToCurrentSnapshot, this.pathToCurrentSnapshot + "-" + hash);
+			var destination = Path.Combine(location, "{0}-{1}-{2}".FormatWith(iteration, sequence, hash));
+			this.file.Move(this.pathToCurrentSnapshot, destination);
 		}
 
 		void CloseSnapshot()

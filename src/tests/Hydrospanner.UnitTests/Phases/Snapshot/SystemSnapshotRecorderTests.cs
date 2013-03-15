@@ -22,13 +22,13 @@ namespace Hydrospanner.Phases.Snapshot
 			Establish context = () =>
 			{
 				subsequentSnapshot = new PhotographicMemoryStream();
-				file.Create(Arg.Is<string>(x => x == Location + (LatestIteration + 1) + "-" + (Sequence + 1))).Returns(subsequentSnapshot);
-				recorder.StartRecording(Sequence, LatestIteration, 42);
+				file.Create(Arg.Any<string>()).Returns(firstSnapshot, subsequentSnapshot);
+				recorder.StartRecording(42);
 			};
 
 			Because of = () =>
 			{
-				recorder.StartRecording(Sequence + 1, LatestIteration + 1, 43);
+				recorder.StartRecording(43);
 				recorder.FinishRecording();
 			};
 
@@ -57,12 +57,12 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			Because of = () =>
 			{
-				recorder.StartRecording(Sequence, LatestIteration, 42);
+				recorder.StartRecording(42);
 				recorder.FinishRecording(); // writes buffered contents to the stream
 			};
 
 			It should_open_a_file_for_writing = () =>
-				file.Received(1).Create(ExpectedInitialFilename);
+				file.Received(1).Create("/current_snapshot");
 
 			It should_write_the_number_of_records_as_the_first_4_bytes = () =>
 				firstSnapshot.Contents.SliceInt32(0).ShouldEqual(42);
@@ -74,7 +74,7 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			Because of = () =>
 			{
-				recorder.StartRecording(Sequence, LatestIteration, 3);
+				recorder.StartRecording(3);
 				recorder.Record(first);
 				recorder.Record(middle);
 				recorder.Record(last);
@@ -97,11 +97,11 @@ namespace Hydrospanner.Phases.Snapshot
 		public class when_the_snapshot_is_finished
 		{
 			Establish context = () =>
-				recorder.StartRecording(Sequence, LatestIteration, 3);
+				recorder.StartRecording(3);
 
 			Because of = () =>
 			{
-				recorder.FinishRecording();
+				recorder.FinishRecording(LatestIteration, Sequence);
 
 				hash = new SoapHexBinary(new SHA1Managed().ComputeHash(firstSnapshot.Contents)).ToString();
 				reader = SnapshotStreamReader.Open(Sequence, 1, hash, new MemoryStream(firstSnapshot.Contents));
@@ -119,7 +119,7 @@ namespace Hydrospanner.Phases.Snapshot
 			firstSnapshot = new PhotographicMemoryStream();
 			serializer = new JsonSerializer();
 			file = Substitute.For<FileBase>();
-			file.Create(Arg.Is<string>(x => x == Location + LatestIteration + "-" + Sequence)).Returns(firstSnapshot);
+			file.Create(Arg.Any<string>()).Returns(firstSnapshot);
 			file.OpenRead(Arg.Any<string>()).Returns(x => new MemoryStream(firstSnapshot.Contents));
 			file.Move(Arg.Any<string>(), Arg.Do<string>(x => finalPathOfSnapshot = x));
 			recorder = new SystemSnapshotRecorder(file, Location);

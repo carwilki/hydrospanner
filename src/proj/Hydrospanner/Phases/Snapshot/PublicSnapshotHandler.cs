@@ -13,8 +13,12 @@
 			if (!endOfBatch)
 				return;
 
+			this.recorder.StartRecording(this.buffer.Count);
+			
 			while (this.buffer.Count > 0)
 				this.recorder.Record(this.buffer.Dequeue());
+
+			this.recorder.FinishRecording();
 		}
 
 		public PublicSnapshotHandler(ISnapshotRecorder recorder)

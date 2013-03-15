@@ -2,7 +2,7 @@
 {
 	internal class PublicSnapshotRecorder : ISnapshotRecorder
 	{
-		public void StartRecording(long sequence, int iteration, int expectedItems)
+		public void StartRecording(int expectedItems)
 		{
 		}
 
@@ -10,7 +10,7 @@
 		{
 		}
 
-		public void FinishRecording()
+		public void FinishRecording(int iteration = 0, long sequence = 0)
 		{
 		}
 	}

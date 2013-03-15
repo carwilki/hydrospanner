@@ -18,20 +18,19 @@
 			this.recorder.Record(data);
 
 			if (data.MementosRemaining == 0)
-				this.FinishRecording();
+				this.FinishRecording(data);
 		}
 
 		private void StartRecording(SnapshotItem data)
 		{
-			this.recorder.StartRecording(data.CurrentSequence, this.latestIteration, data.MementosRemaining + 1);
+			this.recorder.StartRecording(data.MementosRemaining + 1);
 			this.recording = true;
 		}
 
-		private void FinishRecording()
+		private void FinishRecording(SnapshotItem data)
 		{
-			this.recorder.FinishRecording();
+			this.recorder.FinishRecording(this.latestIteration++, data.CurrentSequence);
 			this.recording = false;
-			this.latestIteration++;
 		}
 
 		public SystemSnapshotHandler(ISnapshotRecorder recorder, int latestIteration)
