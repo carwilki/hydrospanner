@@ -140,7 +140,7 @@
 			try
 			{
 				if (setBufferSize)
-					currentChannel.BasicQos(0, ushort.MaxValue, false); // TODO: this might throw & this only needs to be performed ONCE per channel
+					currentChannel.BasicQos(0, ushort.MaxValue, false);
 			}
 			catch
 			{
