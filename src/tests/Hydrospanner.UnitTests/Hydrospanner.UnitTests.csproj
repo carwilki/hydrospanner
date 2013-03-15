@@ -50,6 +50,7 @@
     </Compile>
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
+    <Compile Include="Phases\Journal\AcknowledgementHandlerTests.cs" />
     <Compile Include="Phases\Journal\JournalItemTests.cs" />
     <Compile Include="Phases\Journal\SerializationHandlerTests.cs" />
     <Compile Include="Phases\Snapshot\PhotographicMemoryStream.cs" />
