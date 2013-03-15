@@ -5,6 +5,8 @@
 
 	internal struct MessageDelivery
 	{
+		public static readonly MessageDelivery Empty = new MessageDelivery();
+
 		public bool Populated { get; private set; }
 		public Guid MessageId { get; private set; }
 		public byte[] Payload { get; private set; }

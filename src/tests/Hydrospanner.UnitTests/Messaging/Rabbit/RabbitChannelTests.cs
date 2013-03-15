@@ -4,12 +4,15 @@
 namespace Hydrospanner.Messaging.Rabbit
 {
 	using System;
+	using System.Collections;
 	using System.Collections.Generic;
 	using System.Globalization;
+	using System.Text;
 	using Hydrospanner.Phases.Journal;
 	using Machine.Specifications;
 	using NSubstitute;
 	using RabbitMQ.Client;
+	using RabbitMQ.Client.Events;
 	using RabbitMQ.Client.Framing.v0_9_1;
 
 	[Subject(typeof(RabbitChannel))]
@@ -412,20 +415,251 @@ namespace Hydrospanner.Messaging.Rabbit
 				thrown.ShouldBeNull();
 		}
 
-		public class when_receiving_a_message
+		public class when_attempting_to_receive_a_message_for_the_first_time
 		{
-			// FUTURE: any message originating from this node should be discarded during receive
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_open_a_channel = () =>
+				connector.Received(1).OpenChannel();
+
+			It should_open_a_new_subscription = () =>
+				factoryInvocations.ShouldEqual(1);
+
+			It should_provide_the_opened_channel_to_the_subscription = () =>
+				receivedChannel.ShouldEqual(actualChannel);
+
+			It should_set_the_incoming_buffer_size = () =>
+				actualChannel.Received(1).BasicQos(0, ushort.MaxValue, false);
+
+			It should_attempt_to_receive_from_the_underlying_subscription = () =>
+				subscription.Received(1).Receive(Timeout);
+		}
+
+		public class when_establishing_a_channel_with_the_broker_fails
+		{
+			Establish context = () =>
+				connector.OpenChannel().Returns((IModel)null);
+
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_return_an_empty_delivery = () =>
+				delivery.Populated.ShouldBeFalse();
+		}
+
+		public class when_attempting_to_receive_a_message_against_a_failed_channel
+		{
+			Establish context = () =>
+				actualChannel.IsOpen.Returns(false);
+
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_dispose_the_underlying_channel = () =>
+				actualChannel.Received(1).Dispose();
+
+			It should_dispose_the_underlying_subscription = () =>
+				subscription.Received(1).Dispose();
+
+			It should_return_an_empty_delivery = () =>
+				delivery.Populated.ShouldBeFalse();
+		}
+
+		public class when_disposing_a_failed_receiving_channel_throws_an_exception
+		{
+			Establish context = () =>
+			{
+				actualChannel.IsOpen.Returns(false);
+				actualChannel.When(x => x.Dispose()).Do(x => { throw new Exception(); });
+			};
+
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_suppress_the_exception = () =>
+				thrown.ShouldBeNull();
+
+			It should_return_an_empty_delivery = () =>
+				delivery.Populated.ShouldBeFalse();
+		}
+
+		public class when_disposing_a_failed_subscription_throws_an_exception
+		{
+			Establish context = () =>
+			{
+				actualChannel.IsOpen.Returns(false);
+				subscription.When(x => x.Dispose()).Do(x => { throw new Exception(); });
+			};
+
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_suppress_the_exception = () =>
+				thrown.ShouldBeNull();
+
+			It should_return_an_empty_delivery = () =>
+				delivery.Populated.ShouldBeFalse();
+		}
+
+		public class when_receiving_additional_messages
+		{
+			Establish context = () =>
+				delivery = channel.Receive(Timeout);
+
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_not_open_additional_channels = () =>
+				connector.Received(1).OpenChannel();
+
+			It should_not_open_additional_subscriptions = () =>
+				factoryInvocations.ShouldEqual(1);
+		}
+
+		public class when_attempting_to_receive_messages_against_a_disposed_channel
+		{
+			Establish context = () =>
+				channel.Dispose();
+
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_return_an_empty_delivery = () =>
+				delivery.ShouldEqual(MessageDelivery.Empty);
+		}
+
+		public class when_disposing_the_channel_after_starting_to_receive_messages
+		{
+			Establish context = () =>
+			{
+				actualChannel.When(x => x.Dispose()).Do(x => { throw new Exception(); });
+				subscription.When(x => x.Dispose()).Do(x => { throw new Exception(); });
+				delivery = channel.Receive(Timeout);
+			};
+
+			Because of = () =>
+				channel.Dispose();
+
+			It should_SAFELY_dispose_the_underlying_channel = () =>
+				actualChannel.Received(1).Dispose();
+
+			It should_SAFELY_dispose_the_underlying_subscription = () =>
+				subscription.Received(1).Dispose();
+		}
+
+		public class when_the_subscription_yields_an_empty_rabbit_message
+		{
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_return_an_empty_delivery = () =>
+				delivery.Populated.ShouldBeFalse();
+		}
+
+		public class when_a_delivery_is_received
+		{
+			Establish context = () =>
+				subscription.Receive(Timeout).Returns(rabbitMessage);
+
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_convert_the_rabbit_message_to_a_delivery = () =>
+				delivery.Populated.ShouldBeTrue();
+
+			It should_populate_the_delivery_payload = () =>
+				delivery.Payload.ShouldEqual(rabbitMessage.Body);
+
+			It should_populate_the_message_type = () =>
+				delivery.MessageType.ShouldEqual(rabbitMessage.BasicProperties.Type);
+
+			It should_populate_the_message_id = () =>
+				delivery.MessageId.ShouldEqual(Guid.Parse(meta.MessageId));
+
+			It should_copy_all_headers_to_the_delivery = () =>
+				delivery.Headers.Count.ShouldEqual(meta.Headers.Count);
+
+			It should_convert_all_incoming_headers_to_strings = () =>
+			{
+				foreach (var key in headers.Keys)
+					delivery.Headers[(string)key].ShouldEqual(Encoding.UTF8.GetString((byte[])headers[key]));
+			};
+
+			It should_provide_a_callback_acknowledgement_to_confirm_the_message_delivery = () =>
+				delivery.Acknowledge.ShouldNotBeNull();
+
+			static readonly Hashtable headers = new Hashtable
+			{
+				{ "Key1", Encoding.UTF8.GetBytes("Value1") },
+				{ "Key2", Encoding.UTF8.GetBytes("Value2") }
+			};
+			static readonly BasicProperties meta = new BasicProperties
+			{
+				Headers = headers,
+				Type = "SomeNamespace.SomeClass",
+				MessageId = Guid.NewGuid().ToString(),
+			};
+			static readonly BasicDeliverEventArgs rabbitMessage = new BasicDeliverEventArgs
+			{
+				BasicProperties = meta,
+				DeliveryTag = 42,
+				Body = new byte[] { 1, 2, 3, 4, 5 }
+			};
+		}
+
+		public class when_the_delivery_message_identifier_is_numeric
+		{
+			It should_parse_the_identifier_as_a_guid;
+		}
+
+		public class when_the_delivered_message_originates_from_this_node
+		{
+			It should_return_an_empty_delivery_to_the_caller;
+		}
+
+		public class when_invoking_the_delivery_acknowledgement_callback
+		{
+			It should_acknowledge_the_delivery_tag_to_the_underlying_channel;
+		}
+
+		public class when_acknowledging_a_delivery_against_a_disposed_channel
+		{
+			It should_not_invoke_the_ack_against_the_underlying_channel;
+		}
+
+		public class when_acknowledging_a_delivery_against_a_failed_channel
+		{
+			It should_not_invoke_the_ack_against_the_underlying_channel;
+		}
+
+		public class when_invoking_the_delivery_acknowledgement_callback_throws_an_exception
+		{
+			It should_suppress_the_exception;
 		}
 
 		Establish context = () =>
 		{
 			SystemTime.Freeze(DateTime.UtcNow);
+
 			connector = Substitute.For<RabbitConnector>();
 			actualChannel = Substitute.For<IModel>();
-			connector.OpenChannel().Returns(actualChannel);
-			channel = new RabbitChannel(connector, NodeId);
 			properties = new BasicProperties();
 			actualChannel.CreateBasicProperties().Returns(properties);
+			actualChannel.IsOpen.Returns(true);
+
+			connector.OpenChannel().Returns(actualChannel);
+
+			factoryInvocations = 0;
+			subscription = Substitute.For<RabbitSubscription>();
+			subscriptionFactory = channel =>
+			{
+				factoryInvocations++;
+				receivedChannel = channel;
+				return subscription;
+			};
+
+			when_communicating_with_the_broker.channel = new RabbitChannel(connector, NodeId, subscriptionFactory);
 		};
 
 		static void Try(Action callback)
@@ -436,6 +670,8 @@ namespace Hydrospanner.Messaging.Rabbit
 		Cleanup after = () =>
 		{
 			thrown = null;
+			delivery = MessageDelivery.Empty;
+			receivedChannel = null;
 			SystemTime.Unfreeze();
 		};
 
@@ -451,12 +687,18 @@ namespace Hydrospanner.Messaging.Rabbit
 		const short PersistMessage = 2;
 		const short NodeId = 42;
 		const string ContentType = "application/vnd.nmb.hydrospanner-msg";
+		static readonly TimeSpan Timeout = TimeSpan.FromSeconds(1234);
 		static bool result;
 		static IModel actualChannel;
 		static RabbitChannel channel;
 		static RabbitConnector connector;
 		static Exception thrown;
 		static IBasicProperties properties;
+		static RabbitSubscription subscription;
+		static Func<IModel, RabbitSubscription> subscriptionFactory;
+		static int factoryInvocations;
+		static MessageDelivery delivery;
+		static IModel receivedChannel;
 	}
 }
 

@@ -17,6 +17,9 @@
 		{
 			this.subscription = new Subscription(channel, queue, AcknowledgeAllMessages);
 		}
+		protected RabbitSubscription()
+		{
+		}
 
 		public void Dispose()
 		{

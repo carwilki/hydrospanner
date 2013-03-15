@@ -25,18 +25,15 @@
 			if (string.IsNullOrWhiteSpace(message.SerializedType))
 				return true;
 
-			var instance = this.channel;
-			if (instance == null)
-				this.channel = instance = this.connector.OpenChannel();
-
-			if (instance == null)
+			var currentChannel = this.channel = this.channel ?? this.connector.OpenChannel();
+			if (currentChannel == null)
 				return false;
 
 			// FUTURE: Any correlation ID could potentially be stored in the message headers and then extracted.
 			// Also, on the receiving side we could do the same thing in reverse.
 			// FUTURE: TTL and DeliveryMode could be in an application-defined dictionary that is available for lookup here
 			// based upon message type.  Default to Persistent, no TTL if an entry is not found.
-			var meta = instance.CreateBasicProperties();
+			var meta = currentChannel.CreateBasicProperties();
 			meta.AppId = this.appId;
 			meta.DeliveryMode = Persistent;
 			meta.Type = message.SerializedType;
@@ -49,11 +46,11 @@
 
 			try
 			{
-				instance.BasicPublish(exchange, string.Empty, meta, message.SerializedBody);
+				currentChannel.BasicPublish(exchange, string.Empty, meta, message.SerializedBody);
 			}
 			catch
 			{
-				this.CloseChannel();
+				this.Close();
 				return false;
 			}
 
@@ -75,26 +72,48 @@
 			}
 			catch
 			{
-				this.CloseChannel();
+				this.Close();
 				return false;
 			}
 		}
 
 		public MessageDelivery Receive(TimeSpan timeout)
 		{
-			throw new NotImplementedException();
+			if (this.disposed)
+				return MessageDelivery.Empty;
+
+			var currentChannel = this.channel = this.channel ?? this.connector.OpenChannel();
+			if (currentChannel == null)
+				return MessageDelivery.Empty;
+
+			currentChannel.BasicQos(0, ushort.MaxValue, false);
+			var currentSubscription = this.subscription = this.subscription ?? this.factory(currentChannel);
+
+			if (!currentChannel.IsOpen)
+			{
+				this.Close();
+				return MessageDelivery.Empty;
+			}
+
+			var message = currentSubscription.Receive(timeout);
+			if (message == null)
+				return MessageDelivery.Empty;
+
+			var meta = message.BasicProperties;
+
+			var id = Guid.Parse(meta.MessageId); // TODO: long vs Guid message IDs vs no message ID (Guid.NewGuid???)
+			var headers = meta.Headers.Copy();
+
+			return new MessageDelivery(id, message.Body, meta.Type, headers, null);
 		}
 
-		private void CloseChannel()
+		private void Close()
 		{
-			var instance = this.channel;
-			if (instance != null)
-				instance.TryDispose();
-
-			this.channel = null;
+			this.subscription = this.subscription.TryDispose();
+			this.channel = this.channel.TryDispose();
 		}
 
-		public RabbitChannel(RabbitConnector connector, short nodeId)
+		public RabbitChannel(RabbitConnector connector, short nodeId, Func<IModel, RabbitSubscription> factory = null)
 		{
 			if (connector == null)
 				throw new ArgumentNullException();
@@ -104,6 +123,7 @@
 
 			this.connector = connector;
 			this.nodeId = nodeId;
+			this.factory = factory;
 			this.appId = nodeId.ToString(CultureInfo.InvariantCulture);
 		}
 
@@ -119,17 +139,18 @@
 
 			this.disposed = true;
 
-			this.CloseChannel();
+			this.Close();
 			this.connector.TryDispose();
-			this.channel = null;
 		}
 
 		private const byte Persistent = 2;
 		private const string ContentType = "application/vnd.nmb.hydrospanner-msg";
 		private readonly RabbitConnector connector;
+		private readonly Func<IModel, RabbitSubscription> factory;
 		private readonly short nodeId;
 		private readonly string appId;
 		private IModel channel;
+		private RabbitSubscription subscription;
 		private bool disposed;
 	}
 }

@@ -58,18 +58,19 @@
 
 	internal static class DisposableExtensions
 	{
-		public static void TryDispose(this IDisposable resource)
+		public static T TryDispose<T>(this T resource) where T : class, IDisposable
 		{
 			if (resource == null)
-				return;
+				return null;
 
 			try
 			{
 				resource.Dispose();
+				return null;
 			}
 			catch
 			{
-				return;
+				return null;
 			}
 		}
 	}
