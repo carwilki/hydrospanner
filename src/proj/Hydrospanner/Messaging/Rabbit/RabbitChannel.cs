@@ -7,7 +7,6 @@
 
 	internal class RabbitChannel : IMessageSender, IMessageReceiver
 	{
-		// NOTE: caller should be responsible for while loop where all actions return success.
 		public bool Send(JournalItem message)
 		{
 			if (message == null)
@@ -40,7 +39,7 @@
 			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
 			meta.MessageId = message.MessageSequence.ToMessageId(this.nodeId);
 			meta.ContentType = ContentType; // TODO: +json, +pb, +msgpack, +kryo, etc.
-			meta.ContentEncoding = meta.ContentEncoding; // TODO
+			// meta.ContentEncoding = meta.ContentEncoding; // TODO
 			meta.Headers = message.Headers.CopyTo(meta.Headers);
 			var exchange = message.SerializedType.NormalizeType();
 
