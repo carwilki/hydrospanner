@@ -86,7 +86,9 @@
 			if (currentChannel == null)
 				return MessageDelivery.Empty;
 
-			var currentSubscription = this.subscription = this.subscription ?? this.factory(currentChannel); // TODO: this might throw
+			var currentSubscription = this.OpenSubscription(currentChannel);
+			if (currentSubscription == null)
+				return MessageDelivery.Empty;
 
 			if (currentChannel.IsOpen)
 				return this.ReceiveMessage(currentChannel, currentSubscription.Receive(timeout));
@@ -147,6 +149,24 @@
 			}
 
 			return currentChannel;
+		}
+		private RabbitSubscription OpenSubscription(IModel currentChannel)
+		{
+			var currentSubscription = this.subscription;
+			if (currentSubscription != null)
+				return currentSubscription;
+
+			try
+			{
+				currentSubscription = this.factory(currentChannel);
+				this.subscription = currentSubscription;
+				return currentSubscription;
+			}
+			catch
+			{
+				this.Close();
+				return null;
+			}
 		}
 		private void Close()
 		{

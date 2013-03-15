@@ -466,6 +466,24 @@ namespace Hydrospanner.Messaging.Rabbit
 				delivery.Populated.ShouldBeFalse();
 		}
 
+		public class when_establishing_a_new_subscription_fails
+		{
+			Establish context = () =>
+				channel = new RabbitChannel(connector, NodeId, x => { throw new Exception(); });
+
+			Because of = () =>
+				delivery = channel.Receive(Timeout);
+
+			It should_dispose_the_underlying_channel = () =>
+				actualChannel.Received(1).Dispose();
+
+			It should_not_throw_an_exception = () =>
+				thrown.ShouldBeNull();
+
+			It should_return_an_empty_message = () =>
+				delivery.Populated.ShouldBeFalse();
+		}
+
 		public class when_disposing_a_failed_receiving_channel_throws_an_exception
 		{
 			Establish context = () =>
