@@ -4,7 +4,7 @@
 	using System.Collections.Generic;
 	using Serialization;
 
-	internal sealed class TransformationItem
+	public sealed class TransformationItem
 	{
 		public long MessageSequence { get; set; }
 

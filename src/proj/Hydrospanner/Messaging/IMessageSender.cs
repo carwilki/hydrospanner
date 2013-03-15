@@ -3,7 +3,7 @@
 	using System;
 	using Phases.Journal;
 
-	internal interface IMessageSender : IDisposable
+	public interface IMessageSender : IDisposable
 	{
 		bool Send(JournalItem message);
 		bool Commit();

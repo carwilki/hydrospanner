@@ -1,6 +1,6 @@
 ﻿namespace Hydrospanner.Serialization
 {
-	internal interface ISerializer
+	public interface ISerializer
 	{
 		/// <summary>
 		/// Gets the value which indicates the encoding mechanism used (gzip, bzip2, lzma, aes, etc.)

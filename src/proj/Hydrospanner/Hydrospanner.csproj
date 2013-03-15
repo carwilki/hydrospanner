@@ -55,6 +55,11 @@
     <Compile Include="Messaging\Rabbit\RabbitChannel.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnector.cs" />
     <Compile Include="Messaging\Rabbit\RabbitSubscription.cs" />
+    <Compile Include="Phases\Journal\AcknowledgementHandler.cs" />
+    <Compile Include="Phases\Journal\DispatchCheckpointHandler.cs" />
+    <Compile Include="Phases\Journal\DispatchHandler.cs" />
+    <Compile Include="Phases\Journal\ForwardLocalHandler.cs" />
+    <Compile Include="Phases\Journal\JournalHandler.cs" />
     <Compile Include="Phases\Journal\SerializationHandler.cs" />
     <Compile Include="Phases\Snapshot\ISnapshotRecorder.cs" />
     <Compile Include="Phases\Snapshot\ParsedSnapshotFilename.cs" />
@@ -71,6 +76,7 @@
     <Compile Include="IHydratable.cs" />
     <Compile Include="Phases\Journal\JournalItem.cs" />
     <Compile Include="Phases\Transformation\MessageListener.cs" />
+    <Compile Include="Phases\Transformation\TransformationHandler.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Serialization\JsonSerializer.cs">
       <SubType>Code</SubType>

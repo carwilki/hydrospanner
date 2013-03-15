@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	internal struct MessageDelivery
+	public struct MessageDelivery
 	{
 		public static readonly MessageDelivery Empty = new MessageDelivery();
 
