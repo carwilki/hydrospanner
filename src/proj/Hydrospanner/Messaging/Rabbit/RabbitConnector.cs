@@ -19,12 +19,13 @@
 		{
 			try
 			{
-				var conn = this.Connect();
-				return conn == null ? null : conn.CreateModel();
+				var currentConnection = this.Connect();
+				return currentConnection == null ? null : currentConnection.CreateModel();
 			}
 			catch
 			{
 				this.Disconnect();
+				ConnectionFailureTimeout.Sleep();
 				return null;
 			}
 		}
@@ -32,21 +33,19 @@
 		{
 			lock (this.sync)
 			{
-				var local = this.connection;
-				if (local == null)
-					this.connection = local = this.factory.CreateConnection();
+				var currentConnection = this.connection;
+				if (currentConnection == null)
+					this.connection = currentConnection = this.factory.CreateConnection();
 
-				return local;
+				return currentConnection;
 			}
 		}
 		private void Disconnect()
 		{
 			lock (this.sync)
 			{
-				var local = this.connection;
-				this.connection = null;
-				if (local != null)
-					local.TryDispose();
+				var currentConnection = this.connection;
+				this.connection = currentConnection.TryDispose();
 			}
 		}
 
@@ -109,6 +108,7 @@
 		private const string IgnoreIssuer = "ignore-issuer=true";
 		private const string SecureConnection = "amqps";
 		private const string Guest = "guest";
+		private static readonly TimeSpan ConnectionFailureTimeout = TimeSpan.FromSeconds(3);
 		private readonly object sync = new object();
 		private readonly ConnectionFactory factory;
 		private IConnection connection;

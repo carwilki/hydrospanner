@@ -4,6 +4,7 @@
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.Text;
+	using System.Threading;
 
 	internal static class StringExtensions
 	{
@@ -82,5 +83,24 @@
 			TValue value;
 			return collection.TryGetValue(key, out value) ? value : default(TValue);
 		}
+	}
+
+	internal static class ThreadExtensions
+	{
+		public static void Sleep(this TimeSpan sleep)
+		{
+			callback(sleep);
+		}
+
+		public static void Freeze(Action<TimeSpan> action)
+		{
+			callback = action;
+		}
+		public static void Unfreeze()
+		{
+			callback = Thread.Sleep;
+		}
+
+		private static Action<TimeSpan> callback = Thread.Sleep;
 	}
 }

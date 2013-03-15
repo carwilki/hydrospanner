@@ -23,7 +23,6 @@
 			index = 0;
 			cycle = values == null || values.Length == 0 ? new[] { DateTime.UtcNow } : values;
 		}
-
 		public static void Unfreeze()
 		{
 			index = 0;

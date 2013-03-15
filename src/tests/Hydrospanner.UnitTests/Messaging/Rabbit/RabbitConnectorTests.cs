@@ -147,6 +147,9 @@ namespace Hydrospanner.Messaging.Rabbit
 
 			It should_not_throw_an_exception = () =>
 				thrown.ShouldBeNull();
+
+			It should_sleep_for_a_few_seconds = () =>
+				sleepTime.ShouldEqual(ConnectionFailureTimeout);
 		}
 
 		public class when_opening_a_channel_fails
@@ -165,6 +168,9 @@ namespace Hydrospanner.Messaging.Rabbit
 
 			It should_dispose_the_underlying_connection = () =>
 				connection.Received(1).Dispose();
+
+			It should_sleep_for_a_few_seconds = () =>
+				sleepTime.ShouldEqual(ConnectionFailureTimeout);
 		}
 
 		public class when_opening_a_channel_after_a_connection_has_failed
@@ -252,6 +258,7 @@ namespace Hydrospanner.Messaging.Rabbit
 
 		Establish context = () =>
 		{
+			ThreadExtensions.Freeze(x => sleepTime = x);
 			factory = Substitute.For<ConnectionFactory>();
 			connection = Substitute.For<IConnection>();
 			channel1 = Substitute.For<IModel>();
@@ -264,8 +271,12 @@ namespace Hydrospanner.Messaging.Rabbit
 		};
 
 		Cleanup after = () =>
+		{
 			thrown = null;
+			ThreadExtensions.Unfreeze();
+		};
 
+		static readonly TimeSpan ConnectionFailureTimeout = TimeSpan.FromSeconds(3);
 		static Uri address;
 		static Exception thrown;
 		static ConnectionFactory factory;
@@ -273,6 +284,7 @@ namespace Hydrospanner.Messaging.Rabbit
 		static IConnection connection;
 		private static IModel channel1;
 		static IModel openedChannel;
+		static TimeSpan sleepTime;
 	}
 }
 
