@@ -513,6 +513,9 @@ namespace Hydrospanner.Messaging.Rabbit
 			It should_not_open_additional_channels = () =>
 				connector.Received(1).OpenChannel();
 
+			It should_only_set_the_incoming_buffer_size_once = () =>
+				actualChannel.Received(1).BasicQos(0, ushort.MaxValue, false);
+
 			It should_not_open_additional_subscriptions = () =>
 				factoryInvocations.ShouldEqual(1);
 		}

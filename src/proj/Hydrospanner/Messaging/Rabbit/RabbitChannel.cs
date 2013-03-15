@@ -4,6 +4,7 @@
 	using System.Globalization;
 	using Phases.Journal;
 	using RabbitMQ.Client;
+	using RabbitMQ.Client.Events;
 
 	internal class RabbitChannel : IMessageSender, IMessageReceiver
 	{
@@ -24,7 +25,7 @@
 			if (string.IsNullOrWhiteSpace(message.SerializedType))
 				return true;
 
-			var currentChannel = this.channel = this.channel ?? this.connector.OpenChannel();
+			var currentChannel = this.OpenChannel(false);
 			if (currentChannel == null)
 				return false;
 
@@ -60,13 +61,13 @@
 			if (this.disposed)
 				return false;
 
-			var instance = this.channel;
-			if (instance == null)
+			var currentChannel = this.channel;
+			if (currentChannel == null)
 				return false;
 
 			try
 			{
-				instance.TxCommit();
+				currentChannel.TxCommit();
 				return true;
 			}
 			catch
@@ -81,20 +82,20 @@
 			if (this.disposed)
 				return MessageDelivery.Empty;
 
-			var currentChannel = this.channel = this.channel ?? this.connector.OpenChannel();
+			var currentChannel = this.OpenChannel(true);
 			if (currentChannel == null)
 				return MessageDelivery.Empty;
 
-			currentChannel.BasicQos(0, ushort.MaxValue, false);
-			var currentSubscription = this.subscription = this.subscription ?? this.factory(currentChannel);
+			var currentSubscription = this.subscription = this.subscription ?? this.factory(currentChannel); // TODO: this might throw
 
-			if (!currentChannel.IsOpen)
-			{
-				this.Close();
-				return MessageDelivery.Empty;
-			}
+			if (currentChannel.IsOpen)
+				return this.ReceiveMessage(currentChannel, currentSubscription.Receive(timeout));
 
-			var message = currentSubscription.Receive(timeout);
+			this.Close();
+			return MessageDelivery.Empty;
+		}
+		private MessageDelivery ReceiveMessage(IModel currentChannel, BasicDeliverEventArgs message)
+		{
 			if (message == null)
 				return MessageDelivery.Empty;
 
@@ -104,7 +105,6 @@
 
 			var id = meta.MessageId.ToMessageId();
 			var headers = meta.Headers.Copy();
-
 			var tag = message.DeliveryTag;
 
 			return new MessageDelivery(id, message.Body, meta.Type, headers, () =>
@@ -121,6 +121,21 @@
 					return;
 				}
 			});
+		}
+		private IModel OpenChannel(bool qos = true)
+		{
+			var currentChannel = this.channel;
+			if (currentChannel != null)
+				return currentChannel;
+
+			this.channel = currentChannel = this.connector.OpenChannel();
+			if (currentChannel == null)
+				return null;
+
+			if (qos)
+				currentChannel.BasicQos(0, ushort.MaxValue, false); // TODO: this might throw & this only needs to be performed ONCE per channel
+
+			return currentChannel;
 		}
 
 		private void Close()
