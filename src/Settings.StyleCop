@@ -74,6 +74,11 @@
             <BooleanProperty Name="Enabled">False</BooleanProperty>
           </RuleSettings>
         </Rule>
+        <Rule Name="ElementDocumentationMustBeSpelledCorrectly">
+          <RuleSettings>
+            <BooleanProperty Name="Enabled">False</BooleanProperty>
+          </RuleSettings>
+        </Rule>
         <Rule Name="FileHeaderMustHaveValidCompanyText">
           <RuleSettings>
             <BooleanProperty Name="Enabled">False</BooleanProperty>
