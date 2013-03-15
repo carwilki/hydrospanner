@@ -16,12 +16,20 @@
 			}
 			catch
 			{
+				this.channel.TryDispose();
 				return null;
 			}
 		}
 
 		public RabbitSubscription(IModel channel, string queue)
 		{
+			if (channel == null)
+				throw new ArgumentNullException("channel");
+
+			if (string.IsNullOrWhiteSpace(queue))
+				throw new ArgumentNullException("queue");
+
+			this.channel = channel;
 			this.subscription = new Subscription(channel, queue, AcknowledgeAllMessages);
 		}
 		protected RabbitSubscription()
@@ -44,6 +52,7 @@
 
 		private const bool AcknowledgeAllMessages = false; // false here = message require ack
 		private readonly Subscription subscription;
+		private readonly IModel channel;
 		private bool disposed;
 	}
 }
