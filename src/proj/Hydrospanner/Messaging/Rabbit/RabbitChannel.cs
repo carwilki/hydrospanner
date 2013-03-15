@@ -118,12 +118,14 @@
 				}
 				catch
 				{
+// ReSharper disable RedundantJumpStatement
 					return;
+// ReSharper restore RedundantJumpStatement
 				}
 			});
 		}
 
-		private IModel OpenChannel(bool qos = true)
+		private IModel OpenChannel(bool setBufferSize)
 		{
 			var currentChannel = this.channel;
 			if (currentChannel != null)
@@ -135,7 +137,7 @@
 
 			try
 			{
-				if (qos)
+				if (setBufferSize)
 					currentChannel.BasicQos(0, ushort.MaxValue, false); // TODO: this might throw & this only needs to be performed ONCE per channel
 			}
 			catch
