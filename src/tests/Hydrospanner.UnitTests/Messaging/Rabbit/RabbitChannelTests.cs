@@ -565,29 +565,103 @@ namespace Hydrospanner.Messaging.Rabbit
 			Because of = () =>
 				delivery = channel.Receive(Timeout);
 
-			It should_convert_the_rabbit_message_to_a_delivery = () =>
+			public class for_regular_deliveries
+			{
+				Establish context = () =>
+				{
+					meta.MessageId = Guid.NewGuid().ToString();
+					meta.AppId = "some-id";
+				};
+
+				It should_convert_the_rabbit_message_to_a_delivery = () =>
 				delivery.Populated.ShouldBeTrue();
 
-			It should_populate_the_delivery_payload = () =>
-				delivery.Payload.ShouldEqual(rabbitMessage.Body);
+				It should_populate_the_delivery_payload = () =>
+					delivery.Payload.ShouldEqual(rabbitMessage.Body);
 
-			It should_populate_the_message_type = () =>
-				delivery.MessageType.ShouldEqual(rabbitMessage.BasicProperties.Type);
+				It should_populate_the_message_type = () =>
+					delivery.MessageType.ShouldEqual(rabbitMessage.BasicProperties.Type);
 
-			It should_populate_the_message_id = () =>
-				delivery.MessageId.ShouldEqual(Guid.Parse(meta.MessageId));
+				It should_populate_the_message_id = () =>
+					delivery.MessageId.ShouldEqual(Guid.Parse(meta.MessageId));
 
-			It should_copy_all_headers_to_the_delivery = () =>
-				delivery.Headers.Count.ShouldEqual(meta.Headers.Count);
+				It should_copy_all_headers_to_the_delivery = () =>
+					delivery.Headers.Count.ShouldEqual(meta.Headers.Count);
 
-			It should_convert_all_incoming_headers_to_strings = () =>
+				It should_convert_all_incoming_headers_to_strings = () =>
+				{
+					foreach (var key in headers.Keys)
+						delivery.Headers[(string)key].ShouldEqual(Encoding.UTF8.GetString((byte[])headers[key]));
+				};
+
+				It should_provide_a_callback_acknowledgement_to_confirm_the_message_delivery = () =>
+					delivery.Acknowledge.ShouldNotBeNull();
+			}
+
+			public class when_the_delivery_message_identifier_is_numeric
 			{
-				foreach (var key in headers.Keys)
-					delivery.Headers[(string)key].ShouldEqual(Encoding.UTF8.GetString((byte[])headers[key]));
-			};
+				Establish context = () =>
+					meta.MessageId = "1025";
 
-			It should_provide_a_callback_acknowledgement_to_confirm_the_message_delivery = () =>
-				delivery.Acknowledge.ShouldNotBeNull();
+				It should_parse_the_identifier_as_a_guid = () =>
+					delivery.MessageId.ShouldEqual(new Guid(0, 0, 0, BitConverter.GetBytes(long.Parse(meta.MessageId))));
+			}
+
+			public class when_the_delivery_message_identifier_is_is_empty
+			{
+				Establish context = () =>
+					meta.MessageId = null;
+
+				It should_return_an_empty_guid = () =>
+					delivery.MessageId.ShouldEqual(Guid.Empty);
+			}
+
+			public class when_the_delivered_message_originates_from_this_node
+			{
+				Establish context = () =>
+					meta.AppId = NodeId.ToString(CultureInfo.InvariantCulture);
+
+				It should_return_an_empty_delivery_to_the_caller = () =>
+					delivery.Populated.ShouldBeFalse();
+			}
+
+			public class when_invoking_the_delivery_acknowledgement_callback
+			{
+				It should_acknowledge_the_delivery_tag_to_the_underlying_channel = () =>
+				{
+					delivery.Acknowledge();
+					actualChannel.Received(1).BasicAck(rabbitMessage.DeliveryTag, true);
+				};
+			}
+
+			public class when_acknowledging_a_delivery_against_a_disposed_channel
+			{
+				It should_NOT_invoke_the_ack_against_the_underlying_channel = () =>
+				{
+					channel.Dispose();
+					delivery.Acknowledge();
+					actualChannel.Received(0).BasicAck(Arg.Any<ulong>(), Arg.Any<bool>());
+				};
+			}
+
+			public class when_acknowledging_a_delivery_against_a_failed_channel
+			{
+				It should_not_invoke_the_ack_against_the_underlying_channel = () =>
+				{
+					actualChannel.IsOpen.Returns(false);
+					delivery.Acknowledge();
+					actualChannel.Received(0).BasicAck(Arg.Any<ulong>(), Arg.Any<bool>());
+				};
+			}
+
+			public class when_invoking_the_delivery_acknowledgement_callback_throws_an_exception
+			{
+				It should_suppress_the_exception = () =>
+				{
+					actualChannel.When(x => x.BasicAck(Arg.Any<ulong>(), Arg.Any<bool>())).Do(x => { throw new Exception(); });
+					delivery.Acknowledge();
+				};
+			}
 
 			static readonly Hashtable headers = new Hashtable
 			{
@@ -598,7 +672,6 @@ namespace Hydrospanner.Messaging.Rabbit
 			{
 				Headers = headers,
 				Type = "SomeNamespace.SomeClass",
-				MessageId = Guid.NewGuid().ToString(),
 			};
 			static readonly BasicDeliverEventArgs rabbitMessage = new BasicDeliverEventArgs
 			{
@@ -606,36 +679,6 @@ namespace Hydrospanner.Messaging.Rabbit
 				DeliveryTag = 42,
 				Body = new byte[] { 1, 2, 3, 4, 5 }
 			};
-		}
-
-		public class when_the_delivery_message_identifier_is_numeric
-		{
-			It should_parse_the_identifier_as_a_guid;
-		}
-
-		public class when_the_delivered_message_originates_from_this_node
-		{
-			It should_return_an_empty_delivery_to_the_caller;
-		}
-
-		public class when_invoking_the_delivery_acknowledgement_callback
-		{
-			It should_acknowledge_the_delivery_tag_to_the_underlying_channel;
-		}
-
-		public class when_acknowledging_a_delivery_against_a_disposed_channel
-		{
-			It should_not_invoke_the_ack_against_the_underlying_channel;
-		}
-
-		public class when_acknowledging_a_delivery_against_a_failed_channel
-		{
-			It should_not_invoke_the_ack_against_the_underlying_channel;
-		}
-
-		public class when_invoking_the_delivery_acknowledgement_callback_throws_an_exception
-		{
-			It should_suppress_the_exception;
 		}
 
 		Establish context = () =>

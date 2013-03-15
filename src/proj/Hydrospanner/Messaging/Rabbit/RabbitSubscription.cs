@@ -35,7 +35,7 @@
 			this.subscription.Close();
 		}
 
-		private const bool AcknowledgeAllMessages = false; // false here means to ack everything
+		private const bool AcknowledgeAllMessages = false; // false here = message require ack
 		private readonly Subscription subscription;
 		private bool disposed;
 	}

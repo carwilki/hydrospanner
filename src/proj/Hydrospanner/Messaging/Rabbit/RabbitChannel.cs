@@ -100,11 +100,28 @@
 				return MessageDelivery.Empty;
 
 			var meta = message.BasicProperties;
+			if (meta.AppId == this.appId)
+				return MessageDelivery.Empty; // the message originated at this node, don't re-consume it
 
-			var id = Guid.Parse(meta.MessageId); // TODO: long vs Guid message IDs vs no message ID (Guid.NewGuid???)
+			var id = meta.MessageId.ToMessageId();
 			var headers = meta.Headers.Copy();
 
-			return new MessageDelivery(id, message.Body, meta.Type, headers, null);
+			var tag = message.DeliveryTag;
+
+			return new MessageDelivery(id, message.Body, meta.Type, headers, () =>
+			{
+				if (this.disposed || !currentChannel.IsOpen)
+					return;
+
+				try
+				{
+					currentChannel.BasicAck(tag, true);
+				}
+				catch
+				{
+					return;
+				}
+			});
 		}
 
 		private void Close()

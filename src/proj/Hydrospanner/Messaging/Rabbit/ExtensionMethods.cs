@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Messaging.Rabbit
 {
+	using System;
 	using System.Collections;
 	using System.Collections.Generic;
 	using System.Globalization;
@@ -10,6 +11,21 @@
 		public static string ToMessageId(this long sequence, short nodeId)
 		{
 			return ((sequence << 16) + nodeId).ToString(CultureInfo.InvariantCulture);
+		}
+		public static Guid ToMessageId(this string value)
+		{
+			if (string.IsNullOrWhiteSpace(value))
+				return Guid.Empty;
+
+			Guid guid;
+			if (Guid.TryParse(value, out guid))
+				return guid;
+
+			long numeric;
+			if (long.TryParse(value, out numeric))
+				return new Guid(0, 0, 0, BitConverter.GetBytes(numeric));
+
+			return Guid.Empty;
 		}
 		public static IDictionary CopyTo(this IDictionary<string, string> source, IDictionary target)
 		{
