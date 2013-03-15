@@ -67,8 +67,6 @@ namespace Hydrospanner.Phases.Snapshot
 			recorder = Substitute.For<ISnapshotRecorder>();
 			handler = new PublicSnapshotHandler(recorder);
 		};
-
-		
 		
 		static PublicSnapshotHandler handler;
 		static ISnapshotRecorder recorder;
