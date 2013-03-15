@@ -9,37 +9,71 @@ namespace Hydrospanner.Phases.Snapshot
 	[Subject(typeof(PublicSnapshotHandler))]
 	public class when_recording_a_public_snapshot
 	{
-		public class and_the_item_is_a_public_snapshot
+		public class before_the_end_of_batch
 		{
-			Establish context = () =>
-				item.AsPublicSnapshot("key", "memento");
+			Because of = () =>
+			{
+				handler.OnNext(publicSnapshot, 0, false);
+				handler.OnNext(publicSnapshot, 0, false);
+				handler.OnNext(publicSnapshot, 0, false);
+			};
 
-			It should_pass_the_item_to_the_recorder = () =>
-				recorder.Received(1).Record(item);
+			It should_not_record_any_public_snapshots = () =>
+				recorder.Received(0).Record(publicSnapshot);
 		}
 
-		public class and_the_item_part_of_a_system_snapshot
+		public class at_end_of_batch
+		{
+			Because of = () =>
+			{
+				handler.OnNext(publicSnapshot, 0, false);
+				handler.OnNext(systemSnapshot, 1, true);
+			};
+
+			It should_record_the_public_snapshot_and_ignore_the_system_snapshot = () =>
+			{
+				recorder.Received(1).Record(publicSnapshot);
+				recorder.Received(0).Record(systemSnapshot);
+			};
+		}
+
+		public class at_end_of_subsequent_batch
 		{
 			Establish context = () =>
-				item.AsPartOfSystemSnapshot(42, 0, "key", "memento");
+			{
+				handler.OnNext(publicSnapshot, 0, false);
+				handler.OnNext(publicSnapshot, 0, true);
+			};
 
-			It should_NOT_pass_the_item_to_the_recorder = () =>
-				recorder.Received(0).Record(item);
+			Because of = () =>
+			{
+				handler.OnNext(publicSnapshot, 0, false);
+				handler.OnNext(publicSnapshot, 0, false);
+				handler.OnNext(publicSnapshot, 0, true);
+			};
+
+			It should_have_cleared_the_buffer_to_allow_recording_of_the_next_batch = () =>
+				recorder.Received(EachItemOnlyOnce).Record(publicSnapshot);
+			
+			const int EachItemOnlyOnce = 5;
 		}
 
 		Establish context = () =>
 		{
-			item = new SnapshotItem();
+			publicSnapshot = new SnapshotItem();
+			systemSnapshot = new SnapshotItem();
+			publicSnapshot.AsPublicSnapshot("public_key", "public_memento");
+			systemSnapshot.AsPartOfSystemSnapshot(42, 42, "system_key", "system_memento");
 			recorder = Substitute.For<ISnapshotRecorder>();
 			handler = new PublicSnapshotHandler(recorder);
 		};
 
-		Because of = () =>
-			handler.OnNext(item, 0, false);
+		
 		
 		static PublicSnapshotHandler handler;
 		static ISnapshotRecorder recorder;
-		static SnapshotItem item;
+		static SnapshotItem publicSnapshot;
+		static SnapshotItem systemSnapshot;
 	}
 }
 
