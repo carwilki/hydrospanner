@@ -43,6 +43,27 @@ namespace Hydrospanner.Phases.Snapshot
 				recorder.Received(0).Record(systemSnapshot);
 		}
 
+		public class at_the_end_of_batch_with_not_public_snapshot_items_having_arrived
+		{
+			Establish context = () =>
+			{
+				handler.OnNext(systemSnapshot, 1, false);
+				handler.OnNext(systemSnapshot, 1, false);
+				handler.OnNext(systemSnapshot, 1, false);
+				handler.OnNext(systemSnapshot, 1, false);
+			};
+
+			Because of = () =>
+				handler.OnNext(systemSnapshot, 1, true);
+
+			It should_not_attempt_any_record_actions = () =>
+			{
+				recorder.Received(0).StartRecording(Arg.Any<int>());
+				recorder.Received(0).Record(Arg.Any<SnapshotItem>());
+				recorder.Received(0).FinishRecording();
+			};
+		}
+
 		public class at_end_of_subsequent_batch
 		{
 			Establish context = () =>

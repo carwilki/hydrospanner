@@ -10,11 +10,14 @@
 			if (data.IsPublicSnapshot)
 				this.buffer.Enqueue(data);
 
-			if (!endOfBatch)
-				return;
+			if (endOfBatch && this.buffer.Count > 0)
+				this.RecordPublicSnapshots();
+		}
 
+		private void RecordPublicSnapshots()
+		{
 			this.recorder.StartRecording(this.buffer.Count);
-			
+
 			while (this.buffer.Count > 0)
 				this.recorder.Record(this.buffer.Dequeue());
 
