@@ -9,8 +9,15 @@
 	{
 		public virtual BasicDeliverEventArgs Receive(TimeSpan timeout)
 		{
-			BasicDeliverEventArgs delivery;
-			return this.subscription.Next((int)timeout.TotalMilliseconds, out delivery) ? delivery : null;
+			try
+			{
+				BasicDeliverEventArgs delivery;
+				return this.subscription.Next((int)timeout.TotalMilliseconds, out delivery) ? delivery : null;
+			}
+			catch
+			{
+				return null;
+			}
 		}
 
 		public RabbitSubscription(IModel channel, string queue)
