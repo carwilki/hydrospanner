@@ -28,7 +28,7 @@ namespace Hydrospanner.Phases.Transformation
 			item.SerializedBody.ShouldEqual(body);
 			item.SerializedType.ShouldEqual(type);
 			item.Headers.ShouldEqual(headers);
-			item.Acknowledgement.ShouldEqual(ack);
+			item.Acknowledgment.ShouldEqual(ack);
 			item.CanJournal.ShouldBeTrue();
 		};
 
@@ -80,7 +80,7 @@ namespace Hydrospanner.Phases.Transformation
 			item.IsDocumented.ShouldBeFalse();
 			item.IsDuplicate.ShouldBeFalse();
 			item.ForeignId.ShouldEqual(Guid.Empty);
-			item.Acknowledgement.ShouldBeNull();
+			item.Acknowledgment.ShouldBeNull();
 		};
 
 		static TransformationItem item;
@@ -121,7 +121,7 @@ namespace Hydrospanner.Phases.Transformation
 			item.Headers.ShouldBeNull();
 			item.CanJournal.ShouldBeFalse();
 			item.IsDuplicate.ShouldBeFalse();
-			item.Acknowledgement.ShouldBeNull();
+			item.Acknowledgment.ShouldBeNull();
 		};
 
 		static TransformationItem item;

@@ -16,9 +16,9 @@
 
 		public JournalItemAction ItemActions { get; set; }
 		public Guid ForeignId { get; set; }
-		public Action Acknowledgement { get; set; }
+		public Action Acknowledgment { get; set; }
 
-		public void AsForeignMessage(byte[] serializedBody, object body, Dictionary<string, string> headers, Guid foreignId, Action acknowledgement)
+		public void AsForeignMessage(byte[] serializedBody, object body, Dictionary<string, string> headers, Guid foreignId, Action acknowledgment)
 		{
 			this.Clear();
 			this.ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal;
@@ -26,7 +26,7 @@
 			this.Body = body;
 			this.Headers = headers;
 			this.ForeignId = foreignId;
-			this.Acknowledgement = acknowledgement;
+			this.Acknowledgment = acknowledgment;
 		}
 
 		public void AsTransformationResultMessage(long sequence, object body, Dictionary<string, string> headers)
@@ -58,7 +58,7 @@
 			this.Headers = null;
 			this.ItemActions = JournalItemAction.None;
 			this.ForeignId = Guid.Empty;
-			this.Acknowledgement = null;
+			this.Acknowledgment = null;
 		}
 
 		public void Serialize(ISerializer serializer)

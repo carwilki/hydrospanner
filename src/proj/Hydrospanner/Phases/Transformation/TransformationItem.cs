@@ -19,7 +19,7 @@
 		public bool IsLocal { get; set; }
 		public bool IsDuplicate { get; set; }
 		public Guid ForeignId { get; set; }
-		public Action Acknowledgement { get; set; }
+		public Action Acknowledgment { get; set; }
 
 		public void AsForeignMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action ack)
 		{
@@ -29,7 +29,7 @@
 			this.SerializedType = type;
 			this.Headers = headers;
 			this.ForeignId = foreignId;
-			this.Acknowledgement = ack;
+			this.Acknowledgment = ack;
 		}
 
 		public void AsLocalMessage(long sequence, object body, Dictionary<string, string> headers)
@@ -62,7 +62,7 @@
 			this.SerializedType = null;
 			this.CanJournal = this.IsDocumented = this.IsLocal = this.IsDuplicate = false;
 			this.ForeignId = Guid.Empty;
-			this.Acknowledgement = null;
+			this.Acknowledgment = null;
 		}
 
 		public void Deserialize(ISerializer serializer)

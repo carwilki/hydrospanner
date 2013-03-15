@@ -597,7 +597,7 @@ namespace Hydrospanner.Messaging.Rabbit
 						delivery.Headers[(string)key].ShouldEqual(Encoding.UTF8.GetString((byte[])rabbitMessage.BasicProperties.Headers[key]));
 				};
 
-				It should_provide_a_callback_acknowledgement_to_confirm_the_message_delivery = () =>
+				It should_provide_a_callback_acknowledgment_to_confirm_the_message_delivery = () =>
 					delivery.Acknowledge.ShouldNotBeNull();
 			}
 
@@ -628,7 +628,7 @@ namespace Hydrospanner.Messaging.Rabbit
 					delivery.Populated.ShouldBeFalse();
 			}
 
-			public class when_invoking_the_delivery_acknowledgement_callback
+			public class when_invoking_the_delivery_acknowledgment_callback
 			{
 				It should_acknowledge_the_delivery_tag_to_the_underlying_channel = () =>
 				{
@@ -657,7 +657,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				};
 			}
 
-			public class when_invoking_the_delivery_acknowledgement_callback_throws_an_exception
+			public class when_invoking_the_delivery_acknowledgment_callback_throws_an_exception
 			{
 				It should_suppress_the_exception = () =>
 				{

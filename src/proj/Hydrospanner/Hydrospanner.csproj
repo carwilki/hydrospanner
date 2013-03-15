@@ -55,7 +55,7 @@
     <Compile Include="Messaging\Rabbit\RabbitChannel.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnector.cs" />
     <Compile Include="Messaging\Rabbit\RabbitSubscription.cs" />
-    <Compile Include="Phases\Journal\AcknowledgementHandler.cs" />
+    <Compile Include="Phases\Journal\AcknowledgmentHandler.cs" />
     <Compile Include="Phases\Journal\DispatchCheckpointHandler.cs" />
     <Compile Include="Phases\Journal\DispatchHandler.cs" />
     <Compile Include="Phases\Journal\ForwardLocalHandler.cs" />

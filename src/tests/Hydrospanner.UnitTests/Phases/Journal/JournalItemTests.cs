@@ -14,12 +14,12 @@ namespace Hydrospanner.Phases.Journal
 			item = new JournalItem();
 
 		Because of = () =>
-			item.AsForeignMessage(serializedBody, Body, headers, ForeignId, Acknowledgement);
+			item.AsForeignMessage(serializedBody, Body, headers, ForeignId, Acknowledgment);
 
 		It should_set_the_following_properties_according_to_the_input_arguments = () =>
 		{
 			item.ItemActions.ShouldEqual(JournalItemAction.Acknowledge | JournalItemAction.Journal);
-			item.Acknowledgement.ShouldEqual(Acknowledgement);
+			item.Acknowledgment.ShouldEqual(Acknowledgment);
 			item.SerializedBody.ShouldEqual(serializedBody);
 			item.Headers.ShouldEqual(headers);
 			item.ForeignId.ShouldEqual(ForeignId);
@@ -38,7 +38,7 @@ namespace Hydrospanner.Phases.Journal
 		static readonly byte[] serializedBody = new byte[] { 1, 2, 3 };
 		static readonly Dictionary<string, string> headers = new Dictionary<string, string>();
 		static readonly Guid ForeignId = Guid.NewGuid();
-		static readonly Action Acknowledgement = Console.WriteLine;
+		static readonly Action Acknowledgment = Console.WriteLine;
 	}
 
 	[Subject(typeof(JournalItem))]
@@ -61,7 +61,7 @@ namespace Hydrospanner.Phases.Journal
 		It should_set_the_following_properties_to_their_default_values = () =>
 		{
 			item.SerializedHeaders.ShouldBeNull();
-			item.Acknowledgement.ShouldBeNull();
+			item.Acknowledgment.ShouldBeNull();
 			item.ForeignId.ShouldEqual(Guid.Empty);
 			item.SerializedBody.ShouldBeNull();
 			item.SerializedType.ShouldBeNull();
@@ -92,7 +92,7 @@ namespace Hydrospanner.Phases.Journal
 
 		It should_set_the_following_properties_to_their_default_values = () =>
 		{
-			item.Acknowledgement.ShouldBeNull();
+			item.Acknowledgment.ShouldBeNull();
 			item.Body.ShouldBeNull();
 			item.Headers.ShouldBeNull();
 		};

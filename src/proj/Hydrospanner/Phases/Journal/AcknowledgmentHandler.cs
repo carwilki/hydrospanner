@@ -3,11 +3,11 @@
 	using System;
 	using Disruptor;
 
-	public sealed class AcknowledgementHandler : IEventHandler<JournalItem>
+	public sealed class AcknowledgmentHandler : IEventHandler<JournalItem>
 	{
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{
-			this.ack = data.Acknowledgement ?? this.ack;
+			this.ack = data.Acknowledgment ?? this.ack;
 
 			if (!endOfBatch)
 				return;

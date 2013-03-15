@@ -5,9 +5,9 @@ namespace Hydrospanner.Phases.Journal
 {
 	using Machine.Specifications;
 
-	public class AcknowledgementHandlerTests
+	public class AcknowledgmentHandlerTests
 	{
-		public class when_a_single_acknowledgement_item_is_ready_to_be_acknowledged
+		public class when_a_single_acknowledgment_item_is_ready_to_be_acknowledged
 		{
 			Because of = () =>
 				handler.OnNext(Create(42), 0, true);
@@ -15,11 +15,11 @@ namespace Hydrospanner.Phases.Journal
 			It should_acknowledge_the_item = () =>
 				acknowledged.ShouldEqual(42);
 
-			It should_invoke_the_acknowledgement_callback_exactly_once = () =>
+			It should_invoke_the_acknowledgment_callback_exactly_once = () =>
 				invocations.ShouldEqual(1);
 		}
 
-		public class when_multiple_acknowledgement_items_are_ready_to_be_acknowledged
+		public class when_multiple_acknowledgment_items_are_ready_to_be_acknowledged
 		{
 			Establish context = () =>
 				handler.OnNext(Create(41), 0, false);
@@ -30,11 +30,11 @@ namespace Hydrospanner.Phases.Journal
 			It should_invoke_the_callback_for_the_highest_sequenced_item = () =>
 				acknowledged.ShouldEqual(42);
 
-			It should_invoke_the_acknowledgement_callback_exactly_once = () =>
+			It should_invoke_the_acknowledgment_callback_exactly_once = () =>
 				invocations.ShouldEqual(1);
 		}
 
-		public class when_the_last_item_in_the_set_is_not_an_acknowledgement_item
+		public class when_the_last_item_in_the_set_is_not_an_acknowledgment_item
 		{
 			Establish context = () =>
 			{
@@ -45,26 +45,26 @@ namespace Hydrospanner.Phases.Journal
 			Because of = () =>
 				handler.OnNext(Create(0), 2, true);
 
-			It should_invoke_the_callback_for_the_highest_acknowledgement_item = () =>
+			It should_invoke_the_callback_for_the_highest_acknowledgment_item = () =>
 				acknowledged.ShouldEqual(42);
 
-			It should_invoke_the_acknowledgement_callback_exactly_once = () =>
+			It should_invoke_the_acknowledgment_callback_exactly_once = () =>
 				invocations.ShouldEqual(1);
 		}
 
-		public class when_no_acknowledgement_items_are_in_the_batch
+		public class when_no_acknowledgment_items_are_in_the_batch
 		{
 			Because of = () =>
 				handler.OnNext(Create(0), 1, true);
 
-			It should_NOT_invoke_the_callback_for_the_highest_acknowledgement_item = () =>
+			It should_NOT_invoke_the_callback_for_the_highest_acknowledgment_item = () =>
 				acknowledged.ShouldEqual(0);
 
-			It should_NOT_invoke_the_acknowledgement_callback = () =>
+			It should_NOT_invoke_the_acknowledgment_callback = () =>
 				invocations.ShouldEqual(0);
 		}
 
-		public class when_a_subsequent_batch_of_items_does_not_contain_acknowledgement_item
+		public class when_a_subsequent_batch_of_items_does_not_contain_acknowledgment_item
 		{
 			Establish context = () =>
 				handler.OnNext(Create(42), 1, true);
@@ -72,10 +72,10 @@ namespace Hydrospanner.Phases.Journal
 			Because of = () =>
 				handler.OnNext(Create(0), 2, true);
 
-			It should_only_invoke_the_callback_for_the_highest_acknowledgement_item = () =>
+			It should_only_invoke_the_callback_for_the_highest_acknowledgment_item = () =>
 				acknowledged.ShouldEqual(42);
 
-			It should_only_invoke_the_acknowledgement_callback = () =>
+			It should_only_invoke_the_acknowledgment_callback = () =>
 				invocations.ShouldEqual(1);
 		}
 
@@ -83,7 +83,7 @@ namespace Hydrospanner.Phases.Journal
 		{
 			acknowledged = 0;
 			invocations = 0;
-			handler = new AcknowledgementHandler();
+			handler = new AcknowledgmentHandler();
 		};
 
 		static JournalItem Create(int sequence)
@@ -93,7 +93,7 @@ namespace Hydrospanner.Phases.Journal
 
 			return new JournalItem
 			{
-				Acknowledgement = () =>
+				Acknowledgment = () =>
 				{
 					invocations++;
 					acknowledged = sequence;
@@ -101,7 +101,7 @@ namespace Hydrospanner.Phases.Journal
 			};
 		}
 
-		static AcknowledgementHandler handler;
+		static AcknowledgmentHandler handler;
 		static int acknowledged;
 		static int invocations;
 	}
