@@ -7,7 +7,9 @@
 		public void OnNext(SnapshotItem data, long sequence, bool endOfBatch)
 		{
 			if (!data.IsPublicSnapshot)
+			{
 				this.recorder.Record(data);
+			}
 		}
 
 		public SystemSnapshotHandler(ISnapshotRecorder recorder)

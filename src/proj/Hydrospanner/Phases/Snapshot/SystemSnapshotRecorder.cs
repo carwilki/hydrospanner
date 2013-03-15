@@ -7,27 +7,21 @@
 
 	internal class SystemSnapshotRecorder : ISnapshotRecorder
 	{
+		public void StartRecording(long sequence, int iteration, int expectedItems)
+		{
+			if (this.currentSnapshot != null)
+				this.CloseSnapshot();
+
+			this.pathToCurrentSnapshot = Path.Combine(this.location, iteration + "-" + sequence);
+			this.currentSnapshot = new BinaryWriter(new BufferedStream(this.file.Create(this.pathToCurrentSnapshot)));
+			this.currentSnapshot.Write(expectedItems);
+		}
+
 		public void Record(SnapshotItem item)
 		{
-			if (!this.recording)
-				this.InitializeSnapshot(item);
+			if (this.currentSnapshot == null)
+				return;
 
-			this.RecordItem(item);
-			
-			if (item.MementosRemaining == 0)
-				this.FinalizeSnapshot();
-		}
-
-		private void InitializeSnapshot(SnapshotItem item)
-		{
-			this.pathToCurrentSnapshot = Path.Combine(this.location, this.latestIteration + "-" + item.CurrentSequence);
-			this.currentSnapshot = new BinaryWriter(new BufferedStream(this.file.Create(this.pathToCurrentSnapshot)));
-			this.currentSnapshot.Write(item.MementosRemaining + 1);
-			this.recording = true;
-		}
-
-		private void RecordItem(SnapshotItem item)
-		{
 			var typeName = item.Memento.GetType().AssemblyQualifiedName ?? string.Empty;
 			this.currentSnapshot.Write(typeName.Length);
 			this.currentSnapshot.Write(typeName.ToByteArray());
@@ -36,13 +30,26 @@
 			this.currentSnapshot.Write(item.Serialized);
 		}
 
-		private void FinalizeSnapshot()
+		public void FinishRecording()
 		{
-			this.currentSnapshot.Dispose();
+			if (this.currentSnapshot == null)
+				return;
+
+			this.CloseSnapshot();
+			this.FingerprintSnapshot();
+		}
+
+		void FingerprintSnapshot()
+		{
 			var hash = this.GenerateFingerprint();
 			this.file.Move(this.pathToCurrentSnapshot, this.pathToCurrentSnapshot + "-" + hash);
-			this.latestIteration++;
-			this.recording = false;
+		}
+
+		void CloseSnapshot()
+		{
+			this.currentSnapshot.Flush();
+			this.currentSnapshot.Dispose();
+			this.currentSnapshot = null;
 		}
 
 		private string GenerateFingerprint()
@@ -52,17 +59,14 @@
 				return new SoapHexBinary(hasher.ComputeHash(fileStream)).ToString();
 		}
 
-		public SystemSnapshotRecorder(FileBase file, string location, int latestIteration) // NOTE: We could derive the latestIteration by enumerating the files in location
+		public SystemSnapshotRecorder(FileBase file, string location)
 		{
 			this.file = file;
 			this.location = location;
-			this.latestIteration = latestIteration;
 		}
 
 		private readonly FileBase file;
 		private readonly string location;
-		private int latestIteration;
-		private bool recording;
 		private string pathToCurrentSnapshot;
 		private BinaryWriter currentSnapshot;
 	}
