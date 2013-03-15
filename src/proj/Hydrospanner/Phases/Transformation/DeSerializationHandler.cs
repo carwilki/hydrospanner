@@ -3,7 +3,7 @@
 	using Disruptor;
 	using Serialization;
 
-	internal class DeserializationHandler : IEventHandler<TransformationItem>
+	public sealed class DeserializationHandler : IEventHandler<TransformationItem>
 	{
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{

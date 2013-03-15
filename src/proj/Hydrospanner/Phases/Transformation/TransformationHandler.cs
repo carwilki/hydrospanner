@@ -2,7 +2,7 @@
 {
 	using Disruptor;
 
-	public class TransformationHandler : IEventHandler<TransformationItem>
+	public sealed class TransformationHandler : IEventHandler<TransformationItem>
 	{
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
