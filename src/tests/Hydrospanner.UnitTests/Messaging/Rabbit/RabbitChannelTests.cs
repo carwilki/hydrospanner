@@ -560,7 +560,10 @@ namespace Hydrospanner.Messaging.Rabbit
 		public class when_a_delivery_is_received
 		{
 			Establish context = () =>
+			{
+				rabbitMessage = BuildMessage();
 				subscription.Receive(Timeout).Returns(rabbitMessage);
+			};
 
 			Because of = () =>
 				delivery = channel.Receive(Timeout);
@@ -569,8 +572,8 @@ namespace Hydrospanner.Messaging.Rabbit
 			{
 				Establish context = () =>
 				{
-					meta.MessageId = Guid.NewGuid().ToString();
-					meta.AppId = "some-id";
+					rabbitMessage.BasicProperties.MessageId = Guid.NewGuid().ToString();
+					rabbitMessage.BasicProperties.AppId = "some-id";
 				};
 
 				It should_convert_the_rabbit_message_to_a_delivery = () =>
@@ -583,15 +586,15 @@ namespace Hydrospanner.Messaging.Rabbit
 					delivery.MessageType.ShouldEqual(rabbitMessage.BasicProperties.Type);
 
 				It should_populate_the_message_id = () =>
-					delivery.MessageId.ShouldEqual(Guid.Parse(meta.MessageId));
+					delivery.MessageId.ShouldEqual(Guid.Parse(rabbitMessage.BasicProperties.MessageId));
 
 				It should_copy_all_headers_to_the_delivery = () =>
-					delivery.Headers.Count.ShouldEqual(meta.Headers.Count);
+					delivery.Headers.Count.ShouldEqual(rabbitMessage.BasicProperties.Headers.Count);
 
 				It should_convert_all_incoming_headers_to_strings = () =>
 				{
-					foreach (var key in headers.Keys)
-						delivery.Headers[(string)key].ShouldEqual(Encoding.UTF8.GetString((byte[])headers[key]));
+					foreach (var key in rabbitMessage.BasicProperties.Headers.Keys)
+						delivery.Headers[(string)key].ShouldEqual(Encoding.UTF8.GetString((byte[])rabbitMessage.BasicProperties.Headers[key]));
 				};
 
 				It should_provide_a_callback_acknowledgement_to_confirm_the_message_delivery = () =>
@@ -601,16 +604,16 @@ namespace Hydrospanner.Messaging.Rabbit
 			public class when_the_delivery_message_identifier_is_numeric
 			{
 				Establish context = () =>
-					meta.MessageId = "1025";
+					rabbitMessage.BasicProperties.MessageId = "1025";
 
 				It should_parse_the_identifier_as_a_guid = () =>
-					delivery.MessageId.ShouldEqual(new Guid(0, 0, 0, BitConverter.GetBytes(long.Parse(meta.MessageId))));
+					delivery.MessageId.ShouldEqual(new Guid(0, 0, 0, BitConverter.GetBytes(long.Parse(rabbitMessage.BasicProperties.MessageId))));
 			}
 
 			public class when_the_delivery_message_identifier_is_is_empty
 			{
 				Establish context = () =>
-					meta.MessageId = null;
+					rabbitMessage.BasicProperties.MessageId = null;
 
 				It should_return_an_empty_guid = () =>
 					delivery.MessageId.ShouldEqual(Guid.Empty);
@@ -619,7 +622,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			public class when_the_delivered_message_originates_from_this_node
 			{
 				Establish context = () =>
-					meta.AppId = NodeId.ToString(CultureInfo.InvariantCulture);
+					rabbitMessage.BasicProperties.AppId = NodeId.ToString(CultureInfo.InvariantCulture);
 
 				It should_return_an_empty_delivery_to_the_caller = () =>
 					delivery.Populated.ShouldBeFalse();
@@ -663,22 +666,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				};
 			}
 
-			static readonly Hashtable headers = new Hashtable
-			{
-				{ "Key1", Encoding.UTF8.GetBytes("Value1") },
-				{ "Key2", Encoding.UTF8.GetBytes("Value2") }
-			};
-			static readonly BasicProperties meta = new BasicProperties
-			{
-				Headers = headers,
-				Type = "SomeNamespace.SomeClass",
-			};
-			static readonly BasicDeliverEventArgs rabbitMessage = new BasicDeliverEventArgs
-			{
-				BasicProperties = meta,
-				DeliveryTag = 42,
-				Body = new byte[] { 1, 2, 3, 4, 5 }
-			};
+			static BasicDeliverEventArgs rabbitMessage;
 		}
 
 		Establish context = () =>
@@ -708,6 +696,27 @@ namespace Hydrospanner.Messaging.Rabbit
 		static void Try(Action callback)
 		{
 			thrown = Catch.Exception(callback);
+		}
+
+		static BasicDeliverEventArgs BuildMessage()
+		{
+			var headers = new Hashtable
+			{
+				{ "Key1", Encoding.UTF8.GetBytes("Value1") },
+				{ "Key2", Encoding.UTF8.GetBytes("Value2") }
+			};
+			var meta = new BasicProperties
+			{
+				Headers = headers,
+				Type = "SomeNamespace.SomeClass",
+				MessageId = Guid.NewGuid().ToString()
+			};
+			return new BasicDeliverEventArgs
+			{
+				BasicProperties = meta,
+				DeliveryTag = 42,
+				Body = new byte[] { 1, 2, 3, 4, 5 },
+			};
 		}
 
 		Cleanup after = () =>
