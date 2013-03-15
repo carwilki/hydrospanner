@@ -2,6 +2,9 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Configuration;
+	using System.Data;
+	using System.Data.Common;
 	using System.Globalization;
 	using System.Text;
 	using System.Threading;
@@ -55,6 +58,21 @@
 		{
 			return BitConverter.GetBytes(value);
 		}
+
+		public static int ComputeTinyHash(this byte[] collection)
+		{
+			// Reference: http://stackoverflow.com/a/425184/605022
+
+			unchecked
+			{
+				var result = 0;
+
+				for (var index = 0; index < collection.Length; index++)
+					result = (result * 31) ^ collection[index];
+
+				return result;
+			}
+		}
 	}
 
 	internal static class DisposableExtensions
@@ -102,5 +120,41 @@
 		}
 
 		private static Action<TimeSpan> callback = Thread.Sleep;
+	}
+
+	internal static class DataExtensions
+	{
+		public static IDbConnection OpenConnection(this ConnectionStringSettings connectionSettings)
+		{
+			if (connectionSettings == null)
+				throw new ArgumentNullException("connectionSettings");
+
+			var provider = DbProviderFactories.GetFactory(connectionSettings.ProviderName);
+			var connection = provider.CreateConnection();
+
+			if (connection == null)
+				throw new ConfigurationErrorsException(string.Format("The connection named \"{0}\" could not be created.", connectionSettings.Name));
+
+			connection.ConnectionString = connectionSettings.ConnectionString;
+			connection.Open();
+			return connection;
+		}
+		public static IDbCommand WithParameter(this IDbCommand command, string name, object value, DbType type)
+		{
+			try
+			{
+				var parameter = command.CreateParameter();
+				parameter.ParameterName = name;
+				parameter.Value = value ?? DBNull.Value;
+				parameter.DbType = type;
+				command.Parameters.Add(parameter);
+				return command;
+			}
+			catch
+			{
+				command.Dispose();
+				throw;
+			}
+		}
 	}
 }
