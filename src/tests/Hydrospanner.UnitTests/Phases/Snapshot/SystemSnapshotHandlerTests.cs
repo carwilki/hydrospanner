@@ -5,41 +5,125 @@ namespace Hydrospanner.Phases.Snapshot
 {
 	using Machine.Specifications;
 	using NSubstitute;
+	using Serialization;
 
 	[Subject(typeof(SystemSnapshotHandler))]
 	public class when_recording_system_snapshots
 	{
-		public class and_the_item_is_part_of_a_system_snapshot
-		{
-			Establish context = () =>
-				item.AsPartOfSystemSnapshot(42, 0, "key", "memento");
-
-			It should_pass_the_item_to_the_recorder = () =>
-				recorder.Received(1).Record(item);
-		}
-
 		public class and_the_item_is_a_public_snapshot
 		{
 			Establish context = () =>
-				item.AsPublicSnapshot("key", "memento");
+				first.AsPublicSnapshot("key", "memento");
 
-			It should_NOT_pass_the_item_to_the_record = () =>
-				recorder.Received(0).Record(item);
+			It should_not_do_any_recording_operations = () =>
+			{
+				recorder.Received(0).StartRecording(Arg.Any<long>(), Arg.Any<int>(), Arg.Any<int>());
+				recorder.Received(0).Record(Arg.Any<SnapshotItem>());
+				recorder.Received(0).FinishRecording();
+			};
+		}
+
+		public class and_the_item_is_part_of_a_system_snapshot
+		{
+			public class and_the_item_is_the_first_item_in_the_snapshot
+			{
+				Because of = () =>
+					handler.OnNext(first, 0, false);
+
+				It should_start_recording_a_new_snapshot = () =>
+					recorder.Received(1).StartRecording(first.CurrentSequence, LatestIteration, 3);
+
+				It should_record_the_item = () =>
+					recorder.Received(1).Record(first);
+			}
+
+			public class and_the_item_is_in_the_middle_of_the_snapshot
+			{
+				Establish context = () =>
+					handler.OnNext(first, 0, false);
+				
+				Because of = () =>
+					handler.OnNext(middle, 0, false);
+
+				It should_not_start_a_new_snapshot = () =>
+					recorder.Received(1).StartRecording(Arg.Any<long>(), Arg.Any<int>(), Arg.Any<int>());
+
+				It should_record_the_item = () =>
+					recorder.Received(1).Record(middle);
+			}
+
+			public class and_the_item_is_the_last_item_in_the_snapshot
+			{
+				Establish context = () =>
+				{
+					handler.OnNext(first, 0, false);
+					handler.OnNext(middle, 0, false);
+				};
+
+				Because of = () =>
+					handler.OnNext(last, 0, false);
+
+				It should_not_start_a_new_snapshot = () =>
+					recorder.Received(1).StartRecording(Arg.Any<long>(), Arg.Any<int>(), Arg.Any<int>());
+					
+				It should_record_the_item = () =>
+					recorder.Received(1).Record(last);
+
+				It should_finish_the_snapshot = () =>
+					recorder.Received(1).FinishRecording();
+			}
+
+			public class and_the_item_is_for_a_subsequent_snapshot
+			{
+				Establish context = () =>
+				{
+					firstOfNextSnapshot = new SnapshotItem();
+					firstOfNextSnapshot.AsPartOfSystemSnapshot(42, 2, "newKey", "newMemento");
+					firstOfNextSnapshot.Serialize(new JsonSerializer());
+
+					handler.OnNext(first, 0, false);
+					handler.OnNext(middle, 0, false);
+					handler.OnNext(last, 0, false);
+				};
+
+				Because of = () =>
+					handler.OnNext(firstOfNextSnapshot, 0, false);
+
+				It should_start_a_new_snapshot = () =>
+					recorder.Received(1).StartRecording(firstOfNextSnapshot.CurrentSequence, LatestIteration + 1, 3);
+
+				It should_record_the_item = () =>
+					recorder.Received(1).Record(firstOfNextSnapshot);
+
+				static SnapshotItem firstOfNextSnapshot;
+			}
 		}
 
 		Establish context = () =>
 		{
 			recorder = Substitute.For<ISnapshotRecorder>();
-			handler = new SystemSnapshotHandler(recorder);
-			item = new SnapshotItem();
+			handler = new SystemSnapshotHandler(recorder, LatestIteration);
+			
+			first = new SnapshotItem();
+			middle = new SnapshotItem();
+			last = new SnapshotItem();
+
+			first.AsPartOfSystemSnapshot(0, 2, "key", "first");
+			middle.AsPartOfSystemSnapshot(0, 1, "key", "middle");
+			last.AsPartOfSystemSnapshot(0, 0, "key", "last");
+
+			var serializer = new JsonSerializer();
+			first.Serialize(serializer);
+			middle.Serialize(serializer);
+			last.Serialize(serializer);
 		};
 
-		Because of = () =>
-			handler.OnNext(item, 0, false);
-
+		const int LatestIteration = 42;
 		static SystemSnapshotHandler handler;
 		static ISnapshotRecorder recorder;
-		static SnapshotItem item;
+		static SnapshotItem first;
+		static SnapshotItem middle;
+		static SnapshotItem last;
 	}
 }
 
