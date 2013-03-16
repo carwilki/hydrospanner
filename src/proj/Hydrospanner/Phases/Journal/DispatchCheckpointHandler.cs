@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Journal
 {
+	using System;
 	using Disruptor;
 	using Hydrospanner.Persistence;
 
@@ -8,16 +9,15 @@
 		// as soon as the dispatched messages are published and committed on the broker
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{
-			if (data.MessageSequence > this.saved)
-			{
-				this.save = true;
-				this.saved = data.MessageSequence;
-			}
+			this.current = Math.Max(data.MessageSequence, this.current);
 
-			if (endOfBatch && this.save)
-				this.storage.Save(this.saved);
+			if (!endOfBatch)
+				return;
 
-			this.save = false;
+			if (this.current > this.previous)
+				this.storage.Save(this.current);
+
+			this.previous = this.current;
 		}
 
 		public DispatchCheckpointHandler(IDispatchCheckpointStorage storage)
@@ -26,7 +26,7 @@
 		}
 
 		private readonly IDispatchCheckpointStorage storage;
-		private long saved;
-		private bool save;
+		private long previous;
+		private long current;
 	}
 }

@@ -64,8 +64,11 @@ namespace Hydrospanner.Phases.Journal
 				handler.OnNext(Build(42), 2, true);
 			};
 
+			// this could happen when we indicate that some messages should not be journaled or dispatched, e.g.
+			// a given command arrives from the wire and we only want to invoke the behavior once, but thereafter
+			// we don't want to see it
 			Because of = () =>
-				handler.OnNext(Build(41), 3, true); // this should be an impossible condition, but just in case
+				handler.OnNext(Build(0), 3, true);
 
 			It should_checkpoint_the_highest_possible_sequence_exactly_once = () =>
 				storage.Received(1).Save(42);
