@@ -42,7 +42,7 @@
 		void FingerprintSnapshot(int iteration = 0, long sequence = 0)
 		{
 			var hash = this.GenerateFingerprint();
-			var destination = Path.Combine(location, "{0}-{1}-{2}".FormatWith(iteration, sequence, hash));
+			var destination = Path.Combine(this.location, "{0}-{1}-{2}".FormatWith(iteration, sequence, hash));
 			this.file.Move(this.pathToCurrentSnapshot, destination);
 		}
 

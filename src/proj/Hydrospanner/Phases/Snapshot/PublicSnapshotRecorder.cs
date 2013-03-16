@@ -42,7 +42,7 @@
 				{
 					TimeSpan.FromSeconds(5).Sleep();
 				}
-				// TODO: catch (Exception e) { /* Log the exception... */ }
+				//// TODO: catch (Exception e) { /* Log the exception... */ }
 			}
 		}
 
@@ -74,7 +74,7 @@
 		{
 			IList<string> items;
 			if (this.saved.Count > 0)
-				items = saved.ToList();
+				items = this.saved.ToList();
 			else
 				items = this.catalog.Keys.Take(ItemLimit).ToList();
 			
