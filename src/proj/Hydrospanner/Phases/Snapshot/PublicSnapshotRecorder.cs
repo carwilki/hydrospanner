@@ -42,8 +42,7 @@
 				{
 					TimeSpan.FromSeconds(5).Sleep();
 				}
-				//// TODO: catch (Exception e) { /* Log the exception... */ }
-			}
+				//// TODO: catch (Exception e) { /* Log the exception... */ }			}
 		}
 
 		private void SaveSnapshotItems()

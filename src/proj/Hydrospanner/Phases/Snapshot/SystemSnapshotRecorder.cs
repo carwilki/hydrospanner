@@ -16,6 +16,7 @@
 					this.CloseSnapshot();
 
 				this.pathToCurrentSnapshot = Path.Combine(this.location, "current_snapshot");
+
 				// TODO: delete current_snapshot (and test)
 				this.currentSnapshot = new BinaryWriter(new BufferedStream(this.file.Create(this.pathToCurrentSnapshot)));
 				this.currentSnapshot.Write(expectedItems);
