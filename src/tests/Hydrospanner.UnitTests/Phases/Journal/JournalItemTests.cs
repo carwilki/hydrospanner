@@ -14,10 +14,11 @@ namespace Hydrospanner.Phases.Journal
 			item = new JournalItem();
 
 		Because of = () =>
-			item.AsForeignMessage(serializedBody, Body, headers, ForeignId, Acknowledgment);
+			item.AsForeignMessage(42, serializedBody, Body, headers, ForeignId, Acknowledgment);
 
 		It should_set_the_following_properties_according_to_the_input_arguments = () =>
 		{
+			item.MessageSequence.ShouldEqual(42);
 			item.ItemActions.ShouldEqual(JournalItemAction.Acknowledge | JournalItemAction.Journal);
 			item.Acknowledgment.ShouldEqual(Acknowledgment);
 			item.SerializedBody.ShouldEqual(serializedBody);
@@ -28,7 +29,6 @@ namespace Hydrospanner.Phases.Journal
 
 		It should_set_the_following_properties_to_their_default_values = () =>
 		{
-			item.MessageSequence.ShouldEqual(0);
 			item.SerializedHeaders.ShouldBeNull();
 			item.SerializedType.ShouldBeNull();
 		};

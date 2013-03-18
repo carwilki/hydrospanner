@@ -18,9 +18,10 @@
 		public Guid ForeignId { get; set; }
 		public Action Acknowledgment { get; set; }
 
-		public void AsForeignMessage(byte[] serializedBody, object body, Dictionary<string, string> headers, Guid foreignId, Action acknowledgment)
+		public void AsForeignMessage(long sequence, byte[] serializedBody, object body, Dictionary<string, string> headers, Guid foreignId, Action acknowledgment)
 		{
 			this.Clear();
+			this.MessageSequence = sequence;
 			this.ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal;
 			this.SerializedBody = serializedBody;
 			this.Body = body;

@@ -25,7 +25,7 @@ namespace Hydrospanner.Phases.Journal
 		public class when_the_body_has_already_been_serialized
 		{
 			Establish context = () =>
-				item.AsForeignMessage(SerializedValue, DifferentValue, null, Guid.Empty, null);
+				item.AsForeignMessage(42, SerializedValue, DifferentValue, null, Guid.Empty, null);
 
 			It should_not_alter_the_body = () =>
 				item.SerializedBody.SequenceEqual(SerializedValue).ShouldBeTrue();
