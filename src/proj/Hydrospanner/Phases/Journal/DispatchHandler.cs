@@ -18,7 +18,7 @@
 				if (this.Dispatch())
 					break;
 
-			this.buffer.Clear(); // get this under test!
+			this.buffer.Clear();
 		}
 		public bool Dispatch()
 		{

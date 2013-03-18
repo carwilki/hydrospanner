@@ -62,7 +62,6 @@
     <Compile Include="Phases\Journal\AcknowledgmentHandler.cs" />
     <Compile Include="Phases\Journal\DispatchCheckpointHandler.cs" />
     <Compile Include="Phases\Journal\DispatchHandler.cs" />
-    <Compile Include="Phases\Journal\ForwardLocalHandler.cs" />
     <Compile Include="Phases\Journal\JournalHandler.cs" />
     <Compile Include="Phases\Journal\SerializationHandler.cs" />
     <Compile Include="Phases\Snapshot\ISnapshotRecorder.cs" />
