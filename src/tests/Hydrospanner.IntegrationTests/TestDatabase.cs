@@ -3,6 +3,7 @@
 
 namespace Hydrospanner.IntegrationTests
 {
+	using System;
 	using System.Configuration;
 	using System.Data;
 	using Machine.Specifications;
@@ -11,6 +12,8 @@ namespace Hydrospanner.IntegrationTests
 	{
 		Establish context = () =>
 		{
+			ThreadExtensions.Freeze(x => napTime = x);
+
 			settings = ConfigurationManager.ConnectionStrings["DB"];
 			connection = ConfigurationManager.ConnectionStrings["DB-startup"].OpenConnection();
 			using (var command = connection.CreateCommand())
@@ -33,6 +36,7 @@ namespace Hydrospanner.IntegrationTests
 			settings = null;
 		};
 
+		protected static TimeSpan napTime;
 		protected static IDbConnection connection;
 		protected static ConnectionStringSettings settings;
 		const string Initiailize = @"
@@ -40,7 +44,7 @@ namespace Hydrospanner.IntegrationTests
 			CREATE TABLE IF NOT EXISTS `hydrospanner-test`.`documents` (
 				`identifier` VARCHAR(256) NOT NULL ,
 				`message_sequence` BIGINT NOT NULL ,
-				`document_hash` INT NOT NULL ,
+				`document_hash` INT UNSIGNED NOT NULL ,
 				`document` MEDIUMBLOB NULL ,
 				PRIMARY KEY (`identifier`) ,
 				UNIQUE INDEX `identifier_UNIQUE` (`identifier` ASC) 
