@@ -14,28 +14,28 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			Because of = () =>
 			{
-				handler.OnNext(publicSnapshot, 0, false);
-				handler.OnNext(publicSnapshot, 0, false);
-				handler.OnNext(publicSnapshot, 0, false);
+				handler.OnNext(publicSnapshot1, 0, false);
+				handler.OnNext(publicSnapshot2, 0, false);
+				handler.OnNext(publicSnapshot3, 0, false);
 			};
 
 			It should_not_record_any_public_snapshots = () =>
-				recorder.Received(0).Record(publicSnapshot);
+				recorder.Received(0).Record(publicSnapshot1);
 		}
 
 		public class at_end_of_batch
 		{
 			Because of = () =>
 			{
-				handler.OnNext(publicSnapshot, 0, false);
-				handler.OnNext(systemSnapshot, 1, true);
+				handler.OnNext(publicSnapshot1, 0, false);
+				handler.OnNext(systemSnapshot, 1, EndOfBatch);
 			};
 
 			It should_record_the_snapshot = () =>
 				Received.InOrder(() =>
 				{
-					recorder.StartRecording(publicSnapshot.MementosRemaining + 1);
-					recorder.Record(publicSnapshot);
+					recorder.StartRecording(publicSnapshot1.MementosRemaining + 1);
+					recorder.Record(publicSnapshot1);
 					recorder.FinishRecording();
 				});
 
@@ -43,7 +43,7 @@ namespace Hydrospanner.Phases.Snapshot
 				recorder.Received(0).Record(systemSnapshot);
 		}
 
-		public class at_the_end_of_batch_with_not_public_snapshot_items_having_arrived
+		public class at_the_end_of_batch_with_no_public_snapshot_items_having_arrived
 		{
 			Establish context = () =>
 			{
@@ -54,7 +54,7 @@ namespace Hydrospanner.Phases.Snapshot
 			};
 
 			Because of = () =>
-				handler.OnNext(systemSnapshot, 1, true);
+				handler.OnNext(systemSnapshot, 1, EndOfBatch);
 
 			It should_not_attempt_any_record_actions = () =>
 			{
@@ -64,39 +64,64 @@ namespace Hydrospanner.Phases.Snapshot
 			};
 		}
 
-		public class at_end_of_subsequent_batch
+		public class when_public_snapshots_for_the_same_key_arrive
+		{
+			Because of = () =>
+			{
+				handler.OnNext(publicSnapshot1, 0, false);
+				handler.OnNext(publicSnapshot2, 0, EndOfBatch);
+			};
+
+			It should_discard_the_older_snapshot = () =>
+				recorder.Received(0).Record(publicSnapshot1);
+
+			It should_use_the_most_recent_for_the_snapshot_recording = () =>
+				recorder.Received(1).Record(publicSnapshot2);
+		}
+
+		public class at_end_of_a_subsequent_batch
 		{
 			Establish context = () =>
 			{
-				handler.OnNext(publicSnapshot, 0, false);
-				handler.OnNext(publicSnapshot, 0, true);
+				handler.OnNext(publicSnapshot2, 0, false);
+				handler.OnNext(publicSnapshot3, 0, EndOfBatch);
 			};
 
 			Because of = () =>
 			{
-				handler.OnNext(publicSnapshot, 0, false);
-				handler.OnNext(publicSnapshot, 0, false);
-				handler.OnNext(publicSnapshot, 0, true);
+				handler.OnNext(publicSnapshot2, 0, false);
+				handler.OnNext(publicSnapshot3, 0, EndOfBatch);
 			};
 
 			It should_have_cleared_the_buffer_to_allow_recording_of_the_next_batch = () =>
-				recorder.Received(EachItemOnlyOnce).Record(publicSnapshot);
+			{
+				recorder.Received(EachItemTwice).Record(publicSnapshot2);
+				recorder.Received(EachItemTwice).Record(publicSnapshot3);
+			};
 			
-			const int EachItemOnlyOnce = 5;
+			const int EachItemTwice = 2;
 		}
 
 		Establish context = () =>
 		{
-			publicSnapshot = new SnapshotItem();
+			publicSnapshot1 = new SnapshotItem();
+			publicSnapshot2 = new SnapshotItem();
+			publicSnapshot3 = new SnapshotItem();
 			systemSnapshot = new SnapshotItem();
-			publicSnapshot.AsPublicSnapshot("public_key", "public_memento");
+			publicSnapshot1.AsPublicSnapshot("shared_public_key", "public_memento");
+			publicSnapshot2.AsPublicSnapshot("shared_public_key", "public_memento");
+			publicSnapshot3.AsPublicSnapshot("non_shared_public_key", "public_memento");
 			systemSnapshot.AsPartOfSystemSnapshot(42, 42, "system_key", "system_memento");
 			recorder = Substitute.For<ISnapshotRecorder>();
 			handler = new PublicSnapshotHandler(recorder);
 		};
-				static PublicSnapshotHandler handler;
+
+		const bool EndOfBatch = true;
+		static PublicSnapshotHandler handler;
 		static ISnapshotRecorder recorder;
-		static SnapshotItem publicSnapshot;
+		static SnapshotItem publicSnapshot1;
+		static SnapshotItem publicSnapshot2;
+		static SnapshotItem publicSnapshot3;
 		static SnapshotItem systemSnapshot;
 	}
 }

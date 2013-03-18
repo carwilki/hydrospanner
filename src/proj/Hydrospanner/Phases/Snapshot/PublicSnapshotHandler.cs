@@ -8,7 +8,7 @@
 		public void OnNext(SnapshotItem data, long sequence, bool endOfBatch)
 		{
 			if (data.IsPublicSnapshot)
-				this.buffer.Enqueue(data); // TODO: replace older item with same key with new item
+				this.buffer[data.Key] = data;
 
 			if (endOfBatch && this.buffer.Count > 0)
 				this.RecordPublicSnapshots();
@@ -18,10 +18,12 @@
 		{
 			this.recorder.StartRecording(this.buffer.Count);
 
-			while (this.buffer.Count > 0)
-				this.recorder.Record(this.buffer.Dequeue());
+			foreach (var item in this.buffer)
+				this.recorder.Record(item.Value);
 
 			this.recorder.FinishRecording();
+
+			this.buffer.Clear();
 		}
 
 		public PublicSnapshotHandler(ISnapshotRecorder recorder)
@@ -30,6 +32,6 @@
 		}
 
 		readonly ISnapshotRecorder recorder;
-		readonly Queue<SnapshotItem> buffer = new Queue<SnapshotItem>();
+		readonly Dictionary<string, SnapshotItem> buffer = new Dictionary<string, SnapshotItem>();
 	}
 }
