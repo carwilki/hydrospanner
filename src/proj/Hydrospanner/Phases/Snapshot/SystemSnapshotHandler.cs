@@ -29,18 +29,18 @@
 
 		private void FinishRecording(SnapshotItem data)
 		{
-			this.recorder.FinishRecording(this.latestIteration++, data.CurrentSequence);
+			this.recorder.FinishRecording(this.currentIteration, data.CurrentSequence);
 			this.recording = false;
 		}
 
-		public SystemSnapshotHandler(ISnapshotRecorder recorder, int latestIteration)
+		public SystemSnapshotHandler(ISnapshotRecorder recorder, int currentIteration)
 		{
 			this.recorder = recorder;
-			this.latestIteration = latestIteration;
+			this.currentIteration = currentIteration;
 		}
 
 		private readonly ISnapshotRecorder recorder;
-		private int latestIteration;
+		private readonly int currentIteration;
 		private bool recording;
 	}
 }
