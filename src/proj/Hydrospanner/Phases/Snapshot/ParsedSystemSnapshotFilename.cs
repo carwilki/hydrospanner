@@ -2,14 +2,14 @@
 {
 	using System.IO;
 
-	internal class ParsedSnapshotFilename
+	internal class ParsedSystemSnapshotFilename
 	{
 		public string FullPath { get; set; }
 		public int Iteration { get; set; }
 		public long Sequence { get; set; }
 		public string Hash { get; set; }
 
-		public static ParsedSnapshotFilename Parse(string path)
+		public static ParsedSystemSnapshotFilename Parse(string path)
 		{
 			var filename = Path.GetFileNameWithoutExtension(path) ?? string.Empty;
 			var values = filename.Split(FieldDelimiter.ToCharArray());
@@ -24,7 +24,7 @@
 			if (!long.TryParse(values[SequenceField], out sequence))
 				return null;
 
-			return new ParsedSnapshotFilename
+			return new ParsedSystemSnapshotFilename
 			{
 				FullPath = path,
 				Iteration = iteration,

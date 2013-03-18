@@ -64,13 +64,12 @@
     <Compile Include="Phases\Journal\JournalHandler.cs" />
     <Compile Include="Phases\Journal\SerializationHandler.cs" />
     <Compile Include="Phases\Snapshot\ISnapshotRecorder.cs" />
-    <Compile Include="Phases\Snapshot\ParsedSnapshotFilename.cs" />
+    <Compile Include="Phases\Snapshot\ParsedSystemSnapshotFilename.cs" />
     <Compile Include="Phases\Snapshot\PublicSnapshotHandler.cs" />
     <Compile Include="Phases\Snapshot\PublicSnapshotRecorder.cs" />
     <Compile Include="Phases\Snapshot\SerializationHandler.cs" />
-    <Compile Include="Phases\Snapshot\SnapshotStreamReader.cs" />
-    <Compile Include="Phases\Snapshot\SnapshotLoader.cs" />
-    <Compile Include="Phases\Snapshot\SnapshotStreamWriter.cs" />
+    <Compile Include="Phases\Snapshot\SystemSnapshotStreamReader.cs" />
+    <Compile Include="Phases\Snapshot\SystemSnapshotLoader.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotRecorder.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotHandler.cs" />
     <Compile Include="Phases\Transformation\DeserializationHandler.cs" />

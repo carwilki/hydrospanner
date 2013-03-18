@@ -6,7 +6,6 @@ namespace Hydrospanner.Phases.Snapshot
 	using System;
 	using System.IO;
 	using System.IO.Abstractions;
-	using System.IO.Compression;
 	using System.Linq;
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
@@ -14,7 +13,7 @@ namespace Hydrospanner.Phases.Snapshot
 	using Machine.Specifications;
 	using NSubstitute;
 
-	[Subject(typeof(SnapshotLoader))]
+	[Subject(typeof(SystemSnapshotLoader))]
 	public class when_loading_snapshots
 	{
 		public class and_there_are_no_completed_snapshots_to_load
@@ -132,7 +131,7 @@ namespace Hydrospanner.Phases.Snapshot
 			{
 				file = Substitute.For<FileBase>();
 				directory = Substitute.For<DirectoryBase>();
-				loader = new SnapshotLoader(directory, file, Path);
+				loader = new SystemSnapshotLoader(directory, file, Path);
 			};
 
 			const int StoredMessageSequence = 42;
@@ -142,7 +141,7 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			file = Substitute.For<FileBase>();
 			directory = Substitute.For<DirectoryBase>();
-			loader = new SnapshotLoader(directory, file, Path);
+			loader = new SystemSnapshotLoader(directory, file, Path);
 
 			var oneRecord = BitConverter.GetBytes(1);
 			var firstRecordType = Encoding.UTF8.GetBytes(FirstRecord.GetType().AssemblyQualifiedName ?? string.Empty);
@@ -162,8 +161,8 @@ namespace Hydrospanner.Phases.Snapshot
 		const string LaterIteration = "2";
 		const int MessageSequence = 42;
 		static readonly byte[] FirstRecord = BitConverter.GetBytes(42);
-		static SnapshotLoader loader;
-		static SnapshotStreamReader reader;
+		static SystemSnapshotLoader loader;
+		static SystemSnapshotStreamReader reader;
 		static DirectoryBase directory;
 		static FileBase file;
 		static byte[] contents;

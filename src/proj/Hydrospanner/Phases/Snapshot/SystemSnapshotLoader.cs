@@ -4,14 +4,14 @@
 	using System.IO.Abstractions;
 	using System.Linq;
 
-	internal class SnapshotLoader
+	internal class SystemSnapshotLoader
 	{
-		public SnapshotStreamReader Load(long maxSequence)
+		public SystemSnapshotStreamReader Load(long maxSequence)
 		{
 			var files = this.directory.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly);
 			
 			var snapshots = files
-				.Select(ParsedSnapshotFilename.Parse)
+				.Select(ParsedSystemSnapshotFilename.Parse)
 				.Where(x => x != null && x.Sequence <= maxSequence);
 
 			var mostRecentViableSnapshot = snapshots
@@ -19,17 +19,17 @@
 				.Select(this.OpenOrDefault)
 				.FirstOrDefault(x => x != null && x.Count > 0);
 
-			return mostRecentViableSnapshot ?? new SnapshotStreamReader();
+			return mostRecentViableSnapshot ?? new SystemSnapshotStreamReader();
 		}
 
-		private SnapshotStreamReader OpenOrDefault(ParsedSnapshotFilename snapshot)
+		private SystemSnapshotStreamReader OpenOrDefault(ParsedSystemSnapshotFilename snapshot)
 		{
 			var fileStream = new BufferedStream(this.file.OpenRead(snapshot.FullPath), BufferSize);
 
-			return SnapshotStreamReader.Open(snapshot.Sequence, snapshot.Iteration, snapshot.Hash, fileStream);
+			return SystemSnapshotStreamReader.Open(snapshot.Sequence, snapshot.Iteration, snapshot.Hash, fileStream);
 		}
 
-		public SnapshotLoader(DirectoryBase directory, FileBase file, string path)
+		public SystemSnapshotLoader(DirectoryBase directory, FileBase file, string path)
 		{
 			this.directory = directory;
 			this.file = file;

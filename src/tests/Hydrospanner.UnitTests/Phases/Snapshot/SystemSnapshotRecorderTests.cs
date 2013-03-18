@@ -84,7 +84,7 @@ namespace Hydrospanner.Phases.Snapshot
 			It should_include_each_item_in_the_list = () =>
 			{
 				hash = new SoapHexBinary(new SHA1Managed().ComputeHash(firstSnapshot.Contents)).ToString();
-				reader = SnapshotStreamReader.Open(Sequence, 1, hash, new MemoryStream(firstSnapshot.Contents));
+				reader = SystemSnapshotStreamReader.Open(Sequence, 1, hash, new MemoryStream(firstSnapshot.Contents));
 				var records = reader.Read().ToList();
 				
 				records.Count().ShouldEqual(3);
@@ -104,7 +104,7 @@ namespace Hydrospanner.Phases.Snapshot
 				recorder.FinishRecording(LatestIteration, Sequence);
 
 				hash = new SoapHexBinary(new SHA1Managed().ComputeHash(firstSnapshot.Contents)).ToString();
-				reader = SnapshotStreamReader.Open(Sequence, 1, hash, new MemoryStream(firstSnapshot.Contents));
+				reader = SystemSnapshotStreamReader.Open(Sequence, 1, hash, new MemoryStream(firstSnapshot.Contents));
 			};
 
 			It should_finalize_the_snapshot = () =>
@@ -150,7 +150,7 @@ namespace Hydrospanner.Phases.Snapshot
 		static SnapshotItem middle;
 		static SnapshotItem last;
 		static JsonSerializer serializer;
-		static SnapshotStreamReader reader;
+		static SystemSnapshotStreamReader reader;
 	}
 }
 

@@ -8,7 +8,7 @@
 		public void OnNext(SnapshotItem data, long sequence, bool endOfBatch)
 		{
 			if (data.IsPublicSnapshot)
-				this.buffer.Enqueue(data);
+				this.buffer.Enqueue(data); // TODO: replace older item with same key with new item
 
 			if (endOfBatch && this.buffer.Count > 0)
 				this.RecordPublicSnapshots();

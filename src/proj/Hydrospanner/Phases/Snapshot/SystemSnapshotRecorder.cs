@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Snapshot
 {
+	using System;
 	using System.IO;
 	using System.IO.Abstractions;
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
@@ -9,34 +10,44 @@
 	{
 		public void StartRecording(int expectedItems)
 		{
-			if (this.currentSnapshot != null)
-				this.CloseSnapshot();
+			this.Attempt(() =>
+			{
+				if (this.currentSnapshot != null)
+					this.CloseSnapshot();
 
-			this.pathToCurrentSnapshot = Path.Combine(this.location, "current_snapshot");
-			this.currentSnapshot = new BinaryWriter(new BufferedStream(this.file.Create(this.pathToCurrentSnapshot)));
-			this.currentSnapshot.Write(expectedItems);
+				this.pathToCurrentSnapshot = Path.Combine(this.location, "current_snapshot");
+				// TODO: delete current_snapshot (and test)
+				this.currentSnapshot = new BinaryWriter(new BufferedStream(this.file.Create(this.pathToCurrentSnapshot)));
+				this.currentSnapshot.Write(expectedItems);
+			});
 		}
 
 		public void Record(SnapshotItem item)
 		{
-			if (this.currentSnapshot == null)
-				return;
+			this.Attempt(() =>
+			{
+				if (this.currentSnapshot == null)
+					return;
 
-			var typeName = item.Memento.GetType().AssemblyQualifiedName ?? string.Empty;
-			this.currentSnapshot.Write(typeName.Length);
-			this.currentSnapshot.Write(typeName.ToByteArray());
+				var typeName = item.Memento.GetType().AssemblyQualifiedName ?? string.Empty;
+				this.currentSnapshot.Write(typeName.Length);
+				this.currentSnapshot.Write(typeName.ToByteArray());
 
-			this.currentSnapshot.Write(item.Serialized.Length);
-			this.currentSnapshot.Write(item.Serialized);
+				this.currentSnapshot.Write(item.Serialized.Length);
+				this.currentSnapshot.Write(item.Serialized);
+			});
 		}
 
 		public void FinishRecording(int iteration = 0, long sequence = 0)
 		{
-			if (this.currentSnapshot == null)
-				return;
+			this.Attempt(() =>
+			{
+				if (this.currentSnapshot == null)
+					return;
 
-			this.CloseSnapshot();
-			this.FingerprintSnapshot(iteration, sequence);
+				this.CloseSnapshot();
+				this.FingerprintSnapshot(iteration, sequence);
+			});
 		}
 
 		void FingerprintSnapshot(int iteration = 0, long sequence = 0)
@@ -50,7 +61,6 @@
 		{
 			this.currentSnapshot.Flush();
 			this.currentSnapshot.Dispose();
-			this.currentSnapshot = null;
 		}
 
 		private string GenerateFingerprint()
@@ -58,6 +68,25 @@
 			using (var hasher = new SHA1Managed())
 			using (var fileStream = this.file.OpenRead(this.pathToCurrentSnapshot))
 				return new SoapHexBinary(hasher.ComputeHash(fileStream)).ToString();
+		}
+
+		private void Attempt(Action callback)
+		{
+			// TODO: tests for all error conditions!
+			try
+			{
+				callback();
+			}
+// ReSharper disable EmptyGeneralCatchClause
+			catch (Exception)
+// ReSharper restore EmptyGeneralCatchClause
+			{
+				// TODO: log exception
+			}
+			finally
+			{
+				this.currentSnapshot = null;
+			}
 		}
 
 		public SystemSnapshotRecorder(FileBase file, string location)

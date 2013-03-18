@@ -6,7 +6,7 @@
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
 
-	internal class SnapshotStreamReader : IDisposable
+	internal class SystemSnapshotStreamReader : IDisposable
 	{
 		public int Count { get; private set; }
 		public long MessageSequence { get; private set; }
@@ -40,13 +40,13 @@
 			return itemBuffer;
 		}
 
-		public static SnapshotStreamReader Open(long sequence, int snapshotIteration, string hash, Stream stream)
+		public static SystemSnapshotStreamReader Open(long sequence, int snapshotIteration, string hash, Stream stream)
 		{
 			hash = hash.Trim().ToUpperInvariant();
 			var computed = ComputeHash(stream).ToUpperInvariant();
 			stream.Position = 0;
 			if (hash == computed)
-				return new SnapshotStreamReader(sequence, snapshotIteration, stream);
+				return new SystemSnapshotStreamReader(sequence, snapshotIteration, stream);
 
 			return null;
 		}
@@ -59,7 +59,7 @@
 			}
 		}
 
-		private SnapshotStreamReader(long sequence, int snapshotIteration, Stream stream)
+		private SystemSnapshotStreamReader(long sequence, int snapshotIteration, Stream stream)
 		{
 			this.MessageSequence = sequence;
 			this.Iteration = snapshotIteration;
@@ -69,7 +69,7 @@
 			stream.Read(countBuffer, 0, sizeof(int));
 			this.Count = countBuffer.SliceInt32(0);
 		}
-		public SnapshotStreamReader()
+		public SystemSnapshotStreamReader()
 		{
 		}
 

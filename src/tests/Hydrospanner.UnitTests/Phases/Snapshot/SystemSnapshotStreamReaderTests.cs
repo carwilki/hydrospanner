@@ -12,13 +12,13 @@ namespace Hydrospanner.Phases.Snapshot
 	using System.Text;
 	using Machine.Specifications;
 
-	[Subject(typeof(SnapshotStreamReader))]
+	[Subject(typeof(SystemSnapshotStreamReader))]
 	public class when_opening_a_snapshot
 	{
 		public class and_the_hash_does_not_match_the_contents_of_the_snapshot
 		{
 			Because of = () =>
-				reader = SnapshotStreamReader.Open(0, 1, " \t bogus hash \n ", stream);
+				reader = SystemSnapshotStreamReader.Open(0, 1, " \t bogus hash \n ", stream);
 
 			It should_reset_the_stream_position_to_zero = () =>
 				stream.Position.ShouldEqual(0);
@@ -30,7 +30,7 @@ namespace Hydrospanner.Phases.Snapshot
 		public class and_the_hash_matches
 		{
 			Because of = () =>
-				reader = SnapshotStreamReader.Open(MessageSequence, 1, correctHash, stream);
+				reader = SystemSnapshotStreamReader.Open(MessageSequence, 1, correctHash, stream);
 
 			It should_read_the_first_four_bytes_to_determine_the_number_of_items_in_the_snapshot = () =>
 			{
@@ -55,10 +55,10 @@ namespace Hydrospanner.Phases.Snapshot
 		static readonly byte[] Contents = BitConverter.GetBytes(NumberOfRecords);
 		static string correctHash;
 		static MemoryStream stream;
-		static SnapshotStreamReader reader;
+		static SystemSnapshotStreamReader reader;
 	}
 
-	[Subject(typeof(SnapshotStreamReader))]
+	[Subject(typeof(SystemSnapshotStreamReader))]
 	public class when_reading_from_a_snapshot
 	{
 		Establish context = () =>
@@ -79,7 +79,7 @@ namespace Hydrospanner.Phases.Snapshot
 			stream = new MemoryStream(contents.ToArray());
 			var hasher = new SHA1Managed();
 			var hash = new SoapHexBinary(hasher.ComputeHash(contents.ToArray())).ToString();
-			reader = SnapshotStreamReader.Open(42, 1, hash, stream);
+			reader = SystemSnapshotStreamReader.Open(42, 1, hash, stream);
 		};
 
 		Because of = () =>
@@ -100,11 +100,11 @@ namespace Hydrospanner.Phases.Snapshot
 			new KeyValuePair<Type, byte[]>(typeof(string), Encoding.UTF8.GetBytes("Third"))
 		};
 		static MemoryStream stream;
-		static SnapshotStreamReader reader;
+		static SystemSnapshotStreamReader reader;
 		static List<KeyValuePair<Type, byte[]>> recordsReadFromSnapshot;
 	}
 
-	[Subject(typeof(SnapshotStreamReader))]
+	[Subject(typeof(SystemSnapshotStreamReader))]
 	public class when_disposing_a_snapshot
 	{
 		Establish context = () =>
@@ -113,7 +113,7 @@ namespace Hydrospanner.Phases.Snapshot
 			using (var hasher = new SHA1Managed())
 				correctHash = new SoapHexBinary(hasher.ComputeHash(Contents)).ToString();
 
-			reader = SnapshotStreamReader.Open(0, 1, correctHash, stream);
+			reader = SystemSnapshotStreamReader.Open(0, 1, correctHash, stream);
 		};
 
 		Because of = () =>
@@ -125,7 +125,7 @@ namespace Hydrospanner.Phases.Snapshot
 		static readonly byte[] Contents = BitConverter.GetBytes(42);
 		static string correctHash;
 		static MemoryStream stream;
-		static SnapshotStreamReader reader;
+		static SystemSnapshotStreamReader reader;
 	}
 }
 
