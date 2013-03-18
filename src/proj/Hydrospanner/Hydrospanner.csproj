@@ -59,6 +59,8 @@
     <Compile Include="Messaging\Rabbit\RabbitSubscription.cs" />
     <Compile Include="Persistence\IDispatchCheckpointStorage.cs" />
     <Compile Include="Persistence\IMessageStorage.cs" />
+    <Compile Include="Persistence\SqlStorage\DbExtensions.cs" />
+    <Compile Include="Persistence\SqlStorage\SqlMessageStorage.cs" />
     <Compile Include="Phases\Journal\AcknowledgmentHandler.cs" />
     <Compile Include="Phases\Journal\DispatchCheckpointHandler.cs" />
     <Compile Include="Phases\Journal\DispatchHandler.cs" />
