@@ -9,12 +9,10 @@
 	{
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{
-			// TODO: this is spike code to just get an idea of what this might look like
-			// where all the SQL (storage stuff) is pushed into the storage class.
 			if (data.ItemActions.HasFlag(JournalItemAction.Journal))
 				this.buffer.Add(data);
 
-			if (!endOfBatch)
+			if (!endOfBatch || this.buffer.Count == 0)
 				return;
 
 			while (true)

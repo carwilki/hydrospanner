@@ -51,6 +51,7 @@
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Phases\Journal\AcknowledgmentHandlerTests.cs" />
+    <Compile Include="Phases\Journal\JournalHandlerTests.cs" />
     <Compile Include="Phases\Journal\DispatchCheckpointHandlerTests.cs" />
     <Compile Include="Phases\Journal\DispatchHandlerTests.cs" />
     <Compile Include="Phases\Journal\JournalItemTests.cs" />
