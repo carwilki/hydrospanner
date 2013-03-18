@@ -78,7 +78,7 @@
 			}
 			catch (Exception)
 			{
-//				 TODO: log exception
+				// TODO: log exception
 			}
 		}
 
