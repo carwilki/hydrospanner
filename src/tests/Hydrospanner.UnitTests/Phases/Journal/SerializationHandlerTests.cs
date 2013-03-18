@@ -52,6 +52,9 @@ namespace Hydrospanner.Phases.Journal
 
 			It should_NOT_serialize_the_headers = () =>
 				item.SerializedHeaders.SequenceEqual(SerializedValue).ShouldBeTrue();
+
+			It should_deserialize_the_serialized_headers = () =>
+				item.Headers.ShouldNotBeNull();
 		}
 
 		public class when_the_headers_need_to_be_serialized

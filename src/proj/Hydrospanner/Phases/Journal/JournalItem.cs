@@ -70,9 +70,8 @@
 					this.SerializedType = this.Body.GetType().AssemblyQualifiedName;
 			}
 
-			// TODO: add a test for when the bootstrapper loads the item directly from disk and pushes to be dispatched.
-			////if (this.ItemActions.HasFlag(JournalItemAction.Dispatch) && this.Headers == null)
-			////	this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
+			if (this.ItemActions.HasFlag(JournalItemAction.Dispatch) && this.Headers == null)
+				this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
 
 			if (this.SerializedHeaders == null)
 				this.SerializedHeaders = serializer.Serialize(this.Headers);
