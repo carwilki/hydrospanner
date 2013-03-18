@@ -10,14 +10,12 @@
 	{
 		public void StartRecording(int expectedItems)
 		{
-			this.Attempt(() =>
+			Attempt(() =>
 			{
 				if (this.currentSnapshot != null)
 					this.CloseSnapshot();
 
-				this.pathToCurrentSnapshot = Path.Combine(this.location, "current_snapshot");
-
-				// TODO: delete current_snapshot (and test)
+				this.file.Delete(this.pathToCurrentSnapshot);
 				this.currentSnapshot = new BinaryWriter(new BufferedStream(this.file.Create(this.pathToCurrentSnapshot)));
 				this.currentSnapshot.Write(expectedItems);
 			});
@@ -25,7 +23,7 @@
 
 		public void Record(SnapshotItem item)
 		{
-			this.Attempt(() =>
+			Attempt(() =>
 			{
 				if (this.currentSnapshot == null)
 					return;
@@ -41,7 +39,7 @@
 
 		public void FinishRecording(int iteration = 0, long sequence = 0)
 		{
-			this.Attempt(() =>
+			Attempt(() =>
 			{
 				if (this.currentSnapshot == null)
 					return;
@@ -51,17 +49,18 @@
 			});
 		}
 
-		void FingerprintSnapshot(int iteration = 0, long sequence = 0)
+		private void FingerprintSnapshot(int iteration = 0, long sequence = 0)
 		{
 			var hash = this.GenerateFingerprint();
-			var destination = Path.Combine(this.location, "{0}-{1}-{2}".FormatWith(iteration, sequence, hash));
+			var destination = Path.Combine(this.location, SnapshotFilenameTemplate.FormatWith(iteration, sequence, hash));
 			this.file.Move(this.pathToCurrentSnapshot, destination);
 		}
 
-		void CloseSnapshot()
+		private void CloseSnapshot()
 		{
 			this.currentSnapshot.Flush();
 			this.currentSnapshot.Dispose();
+			this.currentSnapshot = null;
 		}
 
 		private string GenerateFingerprint()
@@ -71,22 +70,15 @@
 				return new SoapHexBinary(hasher.ComputeHash(fileStream)).ToString();
 		}
 
-		private void Attempt(Action callback)
+		private static void Attempt(Action callback)
 		{
-			// TODO: tests for all error conditions!
 			try
 			{
 				callback();
 			}
-// ReSharper disable EmptyGeneralCatchClause
 			catch (Exception)
-// ReSharper restore EmptyGeneralCatchClause
 			{
-				// TODO: log exception
-			}
-			finally
-			{
-				this.currentSnapshot = null;
+//				 TODO: log exception
 			}
 		}
 
@@ -94,11 +86,14 @@
 		{
 			this.file = file;
 			this.location = location;
+			this.pathToCurrentSnapshot = Path.Combine(this.location, TemporaryFilename);
 		}
 
+		const string SnapshotFilenameTemplate = "{0}-{1}-{2}";
+		const string TemporaryFilename = "current_snapshot";
 		private readonly FileBase file;
 		private readonly string location;
-		private string pathToCurrentSnapshot;
+		private readonly string pathToCurrentSnapshot;
 		private BinaryWriter currentSnapshot;
 	}
 }

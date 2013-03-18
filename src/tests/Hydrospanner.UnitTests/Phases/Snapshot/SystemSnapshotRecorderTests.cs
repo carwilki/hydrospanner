@@ -38,6 +38,9 @@ namespace Hydrospanner.Phases.Snapshot
 			It should_start_a_new_snapshot = () =>
 				subsequentSnapshot.Contents.SliceInt32(0).ShouldEqual(43);
 
+			It should_delete_any_remnant_on_disk_before_starting_the_new_snapshot = () =>
+				file.Received(2).Delete(Location + "current_snapshot");
+
 			static PhotographicMemoryStream subsequentSnapshot;
 		}
 
@@ -60,6 +63,10 @@ namespace Hydrospanner.Phases.Snapshot
 				recorder.StartRecording(42);
 				recorder.FinishRecording(); // writes buffered contents to the stream
 			};
+
+			It should_delete_any_remnant_on_disk_before_starting_the_new_snapshot = () =>
+				file.Received(1).Delete(Location + "current_snapshot");
+
 
 			It should_open_a_file_for_writing = () =>
 				file.Received(1).Create("/current_snapshot");
@@ -112,6 +119,39 @@ namespace Hydrospanner.Phases.Snapshot
 
 			It should_name_the_snapshot_using_the_iteration_and_sequence_numbers_and_hash = () =>
 				finalPathOfSnapshot.ShouldEqual("{0}{1}-{2}-{3}".FormatWith(Location, LatestIteration, Sequence, hash));
+		}
+
+		public class when_errors_are_raised
+		{
+			public class when_the_recording_is_started
+			{
+				Establish context = () =>
+					file.Create(Arg.Any<string>()).Returns(x => { throw new DivideByZeroException(); });
+
+				It should_not_allow_them_to_propogate_past_this_recorder = () =>
+					Catch.Exception(() => recorder.StartRecording(42)).ShouldBeNull();
+			}
+
+			public class when_recording_an_item
+			{
+				Establish context = () =>
+					recorder.StartRecording(42);
+
+				It should_not_allow_them_to_propogate_past_this_recorder = () =>
+					Catch.Exception(() => recorder.Record(null)).ShouldBeNull();
+			}
+
+			public class when_the_recording_is_finished
+			{
+				Establish context = () =>
+				{
+					file.OpenRead(Arg.Any<string>()).Returns(x => { throw new DivideByZeroException(); });
+					recorder.StartRecording(42);
+				};
+
+				It should_not_allow_them_to_propogate_past_this_recorder = () =>
+					Catch.Exception(() => recorder.FinishRecording()).ShouldBeNull();
+			}
 		}
 
 		Establish context = () =>
