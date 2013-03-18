@@ -67,7 +67,6 @@ namespace Hydrospanner.Phases.Snapshot
 			It should_delete_any_remnant_on_disk_before_starting_the_new_snapshot = () =>
 				file.Received(1).Delete(Location + "current_snapshot");
 
-
 			It should_open_a_file_for_writing = () =>
 				file.Received(1).Create("/current_snapshot");
 

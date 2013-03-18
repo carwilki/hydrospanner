@@ -64,6 +64,11 @@
             <BooleanProperty Name="Enabled">False</BooleanProperty>
           </RuleSettings>
         </Rule>
+		<Rule Name="SingleLineCommentsMustBeginWithSingleSpace">
+		  <RuleSettings>
+		    <BooleanProperty Name="Enabled">False</BooleanProperty>
+		  </RuleSettings>
+		</Rule>
       </Rules>
       <AnalyzerSettings />
     </Analyzer>
@@ -190,6 +195,11 @@
           </RuleSettings>
         </Rule>
         <Rule Name="SingleLineCommentsMustNotBeFollowedByBlankLine">
+          <RuleSettings>
+            <BooleanProperty Name="Enabled">False</BooleanProperty>
+          </RuleSettings>
+        </Rule>
+		<Rule Name="SingleLineCommentsMustBePrecededByBlankLine">
           <RuleSettings>
             <BooleanProperty Name="Enabled">False</BooleanProperty>
           </RuleSettings>
