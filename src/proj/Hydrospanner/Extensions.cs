@@ -58,21 +58,6 @@
 		{
 			return BitConverter.GetBytes(value);
 		}
-
-		public static int ComputeTinyHash(this byte[] collection)
-		{
-			// Reference: http://stackoverflow.com/a/425184/605022
-
-			unchecked
-			{
-				var result = 0;
-
-				for (var index = 0; index < collection.Length; index++)
-					result = (result * 31) ^ collection[index];
-
-				return result;
-			}
-		}
 	}
 
 	internal static class DisposableExtensions

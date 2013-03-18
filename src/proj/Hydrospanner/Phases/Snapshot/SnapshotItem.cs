@@ -12,10 +12,11 @@
 		public object Memento { get; set; }
 		public byte[] Serialized { get; set; }
 
-		public void AsPublicSnapshot(string key, object memento)
+		public void AsPublicSnapshot(string key, object memento, long sequence)
 		{
 			this.Clear();
 			this.IsPublicSnapshot = true;
+			this.CurrentSequence = sequence;
 			this.Key = key;
 			this.Memento = memento;
 		}

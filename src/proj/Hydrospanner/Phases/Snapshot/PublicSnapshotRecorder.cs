@@ -31,6 +31,7 @@
 				try
 				{
 					this.SaveSnapshotItems();
+					break;
 				}
 				catch (DbException)
 				{
@@ -47,11 +48,11 @@
 			using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
 			{
 				using (var command = connection.CreateCommand())
-					while (this.catalog.Count > 0)
+					//while (this.catalog.Count > 0)
 						this.ComposeCommand(command).ExecuteNonQuery();
 
-				this.saved.ForEach(x => this.catalog.Remove(x));
 				transaction.Commit();
+				this.saved.ForEach(x => this.catalog.Remove(x));
 			}
 		}
 
@@ -61,7 +62,7 @@
 
 			if (this.saved.Count == 0)
 				this.saved = this.catalog.Keys.Take(ItemLimit).ToList();
-			
+
 			var builder = new StringBuilder(this.saved.Count * Upsert.Length);
 
 			for (var i = 0; i < this.saved.Count; i++)
@@ -76,7 +77,7 @@
 		{
 			command.WithParameter("@id" + i, item.Key, DbType.String);
 			command.WithParameter("@sequence" + i, item.CurrentSequence, DbType.Int64);
-			command.WithParameter("@hash" + i, item.Serialized.ComputeTinyHash(), DbType.Int32);
+			command.WithParameter("@hash" + i, item.Serialized.ComputeHash(), DbType.Int32);
 			command.WithParameter("@document" + i, item.Serialized, DbType.Binary);
 			builder.AppendFormat(Upsert, i);
 		}
@@ -88,8 +89,9 @@
 
 		const int ItemLimit = 500; // ~ 4 unique parameters per Upsert / 2100 (parameter limit)
 		const string Upsert = @"
-			UPDATE documents SET document = @document{0}, message_sequence = @sequence{0}, document_hash = @hash{0} WHERE identifier = @id{0}; 
-			INSERT INTO documents SELECT @id{0}, @sequence{0}, @hash{0}, @document{0} WHERE @@ROWCOUNT = 0;";
+			INSERT INTO documents (`identifier`, `message_sequence`, `document_hash`, `document`)
+			VALUES ( @id{0}, @sequence{0}, @hash{0}, @document{0} )
+			ON DUPLICATE KEY UPDATE `message_sequence` = @sequence{0}, `document_hash` = @hash{0}, `document` = @document{0};";
 		readonly ConnectionStringSettings settings;
 		readonly IDictionary<string, SnapshotItem> catalog = new Dictionary<string, SnapshotItem>();
 		List<string> saved = new List<string>();

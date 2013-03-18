@@ -50,24 +50,7 @@ namespace Hydrospanner
 			.ToArray();
 	}
 
-	[Subject(typeof(ByteConversionExtensions))]
-	public class when_hashing_byte_arrays_to_integer_digests
-	{
-		It should_generate_generate_deterministic_digests = () =>
-		{
-			var first = BitConverter.GetBytes(long.MaxValue);
-			var firstCopy = BitConverter.GetBytes(long.MaxValue);
-
-			var second = BitConverter.GetBytes(int.MinValue);
-			var secondCopy = BitConverter.GetBytes(int.MinValue);
-
-			first.ComputeTinyHash().ShouldEqual(firstCopy.ComputeTinyHash());
-			second.ComputeTinyHash().ShouldEqual(secondCopy.ComputeTinyHash());
-
-			first.ComputeTinyHash().ShouldNotEqual(second.ComputeTinyHash());
-			firstCopy.ComputeTinyHash().ShouldNotEqual(secondCopy.ComputeTinyHash());
-		};
-	}
+	
 }
 
 // ReSharper restore InconsistentNaming

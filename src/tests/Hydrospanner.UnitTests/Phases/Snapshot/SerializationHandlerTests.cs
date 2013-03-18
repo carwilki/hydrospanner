@@ -16,7 +16,7 @@ namespace Hydrospanner.Phases.Snapshot
 			handler = new SerializationHandler(new JsonSerializer());
 			item = new SnapshotItem();
 			memento = new Dictionary<string, string> { { "Hello", "World" } };
-			item.AsPublicSnapshot("Key", memento);
+			item.AsPublicSnapshot("Key", memento, 42);
 		};
 
 		Because of = () =>

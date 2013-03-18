@@ -108,9 +108,9 @@ namespace Hydrospanner.Phases.Snapshot
 			publicSnapshot2 = new SnapshotItem();
 			publicSnapshot3 = new SnapshotItem();
 			systemSnapshot = new SnapshotItem();
-			publicSnapshot1.AsPublicSnapshot("shared_public_key", "public_memento");
-			publicSnapshot2.AsPublicSnapshot("shared_public_key", "public_memento");
-			publicSnapshot3.AsPublicSnapshot("non_shared_public_key", "public_memento");
+			publicSnapshot1.AsPublicSnapshot("shared_public_key", "public_memento", 42);
+			publicSnapshot2.AsPublicSnapshot("shared_public_key", "public_memento", 42);
+			publicSnapshot3.AsPublicSnapshot("non_shared_public_key", "public_memento", 42);
 			systemSnapshot.AsPartOfSystemSnapshot(42, 42, "system_key", "system_memento");
 			recorder = Substitute.For<ISnapshotRecorder>();
 			handler = new PublicSnapshotHandler(recorder);

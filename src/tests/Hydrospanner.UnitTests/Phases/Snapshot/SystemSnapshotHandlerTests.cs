@@ -13,7 +13,7 @@ namespace Hydrospanner.Phases.Snapshot
 		public class and_the_item_is_a_public_snapshot
 		{
 			Establish context = () =>
-				first.AsPublicSnapshot("key", "memento");
+				first.AsPublicSnapshot("key", "memento", 42);
 
 			It should_not_do_any_recording_operations = () =>
 			{
