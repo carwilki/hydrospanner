@@ -26,23 +26,18 @@
 
 		public void FinishRecording(int iteration = 0, long sequence = 0)
 		{
-			this.TrySaveSnapshot();
-		}
-
-		void TrySaveSnapshot()
-		{
 			while (true)
 			{
 				try
 				{
 					this.SaveSnapshotItems();
-					return;
 				}
 				catch (DbException)
 				{
 					TimeSpan.FromSeconds(5).Sleep();
 				}
-				//// TODO: catch (Exception e) { /* Log the exception... */ }			
+
+				// TODO: catch (Exception e) { /* Log the exception... */ }			
 			}
 		}
 
@@ -51,40 +46,30 @@
 			using (var connection = this.settings.OpenConnection())
 			using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
 			{
-				while (this.catalog.Count > 0)
-				{
-					using (var command = connection.CreateCommand())
-					{
-						foreach (var s in this.ComposeCommand(command))
-							this.saved.Add(s);
+				using (var command = connection.CreateCommand())
+					while (this.catalog.Count > 0)
+						this.ComposeCommand(command).ExecuteNonQuery();
 
-						command.ExecuteNonQuery();
-					
-						foreach (var s in this.saved)
-							this.catalog.Remove(s);
-					}
-				}
+				this.saved.ForEach(x => this.catalog.Remove(x));
 				transaction.Commit();
-				this.catalog.Clear();
-				this.saved.Clear();
 			}
 		}
 
-		private IEnumerable<string> ComposeCommand(IDbCommand command)
+		private IDbCommand ComposeCommand(IDbCommand command)
 		{
-			IList<string> items;
-			if (this.saved.Count > 0)
-				items = this.saved.ToList();
-			else
-				items = this.catalog.Keys.Take(ItemLimit).ToList();
-			
-			var builder = new StringBuilder(items.Count * Upsert.Length);
+			command.Parameters.Clear();
 
-			for (var i = 0; i < items.Count; i++)
-				IncludeItem(command, i, this.catalog[items[i]], builder);
+			if (this.saved.Count == 0)
+				this.saved = this.catalog.Keys.Take(ItemLimit).ToList();
+			
+			var builder = new StringBuilder(this.saved.Count * Upsert.Length);
+
+			for (var i = 0; i < this.saved.Count; i++)
+				IncludeItem(command, i, this.catalog[this.saved[i]], builder);
 
 			command.CommandText = builder.ToString();
-			return items;
+
+			return command;
 		}
 
 		private static void IncludeItem(IDbCommand command, int i, SnapshotItem item, StringBuilder builder)
@@ -107,6 +92,6 @@
 			INSERT INTO documents SELECT @id{0}, @sequence{0}, @hash{0}, @document{0} WHERE @@ROWCOUNT = 0;";
 		readonly ConnectionStringSettings settings;
 		readonly IDictionary<string, SnapshotItem> catalog = new Dictionary<string, SnapshotItem>();
-		readonly HashSet<string> saved = new HashSet<string>();
+		List<string> saved = new List<string>();
 	}
 }
