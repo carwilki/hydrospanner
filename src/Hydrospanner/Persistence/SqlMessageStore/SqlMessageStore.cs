@@ -9,5 +9,9 @@
 		{
 			return false;
 		}
+		public IEnumerable<JournalItem> Load(long snapshotSequence, long dispatchSequence)
+		{
+			return null;
+		}
 	}
 }
