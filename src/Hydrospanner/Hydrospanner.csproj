@@ -57,6 +57,7 @@
     <Compile Include="Messaging\Rabbit\RabbitChannel.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnector.cs" />
     <Compile Include="Messaging\Rabbit\RabbitSubscription.cs" />
+    <Compile Include="Persistence\BootstrapInfo.cs" />
     <Compile Include="Persistence\IBootstrapStore.cs" />
     <Compile Include="Persistence\IDispatchCheckpointStore.cs" />
     <Compile Include="Persistence\IMessageStore.cs" />

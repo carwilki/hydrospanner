@@ -27,7 +27,6 @@
 			this.connectionString = connectionString;
 		}
 
-		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
 	}
