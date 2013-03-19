@@ -24,5 +24,12 @@
 				throw;
 			}
 		}
+		public static IDbCommand CreateCommand(this IDbTransaction transaction, string statement = null)
+		{
+			var command = transaction.Connection.CreateCommand();
+			command.Transaction = transaction;
+			command.CommandText = statement;
+			return command;
+		}
 	}
 }
