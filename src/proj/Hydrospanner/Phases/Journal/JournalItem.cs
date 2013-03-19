@@ -22,7 +22,7 @@
 		{
 			this.Clear();
 			this.MessageSequence = sequence;
-			this.ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal;
+			this.ItemActions = JournalItemAction.Acknowledge | (sequence > 0 ? JournalItemAction.Journal : JournalItemAction.None);
 			this.SerializedBody = serializedBody;
 			this.Body = body;
 			this.Headers = headers;

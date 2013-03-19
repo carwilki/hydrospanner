@@ -42,6 +42,40 @@ namespace Hydrospanner.Phases.Journal
 	}
 
 	[Subject(typeof(JournalItem))]
+	public class when_initializing_a_foreign_message_and_assigning_a_zero_sequence
+	{
+		Establish context = () =>
+			item = new JournalItem();
+
+		Because of = () =>
+			item.AsForeignMessage(0, serializedBody, Body, headers, ForeignId, Acknowledgment);
+
+		It should_set_the_following_properties_according_to_the_input_arguments = () =>
+		{
+			item.ItemActions.ShouldEqual(JournalItemAction.Acknowledge);
+			item.Acknowledgment.ShouldEqual(Acknowledgment);
+			item.SerializedBody.ShouldEqual(serializedBody);
+			item.Headers.ShouldEqual(headers);
+			item.ForeignId.ShouldEqual(ForeignId);
+			item.Body.ShouldEqual(Body);
+		};
+
+		It should_set_the_following_properties_to_their_default_values = () =>
+		{
+			item.MessageSequence.ShouldEqual(0);
+			item.SerializedHeaders.ShouldBeNull();
+			item.SerializedType.ShouldBeNull();
+		};
+
+		const string Body = "Body";
+		static JournalItem item;
+		static readonly byte[] serializedBody = new byte[] { 1, 2, 3 };
+		static readonly Dictionary<string, string> headers = new Dictionary<string, string>();
+		static readonly Guid ForeignId = Guid.NewGuid();
+		static readonly Action Acknowledgment = Console.WriteLine;
+	}
+
+	[Subject(typeof(JournalItem))]
 	public class when_initializing_a_tranformation_message
 	{
 		Establish context = () =>
