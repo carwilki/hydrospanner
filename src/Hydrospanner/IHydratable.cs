@@ -24,16 +24,14 @@
 
 	public interface IHydratableSelector
 	{
-		IEnumerable<IHydratableKey> Keys(object message, Dictionary<string, string> headers = null);
-		IHydratable Create(object memento);
 	}
 
-	public interface IHydratableSelector<T>
+	public interface IHydratableSelector<T> : IHydratableSelector
 	{
 		IEnumerable<IHydratableKey> Keys(T message, Dictionary<string, string> headers = null);
 	}
 
-	public interface IHydratableFactory<T>
+	public interface IHydratableFactory<T> : IHydratableSelector
 	{
 		IHydratable Create(T memento);
 	}

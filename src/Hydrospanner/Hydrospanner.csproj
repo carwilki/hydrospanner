@@ -85,6 +85,7 @@
     <Compile Include="IHydratable.cs" />
     <Compile Include="Phases\Journal\JournalItem.cs" />
     <Compile Include="Phases\Transformation\DuplicateStore.cs" />
+    <Compile Include="Phases\Transformation\HydratableExtensions.cs" />
     <Compile Include="Phases\Transformation\MessageListener.cs" />
     <Compile Include="Phases\Transformation\TransformationHandler.cs" />
     <Compile Include="Serialization\ISerializer.cs" />

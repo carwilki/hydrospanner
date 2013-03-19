@@ -6,10 +6,8 @@
 	using System.Data;
 	using System.Data.Common;
 	using System.Globalization;
-	using System.Reflection;
 	using System.Text;
 	using System.Threading;
-	using Callback = System.Action<IHydratable, object, System.Collections.Generic.Dictionary<string, string>, bool>;
 
 	internal static class StringExtensions
 	{
@@ -152,34 +150,5 @@
 				throw;
 			}
 		}
-	}
-
-	internal static class HydratableExtensions
-	{
-		public static void Hydrate(this IHydratable hydratable, object message, Dictionary<string, string> headers, bool live)
-		{
-			if (hydratable == null || message == null)
-				return;
-
-			var type = message.GetType();
-			var callback = MethodCache.Add(type, () => MakeHydrateDelegate(type));
-			callback(hydratable, message, headers, live);
-		}
-		private static Callback MakeHydrateDelegate(Type messageType)
-		{
-			var method = DelegateMethod.MakeGenericMethod(messageType);
-			var callback = Delegate.CreateDelegate(typeof(Callback), method);
-			return (Callback)callback;
-		}
-		// ReSharper disable UnusedMember.Local (NOTE: This type is referenced by its string name below...)
-		private static void HydrateDelegate<T>(IHydratable hydratable, object message, Dictionary<string, string> headers, bool live)
-		{
-			((IHydratable<T>)hydratable).Hydrate((T)message, headers, live);
-		}
-		// ReSharper restore UnusedMember.Local
-
-		private static readonly MethodInfo DelegateMethod = 
-			typeof(HydratableExtensions).GetMethod("HydrateDelegate", BindingFlags.Static | BindingFlags.NonPublic);
-		private static readonly Dictionary<Type, Callback> MethodCache = new Dictionary<Type, Callback>();
 	}
 }
