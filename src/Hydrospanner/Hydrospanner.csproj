@@ -63,6 +63,7 @@
     <Compile Include="Persistence\IMessageStore.cs" />
     <Compile Include="Persistence\SqlPersistence\DbExtensions.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlBootstrapStore.cs" />
+    <Compile Include="Persistence\SqlPersistence\SqlCheckpointStore.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlMessageStore.cs" />
     <Compile Include="Phases\Journal\AcknowledgmentHandler.cs" />
     <Compile Include="Phases\Journal\DispatchCheckpointHandler.cs" />
