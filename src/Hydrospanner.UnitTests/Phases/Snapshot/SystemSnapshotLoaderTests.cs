@@ -4,6 +4,7 @@
 namespace Hydrospanner.Phases.Snapshot
 {
 	using System;
+	using System.Globalization;
 	using System.IO;
 	using System.IO.Abstractions;
 	using System.Linq;
@@ -20,11 +21,11 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			Establish context = () =>
 				directory
-					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierIteration)), SearchOption.TopDirectoryOnly)
+					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierIteration.ToString(CultureInfo.InvariantCulture))), SearchOption.TopDirectoryOnly)
 					.Returns(new[] { "hi", "not-a-snapshot", "blah-blah-blah", "bad_iteration-42-hash" });
 
 			Because of = () =>
-				reader = loader.Load(long.MaxValue);
+				reader = loader.Load(long.MaxValue, int.MaxValue);
 
 			It should_return_a_blank_snapshot = () =>
 				reader.Count.ShouldEqual(0);
@@ -36,12 +37,12 @@ namespace Hydrospanner.Phases.Snapshot
 			{
 				file.OpenRead(Arg.Any<string>()).Returns(new MemoryStream(new byte[] { 0, 0, 0, 0 }));
 				directory
-					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierIteration)), SearchOption.TopDirectoryOnly)
+					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierIteration.ToString(CultureInfo.InvariantCulture))), SearchOption.TopDirectoryOnly)
 					.Returns(new[] { Path + EarlierIteration + "-" + MessageSequence + "-bad_hash" });
 			};
 
 			Because of = () =>
-				reader = loader.Load(long.MaxValue);
+				reader = loader.Load(long.MaxValue, int.MaxValue);
 
 			It should_return_a_blank_snapshot = () =>
 				reader.Count.ShouldEqual(0);
@@ -63,11 +64,11 @@ namespace Hydrospanner.Phases.Snapshot
 			};
 
 			Because of = () =>
-				reader = loader.Load(long.MaxValue);
+				reader = loader.Load(long.MaxValue, int.MaxValue);
 
 			It should_load_the_snapshot_with_the_highest_iteration = () =>
 			{
-				reader.Iteration.ShouldEqual(int.Parse(LaterIteration));
+				reader.Iteration.ShouldEqual(LaterIteration);
 				reader.Read().First().Value.ShouldBeLike(FirstRecord);
 			};
 		}
@@ -90,7 +91,7 @@ namespace Hydrospanner.Phases.Snapshot
 				};
 
 				Because of = () =>
-					reader = loader.Load(StoredMessageSequence);
+					reader = loader.Load(StoredMessageSequence, int.MaxValue);
 
 				It should_load_the_snapshot_whose_message_sequence_is_at_or_lower_the_provided_sequence = () =>
 				{
@@ -113,16 +114,16 @@ namespace Hydrospanner.Phases.Snapshot
 						.GetFiles(Path, "*", SearchOption.TopDirectoryOnly)
 						.Returns(new[] { earlierPath, laterPath });
 
-					file.OpenRead(earlierPath).Returns(x => { throw new DivideByZeroException("This code should NOT be executed!!"); });
-					file.OpenRead(laterPath).Returns(new MemoryStream(contents));
+					file.OpenRead(laterPath).Returns(x => { throw new DivideByZeroException("This code should NOT be executed!!"); });
+					file.OpenRead(earlierPath).Returns(new MemoryStream(contents));
 				};
 
 				Because of = () =>
-					reader = loader.Load(long.MaxValue);
+					reader = loader.Load(long.MaxValue, EarlierIteration);
 
-				It should_ignore_snapshots_with_iterations_lower_than_the_provided_iteration = () =>
+				It should_load_the_latest_snapshot_at_or_below_the_provided_iteration = () =>
 				{
-					reader.Iteration.ShouldEqual(int.Parse(LaterIteration));
+					reader.Iteration.ShouldEqual(EarlierIteration);
 					reader.Read().First().Value.ShouldBeLike(FirstRecord);
 				};
 			}
@@ -157,8 +158,8 @@ namespace Hydrospanner.Phases.Snapshot
 		};
 
 		const string Path = "./path/to/snapshots/";
-		const string EarlierIteration = "1";
-		const string LaterIteration = "2";
+		const int EarlierIteration = 1;
+		const int LaterIteration = 2;
 		const int MessageSequence = 42;
 		static readonly byte[] FirstRecord = BitConverter.GetBytes(42);
 		static SystemSnapshotLoader loader;

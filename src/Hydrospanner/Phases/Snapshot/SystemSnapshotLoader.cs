@@ -6,13 +6,13 @@
 
 	internal class SystemSnapshotLoader
 	{
-		public SystemSnapshotStreamReader Load(long maxSequence)
+		public SystemSnapshotStreamReader Load(long maxSequence, int maxIteration)
 		{
 			var files = this.directory.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly);
 			
 			var snapshots = files
 				.Select(ParsedSystemSnapshotFilename.Parse)
-				.Where(x => x != null && x.Sequence <= maxSequence);
+				.Where(x => x != null && x.Sequence <= maxSequence && x.Iteration <= maxIteration);
 
 			var mostRecentViableSnapshot = snapshots
 				.OrderByDescending(x => x.Iteration)
