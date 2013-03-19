@@ -1,6 +1,5 @@
 ﻿namespace Hydrospanner.Phases.Journal
 {
-	using System;
 	using System.Collections.Generic;
 	using Disruptor;
 	using Hydrospanner.Persistence;
@@ -15,14 +14,7 @@
 			if (!endOfBatch || this.buffer.Count == 0)
 				return;
 
-			while (true)
-			{
-				if (this.store.Save(this.buffer))
-					break;
-
-				StoreRetryTimeout.Sleep();
-			}
-
+			this.store.Save(this.buffer);
 			this.buffer.Clear();
 		}
 
@@ -31,7 +23,6 @@
 			this.store = store;
 		}
 
-		private static readonly TimeSpan StoreRetryTimeout = TimeSpan.FromSeconds(5);
 		private readonly List<JournalItem> buffer = new List<JournalItem>();
 		private readonly IMessageStore store;
 	}

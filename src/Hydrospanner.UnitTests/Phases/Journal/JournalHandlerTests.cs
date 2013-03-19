@@ -51,24 +51,6 @@ namespace Hydrospanner.Phases.Journal
 				journaled.ShouldBeLike(handled.Where(x => x.ItemActions.HasFlag(JournalItemAction.Journal)));
 		}
 
-		public class when_journaling_fails
-		{
-			Establish context = () =>
-			{
-				store.Save(Arg.Any<List<JournalItem>>()).Returns(false, false, false, true);
-				handled.AddRange(new[] { CreateItem(), CreateItem(), CreateItem(), CreateItem() });
-			};
-
-			It should_pause_the_current_thread_for_a_few_seconds_after_each_failure = () =>
-			{
-				threadSleepInvocations.ShouldEqual(3);
-				threadSleep.ShouldEqual(TimeSpan.FromSeconds(5));
-			};
-
-			It should_retry_the_save_operation_with_the_same_list_until_success_is_received = () =>
-				journaled.ShouldBeLike(handled.Concat(handled.Concat(handled).Concat(handled)));
-		}
-
 		public class when_another_batch_arrives_after_the_first_has_been_journaled
 		{
 			Establish context = () =>
@@ -88,7 +70,7 @@ namespace Hydrospanner.Phases.Journal
 			journaled = new List<JournalItem>();
 			handled = new List<JournalItem>();
 			store = Substitute.For<IMessageStore>();
-			store.Save(Arg.Do<List<JournalItem>>(x => x.ForEach(journaled.Add))).Returns(true);
+			store.Save(Arg.Do<List<JournalItem>>(x => x.ForEach(journaled.Add)));
 			handler = new JournalHandler(store);
 			ThreadExtensions.Freeze(x =>
 			{

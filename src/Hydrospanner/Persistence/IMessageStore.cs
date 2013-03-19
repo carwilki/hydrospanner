@@ -5,6 +5,6 @@
 
 	public interface IMessageStore
 	{
-		bool Save(List<JournalItem> items);
+		void Save(List<JournalItem> items);
 	}
 }
