@@ -10,6 +10,12 @@
 
 	public class SqlMessageStore : IMessageStore
 	{
+		public void Initialize()
+		{
+			// TODO: go to persistence and find get a list of all types
+			// as well a max values, etc. necessary for startup
+		}
+
 		public bool Save(List<JournalItem> items)
 		{
 			if (items == null || items.Count == 0)
@@ -142,8 +148,10 @@
 			this.connectionString = connectionString;
 		}
 
+		private const string InsertMetadata = "INSERT INTO metadata (type_name) VALUES(@t{0})";
 		private const string InsertForeignMessage = "INSERT INTO messages (wire_id,payload,headers) VALUES (@w{0},@p{1},@h{2})";
 		private const string InsertLocalMessage = "INSERT INTO messages (payload,headers) VALUES (@p{0},@h{0})";
+		private readonly Dictionary<string, int> types = new Dictionary<string, int>();
 		private readonly Dictionary<Guid, int> parameters = new Dictionary<Guid, int>();
 		private readonly StringBuilder statementBuilder = new StringBuilder(InsertForeignMessage.Length * 1024 * 32);
 		private readonly DbProviderFactory factory;
