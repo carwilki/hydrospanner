@@ -65,6 +65,7 @@
     <Compile Include="Phases\Snapshot\SystemSnapshotHandlerTests.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotRecorderTests.cs" />
     <Compile Include="Phases\Snapshot\XxHashUnsafeTests.cs" />
+    <Compile Include="Phases\Transformation\DuplicateStoreTests.cs" />
     <Compile Include="Phases\Transformation\MessageListenerTests.cs" />
     <Compile Include="Serialization\JsonSerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
