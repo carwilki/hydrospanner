@@ -49,6 +49,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublicSnapshotRecorderTests.cs" />
+    <Compile Include="SystemSnapshotRecorderTests.cs" />
     <Compile Include="TestDatabase.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -68,6 +69,10 @@
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Abstractions, Version=1.4.0.41, Culture=neutral, PublicKeyToken=d480b5b72fb413da, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.IO.Abstractions.1.4.0.41\lib\net35\System.IO.Abstractions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
