@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Persistence.SqlMessageStore
+﻿namespace Hydrospanner.Persistence.SqlPersistence
 {
 	using System.Collections.Generic;
 	using Hydrospanner.Phases.Journal;
@@ -8,10 +8,6 @@
 		public bool Save(List<JournalItem> items)
 		{
 			return false;
-		}
-		public IEnumerable<JournalItem> Load(long snapshotSequence, long dispatchSequence)
-		{
-			return null;
 		}
 	}
 }
