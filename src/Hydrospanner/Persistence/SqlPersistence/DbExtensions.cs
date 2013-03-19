@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Persistence.SqlPersistence
 {
+	using System;
 	using System.Configuration;
 	using System.Data;
 	using System.Data.Common;
@@ -35,6 +36,14 @@
 			var command = connection.CreateCommand();
 			command.CommandText = statement;
 			return command;
+		}
+		public static void AddParameter(this IDbCommand command, string format, int index, DbType type, object value)
+		{
+			var parameter = command.CreateParameter();
+			parameter.ParameterName = format.FormatWith(index);
+			parameter.DbType = type;
+			parameter.Value = value ?? DBNull.Value;
+			command.Parameters.Add(parameter);
 		}
 	}
 }
