@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hydrospanner", "proj\Hydrospanner\Hydrospanner.csproj", "{F3564171-9B41-419D-B914-2D08C3A698F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hydrospanner", "Hydrospanner\Hydrospanner.csproj", "{F3564171-9B41-419D-B914-2D08C3A698F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hydrospanner.UnitTests", "tests\Hydrospanner.UnitTests\Hydrospanner.UnitTests.csproj", "{B557A47F-C7C0-4BD7-A72B-7FB52DFEC198}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hydrospanner.UnitTests", "Hydrospanner.UnitTests\Hydrospanner.UnitTests.csproj", "{B557A47F-C7C0-4BD7-A72B-7FB52DFEC198}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hydrospanner.IntegrationTests", "tests\Hydrospanner.IntegrationTests\Hydrospanner.IntegrationTests.csproj", "{13FDB7B2-EB82-4B44-A084-E5ACF1FD2FD8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hydrospanner.IntegrationTests", "Hydrospanner.IntegrationTests\Hydrospanner.IntegrationTests.csproj", "{13FDB7B2-EB82-4B44-A084-E5ACF1FD2FD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
