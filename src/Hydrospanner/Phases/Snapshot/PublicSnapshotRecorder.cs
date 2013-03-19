@@ -39,8 +39,10 @@
 				{
 					TimeSpan.FromSeconds(5).Sleep();
 				}
-
-				// TODO: catch (Exception e) { /* Log the exception... */ }			
+				catch (Exception)
+				{
+					break; // TODO: log
+				}
 			}
 		}
 
@@ -115,7 +117,7 @@
 			this.settings = settings;
 		}
 		
-		const int BatchSize = 1024 * 64; // 64k (was about to try 128)
+		const int BatchSize = 1024 * 64;
 		const string Upsert = @"
 			INSERT INTO documents (`identifier`, `message_sequence`, `document_hash`, `document`)
 			VALUES ( @id{0}, @sequence{0}, @hash{0}, @document{0} )

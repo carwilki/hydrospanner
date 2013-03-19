@@ -16,25 +16,35 @@ namespace Hydrospanner.IntegrationTests
 
 			settings = ConfigurationManager.ConnectionStrings["DB"];
 			connection = ConfigurationManager.ConnectionStrings["DB-startup"].OpenConnection();
+			InitializeDatabase();
+		};
+
+		protected static void InitializeDatabase()
+		{
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = Initiailize;
 				command.ExecuteNonQuery();
 			}
-		};
+		}
 
 		Cleanup after = () =>
+		{
+			TearDownDatabase();
+			connection.Close();
+			connection.Dispose();
+			connection = null;
+			settings = null;
+		};
+
+		protected static void TearDownDatabase()
 		{
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = Cleanup;
 				command.ExecuteNonQuery();
 			}
-			connection.Close();
-			connection.Dispose();
-			connection = null;
-			settings = null;
-		};
+		}
 
 		protected static TimeSpan napTime;
 		protected static IDbConnection connection;

@@ -3,13 +3,14 @@
 
 namespace Hydrospanner.IntegrationTests
 {
+	using System;
 	using System.Globalization;
 	using Machine.Specifications;
 	using Phases.Snapshot;
 	using Serialization;
 
 	[Subject(typeof(PublicSnapshotRecorder))]
-	public class when_a_record_is_recorded : TestDatabase
+	public class when_a_snapshot_is_recorded : TestDatabase
 	{
 		Establish context = () =>
 		{
@@ -46,11 +47,15 @@ namespace Hydrospanner.IntegrationTests
 		static SnapshotItem item;
 	}
 
+	[Ignore("Long running...")]
 	[Subject(typeof(PublicSnapshotRecorder))]
-	public class when_there_are_enough_snapshots_to_necessitate_multiple_batches : TestDatabase
+	public class when_there_are_many_snapshots : TestDatabase
 	{
 		Establish context = () =>
+		{
+			serializer = new JsonSerializer();
 			recorder = new PublicSnapshotRecorder(settings);
+		};
 
 		Because of = () =>
 		{
@@ -67,11 +72,7 @@ namespace Hydrospanner.IntegrationTests
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = "select count(*) from `hydrospanner-test`.`documents`;";
-				using (var reader = command.ExecuteReader())
-				{
-					reader.Read().ShouldBeTrue();
-					reader.GetInt32(0).ShouldEqual(Snapshots);
-				}
+				(int.Parse(command.ExecuteScalar().ToString())).ShouldEqual(Snapshots);
 			}
 		};
 
@@ -79,27 +80,116 @@ namespace Hydrospanner.IntegrationTests
 		{
 			var item = new SnapshotItem();
 			item.AsPublicSnapshot(key, value, sequence);
-			item.Serialize(new JsonSerializer());
+			item.Serialize(serializer);
 			return item;
 		}
-		
+
+		static JsonSerializer serializer;
 		static PublicSnapshotRecorder recorder;
 		const int Snapshots = 20000;
 	}
 
 	[Subject(typeof(PublicSnapshotRecorder))]
-	public class when_database_errors_happen
+	public class when_there_are_no_snapshots_to_record : TestDatabase
 	{
 		Establish context = () =>
 		{
+			recorder = new PublicSnapshotRecorder(null);
+
+			ThreadExtensions.Freeze(x =>
+			{
+				napTime = x;
+				InitializeDatabase();
+			});
 		};
 
 		Because of = () =>
 		{
+			recorder.StartRecording(1);
+			Catch.Exception(() => recorder.FinishRecording()).ShouldBeNull();
 		};
 
-		It should_take_a_nap_and_retry;
+		It should_not_perform_any_database_actions = () =>
+		{
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = "select count(*) from `hydrospanner-test`.`documents`;";
+				(int.Parse(command.ExecuteScalar().ToString())).ShouldEqual(0);
+			}
+		};
 	
+		static PublicSnapshotRecorder recorder;
+	}
+
+	[Subject(typeof(PublicSnapshotRecorder))]
+	public class when_database_errors_happen : TestDatabase
+	{
+		Establish context = () =>
+		{
+			TearDownDatabase();
+			recorder = new PublicSnapshotRecorder(settings);
+
+			snapshotItem = new SnapshotItem();
+			snapshotItem.AsPublicSnapshot("key", "memento", 42);
+			snapshotItem.Serialize(new JsonSerializer());
+
+			ThreadExtensions.Freeze(x =>
+			{
+				napTime = x;
+				InitializeDatabase();
+			});
+		};
+
+		Because of = () =>
+		{
+			recorder.StartRecording(1);
+			recorder.Record(snapshotItem);
+			recorder.FinishRecording();
+		};
+
+		It should_take_a_nap_and_retry = () =>
+			napTime.ShouldEqual(TimeSpan.FromSeconds(5));
+
+		It should_succeed_upon_retry = () =>
+		{
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = "select count(*) from `hydrospanner-test`.`documents`;";
+				(int.Parse(command.ExecuteScalar().ToString())).ShouldEqual(1);
+			}
+		};
+	
+		static PublicSnapshotRecorder recorder;
+		static SnapshotItem snapshotItem;
+	}
+
+	[Subject(typeof(PublicSnapshotRecorder))]
+	public class when_other_errors_happen : TestDatabase
+	{
+		Establish context = () =>
+		{
+			recorder = new PublicSnapshotRecorder(null);
+			recorder.StartRecording(1);
+			var snapshotItem = new SnapshotItem();
+			snapshotItem.AsPublicSnapshot("key", "mem", 42);
+			snapshotItem.Serialize(new JsonSerializer());
+			recorder.Record(snapshotItem);
+		};
+
+		Because of = () =>
+			exception = Catch.Exception(() => recorder.FinishRecording());
+
+		It should_swallow_the_exception_and_not_record_a_snapshot = () =>
+		{
+			exception.ShouldBeNull();
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = "select count(*) from `hydrospanner-test`.`documents`;";
+				(int.Parse(command.ExecuteScalar().ToString())).ShouldEqual(0);
+			}
+		};
+
+		static Exception exception;
 		static PublicSnapshotRecorder recorder;
 	}
 }
