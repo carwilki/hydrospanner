@@ -29,10 +29,10 @@ namespace Hydrospanner.Phases.Snapshot
 		// is correctly implemented on a given platform
 		public static bool VerificationTest(uint expected = XxHashReferenceVerificationValue)
 		{
-			const int hashBytes = 4;
+			const int HashBytes = 4;
 
 			var key = new byte[256];
-			var hashes = new byte[hashBytes * 256];
+			var hashes = new byte[HashBytes * 256];
 
 			// Hash keys of the form {0}, {0,1}, {0,1,2}... up to N=255,using 256-N as the seed
 			for (int i = 0; i < 256; i++)
@@ -40,12 +40,12 @@ namespace Hydrospanner.Phases.Snapshot
 				key[i] = (byte)i;
 
 				var hash = key.ComputeHash(0, (uint)i, (uint)(256 - i));
-				Buffer.BlockCopy(BitConverter.GetBytes(hash), 0, hashes, i * hashBytes, hashBytes);
+				Buffer.BlockCopy(BitConverter.GetBytes(hash), 0, hashes, i * HashBytes, HashBytes);
 			}
 
 			// Then hash the result array
 
-			var verification = hashes.ComputeHash(0, hashBytes * 256, 0);
+			var verification = hashes.ComputeHash(0, HashBytes * 256, 0);
 
 			// The first four bytes of that hash, interpreted as a little-endian integer, is our verification value
 
@@ -71,41 +71,41 @@ namespace Hydrospanner.Phases.Snapshot
 
 			var result = true;
 
-			const int reps = 10;
-			const int keymax = 256;
-			const int pad = 16;
-			const int buflen = keymax + pad * 3;
+			const int Reps = 10;
+			const int KeyMax = 256;
+			const int Pad = 16;
+			const int BufferLength = KeyMax + (Pad * 3);
 
-			var buffer1 = new byte[buflen];
-			var buffer2 = new byte[buflen];
+			var buffer1 = new byte[BufferLength];
+			var buffer2 = new byte[BufferLength];
 
-			for (var irep = 0; irep < reps; irep++)
+			for (var irep = 0; irep < Reps; irep++)
 			{
-				if (irep % (reps / 10) == 0) Console.Write(".");
+				if (irep % (Reps / 10) == 0) Console.Write(".");
 
-				for (var len = 4; len <= keymax; len++)
+				for (var len = 4; len <= KeyMax; len++)
 				{
-					for (var offset = pad; offset < pad * 2; offset++)
+					for (var offset = Pad; offset < Pad * 2; offset++)
 					{
 						rnd.NextBytes(buffer1);
 						rnd.NextBytes(buffer2);
 
-						Buffer.BlockCopy(buffer2, pad + offset, buffer1, pad, len);
+						Buffer.BlockCopy(buffer2, Pad + offset, buffer1, Pad, len);
 
-						var hash1 = buffer1.ComputeHash(pad, (uint)len, 0);
+						var hash1 = buffer1.ComputeHash(Pad, (uint)len, 0);
 
 						for (var bit = 0; bit < (len * 8); bit++)
 						{
 							// Flip a bit, hash the key -> we should get a different result.
-							Flipbit(buffer2, pad + offset, len, bit);
-							var hash2 = buffer2.ComputeHash(pad + offset, (uint)len, 0);
+							Flipbit(buffer2, Pad + offset, len, bit);
+							var hash2 = buffer2.ComputeHash(Pad + offset, (uint)len, 0);
 
 							if (hash1 == hash2)
 								result = false;
 
 							// Flip it back, hash again -> we should get the original result.
-							Flipbit(buffer2, pad + offset, len, bit);
-							hash2 = buffer2.ComputeHash(pad + offset, (uint)len, 0);
+							Flipbit(buffer2, Pad + offset, len, bit);
+							hash2 = buffer2.ComputeHash(Pad + offset, (uint)len, 0);
 
 							if (hash1 != hash2)
 								result = false;
@@ -126,7 +126,6 @@ namespace Hydrospanner.Phases.Snapshot
 		}
 	}
 }
-
 
 // Copyright (c) 2012, Event Store LLP
 // All rights reserved.

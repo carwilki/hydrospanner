@@ -49,8 +49,6 @@ namespace Hydrospanner
 			.Concat(BinaryText)
 			.ToArray();
 	}
-
-	
 }
 
 // ReSharper restore InconsistentNaming

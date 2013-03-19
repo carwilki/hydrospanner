@@ -17,7 +17,7 @@
 			}
 		}
 
-		private unsafe static uint HashSmall(byte* data, uint len, uint seed)
+		private static unsafe uint HashSmall(byte* data, uint len, uint seed)
 		{
 			var p = data;
 			var bEnd = data + len;
@@ -57,7 +57,7 @@
 		static unsafe uint HashBig(byte* data, uint len, uint seed)
 		{
 			var v1 = seed + Prime1;
-			var v2 = v1 * Prime2 + len;
+			var v2 = (v1 * Prime2) + len;
 			var v3 = v2 * Prime3;
 			var v4 = v3 * Prime4;
 
@@ -122,7 +122,7 @@
 			return crc;
 		}
 
-		private static UInt32 Rotl32(UInt32 x, int r)
+		private static uint Rotl32(uint x, int r)
 		{
 			return (x << r) | (x >> (32 - r));
 		}

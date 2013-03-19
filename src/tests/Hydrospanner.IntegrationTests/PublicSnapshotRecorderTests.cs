@@ -92,12 +92,10 @@ namespace Hydrospanner.IntegrationTests
 	{
 		Establish context = () =>
 		{
-
 		};
 
 		Because of = () =>
 		{
-
 		};
 
 		It should_take_a_nap_and_retry;
