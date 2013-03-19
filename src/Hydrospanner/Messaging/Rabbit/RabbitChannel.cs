@@ -103,7 +103,7 @@
 
 			var meta = message.BasicProperties;
 			if (meta.AppId == this.appId)
-				return MessageDelivery.Empty; // the message originated at this node, don't re-consume it
+				return MessageDelivery.Empty; // the message originated at this node, don't re-consume it; FUTURE: how does this affect timeout messages?
 
 			var id = meta.MessageId.ToMessageId();
 			var headers = meta.Headers.Copy();

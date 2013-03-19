@@ -15,7 +15,7 @@
 		public static Guid ToMessageId(this string value)
 		{
 			if (string.IsNullOrWhiteSpace(value))
-				return Guid.Empty;
+				return Guid.NewGuid(); // all messages must have an id so we can determine @ startup which are local and which are foreign
 
 			Guid guid;
 			if (Guid.TryParse(value, out guid))
@@ -25,7 +25,7 @@
 			if (long.TryParse(value, out numeric))
 				return new Guid(0, 0, 0, BitConverter.GetBytes(numeric));
 
-			return Guid.Empty;
+			return Guid.NewGuid(); // all messages must have an id so we can determine @ startup which are local and which are foreign
 		}
 		public static IDictionary CopyTo(this IDictionary<string, string> source, IDictionary target)
 		{

@@ -654,8 +654,17 @@ namespace Hydrospanner.Messaging.Rabbit
 				Establish context = () =>
 					rabbitMessage.BasicProperties.MessageId = null;
 
-				It should_return_an_empty_guid = () =>
-					delivery.MessageId.ShouldEqual(Guid.Empty);
+				It should_return_a_random_guid_so_we_can_identify_it_as_a_foreign_message_at_startup = () =>
+					delivery.MessageId.ShouldNotEqual(Guid.Empty);
+			}
+
+			public class when_the_delivery_message_identifier_cannot_be_parsed
+			{
+				Establish context = () =>
+					rabbitMessage.BasicProperties.MessageId = "can't parse this";
+
+				It should_return_a_random_guid_so_we_can_identify_it_as_a_foreign_message_at_startup = () =>
+					delivery.MessageId.ShouldNotEqual(Guid.Empty);
 			}
 
 			public class when_the_delivered_message_originates_from_this_node
