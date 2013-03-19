@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Persistence.SqlStorage
 {
+	using System.Configuration;
 	using System.Data;
 	using System.Data.Common;
 
@@ -9,7 +10,7 @@
 		{
 			var connection = factory.CreateConnection();
 			if (connection == null)
-				return null;
+				throw new ConfigurationErrorsException("Unable to initialize database.");
 
 			try
 			{
@@ -20,7 +21,7 @@
 			catch
 			{
 				connection.Dispose();
-				return null;
+				throw;
 			}
 		}
 	}
