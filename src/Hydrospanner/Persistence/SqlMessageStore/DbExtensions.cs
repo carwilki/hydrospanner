@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Persistence.SqlStorage
+﻿namespace Hydrospanner.Persistence.SqlMessageStore
 {
 	using System.Configuration;
 	using System.Data;

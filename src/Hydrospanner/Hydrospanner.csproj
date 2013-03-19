@@ -57,10 +57,10 @@
     <Compile Include="Messaging\Rabbit\RabbitChannel.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnector.cs" />
     <Compile Include="Messaging\Rabbit\RabbitSubscription.cs" />
-    <Compile Include="Persistence\IDispatchCheckpointStorage.cs" />
-    <Compile Include="Persistence\IMessageStorage.cs" />
-    <Compile Include="Persistence\SqlStorage\DbExtensions.cs" />
-    <Compile Include="Persistence\SqlStorage\SqlMessageStorage.cs" />
+    <Compile Include="Persistence\IDispatchCheckpointStore.cs" />
+    <Compile Include="Persistence\IMessageStore.cs" />
+    <Compile Include="Persistence\SqlMessageStore\DbExtensions.cs" />
+    <Compile Include="Persistence\SqlMessageStore\SqlMessageStore.cs" />
     <Compile Include="Phases\Journal\AcknowledgmentHandler.cs" />
     <Compile Include="Phases\Journal\DispatchCheckpointHandler.cs" />
     <Compile Include="Phases\Journal\DispatchHandler.cs" />

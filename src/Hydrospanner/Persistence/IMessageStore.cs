@@ -3,7 +3,7 @@
 	using System.Collections.Generic;
 	using Hydrospanner.Phases.Journal;
 
-	public interface IMessageStorage
+	public interface IMessageStore
 	{
 		bool Save(List<JournalItem> items);
 	}

@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Persistence.SqlStorage
+﻿namespace Hydrospanner.Persistence.SqlMessageStore
 {
 	using System;
 	using System.Collections.Generic;
@@ -8,7 +8,7 @@
 	using System.Text;
 	using Hydrospanner.Phases.Journal;
 
-	public class SqlMessageStorage : IMessageStorage
+	public class SqlMessageStore : IMessageStore
 	{
 		public bool Save(List<JournalItem> items)
 		{
@@ -126,11 +126,11 @@
 			this.index = 0;
 		}
 
-		public SqlMessageStorage(ConnectionStringSettings settings)
+		public SqlMessageStore(ConnectionStringSettings settings)
 			: this(DbProviderFactories.GetFactory(settings.ProviderName ?? "System.Data.SqlClient"), settings.ConnectionString)
 		{
 		}
-		public SqlMessageStorage(DbProviderFactory factory, string connectionString)
+		public SqlMessageStore(DbProviderFactory factory, string connectionString)
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");

@@ -19,10 +19,10 @@ namespace Hydrospanner.Phases.Journal
 			};
 
 			It should_checkpoint_the_highest_possible_sequence = () =>
-				storage.Received(1).Save(42);
+				store.Received(1).Save(42);
 
 			It should_invoke_the_checkpoint_a_single_time = () =>
-				storage.Received(1).Save(Arg.Any<long>());
+				store.Received(1).Save(Arg.Any<long>());
 		}
 
 		public class when_multiple_batches_are_handled
@@ -38,12 +38,12 @@ namespace Hydrospanner.Phases.Journal
 
 			It should_checkpoint_at_each_end_of_batch = () =>
 			{
-				storage.Received(1).Save(40);
-				storage.Received(1).Save(42);
+				store.Received(1).Save(40);
+				store.Received(1).Save(42);
 			};
 
 			It should_invoke_the_checkpoint_a_for_each_batch = () =>
-				storage.Received(2).Save(Arg.Any<long>());
+				store.Received(2).Save(Arg.Any<long>());
 		}
 
 		public class when_a_single_message_is_handled_with_more_to_come_in_the_batch
@@ -52,7 +52,7 @@ namespace Hydrospanner.Phases.Journal
 				handler.OnNext(Build(40), 0, false);
 
 			It should_NOT_invoke_the_checkpoint_behavior = () =>
-				storage.Received(0).Save(Arg.Any<long>());
+				store.Received(0).Save(Arg.Any<long>());
 		}
 
 		public class when_the_incoming_message_sequence_is_less_than_the_persisted_value
@@ -71,16 +71,16 @@ namespace Hydrospanner.Phases.Journal
 				handler.OnNext(Build(0), 3, true);
 
 			It should_checkpoint_the_highest_possible_sequence_exactly_once = () =>
-				storage.Received(1).Save(42);
+				store.Received(1).Save(42);
 
 			It should_invoke_the_checkpoint_a_single_time_only_with_the_value_expected = () =>
-				storage.Received(1).Save(Arg.Any<long>());
+				store.Received(1).Save(Arg.Any<long>());
 		}
 
 		Establish context = () =>
 		{
-			storage = Substitute.For<IDispatchCheckpointStorage>();
-			handler = new DispatchCheckpointHandler(storage);
+			store = Substitute.For<IDispatchCheckpointStore>();
+			handler = new DispatchCheckpointHandler(store);
 		};
 
 		static JournalItem Build(long sequence)
@@ -92,7 +92,7 @@ namespace Hydrospanner.Phases.Journal
 		}
 
 		static DispatchCheckpointHandler handler;
-		static IDispatchCheckpointStorage storage;
+		static IDispatchCheckpointStore store;
 	}
 }
 

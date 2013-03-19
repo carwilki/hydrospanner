@@ -17,7 +17,7 @@ namespace Hydrospanner.Phases.Journal
 			Establish context = () =>
 				handled.AddRange(new[] { CreateItem(), CreateItem(), CreateItem(), CreateItem() });
 
-			It should_provide_the_set_of_messages_to_the_underlying_storage = () =>
+			It should_provide_the_set_of_messages_to_the_underlying_store = () =>
 				journaled.ShouldBeLike(handled);
 		}
 
@@ -29,7 +29,7 @@ namespace Hydrospanner.Phases.Journal
 				endOfBatchIndices = new[] { 4 }; // never submits end of batch
 			};
 
-			It should_NOT_provide_anything_to_the_underlying_storage = () =>
+			It should_NOT_provide_anything_to_the_underlying_store = () =>
 				journaled.ShouldBeEmpty();
 		}
 
@@ -38,7 +38,7 @@ namespace Hydrospanner.Phases.Journal
 			Establish context = () =>
 				handled.AddRange(new[] { CreateItem(false), CreateItem(false), CreateItem(false), CreateItem(false) });
 
-			It should_NOT_provide_anything_to_the_underlying_storage = () =>
+			It should_NOT_provide_anything_to_the_underlying_store = () =>
 				store.Received(0).Save(Arg.Any<List<JournalItem>>());
 		}
 
@@ -47,7 +47,7 @@ namespace Hydrospanner.Phases.Journal
 			Establish context = () =>
 				handled.AddRange(new[] { CreateItem(), CreateItem(false), CreateItem(), CreateItem(false) });
 
-			It should_only_provide_the_items_requesting_journaling_to_the_underlying_storage = () =>
+			It should_only_provide_the_items_requesting_journaling_to_the_underlying_store = () =>
 				journaled.ShouldBeLike(handled.Where(x => x.ItemActions.HasFlag(JournalItemAction.Journal)));
 		}
 
@@ -87,7 +87,7 @@ namespace Hydrospanner.Phases.Journal
 			endOfBatchIndices = null;
 			journaled = new List<JournalItem>();
 			handled = new List<JournalItem>();
-			store = Substitute.For<IMessageStorage>();
+			store = Substitute.For<IMessageStore>();
 			store.Save(Arg.Do<List<JournalItem>>(x => x.ForEach(journaled.Add))).Returns(true);
 			handler = new JournalHandler(store);
 			ThreadExtensions.Freeze(x =>
@@ -124,7 +124,7 @@ namespace Hydrospanner.Phases.Journal
 		static JournalHandler handler;
 		static List<JournalItem> handled;
 		static List<JournalItem> journaled;
-		static IMessageStorage store;
+		static IMessageStore store;
 		static long currentSequence;
 		static int[] endOfBatchIndices;
 		static TimeSpan threadSleep;

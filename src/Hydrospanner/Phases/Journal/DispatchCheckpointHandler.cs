@@ -15,17 +15,17 @@
 				return;
 
 			if (this.current > this.previous)
-				this.storage.Save(this.current);
+				this.store.Save(this.current);
 
 			this.previous = this.current;
 		}
 
-		public DispatchCheckpointHandler(IDispatchCheckpointStorage storage)
+		public DispatchCheckpointHandler(IDispatchCheckpointStore store)
 		{
-			this.storage = storage;
+			this.store = store;
 		}
 
-		private readonly IDispatchCheckpointStorage storage;
+		private readonly IDispatchCheckpointStore store;
 		private long previous;
 		private long current;
 	}

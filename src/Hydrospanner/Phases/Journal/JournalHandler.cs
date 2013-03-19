@@ -17,22 +17,22 @@
 
 			while (true)
 			{
-				if (this.storage.Save(this.buffer))
+				if (this.store.Save(this.buffer))
 					break;
 
-				StorageRetryTimeout.Sleep();
+				StoreRetryTimeout.Sleep();
 			}
 
 			this.buffer.Clear();
 		}
 
-		public JournalHandler(IMessageStorage storage)
+		public JournalHandler(IMessageStore store)
 		{
-			this.storage = storage;
+			this.store = store;
 		}
 
-		private static readonly TimeSpan StorageRetryTimeout = TimeSpan.FromSeconds(5);
+		private static readonly TimeSpan StoreRetryTimeout = TimeSpan.FromSeconds(5);
 		private readonly List<JournalItem> buffer = new List<JournalItem>();
-		private readonly IMessageStorage storage;
+		private readonly IMessageStore store;
 	}
 }
