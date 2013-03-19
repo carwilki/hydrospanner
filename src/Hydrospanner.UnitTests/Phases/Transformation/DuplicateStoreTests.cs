@@ -9,8 +9,12 @@ namespace Hydrospanner.Phases.Transformation
 	[Subject(typeof(DuplicateStore))]
 	public class when_tracking_duplicates
 	{
-		Establish context = () =>
-			store = new DuplicateStore(4);
+		It should_never_track_empty_keys = () =>
+		{
+			store.Contains(Guid.Empty).ShouldBeFalse();
+			store.Contains(Guid.Empty).ShouldBeFalse();
+			store.Contains(Guid.Empty).ShouldBeFalse();
+		};
 
 		public class when_tracking_at_or_below_capacity
 		{
@@ -53,12 +57,8 @@ namespace Hydrospanner.Phases.Transformation
 			};
 		}
 
-		It should_never_track_empty_keys = () =>
-		{
-			store.Contains(Guid.Empty).ShouldBeFalse();
-			store.Contains(Guid.Empty).ShouldBeFalse();
-			store.Contains(Guid.Empty).ShouldBeFalse();
-		};
+		Establish context = () =>
+			store = new DuplicateStore(4);
 
 		static readonly Guid A = new Guid("11111111-0000-0000-0000-000000000000");
 		static readonly Guid B = new Guid("22222222-0000-0000-0000-000000000000");
