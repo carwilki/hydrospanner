@@ -20,6 +20,7 @@
 				try
 				{
 					this.TrySave(items);
+					break;
 				}
 				catch
 				{
@@ -51,7 +52,7 @@
 		private void AddItem(IDbCommand command, JournalItem item, int index)
 		{
 			var metadataId = this.RegisterType(item.SerializedType);
-			if (metadataId == this.registeredTypes.Count)
+			if (metadataId > this.registeredTypeCommittedIndex && metadataId == this.registeredTypes.Count)
 			{
 				command.AddParameter("@t{0}", metadataId, DbType.String, item.SerializedType);
 				this.statementBuilder.AppendFormat(InsertType, metadataId);
