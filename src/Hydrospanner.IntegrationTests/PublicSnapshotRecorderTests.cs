@@ -72,7 +72,7 @@ namespace Hydrospanner.IntegrationTests
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = "select count(*) from `hydrospanner-test`.`documents`;";
-				(int.Parse(command.ExecuteScalar().ToString())).ShouldEqual(Snapshots);
+				int.Parse(command.ExecuteScalar().ToString()).ShouldEqual(Snapshots);
 			}
 		};
 
@@ -114,7 +114,7 @@ namespace Hydrospanner.IntegrationTests
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = "select count(*) from `hydrospanner-test`.`documents`;";
-				(int.Parse(command.ExecuteScalar().ToString())).ShouldEqual(0);
+				int.Parse(command.ExecuteScalar().ToString()).ShouldEqual(0);
 			}
 		};
 	
@@ -155,7 +155,7 @@ namespace Hydrospanner.IntegrationTests
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = "select count(*) from `hydrospanner-test`.`documents`;";
-				(int.Parse(command.ExecuteScalar().ToString())).ShouldEqual(1);
+				int.Parse(command.ExecuteScalar().ToString()).ShouldEqual(1);
 			}
 		};
 	
@@ -185,7 +185,7 @@ namespace Hydrospanner.IntegrationTests
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = "select count(*) from `hydrospanner-test`.`documents`;";
-				(int.Parse(command.ExecuteScalar().ToString())).ShouldEqual(0);
+				int.Parse(command.ExecuteScalar().ToString()).ShouldEqual(0);
 			}
 		};
 

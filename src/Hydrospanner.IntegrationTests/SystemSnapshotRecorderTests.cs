@@ -21,7 +21,7 @@ namespace Hydrospanner.IntegrationTests
 			serializer = new JsonSerializer();
 			recorder = new SystemSnapshotRecorder(new FileWrapper(), workingDirectory);
 			expectedRecords = Enumerable.Range(1, 10)
-				.Select(x => new KeyValuePair<Type, Byte[]>(typeof(int), serializer.Serialize(x)))
+				.Select(x => new KeyValuePair<Type, byte[]>(typeof(int), serializer.Serialize(x)))
 				.ToList();
 		};
 
