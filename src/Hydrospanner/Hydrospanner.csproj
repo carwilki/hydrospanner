@@ -65,6 +65,7 @@
     <Compile Include="Persistence\SqlPersistence\SqlBootstrapStore.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlCheckpointStore.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlMessageStore.cs" />
+    <Compile Include="Phases\Bootstrap\BootstrapItem.cs" />
     <Compile Include="Phases\Journal\AcknowledgmentHandler.cs" />
     <Compile Include="Phases\Journal\DispatchCheckpointHandler.cs" />
     <Compile Include="Phases\Journal\DispatchHandler.cs" />
@@ -107,9 +108,7 @@
       <Link>Properties\CustomDictionary.xml</Link>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Phases\Bootstrap\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Reference Include="Atomic, Version=1.1.1.0, Culture=neutral, PublicKeyToken=979700c3ff7272ae, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
