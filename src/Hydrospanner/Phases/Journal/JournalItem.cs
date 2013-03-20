@@ -39,7 +39,7 @@
 			this.Headers = headers;
 		}
 
-		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, string typeName, byte[] headers, Guid foreignId)
+		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, string typeName, byte[] headers)
 		{
 			this.Clear();
 			this.ItemActions = JournalItemAction.Dispatch;
@@ -47,7 +47,6 @@
 			this.SerializedBody = body;
 			this.SerializedType = typeName;
 			this.SerializedHeaders = headers;
-			this.ForeignId = foreignId;
 		}
 
 		private void Clear()

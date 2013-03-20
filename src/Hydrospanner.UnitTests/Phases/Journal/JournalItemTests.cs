@@ -112,7 +112,7 @@ namespace Hydrospanner.Phases.Journal
 			item = new JournalItem();
 
 		Because of = () =>
-			item.AsBootstrappedDispatchMessage(42, Body, TypeName, Headers, ForeignId);
+			item.AsBootstrappedDispatchMessage(42, Body, TypeName, Headers);
 
 		It should_set_the_following_properties_according_to_the_input_arguments = () =>
 		{
@@ -121,7 +121,6 @@ namespace Hydrospanner.Phases.Journal
 			item.SerializedBody.ShouldEqual(Body);
 			item.SerializedType.ShouldEqual(TypeName);
 			item.SerializedHeaders.ShouldEqual(Headers);
-			item.ForeignId.ShouldEqual(ForeignId);
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>
@@ -129,11 +128,11 @@ namespace Hydrospanner.Phases.Journal
 			item.Acknowledgment.ShouldBeNull();
 			item.Body.ShouldBeNull();
 			item.Headers.ShouldBeNull();
+			item.ForeignId.ShouldEqual(Guid.Empty);
 		};
 
 		static JournalItem item;
 		const string TypeName = "TypeName";
-		static readonly Guid ForeignId = Guid.NewGuid();
 		static readonly byte[] Body = new byte[] { 1, 2, 3 };
 		static readonly byte[] Headers = new byte[] { 4, 5, 6 };
 	}

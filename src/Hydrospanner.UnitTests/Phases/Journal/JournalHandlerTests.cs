@@ -6,9 +6,9 @@ namespace Hydrospanner.Phases.Journal
 	using System;
 	using System.Collections.Generic;
 	using System.Linq;
-	using Hydrospanner.Persistence;
 	using Machine.Specifications;
 	using NSubstitute;
+	using Persistence;
 
 	public class when_journaling_messages
 	{
