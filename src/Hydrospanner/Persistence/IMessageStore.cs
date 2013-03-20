@@ -1,10 +1,12 @@
 ﻿namespace Hydrospanner.Persistence
 {
 	using System.Collections.Generic;
-	using Hydrospanner.Phases.Journal;
+	using Phases.Bootstrap;
+	using Phases.Journal;
 
-	public interface IMessageStore
+	internal interface IMessageStore
 	{
 		void Save(List<JournalItem> items);
+		IEnumerable<BootstrapJournalMessage> LoadFrom(long sequence);
 	}
 }

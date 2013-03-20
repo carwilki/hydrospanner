@@ -2,9 +2,9 @@
 {
 	using System.Collections.Generic;
 	using Disruptor;
-	using Hydrospanner.Persistence;
+	using Persistence;
 
-	public sealed class JournalHandler : IEventHandler<JournalItem>
+	internal sealed class JournalHandler : IEventHandler<JournalItem>
 	{
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{

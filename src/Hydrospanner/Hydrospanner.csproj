@@ -66,6 +66,9 @@
     <Compile Include="Persistence\SqlPersistence\SqlCheckpointStore.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlMessageStore.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItem.cs" />
+    <Compile Include="Phases\Bootstrap\BootstrapJournalMessage.cs" />
+    <Compile Include="Phases\Bootstrap\Ignition.cs" />
+    <Compile Include="Phases\Bootstrap\TrackingHandler.cs" />
     <Compile Include="Phases\Journal\AcknowledgmentHandler.cs" />
     <Compile Include="Phases\Journal\DispatchCheckpointHandler.cs" />
     <Compile Include="Phases\Journal\DispatchHandler.cs" />
