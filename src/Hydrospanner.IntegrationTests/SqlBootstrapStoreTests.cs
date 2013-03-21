@@ -86,4 +86,4 @@ namespace Hydrospanner.IntegrationTests
 }
 
 // ReSharper restore InconsistentNaming
-#pragma warning restore 269
+#pragma warning restore 169
