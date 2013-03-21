@@ -23,7 +23,7 @@ namespace Hydrospanner.IntegrationTests
 		{
 			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = Initiailize;
+				command.CommandText = Initialize;
 				command.ExecuteNonQuery();
 			}
 		}
@@ -49,7 +49,7 @@ namespace Hydrospanner.IntegrationTests
 		protected static TimeSpan napTime;
 		protected static IDbConnection connection;
 		protected static ConnectionStringSettings settings;
-		const string Initiailize = @"
+		const string Initialize = @"
 			CREATE DATABASE IF NOT EXISTS `hydrospanner-test`;
 			USE `hydrospanner-test`;
 

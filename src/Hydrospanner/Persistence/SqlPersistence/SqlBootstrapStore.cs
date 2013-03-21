@@ -52,7 +52,11 @@
 
 			if (reader.NextResult())
 				while (reader.Read())
-					identifiers.Add(reader.GetGuid(0));
+				{
+					Guid id;
+					if (Guid.TryParse(reader.GetString(0), out id))
+						identifiers.Add(id);
+				}
 
 			return new BootstrapInfo(journaled, dispatched, types, identifiers);
 		}
@@ -75,8 +79,8 @@
 
 		private const string SqlStatement = @"
 			SELECT COALESCE(MAX(sequence), 0) AS sequence, MAX(dispatch) AS dispatch FROM checkpoints LEFT OUTER JOIN messages ON 1=1;
-			SELECT type_name FROM metadata ORDER BY id;
-		    SELECT TOP {0} foreign_id FROM messages WHERE foreign_id IS NOT NULL;"; // TODO: MySQL
+			SELECT type_name FROM metadata ORDER BY metadata_id;
+		    SELECT toguid(foreign_id) FROM messages WHERE foreign_id IS NOT NULL ORDER BY sequence LIMIT {0};";
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;

@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	public struct BootstrapInfo
+	public class BootstrapInfo
 	{
 		public bool Populated { get; private set; }
 		public long JournaledSequence { get; private set; }
@@ -19,6 +19,9 @@
 
 		public BootstrapInfo(long journal, long dispatch, IEnumerable<string> types, ICollection<Guid> identifiers)
 			: this(journal, dispatch, 0, types, identifiers)
+		{
+		}
+		public BootstrapInfo()
 		{
 		}
 		private BootstrapInfo(long journal, long dispatch, long snapshot, IEnumerable<string> types, ICollection<Guid> identifiers) : this()
