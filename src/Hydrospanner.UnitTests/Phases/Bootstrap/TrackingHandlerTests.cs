@@ -3,15 +3,80 @@
 
 namespace Hydrospanner.Phases.Bootstrap
 {
+	using System;
+	using Hydrospanner.Phases.Transformation;
 	using Machine.Specifications;
 
 	[Subject(typeof(TrackingHandler))]
-	public class when_all_messages_have_been_received
+	public class when_tracking_the_number_of_received_messages
 	{
-		It should_shutdown_its_own_disruptor;
+		public class when_the_countdown_value_is_not_positive
+		{
+			It should_throw_an_exception = () =>
+				Catch.Exception(() => new TrackingHandler(0, Callback)).ShouldBeOfType<ArgumentOutOfRangeException>();
+		}
+		public class when_no_callback_is_provided
+		{
+			It should_throw_an_exception = () =>
+				Catch.Exception(() => new TrackingHandler(1, null)).ShouldBeOfType<ArgumentNullException>();
+		}
+		public class when_all_bootstrap_items_have_been_received
+		{
+			Establish context = () =>
+				handler = new TrackingHandler(1, Callback);
 
+			Because of = () =>
+				handler.OnNext((BootstrapItem)null, 0, false);
+
+			It should_invoke_the_provided_callback = () =>
+				calls.ShouldEqual(1);
+		}
+		public class when_all_transformation_items_have_been_received
+		{
+			Establish context = () =>
+				handler = new TrackingHandler(1, Callback);
+
+			Because of = () =>
+				handler.OnNext((TransformationItem)null, 0, false);
+
+			It should_invoke_the_provided_callback = () =>
+				calls.ShouldEqual(1);
+		}
+		public class when_more_than_expected_number_of_bootstrap_items_has_been_received
+		{
+			Establish context = () =>
+			{
+				handler = new TrackingHandler(1, Callback);
+				handler.OnNext((BootstrapItem)null, 0, false); // calls = 1
+			};
+
+			Because of = () =>
+				handler.OnNext((BootstrapItem)null, 0, false); // doesn't increment calls
+
+			It should_invoke_the_provided_callback_exactly_once = () =>
+				calls.ShouldEqual(1);
+		}
+		public class when_more_than_expected_number_of_transformation_items_has_been_received
+		{
+			Establish context = () =>
+			{
+				handler = new TrackingHandler(1, Callback);
+				handler.OnNext((TransformationItem)null, 0, false); // calls = 1
+			};
+
+			Because of = () =>
+				handler.OnNext((TransformationItem)null, 0, false); // doesn't increment calls
+
+			It should_invoke_the_provided_callback_exactly_once = () =>
+				calls.ShouldEqual(1);
+		}
+
+		Establish context = () =>
+			calls = 0;
+
+		static readonly Action Callback = () => calls++;
 		static TrackingHandler handler;
-		static RingBufferHarness<BootstrapItem> harness;
+		static int calls;
 	}
 }
 

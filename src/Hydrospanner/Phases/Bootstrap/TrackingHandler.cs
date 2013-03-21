@@ -1,30 +1,35 @@
 ﻿namespace Hydrospanner.Phases.Bootstrap
 {
+	using System;
 	using Disruptor;
-	using Disruptor.Dsl;
+	using Hydrospanner.Phases.Transformation;
 
-	public class TrackingHandler : IEventHandler<BootstrapItem>
+	public class TrackingHandler : IEventHandler<BootstrapItem>, IEventHandler<TransformationItem>
 	{
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{
-			if (--this.countdown > 0)
-				return;
-
-//			this.disruptor.Shutdown();
+			if (--this.countdown == 0)
+				this.callback();
 		}
-
-		public void Expect(int messages)
+		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
-			this.countdown = messages;
+			if (--this.countdown == 0)
+				this.callback();
 		}
 
-		int countdown;
-
-		public TrackingHandler(Disruptor<BootstrapItem> disruptor)
+		public TrackingHandler(long countdown, Action callback)
 		{
-			this.disruptor = disruptor;
+			if (countdown <= 0)
+				throw new ArgumentOutOfRangeException("countdown");
+
+			if (callback == null)
+				throw new ArgumentNullException("callback");
+
+			this.countdown = countdown;
+			this.callback = callback;
 		}
 
-		readonly Disruptor<BootstrapItem> disruptor;
+		private readonly Action callback;
+		private long countdown;
 	}
 }
