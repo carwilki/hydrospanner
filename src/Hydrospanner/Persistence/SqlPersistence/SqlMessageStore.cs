@@ -39,7 +39,7 @@
 				}
 			}
 		}
-		private void TrySave(List<JournalItem> items)
+		private void TrySave(IList<JournalItem> items)
 		{
 			using (var connection = this.factory.OpenConnection(this.connectionString))
 			using (var tranaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))

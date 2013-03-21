@@ -51,6 +51,7 @@
     <Compile Include="PublicSnapshotRecorderTests.cs" />
     <Compile Include="SqlBootstrapStoreTests.cs" />
     <Compile Include="SqlCheckpointStoreTests.cs" />
+    <Compile Include="SqlMessageStoreTests.cs" />
     <Compile Include="SystemSnapshotRecorderTests.cs" />
     <Compile Include="TestDatabase.cs" />
   </ItemGroup>
