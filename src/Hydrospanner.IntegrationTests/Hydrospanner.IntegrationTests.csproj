@@ -49,6 +49,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublicSnapshotRecorderTests.cs" />
+    <Compile Include="SqlCheckpointStoreTests.cs" />
     <Compile Include="SystemSnapshotRecorderTests.cs" />
     <Compile Include="TestDatabase.cs" />
   </ItemGroup>

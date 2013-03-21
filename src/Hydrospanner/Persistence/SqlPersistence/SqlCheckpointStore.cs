@@ -15,6 +15,7 @@
 				try
 				{
 					this.TrySave(sequence);
+					break;
 				}
 				catch
 				{
