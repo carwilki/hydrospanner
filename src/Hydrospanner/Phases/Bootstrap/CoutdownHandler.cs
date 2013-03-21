@@ -4,7 +4,7 @@
 	using Disruptor;
 	using Hydrospanner.Phases.Transformation;
 
-	public class TrackingHandler : IEventHandler<BootstrapItem>, IEventHandler<TransformationItem>
+	public class CoutdownHandler : IEventHandler<BootstrapItem>, IEventHandler<TransformationItem>
 	{
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{
@@ -17,7 +17,7 @@
 				this.callback();
 		}
 
-		public TrackingHandler(long countdown, Action callback)
+		public CoutdownHandler(long countdown, Action callback)
 		{
 			if (countdown <= 0)
 				throw new ArgumentOutOfRangeException("countdown");
