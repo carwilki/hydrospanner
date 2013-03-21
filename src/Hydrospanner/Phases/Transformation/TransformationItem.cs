@@ -42,7 +42,7 @@
 			this.Headers = headers;
 		}
 
-		public void AsJournaledMessage(long sequence, byte[] body, string type, byte[] headers, Guid foreignId)
+		public void AsJournaledMessage(long sequence, byte[] body, string type, byte[] headers)
 		{
 			this.Clear();
 			this.MessageSequence = sequence;
@@ -51,7 +51,6 @@
 			this.SerializedHeaders = headers;
 			this.IsDocumented = true;
 			this.IsLocal = true;
-			this.ForeignId = foreignId;
 		}
 
 		private void Clear()

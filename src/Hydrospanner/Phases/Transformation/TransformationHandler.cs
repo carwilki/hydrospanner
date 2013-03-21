@@ -1,9 +1,8 @@
 ﻿namespace Hydrospanner.Phases.Transformation
 {
-	using Bootstrap;
 	using Disruptor;
 
-	public sealed class TransformationHandler : IEventHandler<TransformationItem>, IEventHandler<BootstrapItem>
+	public sealed class TransformationHandler : IEventHandler<TransformationItem>
 	{
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
@@ -17,17 +16,6 @@
 			// for each message in the buffer, push the message in and gather out any resulting messages which are then added to the local buffer
 			// and so on until no messages are resulting.
 			// then take that entire set of messages (all of which resulted from an incoming message) and push to the next phase as a batch
-		}
-
-		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
-		{
-			// TODO:  Transform @ bootstrap
-			// if data is a memento: 
-			//    use selector to create memento to add to repository
-			// else: 
-			//    perform transformation described in above method 
-			//    if completed or public snapshot: 
-			//       get memento and publish to snapshot ring
 		}
 	}
 }

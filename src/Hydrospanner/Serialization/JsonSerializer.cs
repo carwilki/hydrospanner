@@ -56,6 +56,7 @@
 			if (string.IsNullOrWhiteSpace(typeName))
 				return null;
 
+			// TODO: do we need a dictionary here?
 			return Type.GetType(typeName);
 		}
 		public T Deserialize<T>(byte[] serialized)

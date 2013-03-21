@@ -45,9 +45,8 @@
 			{
 				Sequence = this.currentSequence,
 				SerializedType = this.registeredTypes[this.reader.GetInt16(0)],
-				ForeignId = this.reader.IsDBNull(1) ? Guid.Empty : this.reader.GetGuid(1),
-				SerializedBody = this.reader[2] as byte[],
-				SerializedHeaders = this.reader[3] as byte[],
+				SerializedBody = this.reader[1] as byte[],
+				SerializedHeaders = this.reader[2] as byte[],
 			};
 
 			this.currentSequence++;
@@ -100,7 +99,7 @@
 			this.connection = this.connection.TryDispose();
 		}
 
-		private const string LoadFromSequence = @"SELECT metadata_id, foreign_id, payload, headers FROM messages WHERE sequence >= {0};";
+		private const string LoadFromSequence = @"SELECT metadata_id, payload, headers FROM messages WHERE sequence >= {0};";
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(3);
 		private readonly Dictionary<short, string> registeredTypes = new Dictionary<short, string>(1024);
 		private readonly DbProviderFactory factory;

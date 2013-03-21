@@ -47,7 +47,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 				item.AsJournaledMessage(
-					42, Encoding.UTF8.GetBytes(Body), Headers.GetType().AssemblyQualifiedName, Encoding.UTF8.GetBytes(Body), Guid.NewGuid());
+					42, Encoding.UTF8.GetBytes(Body), Headers.GetType().AssemblyQualifiedName, Encoding.UTF8.GetBytes(Body));
 
 			It should_deserialize_the_headers = () =>
 				item.Headers.ShouldBeLike(Headers);

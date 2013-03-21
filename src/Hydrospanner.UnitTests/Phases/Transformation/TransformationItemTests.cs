@@ -98,11 +98,10 @@ namespace Hydrospanner.Phases.Transformation
 			body = new byte[] { 1, 2, 3 };
 			headers = new byte[] { 4, 5, 6 };
 			type = "System.String, mscorlib";
-			foreignId = Guid.NewGuid();
 		};
 
 		Because of = () =>
-			item.AsJournaledMessage(sequence, body, type, headers, foreignId);
+			item.AsJournaledMessage(sequence, body, type, headers);
 
 		It should_set_the_following_properties_according_to_the_provided_arguments = () =>
 		{
@@ -112,16 +111,16 @@ namespace Hydrospanner.Phases.Transformation
 			item.SerializedHeaders.ShouldEqual(headers);
 			item.IsLocal.ShouldBeTrue();
 			item.IsDocumented.ShouldBeTrue();
-			item.ForeignId.ShouldEqual(foreignId);
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>
 		{
-			item.Body.ShouldBeNull();;
+			item.Body.ShouldBeNull();
 			item.Headers.ShouldBeNull();
 			item.CanJournal.ShouldBeFalse();
 			item.IsDuplicate.ShouldBeFalse();
 			item.Acknowledgment.ShouldBeNull();
+			item.ForeignId.ShouldEqual(Guid.Empty);
 		};
 
 		static TransformationItem item;
@@ -129,7 +128,6 @@ namespace Hydrospanner.Phases.Transformation
 		static byte[] body;
 		static byte[] headers;
 		static string type;
-		static Guid foreignId;
 	}
 }
 
