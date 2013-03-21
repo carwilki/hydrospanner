@@ -11,7 +11,7 @@ CREATE TABLE metadata (
 CREATE TABLE messages (
 	sequence bigint NOT NULL,
 	metadata_id smallint NOT NULL,
-	foreign_id char(16) BINARY NULL,
+	foreign_id BINARY(16) NULL,
 	payload mediumblob NOT NULL,
 	headers mediumblob NULL,
     CONSTRAINT PK_checkpoints PRIMARY KEY CLUSTERED (sequence)

@@ -50,7 +50,8 @@ namespace Hydrospanner.IntegrationTests
 		protected static IDbConnection connection;
 		protected static ConnectionStringSettings settings;
 		const string Initialize = @"
-			CREATE DATABASE IF NOT EXISTS `hydrospanner-test`;
+			DROP DATABASE IF EXISTS `hydrospanner-test`;
+			CREATE DATABASE `hydrospanner-test`;
 			USE `hydrospanner-test`;
 
 			CREATE TABLE IF NOT EXISTS metadata (
@@ -62,7 +63,7 @@ namespace Hydrospanner.IntegrationTests
 			CREATE TABLE IF NOT EXISTS messages (
 				sequence bigint NOT NULL,
 				metadata_id smallint NOT NULL,
-				foreign_id char(16) BINARY NULL,
+				foreign_id BINARY(16) NULL,
 				payload mediumblob NOT NULL,
 				headers mediumblob NULL,
 				CONSTRAINT PK_checkpoints PRIMARY KEY CLUSTERED (sequence)
