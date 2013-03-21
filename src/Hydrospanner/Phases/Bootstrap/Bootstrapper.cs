@@ -63,7 +63,7 @@
 		{
 			var disruptor = CreateDisruptor<BootstrapItem>(new YieldingWaitStrategy(), 1024);
 			disruptor
-				.HandleEventsWith(new SerializationHandler(this.serializer))
+				.HandleEventsWith(new SerializationHandler(new JsonSerializer()))
 				.Then(new MementoHandler(this.repository))
 				.Then(new CoutdownHandler(countdown, () => this.mutex.Set()));
 			return disruptor;
@@ -72,7 +72,7 @@
 		private void StartSnapshotRing()
 		{
 			this.snapshotDisruptor = CreateDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 8);
-			this.snapshotDisruptor.HandleEventsWith(new Snapshot.SerializationHandler(this.serializer))
+			this.snapshotDisruptor.HandleEventsWith(new Snapshot.SerializationHandler(new JsonSerializer()))
 			    .Then(new SystemSnapshotHandler(null, this.iteration), new PublicSnapshotHandler(null)); // TODO
 
 			this.snapshotDisruptor.Start();
@@ -80,7 +80,7 @@
 		private void StartJournalRing()
 		{
 			this.journalDisruptor = CreateDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 64);
-			this.journalDisruptor.HandleEventsWith(new Journal.SerializationHandler(this.serializer))
+			this.journalDisruptor.HandleEventsWith(new Journal.SerializationHandler(new JsonSerializer()))
 			    .Then(new JournalHandler(this.messageStore))
 			    .Then(new AcknowledgmentHandler(), new DispatchHandler(this.messageSender))
 			    .Then(new DispatchCheckpointHandler(this.checkpointStore));
@@ -94,10 +94,11 @@
 				return;
 
 			var transformationHandler = new TransformationHandler(); // this will want access to the snapshot and journal rings
+			var serializationHandler = new DeserializationHandler(new JsonSerializer());
 
 			var countdown = info.JournaledSequence - info.SnapshotSequence;
 			this.transformationDisruptor = CreateDisruptor<TransformationItem>(new YieldingWaitStrategy(), 1024 * 128);
-			this.transformationDisruptor.HandleEventsWith(new DeserializationHandler(this.serializer))
+			this.transformationDisruptor.HandleEventsWith(serializationHandler)
 			    .Then(transformationHandler)
 			    .Then(new CoutdownHandler(countdown, () => this.mutex.Set()));
 
@@ -118,7 +119,7 @@
 			this.transformationDisruptor.Shutdown();
 
 			this.transformationDisruptor = CreateDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 32);
-			this.transformationDisruptor.HandleEventsWith(new DeserializationHandler(this.serializer)).Then(transformationHandler);
+			this.transformationDisruptor.HandleEventsWith(serializationHandler).Then(transformationHandler);
 			this.transformationDisruptor.Start();
 		}
 		private static void PublishToTransformationRing(RingBuffer<TransformationItem> ring, JournaledMessage message)
@@ -197,7 +198,6 @@
 		private const string DefaultConnection = "hydrospanner";
 		private const string DefaultProvider = "System.Data.SqlClient";
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
-		private readonly ISerializer serializer = new JsonSerializer();
 		private readonly IRepository repository;
 		private readonly int iteration;
 		private readonly DbProviderFactory factory;

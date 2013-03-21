@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner.Serialization
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Runtime.Serialization;
 	using System.Text;
 	using Newtonsoft.Json;
@@ -38,7 +39,7 @@
 			if (serialized == null || serialized.Length == 0)
 				return null;
 
-			var type = LoadType(typeName);
+			var type = this.LoadType(typeName);
 			if (type == null)
 				throw new SerializationException("Type '{0}' not found.".FormatWith(typeName));
 
@@ -51,13 +52,16 @@
 				throw new SerializationException(e.Message, e);
 			}
 		}
-		private static Type LoadType(string typeName)
+		private Type LoadType(string typeName)
 		{
 			if (string.IsNullOrWhiteSpace(typeName))
 				return null;
 
-			// TODO: do we need a dictionary here?
-			return Type.GetType(typeName);
+			Type type;
+			if (!this.types.TryGetValue(typeName, out type))
+				this.types[typeName] = type = Type.GetType(typeName);
+
+			return type;
 		}
 		public T Deserialize<T>(byte[] serialized)
 		{
@@ -90,5 +94,6 @@
 			Formatting = Formatting.Indented
 #endif
 		};
+		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>(1024);
 	}
 }
