@@ -9,7 +9,7 @@ namespace Hydrospanner.Phases.Bootstrap
 	public class when_initializing_the_item_as_a_snapshot
 	{
 		Establish context = () =>
-			item = new BootstrapItem();
+			item = new BootstrapItem { Memento = new object() };
 
 		Because of = () =>
 			item.AsSnapshot(typeof(string).AssemblyQualifiedName, new byte[] { 1, 2, 3 });
