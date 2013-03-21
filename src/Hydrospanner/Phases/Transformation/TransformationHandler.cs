@@ -8,6 +8,8 @@
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
 			// TODO: perform de-duplication here, e.g. if the item is duplicate, just forward the item to the next ring as an "ack-only" message and then return
+			// also, de-duplication must only happen on *live* incoming "foreign" messages that have just arrived off the wire, e.g.:
+			// if (data.Acknowledgment != null) data.IsDuplicate = this.duplicates.Contains(data.ForeignId);
 
 			// TODO: in the spike code, any messages resulting from here are then pushed back into the TransformationRing by a "forward local handler"
 			// instead, let's do the loop here and gather up all of the messages and then push all resulting messages to the next ring buffer as a batch

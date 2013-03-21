@@ -60,7 +60,10 @@
 			this.SerializedBody = this.SerializedHeaders = null;
 			this.Body = this.Headers = null;
 			this.SerializedType = null;
-			this.CanJournal = this.IsDocumented = this.IsLocal = this.IsDuplicate = false;
+			this.CanJournal = false;
+			this.IsDocumented = false;
+			this.IsLocal = false;
+			this.IsDuplicate = false;
 			this.ForeignId = Guid.Empty;
 			this.Acknowledgment = null;
 		}
