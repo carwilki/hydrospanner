@@ -1,16 +1,14 @@
 ﻿namespace Hydrospanner.Phases.Bootstrap
 {
-	using System;
-
 	public sealed class BootstrapItem
 	{
-		public Type MementoType { get; set; }
+		public string SerializedType { get; set; }
 		public byte[] SerializedMemento { get; set; }
 		public object Memento { get; set; }
 
-		public void AsSnapshot(Type type, byte[] memento)
+		public void AsSnapshot(string serializedType, byte[] memento)
 		{
-			this.MementoType = type;
+			this.SerializedType = serializedType;
 			this.SerializedMemento = memento;
 			this.Memento = null;
 		}

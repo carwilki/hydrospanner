@@ -8,7 +8,7 @@
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{
 			// TODO: get this under test
-			data.Memento = this.serializer.Deserialize(data.SerializedMemento, data.MementoType.AssemblyQualifiedName); // TODO
+			data.Memento = this.serializer.Deserialize(data.SerializedMemento, data.SerializedType); // TODO
 		}
 
 		public SerializationHandler(ISerializer serializer)

@@ -93,15 +93,15 @@ namespace Hydrospanner.Phases.Snapshot
 		};
 
 		const int NumberOfRecords = 42;
-		static readonly List<KeyValuePair<Type, byte[]>> Records = new List<KeyValuePair<Type, byte[]>>
+		static readonly List<KeyValuePair<string, byte[]>> Records = new List<KeyValuePair<string, byte[]>>
 		{
-			new KeyValuePair<Type, byte[]>(typeof(string), Encoding.UTF8.GetBytes("First")),
-			new KeyValuePair<Type, byte[]>(typeof(string), Encoding.UTF8.GetBytes("Second")),
-			new KeyValuePair<Type, byte[]>(typeof(string), Encoding.UTF8.GetBytes("Third"))
+			new KeyValuePair<string, byte[]>(typeof(string).AssemblyQualifiedName, Encoding.UTF8.GetBytes("First")),
+			new KeyValuePair<string, byte[]>(typeof(string).AssemblyQualifiedName, Encoding.UTF8.GetBytes("Second")),
+			new KeyValuePair<string, byte[]>(typeof(string).AssemblyQualifiedName, Encoding.UTF8.GetBytes("Third"))
 		};
 		static MemoryStream stream;
 		static SystemSnapshotStreamReader reader;
-		static List<KeyValuePair<Type, byte[]>> recordsReadFromSnapshot;
+		static List<KeyValuePair<string, byte[]>> recordsReadFromSnapshot;
 	}
 
 	[Subject(typeof(SystemSnapshotStreamReader))]

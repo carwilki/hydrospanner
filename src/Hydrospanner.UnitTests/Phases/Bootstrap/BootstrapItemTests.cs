@@ -12,12 +12,13 @@ namespace Hydrospanner.Phases.Bootstrap
 			item = new BootstrapItem();
 
 		Because of = () =>
-			item.AsSnapshot(typeof(string), new byte[] { 1, 2, 3 });
+			item.AsSnapshot(typeof(string).AssemblyQualifiedName, new byte[] { 1, 2, 3 });
 
 		It should_initialize_the_following_properties = () =>
 		{
-			item.MementoType.ShouldEqual(typeof(string));
+			item.SerializedType.ShouldEqual(typeof(string).AssemblyQualifiedName);
 			item.SerializedMemento.ShouldBeLike(new byte[] { 1, 2, 3 });
+			item.Memento.ShouldBeNull();
 		};
 
 		static BootstrapItem item;

@@ -3,7 +3,6 @@
 
 namespace Hydrospanner.IntegrationTests
 {
-	using System;
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.IO;
@@ -21,7 +20,7 @@ namespace Hydrospanner.IntegrationTests
 			serializer = new JsonSerializer();
 			recorder = new SystemSnapshotRecorder(new FileWrapper(), workingDirectory);
 			expectedRecords = Enumerable.Range(1, 10)
-				.Select(x => new KeyValuePair<Type, byte[]>(typeof(int), serializer.Serialize(x)))
+				.Select(x => new KeyValuePair<string, byte[]>(typeof(int).AssemblyQualifiedName, serializer.Serialize(x)))
 				.ToList();
 		};
 
@@ -63,12 +62,12 @@ namespace Hydrospanner.IntegrationTests
 		static SystemSnapshotRecorder recorder;
 		static JsonSerializer serializer;
 		static readonly string workingDirectory = Directory.GetCurrentDirectory();
-		static List<KeyValuePair<Type, byte[]>> expectedRecords;
+		static List<KeyValuePair<string, byte[]>> expectedRecords;
 	}
 
 	public static class ShouldExtensions
 	{
-		public static void ShouldBeEqual(this KeyValuePair<Type, byte[]> pair, KeyValuePair<Type, byte[]> other)
+		public static void ShouldBeEqual(this KeyValuePair<string, byte[]> pair, KeyValuePair<string, byte[]> other)
 		{
 			pair.Key.ShouldEqual(other.Key);
 			pair.Value.ShouldBeLike(other.Value);

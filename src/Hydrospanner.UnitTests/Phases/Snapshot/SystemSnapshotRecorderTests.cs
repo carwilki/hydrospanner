@@ -92,11 +92,11 @@ namespace Hydrospanner.Phases.Snapshot
 				hash = new SoapHexBinary(new SHA1Managed().ComputeHash(firstSnapshot.Contents)).ToString();
 				reader = SystemSnapshotStreamReader.Open(Sequence, 1, hash, new MemoryStream(firstSnapshot.Contents));
 				var records = reader.Read().ToList();
-				
-				records.Count().ShouldEqual(3);
-				records.First().ShouldBeEqual(new KeyValuePair<Type, byte[]>(typeof(string), "\"first\"".ToByteArray()));
-				records.ElementAt(1).ShouldBeEqual(new KeyValuePair<Type, byte[]>(typeof(string), "\"middle\"".ToByteArray()));
-				records.Last().ShouldBeEqual(new KeyValuePair<Type, byte[]>(typeof(string), "\"last\"".ToByteArray()));
+
+				records.Count.ShouldEqual(3);
+				records[0].ShouldBeEqual(new KeyValuePair<string, byte[]>(typeof(string).AssemblyQualifiedName, "\"first\"".ToByteArray()));
+				records[1].ShouldBeEqual(new KeyValuePair<string, byte[]>(typeof(string).AssemblyQualifiedName, "\"middle\"".ToByteArray()));
+				records[2].ShouldBeEqual(new KeyValuePair<string, byte[]>(typeof(string).AssemblyQualifiedName, "\"last\"".ToByteArray()));
 			};
 		}
 

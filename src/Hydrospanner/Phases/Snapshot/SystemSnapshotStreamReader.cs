@@ -12,23 +12,22 @@
 		public long MessageSequence { get; private set; }
 		public int Iteration { get; private set; }
 
-		public IEnumerable<KeyValuePair<Type, byte[]>> Read()
+		public IEnumerable<KeyValuePair<string, byte[]>> Read()
 		{
 			if (this.Count == 0)
 				yield break;
 
 			while (this.stream.Position < this.stream.Length)
 			{
-				var type = this.ResolveType(this.Next());
+				var type = ResolveType(this.Next());
 				var item = this.Next();
-				yield return new KeyValuePair<Type, byte[]>(type, item);
+				yield return new KeyValuePair<string, byte[]>(type, item);
 			}
 		}
 
-		private Type ResolveType(byte[] rawType)
+		private static string ResolveType(byte[] rawType)
 		{
-			var typeName = rawType.SliceString(0);
-			return this.types.ValueOrDefault(typeName) ?? (this.types[typeName] = Type.GetType(typeName));
+			return rawType.SliceString(0);
 		}
 
 		private byte[] Next()
@@ -85,7 +84,6 @@
 		}
 
 		readonly Stream stream;
-		readonly IDictionary<string, Type> types = new Dictionary<string, Type>();
 		readonly byte[] lengthBuffer = new byte[sizeof(int)];
 	}
 }
