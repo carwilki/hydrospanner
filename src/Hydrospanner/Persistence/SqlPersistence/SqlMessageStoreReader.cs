@@ -72,7 +72,7 @@
 			throw new NotSupportedException();
 		}
 
-		public SqlMessageStoreReader(DbProviderFactory factory, string connectionString, IEnumerable<string> types, int startingSequence)
+		public SqlMessageStoreReader(DbProviderFactory factory, string connectionString, IEnumerable<string> types, long startingSequence)
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");

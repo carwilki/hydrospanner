@@ -11,6 +11,12 @@
 
 	public sealed class SqlMessageStore : IMessageStore
 	{
+		public IEnumerable<JournaledMessage> Load(long startingSequence)
+		{
+			var types = this.registeredTypes.OrderBy(x => x.Value).Select(x => x.Key).ToArray();
+			return new SqlMessageStoreReader(this.factory, this.connectionString, types, startingSequence);
+		}
+
 		public void Save(List<JournalItem> items)
 		{
 			if (items == null || items.Count == 0)
