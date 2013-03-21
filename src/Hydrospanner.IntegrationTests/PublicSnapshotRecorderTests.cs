@@ -122,7 +122,7 @@ namespace Hydrospanner.IntegrationTests
 	}
 
 	[Subject(typeof(PublicSnapshotRecorder))]
-	public class when_database_errors_happen : TestDatabase
+	public class when_an_error_happen : TestDatabase
 	{
 		Establish context = () =>
 		{
@@ -161,36 +161,6 @@ namespace Hydrospanner.IntegrationTests
 	
 		static PublicSnapshotRecorder recorder;
 		static SnapshotItem snapshotItem;
-	}
-
-	[Subject(typeof(PublicSnapshotRecorder))]
-	public class when_other_errors_happen : TestDatabase
-	{
-		Establish context = () =>
-		{
-			recorder = new PublicSnapshotRecorder(null);
-			recorder.StartRecording(1);
-			var snapshotItem = new SnapshotItem();
-			snapshotItem.AsPublicSnapshot("key", "mem", 42);
-			snapshotItem.Serialize(new JsonSerializer());
-			recorder.Record(snapshotItem);
-		};
-
-		Because of = () =>
-			exception = Catch.Exception(() => recorder.FinishRecording());
-
-		It should_swallow_the_exception_and_not_record_a_snapshot = () =>
-		{
-			exception.ShouldBeNull();
-			using (var command = connection.CreateCommand())
-			{
-				command.CommandText = "select count(*) from `hydrospanner-test`.`documents`;";
-				int.Parse(command.ExecuteScalar().ToString()).ShouldEqual(0);
-			}
-		};
-
-		static Exception exception;
-		static PublicSnapshotRecorder recorder;
 	}
 }
 

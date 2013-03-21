@@ -35,13 +35,9 @@
 					this.SaveSnapshotItems();
 					break;
 				}
-				catch (DbException)
-				{
-					TimeSpan.FromSeconds(5).Sleep();
-				}
 				catch (Exception)
 				{
-					break; // TODO: log
+					TimeSpan.FromSeconds(5).Sleep();
 				}
 			}
 		}
