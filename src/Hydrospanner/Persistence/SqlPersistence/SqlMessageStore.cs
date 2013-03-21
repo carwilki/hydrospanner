@@ -9,7 +9,7 @@
 	using Phases.Bootstrap;
 	using Phases.Journal;
 
-	internal class SqlMessageStore : IMessageStore
+	public sealed class SqlMessageStore : IMessageStore
 	{
 		public void Save(List<JournalItem> items)
 		{
@@ -75,35 +75,6 @@
 
 			return id;
 		}
-
-		public IEnumerable<BootstrapJournalMessage> LoadFrom(long sequence)
-		{
-			// TODO: try/catch
-
-			using (var connection = this.factory.OpenConnection(this.connectionString))
-			using (var tranaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
-			using (var command = tranaction.CreateCommand())
-			{
-				command.CommandText = LoadFromSequence;
-				using (var reader = command.ExecuteReader())
-				{
-					if (reader == null)
-						yield break;
-
-					while (reader.Read())
-					{
-						yield return new BootstrapJournalMessage
-						{
-							Sequence = reader.GetInt64(0),
-							TypeName = reader.GetString(1),
-							SerializedBody = reader.GetValue(2) as byte[],
-							SerializedHeaders = reader.GetValue(3) as byte[]
-						};
-					}
-				}
-			}
-		}
-
 		private void Cleanup()
 		{
 			this.statementBuilder.Clear();
@@ -136,13 +107,6 @@
 		private const string InsertType = "INSERT INTO metadata SELECT {0}, @t{0};\n";
 		private const string InsertLocalMessage = "INSERT INTO messages SELECT {0}, {1}, NULL, @p{2}, @h{2};\n";
 		private const string InsertForeignMessage = "INSERT INTO messages SELECT {0}, {1}, @f{2}, @p{2}, @h{2};\n";
-		private const string LoadFromSequence = @"
-			SELECT M.sequence, T.type_name, M.payload, M.headers
-			  FROM messages M
-			  JOIN metadata T
-				ON M.metadata_id = T.identifier
-			 WHERE M.foreign_id IS NULL
-			   AND M.sequence >= @0;";
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(3);
 		private readonly Dictionary<string, short> registeredTypes = new Dictionary<string, short>(1024);
 		private readonly StringBuilder statementBuilder = new StringBuilder();

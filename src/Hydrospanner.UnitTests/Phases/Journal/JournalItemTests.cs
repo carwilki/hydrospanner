@@ -132,7 +132,7 @@ namespace Hydrospanner.Phases.Journal
 		};
 
 		static JournalItem item;
-		const string TypeName = "TypeName";
+		const string TypeName = "SerializedType";
 		static readonly byte[] Body = new byte[] { 1, 2, 3 };
 		static readonly byte[] Headers = new byte[] { 4, 5, 6 };
 	}
