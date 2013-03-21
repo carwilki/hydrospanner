@@ -3,6 +3,7 @@
 	using System;
 	using System.Configuration;
 	using System.Data.Common;
+	using System.IO.Abstractions;
 	using System.Threading;
 	using System.Threading.Tasks;
 	using Disruptor;
@@ -37,7 +38,7 @@
 			if (info.JournaledSequence == 0)
 				return info;
 
-			var loader = new SystemSnapshotLoader(null, null, null);
+			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), "TODO-path-to-snapshot-files"); // TODO
 			var reader = loader.Load(info.JournaledSequence, this.iteration);
 			if (reader.Count > 0 && reader.MessageSequence > 0)
 				this.LoadSnapshots(reader);
@@ -71,9 +72,12 @@
 
 		private void StartSnapshotRing()
 		{
+			var systemRecorder = new SystemSnapshotRecorder(new FileWrapper(), "TODO--path-to-snapshot-files"); // TODO
+			var publicRecorder = new PublicSnapshotRecorder(null); // TODO
+
 			this.snapshotDisruptor = CreateDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 8);
 			this.snapshotDisruptor.HandleEventsWith(new Snapshot.SerializationHandler(new JsonSerializer()))
-			    .Then(new SystemSnapshotHandler(null, this.iteration), new PublicSnapshotHandler(null)); // TODO
+			    .Then(new SystemSnapshotHandler(systemRecorder, this.iteration), new PublicSnapshotHandler(publicRecorder));
 
 			this.snapshotDisruptor.Start();
 		}
