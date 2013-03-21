@@ -5,8 +5,8 @@ namespace Hydrospanner.Phases.Journal
 {
 	using System.Collections.Generic;
 	using System.Linq;
-	using Hydrospanner.Messaging;
 	using Machine.Specifications;
+	using Messaging;
 	using NSubstitute;
 
 	public class DispatchHandlerTests

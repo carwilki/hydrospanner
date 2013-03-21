@@ -5,8 +5,8 @@ namespace Hydrospanner.Phases.Snapshot
 {
 	using System.Collections.Generic;
 	using System.Text;
-	using Hydrospanner.Serialization;
 	using Machine.Specifications;
+	using Serialization;
 
 	[Subject(typeof(SerializationHandler))]
 	public class when_serializing_the_snapshot

@@ -2,7 +2,7 @@
 {
 	using System;
 	using Disruptor;
-	using Hydrospanner.Persistence;
+	using Persistence;
 
 	public sealed class DispatchCheckpointHandler : IEventHandler<JournalItem>
 	{

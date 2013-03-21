@@ -1,7 +1,5 @@
 ﻿namespace Hydrospanner.Phases.Snapshot
 {
-	using System;
-
 	internal static class XxHashUnsafeExtensions
 	{
 		// Reference: https://github.com/EventStore/EventStore/blob/master/src/EventStore/EventStore.Core/Index/Hashes/XXHashUnsafe.cs

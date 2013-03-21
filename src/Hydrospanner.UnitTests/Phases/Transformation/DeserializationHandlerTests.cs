@@ -6,8 +6,8 @@ namespace Hydrospanner.Phases.Transformation
 	using System;
 	using System.Collections.Generic;
 	using System.Text;
-	using Hydrospanner.Serialization;
 	using Machine.Specifications;
+	using Serialization;
 
 	[Subject(typeof(DeserializationHandler))]
 	public class when_deserializing_the_transformation_item

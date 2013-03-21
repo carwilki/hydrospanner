@@ -3,9 +3,9 @@
 
 namespace Hydrospanner.Phases.Journal
 {
-	using Hydrospanner.Persistence;
 	using Machine.Specifications;
 	using NSubstitute;
+	using Persistence;
 
 	public class DispatchCheckpointHandlerTests
 	{

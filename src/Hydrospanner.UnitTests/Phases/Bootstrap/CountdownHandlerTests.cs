@@ -4,8 +4,8 @@
 namespace Hydrospanner.Phases.Bootstrap
 {
 	using System;
-	using Hydrospanner.Phases.Transformation;
 	using Machine.Specifications;
+	using Transformation;
 
 	[Subject(typeof(CoutdownHandler))]
 	public class when_counting_the_number_of_received_messages

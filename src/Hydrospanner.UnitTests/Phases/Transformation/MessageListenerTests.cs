@@ -6,8 +6,8 @@ namespace Hydrospanner.Phases.Transformation
 	using System;
 	using System.Collections.Generic;
 	using System.Threading;
-	using Hydrospanner.Messaging;
 	using Machine.Specifications;
+	using Messaging;
 	using NSubstitute;
 
 	[Subject(typeof(MessageListener))]

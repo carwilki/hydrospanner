@@ -2,7 +2,7 @@
 {
 	using System.Collections.Generic;
 	using Disruptor;
-	using Hydrospanner.Messaging;
+	using Messaging;
 
 	public sealed class DispatchHandler : IEventHandler<JournalItem>
 	{
