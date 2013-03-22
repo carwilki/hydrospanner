@@ -4,7 +4,7 @@
 
 	public class MessageBootstrapper
 	{
-		public void Restore(BootstrapInfo info, object snapshotRing, object journalRing, IRepository repository)
+		public virtual void Restore(BootstrapInfo info, object snapshotRing, object journalRing, IRepository repository)
 		{
 			throw new System.NotImplementedException();
 		}
