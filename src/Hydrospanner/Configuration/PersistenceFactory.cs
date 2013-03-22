@@ -4,8 +4,8 @@
 	using System.Collections.Generic;
 	using System.Configuration;
 	using System.Data.Common;
-	using Hydrospanner.Persistence;
-	using Hydrospanner.Persistence.SqlPersistence;
+	using Persistence;
+	using Persistence.SqlPersistence;
 
 	public class PersistenceFactory
 	{
