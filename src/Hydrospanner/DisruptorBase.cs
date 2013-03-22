@@ -2,7 +2,7 @@
 {
 	using Disruptor;
 	using Disruptor.Dsl;
-	using Hydrospanner.Phases;
+	using Phases;
 
 	public sealed class DisruptorBase<T> : IDisruptor<T> where T : class
 	{
@@ -11,9 +11,9 @@
 			get { return this.disruptor.RingBuffer; }
 		}
 
-		public void Start()
+		public RingBuffer<T> Start()
 		{
-			this.disruptor.Start();
+			return this.disruptor.Start();
 		}
 		public void Stop()
 		{

@@ -4,9 +4,12 @@
 namespace Hydrospanner.Phases.Bootstrap
 {
 	using System;
+	using System.Collections.Generic;
 	using Configuration;
 	using Machine.Specifications;
 	using NSubstitute;
+	using Persistence;
+	using Snapshot;
 
 	[Subject(typeof(SnapshotBootstrapper))]
 	public class when_bootstrapping_from_a_system_snapshot
@@ -22,14 +25,136 @@ namespace Hydrospanner.Phases.Bootstrap
 				Catch.Exception(() => new SnapshotBootstrapper(Substitute.For<SnapshotFactory>(), null)).ShouldBeOfType<ArgumentNullException>();
 		}
 
+		public class when_no_bootstrap_info_is_provided
+		{
+			Because of = () =>
+				Try(() => bootstrapper.RestoreSnapshots(null, repository));
+
+			It should_throw_an_exception = () =>
+				thrown.ShouldBeOfType<ArgumentNullException>();
+		}
+
+		public class when_no_repository_is_provided
+		{
+			Because of = () =>
+				Try(() => bootstrapper.RestoreSnapshots(providedInfo, null));
+
+			It should_throw_an_exception = () =>
+				thrown.ShouldBeOfType<ArgumentNullException>();
+		}
+
 		public class when_reading_streaming_in_a_system_snapshot
 		{
-			It should_load_from_the_journaled_sequence;
-			It should_create_a_disruptor;
-			It should_start_the_disruptor;
-			It should_publish_each_item_to_the_journal;
-			It should_shutdown_the_disruptor;
+			Establish context = () =>
+			{
+				count = 0;
+				completeCallback = null;
+
+				ring = new RingBufferHarness<BootstrapItem>(CompleteCallback);
+				reader = Substitute.For<SystemSnapshotStreamReader>();
+				reader.Read().Returns(new[]
+				{
+					new KeyValuePair<string, byte[]>("1", new byte[] { 1 }), 
+					new KeyValuePair<string, byte[]>("2", new byte[] { 2 }), 
+					new KeyValuePair<string, byte[]>("3", new byte[] { 3 })
+				});
+
+				disruptor = Substitute.For<IDisruptor<BootstrapItem>>();
+				disruptor.Start().Returns(ring.RingBuffer);
+
+				reader.Count.Returns(ItemCount);
+
+				snapshots.CreateSystemSnapshotStreamReader(providedInfo.JournaledSequence).Returns(reader);
+				disruptors.CreateBootstrapDisruptor(repository, ItemCount, Arg.Do<Action>(x => completeCallback = x)).Returns(disruptor);
+			};
+			static void CompleteCallback(BootstrapItem item)
+			{
+				if (++count == ItemCount)
+					completeCallback();
+			}
+
+			Cleanup after = () =>
+				ring.Dispose();
+
+			Because of = () =>
+				returnedInfo = bootstrapper.RestoreSnapshots(providedInfo, repository);
+
+			It should_load_from_the_journaled_sequence = () =>
+				snapshots.Received(1).CreateSystemSnapshotStreamReader(providedInfo.JournaledSequence);
+
+			It should_create_a_disruptor = () =>
+				disruptors.Received(1).CreateBootstrapDisruptor(repository, ItemCount, Arg.Any<Action>());
+
+			It should_start_the_disruptor = () =>
+				disruptor.Received(1).Start();
+
+			It should_publish_each_item_to_the_journal = () =>
+				count.ShouldEqual(ItemCount);
+
+			It should_dispose_the_underlying_snapshot_reader = () =>
+				reader.Received(1).Dispose();
+
+			It should_dispose_the_disruptor = () =>
+				disruptor.Received(1).Dispose();
+
+			It should_return_the_bootstrap_info_augmented_with_the_current_snapshot_sequence = () =>
+				returnedInfo.ShouldBeLike(new BootstrapInfo(
+					providedInfo.JournaledSequence,
+					providedInfo.DispatchSequence,
+					providedInfo.SerializedTypes,
+					providedInfo.DuplicateIdentifiers)
+						.AddSnapshotSequence(reader.Count));
+
+			const int ItemCount = 3;
+			static RingBufferHarness<BootstrapItem> ring;
+			static SystemSnapshotStreamReader reader;
+			static IDisruptor<BootstrapItem> disruptor;
+			static int count;
+			static Action completeCallback;
 		}
+
+		public class when_latest_snapshot_does_not_contain_any_items
+		{
+			It should_not_create_a_disruptor;
+			It should_return_the_bootstrap_info_augmented_with_the_current_snapshot_sequence;
+		}
+
+		public class when_the_latest_journaled_sequence_is_zero
+		{
+			It should_not_load_any_snapshots;
+			It should_not_create_a_disruptor;
+			It should_return_the_existing_bootstrap_info;
+		}
+
+		public class when_the_latest_snapshot_sequence_is_zero
+		{
+			It should_not_load_any_snapshots;
+			It should_not_create_a_disruptor;
+			It should_return_the_existing_bootstrap_info;
+		}
+
+		Establish context = () =>
+		{
+			thrown = null;
+			snapshots = Substitute.For<SnapshotFactory>();
+			disruptors = Substitute.For<DisruptorFactory>();
+			repository = Substitute.For<IRepository>();
+			providedInfo = new BootstrapInfo(2, 1, new string[0], new Guid[0]);
+
+			bootstrapper = new SnapshotBootstrapper(snapshots, disruptors);
+		};
+		static void Try(Action callback)
+		{
+			thrown = Catch.Exception(callback);
+		}
+
+		static SnapshotBootstrapper bootstrapper;
+		static SnapshotFactory snapshots;
+		static DisruptorFactory disruptors;
+		static BootstrapInfo returnedInfo;
+		static BootstrapInfo providedInfo;
+		static IRepository repository;
+		static Exception thrown;
 	}
 }
 

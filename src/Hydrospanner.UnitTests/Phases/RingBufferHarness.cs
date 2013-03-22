@@ -20,10 +20,14 @@
 			this.clearBatch = endOfBatch;
 			this.AllItems.Add(data);
 			this.CurrentBatch.Add(data);
+
+			if (this.callback != null)
+				this.callback(data);
 		}
 
-		public RingBufferHarness(int ringSize = 1024)
+		public RingBufferHarness(Action<T> callback = null, int ringSize = 1024)
 		{
+			this.callback = callback;
 			this.AllItems = new List<T>();
 			this.CurrentBatch = new List<T>();
 
@@ -54,6 +58,7 @@
 		}
 
 		private readonly Disruptor<T> disruptor;
+		private readonly Action<T> callback;
 		private bool clearBatch;
 	}
 }

@@ -1,14 +1,39 @@
 ﻿namespace Hydrospanner.Phases.Bootstrap
 {
 	using System;
+	using System.Threading;
 	using Configuration;
+	using Disruptor;
 	using Persistence;
+	using Snapshot;
 
 	public class SnapshotBootstrapper
 	{
 		public virtual BootstrapInfo RestoreSnapshots(BootstrapInfo info, IRepository repository)
 		{
-			return null;
+			if (info == null)
+				throw new ArgumentNullException("info");
+
+			if (repository == null)
+				throw new ArgumentNullException("repository");
+
+			using (var reader = this.snapshotFactory.CreateSystemSnapshotStreamReader(info.JournaledSequence))
+			using (var disruptor = this.disruptorFactory.CreateBootstrapDisruptor(repository, reader.Count, () => this.mutex.Set()))
+			{
+				Publish(reader, disruptor.Start());
+				this.mutex.WaitOne();
+				return info.AddSnapshotSequence(reader.Count);
+			}
+		}
+		private static void Publish(SystemSnapshotStreamReader reader, RingBuffer<BootstrapItem> ring)
+		{
+			foreach (var memento in reader.Read())
+			{
+				var claimed = ring.Next();
+				var item = ring[claimed];
+				item.AsSnapshot(memento.Key, memento.Value);
+				ring.Publish(claimed);
+			}
 		}
 
 		public SnapshotBootstrapper(SnapshotFactory snapshotFactory, DisruptorFactory disruptorFactory)
@@ -26,7 +51,8 @@
 		{
 		}
 
-		readonly SnapshotFactory snapshotFactory;
-		readonly DisruptorFactory disruptorFactory;
+		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
+		private readonly SnapshotFactory snapshotFactory;
+		private readonly DisruptorFactory disruptorFactory;
 	}
 }

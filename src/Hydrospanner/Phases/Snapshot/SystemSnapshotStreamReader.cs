@@ -8,11 +8,10 @@
 
 	public class SystemSnapshotStreamReader : IDisposable
 	{
-		public int Count { get; private set; }
-		public long MessageSequence { get; private set; }
-		public int Generation { get; private set; }
-
-		public IEnumerable<KeyValuePair<string, byte[]>> Read()
+		public virtual int Count { get; private set; }
+		public virtual long MessageSequence { get; private set; }
+		public virtual int Generation { get; private set; }
+		public virtual IEnumerable<KeyValuePair<string, byte[]>> Read()
 		{
 			if (this.Count == 0)
 				yield break;
@@ -29,7 +28,6 @@
 		{
 			return rawType.SliceString(0);
 		}
-
 		private byte[] Next()
 		{
 			this.stream.Read(this.lengthBuffer, 0, this.lengthBuffer.Length);
@@ -38,7 +36,6 @@
 			this.stream.Read(itemBuffer, 0, length);
 			return itemBuffer;
 		}
-
 		public static SystemSnapshotStreamReader Open(long sequence, int snapshotGeneration, string hash, Stream stream)
 		{
 			hash = hash.Trim().ToUpperInvariant();
