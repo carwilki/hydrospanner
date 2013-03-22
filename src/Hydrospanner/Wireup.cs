@@ -14,6 +14,7 @@
 	public class Wireup : IDisposable
 	{
 		public virtual IRepository Repository { get; private set; }
+		public virtual int SnapshotGeneration { get; private set; }
 		public virtual SystemSnapshotLoader SystemSnapshotLoader { get; private set; }
 		public virtual ISnapshotRecorder SystemSnapshotRecorder { get; private set; }
 		public virtual ISnapshotRecorder PublicSnapshotRecorder { get; private set; }
@@ -31,7 +32,7 @@
 			int duplicateWindow,
 			string connectionName,
 			string snapshotPath,
-			int generation)
+			int snapshotGeneration)
 		{
 			if (repository == null)
 				throw new ArgumentNullException("repository");
@@ -54,8 +55,8 @@
 			if (string.IsNullOrWhiteSpace(snapshotPath))
 				throw new ArgumentNullException("snapshotPath");
 
-			if (generation < 0)
-				throw new ArgumentOutOfRangeException("generation");
+			if (snapshotGeneration < 0)
+				throw new ArgumentOutOfRangeException("snapshotGeneration");
 
 			var connectionSettings = ConfigurationManager.ConnectionStrings[connectionName];
 			if (connectionSettings == null)
@@ -82,7 +83,8 @@
 				MessageReceiver = new RabbitChannel(connector, nodeId, x => new RabbitSubscription(x, sourceQueue)),
 				MessageSender = new RabbitChannel(connector, nodeId),
 				BootstrapInfo = info,
-				MessageStore = new SqlMessageStore(factory, connectionSettings.ConnectionString, info.SerializedTypes)
+				MessageStore = new SqlMessageStore(factory, connectionSettings.ConnectionString, info.SerializedTypes),
+				SnapshotGeneration = snapshotGeneration
 			};
 		}
 
