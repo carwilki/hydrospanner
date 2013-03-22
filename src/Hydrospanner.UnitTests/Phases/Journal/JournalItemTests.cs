@@ -25,13 +25,11 @@ namespace Hydrospanner.Phases.Journal
 			item.Headers.ShouldEqual(headers);
 			item.ForeignId.ShouldEqual(ForeignId);
 			item.Body.ShouldEqual(Body);
+			item.SerializedType.ShouldEqual(Body.GetType().AssemblyQualifiedName);
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>
-		{
 			item.SerializedHeaders.ShouldBeNull();
-			item.SerializedType.ShouldBeNull();
-		};
 
 		const string Body = "Body";
 		static JournalItem item;
@@ -58,13 +56,13 @@ namespace Hydrospanner.Phases.Journal
 			item.Headers.ShouldEqual(headers);
 			item.ForeignId.ShouldEqual(ForeignId);
 			item.Body.ShouldEqual(Body);
+			item.SerializedType.ShouldEqual(Body.GetType().AssemblyQualifiedName);
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>
 		{
 			item.MessageSequence.ShouldEqual(0);
 			item.SerializedHeaders.ShouldBeNull();
-			item.SerializedType.ShouldBeNull();
 		};
 
 		const string Body = "Body";
@@ -90,6 +88,7 @@ namespace Hydrospanner.Phases.Journal
 			item.MessageSequence.ShouldEqual(42);
 			item.Headers.ShouldEqual(headers);
 			item.Body.ShouldEqual(Body);
+			item.SerializedType.ShouldEqual(Body.GetType().AssemblyQualifiedName);
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>
@@ -98,7 +97,6 @@ namespace Hydrospanner.Phases.Journal
 			item.Acknowledgment.ShouldBeNull();
 			item.ForeignId.ShouldEqual(Guid.Empty);
 			item.SerializedBody.ShouldBeNull();
-			item.SerializedType.ShouldBeNull();
 		};
 
 		const string Body = "Body";

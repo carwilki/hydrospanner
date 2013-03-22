@@ -28,6 +28,7 @@
 			this.Headers = headers;
 			this.ForeignId = foreignId;
 			this.Acknowledgment = acknowledgment;
+			this.SerializedType = body.GetType().AssemblyQualifiedName;
 		}
 
 		public void AsTransformationResultMessage(long sequence, object body, Dictionary<string, string> headers)
@@ -37,6 +38,8 @@
 			this.MessageSequence = sequence;
 			this.Body = body;
 			this.Headers = headers;
+			if (body != null)
+				this.SerializedType = body.GetType().AssemblyQualifiedName;
 		}
 
 		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, string typeName, byte[] headers)

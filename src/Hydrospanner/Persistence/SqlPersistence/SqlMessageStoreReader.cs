@@ -5,10 +5,12 @@
 	using System.Collections.Generic;
 	using System.Data;
 	using System.Data.Common;
-	using Hydrospanner.Phases.Bootstrap;
+	using Phases.Bootstrap;
 
 	public sealed class SqlMessageStoreReader : IEnumerable<JournaledMessage>, IEnumerator<JournaledMessage>
 	{
+		public int ConnectionAttempts { get; private set; }
+
 		public bool MoveNext()
 		{
 			while (true)
@@ -29,8 +31,9 @@
 		}
 		private void TryConnect()
 		{
+			this.ConnectionAttempts++;
 			this.connection = this.factory.OpenConnection(this.connectionString);
-			this.command = this.connection.CreateCommand(LoadFromSequence.FormatWith(this.startingSequence));
+			this.command = this.connection.CreateCommand(LoadFromSequence.FormatWith(this.currentSequence));
 			this.reader = this.command.ExecuteReader();
 		}
 		private bool TryRead()
@@ -87,9 +90,9 @@
 
 			this.factory = factory;
 			this.connectionString = connectionString;
+			this.currentSequence = startingSequence;
 			foreach (var type in types)
 				this.registeredTypes[(short)(this.registeredTypes.Count + 1)] = type;
-			this.startingSequence = startingSequence;
 		}
 
 		public void Dispose()
@@ -104,7 +107,6 @@
 		private readonly Dictionary<short, string> registeredTypes = new Dictionary<short, string>(1024);
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
-		private readonly long startingSequence;
 		private long currentSequence;
 
 		private IDbConnection connection;

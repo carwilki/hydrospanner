@@ -42,37 +42,61 @@
 		private void TrySave(IList<JournalItem> items)
 		{
 			using (var connection = this.factory.OpenConnection(this.connectionString))
-			using (var tranaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
-			using (var command = tranaction.CreateCommand())
+			using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
+			using (var command = this.BuildCommand(items, transaction))
 			{
-				for (var i = 0; i < items.Count; i++)
-					this.AddItem(command, items[i], i);
-
-				command.CommandText = this.statementBuilder.ToString();
 				command.ExecuteNonQuery();
-
-				tranaction.Commit();
-
+				transaction.Commit();
 				this.registeredTypeCommittedIndex = this.registeredTypes.Count;
 			}
 		}
+
+		IDbCommand BuildCommand(IList<JournalItem> items, IDbTransaction transaction)
+		{
+			var command = transaction.CreateCommand();
+			for (var i = 0; i < items.Count; i++)
+				this.AddItem(command, items[i], i);
+
+			command.CommandText = this.statementBuilder.ToString();
+			
+			return command;
+		}
 		private void AddItem(IDbCommand command, JournalItem item, int index)
 		{
+			AddSerializedData(command, item, index);
+			var metadataId = this.AddMetadata(command, item);
+			var statement = DetermineInsertStatement(command, item, index);
+			
+			this.statementBuilder.AppendFormat(statement, item.MessageSequence, metadataId, index);
+		}
+		private static void AddSerializedData(IDbCommand command, JournalItem item, int index)
+		{
+			command.AddParameter("@p{0}", index, DbType.Binary, item.SerializedBody);
+			command.AddParameter("@h{0}", index, DbType.Binary, item.SerializedHeaders);
+		}
+		private short AddMetadata(IDbCommand command, JournalItem item)
+		{
 			var metadataId = this.RegisterType(item.SerializedType);
-			if (metadataId > this.registeredTypeCommittedIndex && metadataId == this.registeredTypes.Count)
+			if (metadataId > this.registeredTypeCommittedIndex && !this.typesPendingRegistration.Contains(metadataId))
 			{
 				command.AddParameter("@t{0}", metadataId, DbType.String, item.SerializedType);
 				this.statementBuilder.AppendFormat(InsertType, metadataId);
+				this.typesPendingRegistration.Add(metadataId);
 			}
 
-			var foreign = item.Acknowledgment != null;
-			if (foreign)
-				command.AddParameter("@f{0}", index, DbType.Guid, item.ForeignId);
-			command.AddParameter("@p{0}", index, DbType.Binary, item.SerializedBody);
-			command.AddParameter("@h{0}", index, DbType.Binary, item.SerializedHeaders);
-			var statement = foreign ? InsertForeignMessage : InsertLocalMessage;
-			this.statementBuilder.AppendFormat(statement, item.MessageSequence, metadataId, index);
+			return metadataId;
 		}
+		private static string DetermineInsertStatement(IDbCommand command, JournalItem item, int index)
+		{
+			if (item.ItemActions.HasFlag(JournalItemAction.Acknowledge))
+			{
+				command.AddParameter("@f{0}", index, DbType.Binary, item.ForeignId.ToByteArray());
+				return InsertForeignMessage;
+			}
+
+			return InsertLocalMessage;
+		}
+
 		private short RegisterType(string type)
 		{
 			short id;
@@ -84,6 +108,7 @@
 		private void Cleanup()
 		{
 			this.statementBuilder.Clear();
+			this.typesPendingRegistration.Clear();
 
 			if (this.registeredTypeCommittedIndex == this.registeredTypes.Count)
 				return;
@@ -115,6 +140,7 @@
 		private const string InsertForeignMessage = "INSERT INTO messages SELECT {0}, {1}, @f{2}, @p{2}, @h{2};\n";
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(3);
 		private readonly Dictionary<string, short> registeredTypes = new Dictionary<string, short>(1024);
+		private readonly HashSet<short> typesPendingRegistration = new HashSet<short>(); 
 		private readonly StringBuilder statementBuilder = new StringBuilder();
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
