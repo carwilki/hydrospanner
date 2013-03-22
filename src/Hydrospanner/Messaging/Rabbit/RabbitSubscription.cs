@@ -5,7 +5,7 @@
 	using RabbitMQ.Client.Events;
 	using RabbitMQ.Client.MessagePatterns;
 
-	internal class RabbitSubscription : IDisposable
+	public class RabbitSubscription : IDisposable
 	{
 		public virtual BasicDeliverEventArgs Receive(TimeSpan timeout)
 		{

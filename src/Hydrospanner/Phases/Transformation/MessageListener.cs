@@ -5,7 +5,7 @@
 	using Disruptor;
 	using Messaging;
 
-	internal class MessageListener : IDisposable
+	public class MessageListener : IDisposable
 	{
 		public void Start()
 		{

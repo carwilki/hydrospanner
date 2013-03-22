@@ -6,7 +6,7 @@
 	using RabbitMQ.Client;
 	using RabbitMQ.Client.Events;
 
-	internal class RabbitChannel : IMessageSender, IMessageReceiver
+	public class RabbitChannel : IMessageSender, IMessageReceiver
 	{
 		public bool Send(JournalItem message)
 		{

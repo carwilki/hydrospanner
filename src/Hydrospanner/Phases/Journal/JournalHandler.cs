@@ -4,7 +4,7 @@
 	using Disruptor;
 	using Persistence;
 
-	internal sealed class JournalHandler : IEventHandler<JournalItem>
+	public sealed class JournalHandler : IEventHandler<JournalItem>
 	{
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{

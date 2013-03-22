@@ -2,7 +2,7 @@
 {
 	using Serialization;
 
-	internal sealed class SnapshotItem
+	public sealed class SnapshotItem
 	{
 		public bool IsPublicSnapshot { get; set; }
 		public long CurrentSequence { get; set; }

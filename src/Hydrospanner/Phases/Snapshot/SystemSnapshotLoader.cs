@@ -4,9 +4,9 @@
 	using System.IO.Abstractions;
 	using System.Linq;
 
-	internal class SystemSnapshotLoader
+	public class SystemSnapshotLoader
 	{
-		public SystemSnapshotStreamReader Load(long maxSequence, int currentIteration)
+		public virtual SystemSnapshotStreamReader Load(long maxSequence, int currentIteration)
 		{
 			var files = this.directory.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly);
 			
