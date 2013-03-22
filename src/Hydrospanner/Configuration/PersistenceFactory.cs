@@ -13,22 +13,22 @@
 		{
 			return new SqlCheckpointStore(this.factory, this.connectionString);
 		}
-		public virtual IBootstrapStore CreateBootstrapStore(int duplicateWindow)
+		public virtual IBootstrapStore CreateBootstrapStore()
 		{
-			if (duplicateWindow <= 0)
-				throw new ArgumentOutOfRangeException("duplicateWindow");
-
-			return new SqlBootstrapStore(this.factory, this.connectionString, duplicateWindow);
+			return new SqlBootstrapStore(this.factory, this.connectionString, this.duplicateWindow);
 		}
 		public virtual IMessageStore CreateMessageStore(IEnumerable<string> journaledTypes)
 		{
 			return new SqlMessageStore(this.factory, this.connectionString, journaledTypes);
 		}
 
-		public PersistenceFactory(string connectionName)
+		public PersistenceFactory(string connectionName, int duplicateWindow)
 		{
 			if (string.IsNullOrWhiteSpace(connectionName))
 				throw new ArgumentNullException("connectionName");
+
+			if (duplicateWindow <= 0)
+				throw new ArgumentOutOfRangeException("duplicateWindow");
 
 			var settings = ConfigurationManager.ConnectionStrings[connectionName];
 			if (settings == null)
@@ -39,9 +39,11 @@
 
 			this.factory = DbProviderFactories.GetFactory(settings.ProviderName);
 			this.connectionString = settings.ConnectionString;
+			this.duplicateWindow = duplicateWindow;
 		}
 
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
+		private readonly int duplicateWindow;
 	}
 }
