@@ -39,7 +39,7 @@ namespace Hydrospanner.IntegrationTests
 			using (var reader = loader.Load(10, 42))
 			{
 				reader.Count.ShouldEqual(10);
-				reader.Iteration.ShouldEqual(42);
+				reader.Generation.ShouldEqual(42);
 				reader.MessageSequence.ShouldEqual(10);
 				var records = reader.Read().ToList();
 				for (var i = 0; i < records.Count; i++)
