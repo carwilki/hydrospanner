@@ -52,6 +52,7 @@
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItemTests.cs" />
     <Compile Include="Phases\Bootstrap\PersistenceBootstrapperTests.cs" />
+    <Compile Include="Phases\Bootstrap\BootstrapperTests.cs" />
     <Compile Include="Phases\Bootstrap\MementoHandlerTests.cs" />
     <Compile Include="Phases\Bootstrap\SerializationHandlerTests.cs" />
     <Compile Include="Phases\Bootstrap\CountdownHandlerTests.cs" />

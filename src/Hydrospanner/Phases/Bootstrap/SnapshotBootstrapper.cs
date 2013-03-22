@@ -8,7 +8,7 @@
 	{
 		public virtual BootstrapInfo RestoreSnapshots(BootstrapInfo info, IRepository repository)
 		{
-			throw new NotImplementedException();
+			return null;
 		}
 
 		public SnapshotBootstrapper(SnapshotFactory snapshotFactory, DisruptorFactory disruptorFactory)

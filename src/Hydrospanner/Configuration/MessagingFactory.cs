@@ -1,8 +1,8 @@
 ﻿namespace Hydrospanner.Configuration
 {
 	using System;
-	using Hydrospanner.Messaging;
-	using Hydrospanner.Messaging.Rabbit;
+	using Messaging;
+	using Messaging.Rabbit;
 
 	public class MessagingFactory
 	{
@@ -29,6 +29,10 @@
 			this.nodeId = nodeId;
 			this.sourceQueue = sourceQueue;
 			this.connector = new RabbitConnector(messageBroker);
+		}
+
+		protected MessagingFactory()
+		{
 		}
 
 		private readonly short nodeId;

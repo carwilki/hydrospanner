@@ -1,36 +1,28 @@
 ﻿namespace Hydrospanner.Phases.Bootstrap
 {
 	using System;
-	using System.Configuration;
-	using System.Data.Common;
-	using System.IO.Abstractions;
-	using System.Threading;
-	using System.Threading.Tasks;
-	using Disruptor;
-	using Disruptor.Dsl;
-	using Hydrospanner.Configuration;
-	using Hydrospanner.Messaging.Rabbit;
-	using Hydrospanner.Persistence;
-	using Hydrospanner.Persistence.SqlPersistence;
-	using Hydrospanner.Phases.Journal;
-	using Hydrospanner.Phases.Snapshot;
-	using Hydrospanner.Phases.Transformation;
-	using Hydrospanner.Serialization;
+	using Configuration;
+	using Journal;
+	using Messaging;
+	using Snapshot;
+	using Transformation;
 
 	public class Bootstrapper : IDisposable
 	{
 		public void Start()
 		{
-			//var info = this.persistence.Restore(); // BootstrapInfo
-			//info = this.snapshots.RestoreSnapshots(info, this.repository);
+//			this.journalDisruptor = this.disruptors.CreateJournalDisruptor();
+//			this.snapshotDisruptor = this.disruptors.CreateSnapshotDisruptor();
+//			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor();
 
-			//// startup the normal Snapshot and Journal ring buffers. (these are stateful and must be disposed at the end)
-			//this.messages.Restore(info, snapshotRing, journalRing, this.repository);
+//			var info = this.persistence.Restore();
+//			info = this.snapshots.RestoreSnapshots(info, this.repository);
 
-			//// now start the normal transformation ring (this is stateful and must be disposed at the end)
+//			this.journalDisruptor.Start();
+//			this.snapshotDisruptor.Start();
+//			this.messages.Restore(info, this.snapshotDisruptor, this.journalDisruptor, this.repository);
 
-			//// start the message listener
-			//// this.messageReceiver = this.messaging.CreateMessageReceiver(). // TODO:....
+//			this.transformationDisruptor.Start();
 		}
 
 		public Bootstrapper(
@@ -41,6 +33,13 @@
 			MessageBootstrapper messages,
 			MessagingFactory messaging)
 		{
+			if (repository == null) throw new ArgumentNullException("repository");
+			if (disruptors == null) throw new ArgumentNullException("disruptors");
+			if (persistence == null) throw new ArgumentNullException("persistence");
+			if (snapshots == null) throw new ArgumentNullException("snapshots");
+			if (messages == null) throw new ArgumentNullException("messages");
+			if (messaging == null) throw new ArgumentNullException("messaging");
+
 			this.repository = repository;
 			this.disruptors = disruptors;
 			this.persistence = persistence;
@@ -65,12 +64,16 @@
 		}
 		
 		private readonly IRepository repository;
-		readonly DisruptorFactory disruptors;
-		readonly PersistenceBootstrapper persistence;
-		readonly SnapshotBootstrapper snapshots;
-		readonly MessageBootstrapper messages;
-		readonly MessagingFactory messaging;
+		private readonly DisruptorFactory disruptors;
+		private readonly PersistenceBootstrapper persistence;
+		private readonly SnapshotBootstrapper snapshots;
+		private readonly MessageBootstrapper messages;
+		private readonly MessagingFactory messaging;
 		private bool started;
 		private bool disposed;
+		private IDisruptor<JournalItem> journalDisruptor;
+		private IDisruptor<SnapshotItem> snapshotDisruptor;
+		private IDisruptor<TransformationItem> transformationDisruptor;
+		private IMessageReceiver receiver;
 	}
 }
