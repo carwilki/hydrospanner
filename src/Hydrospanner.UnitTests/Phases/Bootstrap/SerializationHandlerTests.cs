@@ -4,9 +4,9 @@
 namespace Hydrospanner.Phases.Bootstrap
 {
 	using System;
-	using Hydrospanner.Serialization;
 	using Machine.Specifications;
 	using NSubstitute;
+	using Serialization;
 
 	[Subject(typeof(SerializationHandler))]
 	public class when_a_null_serializer_is_provided

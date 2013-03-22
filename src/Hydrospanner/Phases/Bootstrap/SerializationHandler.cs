@@ -2,13 +2,13 @@
 {
 	using System;
 	using Disruptor;
-	using Hydrospanner.Serialization;
+	using Serialization;
 
 	public class SerializationHandler : IEventHandler<BootstrapItem>
 	{
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{
-			data.Memento = this.serializer.Deserialize(data.SerializedMemento, data.SerializedType); // TODO
+			data.Memento = this.serializer.Deserialize(data.SerializedMemento, data.SerializedType);
 		}
 
 		public SerializationHandler(ISerializer serializer)
