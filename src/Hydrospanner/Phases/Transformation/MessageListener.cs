@@ -7,7 +7,7 @@
 
 	public class MessageListener : IDisposable
 	{
-		public void Start()
+		public virtual void Start()
 		{
 			if (this.disposed)
 				throw new ObjectDisposedException(typeof(MessageListener).Name);
@@ -52,6 +52,9 @@
 
 			this.receiverFactory = receiverFactory;
 			this.ring = ring;
+		}
+		protected MessageListener()
+		{
 		}
 
 		public void Dispose()

@@ -3,7 +3,7 @@
 	using System;
 	using System.Configuration;
 	using System.IO.Abstractions;
-	using Hydrospanner.Phases.Snapshot;
+	using Phases.Snapshot;
 
 	public class SnapshotFactory
 	{
@@ -46,6 +46,9 @@
 
 			this.snapshotGeneration = snapshotGeneration;
 			this.snapshotPath = snapshotPath;
+		}
+		protected SnapshotFactory()
+		{
 		}
 
 		private readonly ConnectionStringSettings settings;

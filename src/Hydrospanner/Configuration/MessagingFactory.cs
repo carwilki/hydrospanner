@@ -2,11 +2,19 @@
 {
 	using System;
 	using Messaging;
+	using Disruptor;
+	using Messaging;
+	using Messaging.Rabbit;
+	using Phases.Transformation;
 	using Messaging.Rabbit;
 
 	public class MessagingFactory
 	{
-		public virtual IMessageReceiver CreateMessageReceiver()
+		public virtual MessageListener CreateMessageListener(RingBuffer<TransformationItem> ring)
+		{
+			return new MessageListener(this.CreateMessageReceiver, ring);
+		}
+		private IMessageReceiver CreateMessageReceiver()
 		{
 			return new RabbitChannel(this.connector, this.nodeId, x => new RabbitSubscription(x, this.sourceQueue));
 		}
