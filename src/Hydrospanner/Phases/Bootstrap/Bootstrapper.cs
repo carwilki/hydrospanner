@@ -23,6 +23,8 @@
 //			this.messages.Restore(info, this.snapshotDisruptor, this.journalDisruptor, this.repository);
 
 //			this.transformationDisruptor.Start();
+
+			this.listener = this.messaging.CreateMessageListener(this.transformationDisruptor.RingBuffer);
 		}
 
 		public Bootstrapper(
@@ -60,7 +62,12 @@
 			////this.started = false;
 			////this.disposed = true;
 
-			//// this.messageListener = this.messageListener.TryDispose();
+			////this.listener = this.listener.TryDispose();
+			////TimeSpan.FromSeconds(3).Sleep();
+			////this.transformationDisruptor = this.transformationDisruptor.TryDispose();
+			////TimeSpan.FromMilliseconds(500).Sleep();
+			////this.snapshotDisruptor = this.snapshotDisruptor.TryDispose();
+			////this.journalDisruptor = this.journalDisruptor.TryDispose();
 		}
 		
 		private readonly IRepository repository;
@@ -74,6 +81,6 @@
 		private IDisruptor<JournalItem> journalDisruptor;
 		private IDisruptor<SnapshotItem> snapshotDisruptor;
 		private IDisruptor<TransformationItem> transformationDisruptor;
-		private IMessageReceiver receiver;
+		private MessageListener listener;
 	}
 }
