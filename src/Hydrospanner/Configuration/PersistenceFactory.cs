@@ -41,6 +41,9 @@
 			this.connectionString = settings.ConnectionString;
 			this.duplicateWindow = duplicateWindow;
 		}
+		protected PersistenceFactory()
+		{
+		}
 
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;

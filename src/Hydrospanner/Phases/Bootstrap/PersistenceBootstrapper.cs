@@ -8,11 +8,14 @@
 	{
 		public virtual BootstrapInfo Restore()
 		{
-			throw new NotImplementedException();
+			return this.factory.CreateBootstrapStore().Load();
 		}
 
 		public PersistenceBootstrapper(PersistenceFactory factory)
 		{
+			if (factory == null)
+				throw new ArgumentNullException("factory");
+
 			this.factory = factory;
 		}
 

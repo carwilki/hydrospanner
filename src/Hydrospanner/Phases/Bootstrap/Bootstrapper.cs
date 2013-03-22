@@ -61,7 +61,7 @@
 			////this.started = false;
 			////this.disposed = true;
 
-			/// this.messageListener = this.messageListener.TryDispose();
+			//// this.messageListener = this.messageListener.TryDispose();
 		}
 		
 		private readonly IRepository repository;
