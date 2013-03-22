@@ -7,6 +7,11 @@
 
 	public class SnapshotFactory
 	{
+		public int SnapshotGeneration
+		{
+			get { return this.snapshotGeneration; }
+		}
+
 		public virtual SystemSnapshotStreamReader CreateSystemSnapshotStreamReader(long journaledSequence)
 		{
 			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), this.snapshotPath);

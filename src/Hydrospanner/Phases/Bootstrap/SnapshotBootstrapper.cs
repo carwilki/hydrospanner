@@ -1,13 +1,26 @@
 ﻿namespace Hydrospanner.Phases.Bootstrap
 {
 	using System;
-	using Hydrospanner.Persistence;
+	using Configuration;
+	using Persistence;
 
 	public class SnapshotBootstrapper
 	{
-		public BootstrapInfo RestoreSnapshots(BootstrapInfo info, IRepository repository)
+		public virtual BootstrapInfo RestoreSnapshots(BootstrapInfo info, IRepository repository)
 		{
 			throw new NotImplementedException();
 		}
+
+		public SnapshotBootstrapper(SnapshotFactory snapshotFactory, DisruptorFactory disruptorFactory)
+		{
+			this.snapshotFactory = snapshotFactory;
+			this.disruptorFactory = disruptorFactory;
+		}
+		protected SnapshotBootstrapper()
+		{
+		}
+
+		readonly SnapshotFactory snapshotFactory;
+		readonly DisruptorFactory disruptorFactory;
 	}
 }

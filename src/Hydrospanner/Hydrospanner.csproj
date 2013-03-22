@@ -52,7 +52,6 @@
     </Compile>
     <Compile Include="Configuration\DisruptorFactory.cs" />
     <Compile Include="Configuration\MessagingFactory.cs" />
-    <Compile Include="Configuration\SerializationFactory.cs" />
     <Compile Include="Configuration\SnapshotFactory.cs" />
     <Compile Include="Configuration\PersistenceFactory.cs" />
     <Compile Include="IRepository.cs" />
