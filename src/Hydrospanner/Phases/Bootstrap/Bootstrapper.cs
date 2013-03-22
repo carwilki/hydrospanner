@@ -39,7 +39,7 @@
 				return info;
 
 			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), "TODO-path-to-snapshot-files"); // TODO
-			var reader = loader.Load(info.JournaledSequence, this.iteration);
+			var reader = loader.Load(info.JournaledSequence, this.generation);
 			if (reader.Count > 0 && reader.MessageSequence > 0)
 				this.LoadSnapshots(reader);
 
@@ -77,7 +77,7 @@
 
 			this.snapshotDisruptor = CreateDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 8);
 			this.snapshotDisruptor.HandleEventsWith(new Snapshot.SerializationHandler(new JsonSerializer()))
-			    .Then(new SystemSnapshotHandler(systemRecorder, this.iteration), new PublicSnapshotHandler(publicRecorder));
+			    .Then(new SystemSnapshotHandler(systemRecorder, this.generation), new PublicSnapshotHandler(publicRecorder));
 
 			this.snapshotDisruptor.Start();
 		}
@@ -150,13 +150,13 @@
 				TaskScheduler.Default);
 		}
 
-		public Bootstrapper(IRepository repository, int iteration, string connectionName = DefaultConnection)
+		public Bootstrapper(IRepository repository, int generation, string connectionName = DefaultConnection)
 		{
 			if (repository == null)
 				throw new ArgumentNullException("repository");
 
-			if (iteration < 0)
-				throw new ArgumentOutOfRangeException("iteration");
+			if (generation < 0)
+				throw new ArgumentOutOfRangeException("generation");
 
 			if (string.IsNullOrWhiteSpace(connectionName))
 				throw new ArgumentNullException("connectionName");
@@ -166,7 +166,7 @@
 				throw new ConfigurationErrorsException("Unable to find connection named '{0}' in the configuration file.".FormatWith(connectionName));
 
 			this.repository = repository;
-			this.iteration = iteration;
+			this.generation = generation;
 			this.factory = DbProviderFactories.GetFactory(settings.ProviderName ?? DefaultProvider);
 			this.connectionString = settings.ConnectionString;
 			
@@ -203,7 +203,7 @@
 		private const string DefaultProvider = "System.Data.SqlClient";
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
 		private readonly IRepository repository;
-		private readonly int iteration;
+		private readonly int generation;
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
 

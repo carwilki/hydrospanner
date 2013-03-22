@@ -37,7 +37,7 @@
 			});
 		}
 
-		public void FinishRecording(int iteration = 0, long sequence = 0)
+		public void FinishRecording(int generation = 0, long sequence = 0)
 		{
 			Attempt(() =>
 			{
@@ -45,14 +45,14 @@
 					return;
 
 				this.CloseSnapshot();
-				this.FingerprintSnapshot(iteration, sequence);
+				this.FingerprintSnapshot(generation, sequence);
 			});
 		}
 
-		private void FingerprintSnapshot(int iteration = 0, long sequence = 0)
+		private void FingerprintSnapshot(int generation = 0, long sequence = 0)
 		{
 			var hash = this.GenerateFingerprint();
-			var destination = Path.Combine(this.location, SnapshotFilenameTemplate.FormatWith(iteration, sequence, hash));
+			var destination = Path.Combine(this.location, SnapshotFilenameTemplate.FormatWith(generation, sequence, hash));
 			this.file.Move(this.pathToCurrentSnapshot, destination);
 		}
 

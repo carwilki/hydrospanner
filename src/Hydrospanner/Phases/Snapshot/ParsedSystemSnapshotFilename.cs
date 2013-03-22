@@ -5,7 +5,7 @@
 	internal class ParsedSystemSnapshotFilename
 	{
 		public string FullPath { get; set; }
-		public int Iteration { get; set; }
+		public int Generation { get; set; }
 		public long Sequence { get; set; }
 		public string Hash { get; set; }
 
@@ -16,8 +16,8 @@
 			if (values.Length != SnapshotFilenameFieldCount)
 				return null;
 
-			int iteration;
-			if (!int.TryParse(values[IterationField], out iteration))
+			int generation;
+			if (!int.TryParse(values[GenerationField], out generation))
 				return null;
 
 			long sequence;
@@ -27,13 +27,13 @@
 			return new ParsedSystemSnapshotFilename
 			{
 				FullPath = path,
-				Iteration = iteration,
+				Generation = generation,
 				Sequence = sequence,
 				Hash = values[HashField]
 			};
 		}
 
-		const int IterationField = 0;
+		const int GenerationField = 0;
 		const int SequenceField = 1;
 		const int HashField = 2;
 		const int SnapshotFilenameFieldCount = 3;

@@ -70,7 +70,7 @@ namespace Hydrospanner.Phases.Snapshot
 					recorder.Received(1).Record(last);
 
 				It should_finish_the_snapshot = () =>
-					recorder.Received(1).FinishRecording(CurrentIteration, last.CurrentSequence);
+					recorder.Received(1).FinishRecording(CurrentGeneration, last.CurrentSequence);
 			}
 
 			public class and_the_item_is_for_a_subsequent_snapshot
@@ -103,7 +103,7 @@ namespace Hydrospanner.Phases.Snapshot
 		Establish context = () =>
 		{
 			recorder = Substitute.For<ISnapshotRecorder>();
-			handler = new SystemSnapshotHandler(recorder, CurrentIteration);
+			handler = new SystemSnapshotHandler(recorder, CurrentGeneration);
 			
 			first = new SnapshotItem();
 			middle = new SnapshotItem();
@@ -119,7 +119,7 @@ namespace Hydrospanner.Phases.Snapshot
 			last.Serialize(serializer);
 		};
 
-		const int CurrentIteration = 42;
+		const int CurrentGeneration = 42;
 		static SystemSnapshotHandler handler;
 		static ISnapshotRecorder recorder;
 		static SnapshotItem first;

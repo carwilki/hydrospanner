@@ -21,8 +21,8 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			Establish context = () =>
 				directory
-					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierIteration.ToString(CultureInfo.InvariantCulture))), SearchOption.TopDirectoryOnly)
-					.Returns(new[] { "hi", "not-a-snapshot", "blah-blah-blah", "bad_iteration-42-hash" });
+					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierGeneration.ToString(CultureInfo.InvariantCulture))), SearchOption.TopDirectoryOnly)
+					.Returns(new[] { "hi", "not-a-snapshot", "blah-blah-blah", "bad_generation-42-hash" });
 
 			Because of = () =>
 				reader = loader.Load(long.MaxValue, int.MaxValue);
@@ -37,8 +37,8 @@ namespace Hydrospanner.Phases.Snapshot
 			{
 				file.OpenRead(Arg.Any<string>()).Returns(new MemoryStream(new byte[] { 0, 0, 0, 0 }));
 				directory
-					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierIteration.ToString(CultureInfo.InvariantCulture))), SearchOption.TopDirectoryOnly)
-					.Returns(new[] { Path + EarlierIteration + "-" + MessageSequence + "-bad_hash" });
+					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierGeneration.ToString(CultureInfo.InvariantCulture))), SearchOption.TopDirectoryOnly)
+					.Returns(new[] { Path + EarlierGeneration + "-" + MessageSequence + "-bad_hash" });
 			};
 
 			Because of = () =>
@@ -52,8 +52,8 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			Establish context = () =>
 			{
-				var earlierPath = Path + EarlierIteration + "-" + MessageSequence + "-" + hash;
-				var laterPath = Path + LaterIteration + "-" + MessageSequence + "-" + hash;
+				var earlierPath = Path + EarlierGeneration + "-" + MessageSequence + "-" + hash;
+				var laterPath = Path + LaterGeneration + "-" + MessageSequence + "-" + hash;
 
 				directory
 					.GetFiles(Path, "*", SearchOption.TopDirectoryOnly)
@@ -66,9 +66,9 @@ namespace Hydrospanner.Phases.Snapshot
 			Because of = () =>
 				reader = loader.Load(long.MaxValue, int.MaxValue);
 
-			It should_load_the_snapshot_with_the_highest_iteration = () =>
+			It should_load_the_snapshot_with_the_highest_generation = () =>
 			{
-				reader.Iteration.ShouldEqual(LaterIteration);
+				reader.Generation.ShouldEqual(LaterGeneration);
 				reader.Read().First().Value.ShouldBeLike(FirstRecord);
 			};
 		}
@@ -79,8 +79,8 @@ namespace Hydrospanner.Phases.Snapshot
 			{
 				Establish context = () =>
 				{
-					var earlierPath = Path + EarlierIteration + "-" + EarlySnapshotSequence + "-" + hash;
-					var laterPath = Path + EarlierIteration + "-" + LaterSnapshotSequence + "-" + hash;
+					var earlierPath = Path + EarlierGeneration + "-" + EarlySnapshotSequence + "-" + hash;
+					var laterPath = Path + EarlierGeneration + "-" + LaterSnapshotSequence + "-" + hash;
 
 					directory
 						.GetFiles(Path, "*", SearchOption.TopDirectoryOnly)
@@ -103,12 +103,12 @@ namespace Hydrospanner.Phases.Snapshot
 				const long LaterSnapshotSequence = StoredMessageSequence + 1;
 			}
 
-			public class when_loading_a_snapshot_based_on_snapshot_iteration
+			public class when_loading_a_snapshot_based_on_snapshot_generation
 			{
 				Establish context = () =>
 				{
-					var earlierPath = Path + EarlierIteration + "-" + StoredMessageSequence + "-" + hash;
-					var laterPath = Path + LaterIteration + "-" + StoredMessageSequence + "-" + hash;
+					var earlierPath = Path + EarlierGeneration + "-" + StoredMessageSequence + "-" + hash;
+					var laterPath = Path + LaterGeneration + "-" + StoredMessageSequence + "-" + hash;
 
 					directory
 						.GetFiles(Path, "*", SearchOption.TopDirectoryOnly)
@@ -119,11 +119,11 @@ namespace Hydrospanner.Phases.Snapshot
 				};
 
 				Because of = () =>
-					reader = loader.Load(long.MaxValue, EarlierIteration);
+					reader = loader.Load(long.MaxValue, EarlierGeneration);
 
-				It should_load_the_latest_snapshot_at_or_below_the_provided_iteration = () =>
+				It should_load_the_latest_snapshot_at_or_below_the_provided_generation = () =>
 				{
-					reader.Iteration.ShouldEqual(EarlierIteration);
+					reader.Generation.ShouldEqual(EarlierGeneration);
 					reader.Read().First().Value.ShouldBeLike(FirstRecord);
 				};
 			}
@@ -158,8 +158,8 @@ namespace Hydrospanner.Phases.Snapshot
 		};
 
 		const string Path = "./path/to/snapshots/";
-		const int EarlierIteration = 1;
-		const int LaterIteration = 2;
+		const int EarlierGeneration = 1;
+		const int LaterGeneration = 2;
 		const int MessageSequence = 42;
 		static readonly byte[] FirstRecord = BitConverter.GetBytes(42);
 		static SystemSnapshotLoader loader;

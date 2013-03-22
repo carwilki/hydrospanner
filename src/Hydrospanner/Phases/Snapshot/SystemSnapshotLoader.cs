@@ -6,16 +6,16 @@
 
 	public class SystemSnapshotLoader
 	{
-		public virtual SystemSnapshotStreamReader Load(long maxSequence, int currentIteration)
+		public virtual SystemSnapshotStreamReader Load(long maxSequence, int currentGeneration)
 		{
 			var files = this.directory.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly);
 			
 			var snapshots = files
 				.Select(ParsedSystemSnapshotFilename.Parse)
-				.Where(x => x != null && x.Sequence <= maxSequence && x.Iteration <= currentIteration);
+				.Where(x => x != null && x.Sequence <= maxSequence && x.Generation <= currentGeneration);
 
 			var mostRecentViableSnapshot = snapshots
-				.OrderByDescending(x => x.Iteration)
+				.OrderByDescending(x => x.Generation)
 				.Select(this.OpenOrDefault)
 				.FirstOrDefault(x => x != null && x.Count > 0);
 
@@ -26,7 +26,7 @@
 		{
 			var fileStream = new BufferedStream(this.file.OpenRead(snapshot.FullPath), BufferSize);
 
-			return SystemSnapshotStreamReader.Open(snapshot.Sequence, snapshot.Iteration, snapshot.Hash, fileStream);
+			return SystemSnapshotStreamReader.Open(snapshot.Sequence, snapshot.Generation, snapshot.Hash, fileStream);
 		}
 
 		public SystemSnapshotLoader(DirectoryBase directory, FileBase file, string path)

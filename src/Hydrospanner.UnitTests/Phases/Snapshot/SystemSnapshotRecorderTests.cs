@@ -73,7 +73,7 @@ namespace Hydrospanner.Phases.Snapshot
 			It should_write_the_number_of_records_as_the_first_4_bytes = () =>
 				firstSnapshot.Contents.SliceInt32(0).ShouldEqual(42);
 
-			static readonly string ExpectedInitialFilename = "/" + LatestIteration + "-" + Sequence;
+			static readonly string ExpectedInitialFilename = "/" + LatestGeneration + "-" + Sequence;
 		}
 
 		public class when_writing_items_to_a_snapshot
@@ -107,7 +107,7 @@ namespace Hydrospanner.Phases.Snapshot
 
 			Because of = () =>
 			{
-				recorder.FinishRecording(LatestIteration, Sequence);
+				recorder.FinishRecording(LatestGeneration, Sequence);
 
 				hash = new SoapHexBinary(new SHA1Managed().ComputeHash(firstSnapshot.Contents)).ToString();
 				reader = SystemSnapshotStreamReader.Open(Sequence, 1, hash, new MemoryStream(firstSnapshot.Contents));
@@ -116,8 +116,8 @@ namespace Hydrospanner.Phases.Snapshot
 			It should_finalize_the_snapshot = () =>
 				firstSnapshot.Disposed.ShouldBeTrue();
 
-			It should_name_the_snapshot_using_the_iteration_and_sequence_numbers_and_hash = () =>
-				finalPathOfSnapshot.ShouldEqual("{0}{1}-{2}-{3}".FormatWith(Location, LatestIteration, Sequence, hash));
+			It should_name_the_snapshot_using_the_generation_and_sequence_numbers_and_hash = () =>
+				finalPathOfSnapshot.ShouldEqual("{0}{1}-{2}-{3}".FormatWith(Location, LatestGeneration, Sequence, hash));
 		}
 
 		public class when_errors_are_raised
@@ -178,7 +178,7 @@ namespace Hydrospanner.Phases.Snapshot
 
 		const long Sequence = 12345;
 		const string Location = "/";
-		const int LatestIteration = 39;
+		const int LatestGeneration = 39;
 		const string Key = "key";
 		static string hash;
 		static string finalPathOfSnapshot;

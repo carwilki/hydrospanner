@@ -14,6 +14,7 @@
 	public class Wireup : IDisposable
 	{
 		public virtual IRepository Repository { get; private set; }
+		public virtual SystemSnapshotLoader SystemSnapshotLoader { get; private set; }
 		public virtual ISnapshotRecorder SystemSnapshotRecorder { get; private set; }
 		public virtual ISnapshotRecorder PublicSnapshotRecorder { get; private set; }
 		public virtual BootstrapInfo BootstrapInfo { get; private set; }
@@ -30,7 +31,7 @@
 			int duplicateWindow,
 			string connectionName,
 			string snapshotPath,
-			int iteration)
+			int generation)
 		{
 			if (repository == null)
 				throw new ArgumentNullException("repository");
@@ -53,8 +54,8 @@
 			if (string.IsNullOrWhiteSpace(snapshotPath))
 				throw new ArgumentNullException("snapshotPath");
 
-			if (iteration < 0)
-				throw new ArgumentOutOfRangeException("iteration");
+			if (generation < 0)
+				throw new ArgumentOutOfRangeException("generation");
 
 			var connectionSettings = ConfigurationManager.ConnectionStrings[connectionName];
 			if (connectionSettings == null)
@@ -74,6 +75,7 @@
 			return new Wireup
 			{
 				Repository = repository,
+				SystemSnapshotLoader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), snapshotPath),
 				PublicSnapshotRecorder = new PublicSnapshotRecorder(connectionSettings),
 				SystemSnapshotRecorder = new SystemSnapshotRecorder(new FileWrapper(), snapshotPath),
 				DispatchCheckpointStore = new SqlCheckpointStore(factory, connectionSettings.ConnectionString),

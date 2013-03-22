@@ -10,7 +10,7 @@
 	{
 		public int Count { get; private set; }
 		public long MessageSequence { get; private set; }
-		public int Iteration { get; private set; }
+		public int Generation { get; private set; }
 
 		public IEnumerable<KeyValuePair<string, byte[]>> Read()
 		{
@@ -39,13 +39,13 @@
 			return itemBuffer;
 		}
 
-		public static SystemSnapshotStreamReader Open(long sequence, int snapshotIteration, string hash, Stream stream)
+		public static SystemSnapshotStreamReader Open(long sequence, int snapshotGeneration, string hash, Stream stream)
 		{
 			hash = hash.Trim().ToUpperInvariant();
 			var computed = ComputeHash(stream).ToUpperInvariant();
 			stream.Position = 0;
 			if (hash == computed)
-				return new SystemSnapshotStreamReader(sequence, snapshotIteration, stream);
+				return new SystemSnapshotStreamReader(sequence, snapshotGeneration, stream);
 
 			return null;
 		}
@@ -58,10 +58,10 @@
 			}
 		}
 
-		private SystemSnapshotStreamReader(long sequence, int snapshotIteration, Stream stream)
+		private SystemSnapshotStreamReader(long sequence, int snapshotGeneration, Stream stream)
 		{
 			this.MessageSequence = sequence;
-			this.Iteration = snapshotIteration;
+			this.Generation = snapshotGeneration;
 			this.stream = stream;
 
 			var countBuffer = new byte[sizeof(int)];
