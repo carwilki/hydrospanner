@@ -1,6 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Snapshot
 {
-	internal interface ISnapshotRecorder
+	public interface ISnapshotRecorder
 	{
 		void StartRecording(int expectedItems);
 		void Record(SnapshotItem item);

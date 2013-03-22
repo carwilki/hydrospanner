@@ -109,6 +109,7 @@
     <Compile Include="Phases\Snapshot\SnapshotItem.cs" />
     <Compile Include="Phases\Transformation\TransformationItem.cs" />
     <Compile Include="SystemTime.cs" />
+    <Compile Include="Wireup.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\CustomDictionary.xml">
