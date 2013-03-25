@@ -29,17 +29,9 @@
 			if (!delivery.Populated)
 				return;
 
-			var claimed = this.ring.Next();
-
-			var item = this.ring[claimed];
-			item.AsForeignMessage(
-				delivery.Payload,
-				delivery.MessageType,
-				delivery.Headers,
-				delivery.MessageId,
-				delivery.Acknowledge);
-
-			this.ring.Publish(claimed);
+			this.ring.Publish(item =>
+				item.AsForeignMessage(
+					delivery.Payload, delivery.MessageType, delivery.Headers, delivery.MessageId, delivery.Acknowledge));
 		}
 
 		public MessageListener(Func<IMessageReceiver> receiverFactory, RingBuffer<TransformationItem> ring)

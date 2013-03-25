@@ -22,7 +22,7 @@
 
 			this.journalDisruptor.Start();
 			this.snapshotDisruptor.Start();
-			this.messages.Restore(info, this.snapshotDisruptor, this.journalDisruptor, this.repository);
+			this.messages.Restore(info, this.journalDisruptor, this.repository);
 
 			this.transformationDisruptor.Start();
 

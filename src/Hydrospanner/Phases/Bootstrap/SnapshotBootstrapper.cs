@@ -40,10 +40,8 @@
 		{
 			foreach (var memento in reader.Read())
 			{
-				var claimed = ring.Next();
-				var item = ring[claimed];
-				item.AsSnapshot(memento.Key, memento.Value);
-				ring.Publish(claimed);
+				var m = memento;
+				ring.Publish(item => item.AsSnapshot(m.Key, m.Value));
 			}
 		}
 

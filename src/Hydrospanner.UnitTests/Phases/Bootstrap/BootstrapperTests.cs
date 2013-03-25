@@ -188,7 +188,7 @@ namespace Hydrospanner.Phases.Bootstrap
 
 			journalDisruptor.Start();
 			snapshotDisruptor.Start();
-			messages.Restore(info2, snapshotDisruptor, journalDisruptor, repository);
+			messages.Restore(info2, journalDisruptor, repository);
 
 			transformationDisruptor.Start();
 

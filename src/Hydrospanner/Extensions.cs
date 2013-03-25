@@ -8,6 +8,7 @@
 	using System.Globalization;
 	using System.Text;
 	using System.Threading;
+	using Disruptor;
 
 	internal static class StringExtensions
 	{
@@ -149,6 +150,27 @@
 				command.Dispose();
 				throw;
 			}
+		}
+	}
+
+	internal static class RingBufferExtensions
+	{
+		public static void Publish<T>(this RingBuffer<T> ring, Action<T> assignment) where T : class
+		{
+			var next = ring.Next();
+			var claimed = ring[next];
+			assignment(claimed);
+			ring.Publish(next);
+		}
+
+		public static void PublishBatch<T>(this RingBuffer<T> ring, Action<T, int> assignment, int items) where T : class
+		{
+			var batch = ring.NewBatchDescriptor(items);
+			
+			for (var i = 0; i < batch.Size; i++)
+				assignment(ring[i + batch.Start], i);
+			
+			ring.Publish(batch);
 		}
 	}
 }
