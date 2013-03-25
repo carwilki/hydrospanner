@@ -39,8 +39,7 @@
 			meta.Type = message.SerializedType;
 			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
 			meta.MessageId = message.MessageSequence.ToMessageId(this.nodeId);
-			meta.ContentType = ContentType; // TODO: +json, +pb, +msgpack, +kryo, etc.
-			// meta.ContentEncoding = meta.ContentEncoding; // TODO
+			meta.ContentType = ContentType; // TODO: +json, +pb, etc. also ContentEncoding
 			meta.Headers = message.Headers.CopyTo(meta.Headers);
 			var exchange = message.SerializedType.NormalizeType();
 

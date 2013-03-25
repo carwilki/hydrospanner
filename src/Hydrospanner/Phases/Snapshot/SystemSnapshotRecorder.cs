@@ -78,7 +78,9 @@
 			}
 			catch
 			{
-				return; // TODO: log exception
+// ReSharper disable RedundantJumpStatement
+				return;
+// ReSharper restore RedundantJumpStatement
 			}
 		}
 
