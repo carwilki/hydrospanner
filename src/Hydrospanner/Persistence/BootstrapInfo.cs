@@ -5,12 +5,12 @@
 
 	public class BootstrapInfo
 	{
-		public bool Populated { get; private set; }
-		public long JournaledSequence { get; private set; }
-		public long DispatchSequence { get; private set; }
-		public long SnapshotSequence { get; private set; }
-		public IEnumerable<string> SerializedTypes { get; private set; }
-		public ICollection<Guid> DuplicateIdentifiers { get; private set; }
+		public bool Populated { get; set; }
+		public long JournaledSequence { get; set; }
+		public long DispatchSequence { get; set; }
+		public long SnapshotSequence { get; set; }
+		public IEnumerable<string> SerializedTypes { get; set; }
+		public ICollection<Guid> DuplicateIdentifiers { get; set; }
 
 		public BootstrapInfo AddSnapshotSequence(long snapshot)
 		{

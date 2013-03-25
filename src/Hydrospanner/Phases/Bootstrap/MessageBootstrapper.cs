@@ -4,41 +4,86 @@
 	using Configuration;
 	using Journal;
 	using Persistence;
+	using Transformation;
 
 	public class MessageBootstrapper
 	{
 		public virtual void Restore(BootstrapInfo info, IDisruptor<JournalItem> journalRing, IRepository repository)
 		{
-			if (info == null) throw new ArgumentNullException("info");
-			if (journalRing == null) throw new ArgumentNullException("journalRing");
-			if (repository == null) throw new ArgumentNullException("repository");
-
-			// TODO: read all messages from info.DispatchSequence || info.SnapshotSequence (whichever is less)
-
-			// for each message
-			// if message.Seq > info.DispatchSequence, push to journal ring for dispatching (it hasn't been dispatched yet)
-
-			// potentially need to create CreateStartupTransformationDisruptor (and start)
-			// if message.Seq > info.SnapshotSequence, push to transformation ring
-
-			// once all messages pushed to either dispatch or startup transformation, shut down startup transformation disruptor
-
-			throw new NotImplementedException();
+			ValidateInput(info, journalRing, repository);
+			this.RestoreFrom(info, journalRing, repository);
+			this.Shutdown();
 		}
 
-		public MessageBootstrapper(IMessageStore store, DisruptorFactory disruptors)
+		private static void ValidateInput(BootstrapInfo info, IDisruptor<JournalItem> journalRing, IRepository repository)
 		{
-			if (store == null) throw new ArgumentNullException("store");
-			if (disruptors == null) throw new ArgumentNullException("disruptors");
+			if (info == null)
+				throw new ArgumentNullException("info");
+			
+			if (journalRing == null) 
+				throw new ArgumentNullException("journalRing");
+			
+			if (repository == null) 
+				throw new ArgumentNullException("repository");
+		}
+
+		private void RestoreFrom(BootstrapInfo info, IDisruptor<JournalItem> journalRing, IRepository repository)
+		{
+			foreach (var message in this.store.Load(Math.Min(info.DispatchSequence, info.SnapshotSequence)))
+			{
+				if (message.Sequence > info.DispatchSequence)
+				{
+					var next = journalRing.RingBuffer.Next();
+					var claimed = journalRing.RingBuffer[next];
+					claimed.AsBootstrappedDispatchMessage(message.Sequence, message.SerializedBody, message.SerializedType, message.SerializedHeaders);
+					journalRing.RingBuffer.Publish(next);
+				}
+
+				if (message.Sequence > info.SnapshotSequence)
+				{
+					if (this.transformRing == null)
+						this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(repository, info, this.complete);
+
+					var next1 = this.transformRing.RingBuffer.Next();
+					var claimed1 = this.transformRing.RingBuffer[next1];
+					claimed1.AsJournaledMessage(message.Sequence, message.SerializedBody, message.SerializedType, message.SerializedHeaders);
+					this.transformRing.RingBuffer.Publish(next1);
+				}
+			}
+		}
+
+		private void Shutdown()
+		{
+			if (this.transformRing == null)
+				return;
+
+			TimeSpan.FromSeconds(1).Sleep();
+			this.transformRing.Stop();
+		}
+
+		public MessageBootstrapper(IMessageStore store, DisruptorFactory disruptors, Action complete)
+		{
+			if (store == null) 
+				throw new ArgumentNullException("store");
+			
+			if (disruptors == null) 
+				throw new ArgumentNullException("disruptors");
+			
+			if (complete == null) 
+				throw new ArgumentNullException("complete");
 
 			this.store = store;
 			this.disruptors = disruptors;
+			this.complete = complete;
 		}
+
 		protected MessageBootstrapper()
 		{
 		}
 
-		readonly IMessageStore store;
-		readonly DisruptorFactory disruptors;
+		private readonly IMessageStore store;
+		private readonly DisruptorFactory disruptors;
+		private readonly Action complete;
+		private IDisruptor<TransformationItem> transformRing;
 	}
 }
