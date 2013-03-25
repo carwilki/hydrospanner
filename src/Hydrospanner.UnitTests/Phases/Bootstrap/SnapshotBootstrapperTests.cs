@@ -5,6 +5,7 @@ namespace Hydrospanner.Phases.Bootstrap
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 	using Configuration;
 	using Machine.Specifications;
 	using NSubstitute;
@@ -43,7 +44,7 @@ namespace Hydrospanner.Phases.Bootstrap
 				thrown.ShouldBeOfType<ArgumentNullException>();
 		}
 
-		public class when_reading_streaming_in_a_system_snapshot
+		public class when_streaming_in_a_system_snapshot
 		{
 			Establish context = () =>
 			{
@@ -63,6 +64,7 @@ namespace Hydrospanner.Phases.Bootstrap
 				disruptor.Start().Returns(ring.RingBuffer);
 
 				reader.Count.Returns(ItemCount);
+				reader.MessageSequence.Returns(providedInfo.JournaledSequence - 1);
 
 				snapshots.CreateSystemSnapshotStreamReader(providedInfo.JournaledSequence).Returns(reader);
 				disruptors.CreateBootstrapDisruptor(repository, ItemCount, Arg.Do<Action>(x => completeCallback = x)).Returns(disruptor);
@@ -103,7 +105,7 @@ namespace Hydrospanner.Phases.Bootstrap
 					providedInfo.DispatchSequence,
 					providedInfo.SerializedTypes,
 					providedInfo.DuplicateIdentifiers)
-						.AddSnapshotSequence(reader.Count));
+						.AddSnapshotSequence(reader.MessageSequence));
 
 			const int ItemCount = 3;
 			static RingBufferHarness<BootstrapItem> ring;
@@ -115,22 +117,73 @@ namespace Hydrospanner.Phases.Bootstrap
 
 		public class when_latest_snapshot_does_not_contain_any_items
 		{
-			It should_not_create_a_disruptor;
-			It should_return_the_bootstrap_info_augmented_with_the_current_snapshot_sequence;
+			Establish context = () =>
+			{
+				reader = Substitute.For<SystemSnapshotStreamReader>();
+				reader.Count.Returns(0);
+				reader.MessageSequence.Returns(providedInfo.JournaledSequence - 1);
+
+				snapshots.CreateSystemSnapshotStreamReader(providedInfo.JournaledSequence).Returns(reader);
+			};
+
+			Because of = () =>
+				returnedInfo = bootstrapper.RestoreSnapshots(providedInfo, repository);
+
+			It should_not_create_a_disruptor = () =>
+				disruptors.ReceivedCalls().Count().ShouldEqual(0);
+
+			It should_return_the_bootstrap_info_augmented_with_the_current_snapshot_sequence = () =>
+				returnedInfo.ShouldBeLike(new BootstrapInfo(
+					providedInfo.JournaledSequence,
+					providedInfo.DispatchSequence,
+					providedInfo.SerializedTypes,
+					providedInfo.DuplicateIdentifiers)
+						.AddSnapshotSequence(reader.MessageSequence));
+
+			static SystemSnapshotStreamReader reader;
 		}
 
 		public class when_the_latest_journaled_sequence_is_zero
 		{
-			It should_not_load_any_snapshots;
-			It should_not_create_a_disruptor;
-			It should_return_the_existing_bootstrap_info;
+			Establish context = () =>
+				providedInfo = new BootstrapInfo(0, 0, new string[7], new Guid[24]);
+
+			Because of = () =>
+				returnedInfo = bootstrapper.RestoreSnapshots(providedInfo, repository);
+
+			It should_not_load_any_snapshots = () =>
+				snapshots.ReceivedCalls().Count().ShouldEqual(0);
+
+			It should_not_create_a_disruptor = () =>
+				disruptors.ReceivedCalls().Count().ShouldEqual(0);
+
+			It should_return_the_existing_bootstrap_info = () =>
+				returnedInfo.ShouldEqual(providedInfo);
 		}
 
 		public class when_the_latest_snapshot_sequence_is_zero
 		{
-			It should_not_load_any_snapshots;
-			It should_not_create_a_disruptor;
-			It should_return_the_existing_bootstrap_info;
+			Establish context = () =>
+			{
+				reader = Substitute.For<SystemSnapshotStreamReader>();
+				reader.MessageSequence.Returns(0);
+				reader.Count.Returns(1); // this should never happen, but we want the test to be sure that we return for the right reason
+				snapshots.CreateSystemSnapshotStreamReader(providedInfo.JournaledSequence).Returns(reader);
+			};
+
+			Because of = () =>
+				returnedInfo = bootstrapper.RestoreSnapshots(providedInfo, repository);
+
+			It should_not_load_any_snapshots = () =>
+				reader.Received(0).Read();
+
+			It should_not_create_a_disruptor = () =>
+				disruptors.ReceivedCalls().Count().ShouldEqual(0);
+
+			It should_return_the_existing_bootstrap_info = () =>
+				returnedInfo.ShouldEqual(providedInfo);
+
+			static SystemSnapshotStreamReader reader;
 		}
 
 		Establish context = () =>

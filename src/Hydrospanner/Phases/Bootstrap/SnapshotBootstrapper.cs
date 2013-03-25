@@ -17,12 +17,23 @@
 			if (repository == null)
 				throw new ArgumentNullException("repository");
 
+			if (info.JournaledSequence == 0)
+				return info;
+
 			using (var reader = this.snapshotFactory.CreateSystemSnapshotStreamReader(info.JournaledSequence))
-			using (var disruptor = this.disruptorFactory.CreateBootstrapDisruptor(repository, reader.Count, () => this.mutex.Set()))
 			{
-				Publish(reader, disruptor.Start());
-				this.mutex.WaitOne();
-				return info.AddSnapshotSequence(reader.Count);
+				if (reader.MessageSequence == 0)
+					return info;
+
+				if (reader.Count == 0)
+					return info.AddSnapshotSequence(reader.MessageSequence);
+
+				using (var disruptor = this.disruptorFactory.CreateBootstrapDisruptor(repository, reader.Count, () => this.mutex.Set()))
+				{
+					Publish(reader, disruptor.Start());
+					this.mutex.WaitOne();
+					return info.AddSnapshotSequence(reader.MessageSequence);
+				}	
 			}
 		}
 		private static void Publish(SystemSnapshotStreamReader reader, RingBuffer<BootstrapItem> ring)
