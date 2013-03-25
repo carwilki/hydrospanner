@@ -73,7 +73,6 @@
 					this.SerializedType = this.Body.GetType().AssemblyQualifiedName;
 			}
 
-			// TODO: this behavior is better within a bootstrapper ring (which only exists during startup)
 			if (this.ItemActions.HasFlag(JournalItemAction.Dispatch) && this.Headers == null)
 				this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
 

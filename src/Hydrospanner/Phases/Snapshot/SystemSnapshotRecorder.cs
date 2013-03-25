@@ -76,9 +76,9 @@
 			{
 				callback();
 			}
-			catch (Exception)
+			catch
 			{
-//				 TODO: log exception
+				return; // TODO: log exception
 			}
 		}
 
