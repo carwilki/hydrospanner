@@ -4,10 +4,10 @@
 namespace Hydrospanner.Phases.Bootstrap
 {
 	using System;
-	using Hydrospanner.Configuration;
-	using Hydrospanner.Persistence;
+	using Configuration;
 	using Machine.Specifications;
 	using NSubstitute;
+	using Persistence;
 
 	[Subject(typeof(PersistenceBootstrapper))]
 	public class when_the_persistence_factory_provided_is_null

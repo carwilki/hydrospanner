@@ -7,23 +7,23 @@ namespace Hydrospanner.Phases.Bootstrap
 	using Machine.Specifications;
 	using Transformation;
 
-	[Subject(typeof(CoutdownHandler))]
+	[Subject(typeof(CountdownHandler))]
 	public class when_counting_the_number_of_received_messages
 	{
 		public class when_the_countdown_value_is_not_positive
 		{
 			It should_throw_an_exception = () =>
-				Catch.Exception(() => new CoutdownHandler(0, Callback)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Catch.Exception(() => new CountdownHandler(0, Callback)).ShouldBeOfType<ArgumentOutOfRangeException>();
 		}
 		public class when_no_callback_is_provided
 		{
 			It should_throw_an_exception = () =>
-				Catch.Exception(() => new CoutdownHandler(1, null)).ShouldBeOfType<ArgumentNullException>();
+				Catch.Exception(() => new CountdownHandler(1, null)).ShouldBeOfType<ArgumentNullException>();
 		}
 		public class when_all_bootstrap_items_have_been_received
 		{
 			Establish context = () =>
-				handler = new CoutdownHandler(1, Callback);
+				handler = new CountdownHandler(1, Callback);
 
 			Because of = () =>
 				handler.OnNext((BootstrapItem)null, 0, false);
@@ -34,7 +34,7 @@ namespace Hydrospanner.Phases.Bootstrap
 		public class when_all_transformation_items_have_been_received
 		{
 			Establish context = () =>
-				handler = new CoutdownHandler(1, Callback);
+				handler = new CountdownHandler(1, Callback);
 
 			Because of = () =>
 				handler.OnNext((TransformationItem)null, 0, false);
@@ -46,7 +46,7 @@ namespace Hydrospanner.Phases.Bootstrap
 		{
 			Establish context = () =>
 			{
-				handler = new CoutdownHandler(1, Callback);
+				handler = new CountdownHandler(1, Callback);
 				handler.OnNext((BootstrapItem)null, 0, false); // calls = 1
 			};
 
@@ -60,7 +60,7 @@ namespace Hydrospanner.Phases.Bootstrap
 		{
 			Establish context = () =>
 			{
-				handler = new CoutdownHandler(1, Callback);
+				handler = new CountdownHandler(1, Callback);
 				handler.OnNext((TransformationItem)null, 0, false); // calls = 1
 			};
 
@@ -75,7 +75,7 @@ namespace Hydrospanner.Phases.Bootstrap
 			calls = 0;
 
 		static readonly Action Callback = () => calls++;
-		static CoutdownHandler handler;
+		static CountdownHandler handler;
 		static int calls;
 	}
 }

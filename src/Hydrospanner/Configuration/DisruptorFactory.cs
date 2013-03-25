@@ -20,7 +20,7 @@
 			disruptor
 				.HandleEventsWith(new Phases.Bootstrap.SerializationHandler(CreateSerializer()))
 				.Then(new MementoHandler(repository))
-				.Then(new CoutdownHandler(countdown, complete));
+				.Then(new CountdownHandler(countdown, complete));
 
 			return new DisruptorBase<BootstrapItem>(disruptor);
 		}
@@ -61,7 +61,7 @@
 			var disruptor = CreateDisruptor<TransformationItem>(new YieldingWaitStrategy(), 1024 * 128);
 			disruptor.HandleEventsWith(this.serializationHandler)
 			    .Then(this.transformationHandler)
-			    .Then(new CoutdownHandler(countdown, complete));
+			    .Then(new CountdownHandler(countdown, complete));
 
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
