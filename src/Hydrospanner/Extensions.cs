@@ -152,15 +152,4 @@
 			}
 		}
 	}
-
-	internal static class RingBufferExtensions
-	{
-		public static void Publish<T>(this RingBuffer<T> ring, Action<T> assignment) where T : class
-		{
-			var next = ring.Next();
-			var claimed = ring[next];
-			assignment(claimed);
-			ring.Publish(next);
-		}
-	}
 }
