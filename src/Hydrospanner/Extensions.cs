@@ -162,15 +162,5 @@
 			assignment(claimed);
 			ring.Publish(next);
 		}
-
-		public static void PublishBatch<T>(this RingBuffer<T> ring, Action<T, int> assignment, int items) where T : class
-		{
-			var batch = ring.NewBatchDescriptor(items);
-			
-			for (var i = 0; i < batch.Size; i++)
-				assignment(ring[i + batch.Start], i);
-			
-			ring.Publish(batch);
-		}
 	}
 }
