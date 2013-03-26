@@ -5,7 +5,6 @@
 	using Disruptor;
 	using Disruptor.Dsl;
 	using Persistence;
-	using Phases;
 	using Phases.Bootstrap;
 	using Phases.Journal;
 	using Phases.Snapshot;
@@ -37,7 +36,7 @@
 			    .Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
 			    .Then(new DispatchCheckpointHandler(checkpointStore));
 
-			this.journalRing = disruptor.RingBuffer;
+			this.journalRing = new RingBufferBase<JournalItem>(disruptor.RingBuffer);
 			return new DisruptorBase<JournalItem>(disruptor);
 		}
 		public virtual IDisruptor<SnapshotItem> CreateSnapshotDisruptor()
@@ -49,7 +48,7 @@
 			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(CreateSerializer()))
 			    .Then(new SystemSnapshotHandler(systemRecorder, this.snapshots.SnapshotGeneration), new PublicSnapshotHandler(publicRecorder));
 
-			this.snapshotRing = disruptor.RingBuffer;
+			this.snapshotRing = new RingBufferBase<SnapshotItem>(disruptor.RingBuffer);
 			return new DisruptorBase<SnapshotItem>(disruptor);
 		}
 
@@ -103,7 +102,7 @@
 
 		private TransformationHandler transformationHandler;
 		private DuplicateHandler duplicateHandler;
-		private RingBuffer<JournalItem> journalRing;
-		private RingBuffer<SnapshotItem> snapshotRing;
+		private IRingBuffer<JournalItem> journalRing;
+		private IRingBuffer<SnapshotItem> snapshotRing;
 	}
 }

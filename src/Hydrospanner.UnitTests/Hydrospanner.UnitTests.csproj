@@ -52,6 +52,7 @@
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItemTests.cs" />
     <Compile Include="Phases\Transformation\DuplicateHandlerTests.cs" />
+    <Compile Include="TestRingBuffer.cs" />
     <Compile Include="Wireup\MessageBootstrapperTests.cs" />
     <Compile Include="Wireup\SnapshotBootstrapperTests.cs" />
     <Compile Include="Wireup\PersistenceBootstrapperTests.cs" />
@@ -70,7 +71,6 @@
     <Compile Include="Phases\Snapshot\ShouldExtensions.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotLoaderTests.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotStreamReaderTests.cs" />
-    <Compile Include="Phases\RingBufferHarness.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotHandlerTests.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotRecorderTests.cs" />
     <Compile Include="Phases\Snapshot\XxHashUnsafeTests.cs" />

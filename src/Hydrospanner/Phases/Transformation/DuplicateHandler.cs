@@ -1,6 +1,5 @@
 ﻿namespace Hydrospanner.Phases.Transformation
 {
-	using Disruptor;
 	using Journal;
 
 	public class DuplicateHandler
@@ -29,13 +28,13 @@
 			this.ring.Publish(next);
 		}
 
-		public DuplicateHandler(DuplicateStore store, RingBuffer<JournalItem> ring)
+		public DuplicateHandler(DuplicateStore store, IRingBuffer<JournalItem> ring)
 		{
 			this.store = store;
 			this.ring = ring;
 		}
 
 		readonly DuplicateStore store;
-		readonly RingBuffer<JournalItem> ring;
+		readonly IRingBuffer<JournalItem> ring;
 	}
 }

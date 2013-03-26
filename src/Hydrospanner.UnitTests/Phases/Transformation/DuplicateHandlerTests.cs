@@ -18,19 +18,16 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				item1.AsLocalMessage(42, new object(), null);
-				ring = new RingBufferHarness<JournalItem>();
-				handler = new DuplicateHandler(store, ring.RingBuffer);
+				item.AsLocalMessage(42, new object(), null);
+				ring = new TestRingBuffer<JournalItem>();
+				handler = new DuplicateHandler(store, ring);
 			};
 
 			Because of = () =>
-			{
-				forwarded = handler.Forward(item1);
-				Thread.Sleep(10);
-			};
+				forwarded = handler.Forward(item);
 
 			It should_NOT_mark_the_message_as_duplicate = () =>
-				item1.IsDuplicate.ShouldBeFalse();
+				item.IsDuplicate.ShouldBeFalse();
 
 			It should_NOT_forward_the_message = () =>
 			{
@@ -39,7 +36,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 			
 			static DuplicateHandler handler;
-			static RingBufferHarness<JournalItem> ring;
+			static TestRingBuffer<JournalItem> ring;
 		}
 
 		public class and_the_message_is_foreign
@@ -49,24 +46,21 @@ namespace Hydrospanner.Phases.Transformation
 				Establish context = () =>
 				{
 					store.Contains(ForeignId);
-					item1.AsForeignMessage(Body, TypeName, null, ForeignId, Console.WriteLine);
-					item1.Deserialize(new JsonSerializer());
+					item.AsForeignMessage(Body, TypeName, null, ForeignId, Console.WriteLine);
+					item.Deserialize(new JsonSerializer());
 
 					expected = new JournalItem();
 					expected.AsForeignMessage(0, Body, 1, null, ForeignId, Console.WriteLine);
 					
-					ring = new RingBufferHarness<JournalItem>();
-					handler = new DuplicateHandler(store, ring.RingBuffer);
+					ring = new TestRingBuffer<JournalItem>();
+					handler = new DuplicateHandler(store, ring);
 				};
 
 				Because of = () =>
-				{
-					result = handler.Forward(item1);
-					Thread.Sleep(1000);
-				};
+					result = handler.Forward(item);
 
 				It should_mark_the_item_as_a_duplicate = () =>
-					item1.IsDuplicate.ShouldBeTrue();
+					item.IsDuplicate.ShouldBeTrue();
 
 				It should_forward_the_message_for_acknowledgement_only = () =>
 				{
@@ -88,7 +82,7 @@ namespace Hydrospanner.Phases.Transformation
 				static readonly Guid ForeignId = Guid.NewGuid();
 				static readonly byte[] Body = Encoding.UTF8.GetBytes("1");
 				static JournalItem expected;
-				static RingBufferHarness<JournalItem> ring;
+				static TestRingBuffer<JournalItem> ring;
 				static DuplicateHandler handler;
 				static JournalItem actual;
 			}
@@ -97,18 +91,15 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				Establish context = () =>
 				{
-					item1.AsForeignMessage(Body, TypeName, null, ForeignId, Console.WriteLine);
-					item1.Deserialize(new JsonSerializer());
+					item.AsForeignMessage(Body, TypeName, null, ForeignId, Console.WriteLine);
+					item.Deserialize(new JsonSerializer());
 
-					ring = new RingBufferHarness<JournalItem>();
-					handler = new DuplicateHandler(store, ring.RingBuffer);
+					ring = new TestRingBuffer<JournalItem>();
+					handler = new DuplicateHandler(store, ring);
 				};
 
 				Because of = () =>
-				{
-					result = handler.Forward(item1);
-					Thread.Sleep(100);
-				};
+					result = handler.Forward(item);
 
 				It should_NOT_forward_the_message = () =>
 				{
@@ -121,7 +112,7 @@ namespace Hydrospanner.Phases.Transformation
 				static readonly Guid ForeignId = Guid.NewGuid();
 				static readonly byte[] Body = Encoding.UTF8.GetBytes("1");
 				static JournalItem expected;
-				static RingBufferHarness<JournalItem> ring;
+				static TestRingBuffer<JournalItem> ring;
 				static DuplicateHandler handler;
 				static JournalItem actual;
 			}
@@ -129,12 +120,12 @@ namespace Hydrospanner.Phases.Transformation
 
 		Establish context = () =>
 		{
-			item1 = new TransformationItem();
+			item = new TransformationItem();
 			store = new DuplicateStore();
 		};
 
 		static bool forwarded;
-		static TransformationItem item1;
+		static TransformationItem item;
 		static DuplicateStore store;
 	}
 }

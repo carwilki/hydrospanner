@@ -10,7 +10,6 @@ namespace Hydrospanner.Wireup
 	using NSubstitute;
 	using NSubstitute.Experimental;
 	using Persistence;
-	using Phases;
 	using Phases.Journal;
 	using Phases.Snapshot;
 	using Phases.Transformation;
@@ -158,7 +157,7 @@ namespace Hydrospanner.Wireup
 			journalDisruptor = Substitute.For<IDisruptor<JournalItem>>();
 			snapshotDisruptor = Substitute.For<IDisruptor<SnapshotItem>>();
 			transformationDisruptor = Substitute.For<IDisruptor<TransformationItem>>();
-			transformationRingBuffer = new RingBufferHarness<TransformationItem>();
+			transformationRingBuffer = new TestRingBuffer<TransformationItem>();
 			listener = Substitute.For<MessageListener>();
 
 			bootstrapper = new Bootstrapper(repository, disruptors, persistence, snapshots, messages, messaging);
@@ -173,8 +172,9 @@ namespace Hydrospanner.Wireup
 			disruptors.CreateJournalDisruptor(info2).Returns(journalDisruptor);
 			disruptors.CreateSnapshotDisruptor().Returns(snapshotDisruptor);
 			disruptors.CreateTransformationDisruptor().Returns(transformationDisruptor);
-			transformationDisruptor.RingBuffer.Returns(transformationRingBuffer.RingBuffer);
-			messaging.CreateMessageListener(transformationRingBuffer.RingBuffer).Returns(listener);
+
+			transformationDisruptor.RingBuffer.Returns(transformationRingBuffer);
+			messaging.CreateMessageListener(transformationRingBuffer).Returns(listener);
 		}
 
 		static void ExpectedStartCalls()
@@ -192,7 +192,7 @@ namespace Hydrospanner.Wireup
 
 			transformationDisruptor.Start();
 
-			messaging.CreateMessageListener(transformationRingBuffer.RingBuffer);
+			messaging.CreateMessageListener(transformationRingBuffer);
 		}
 
 		static void ExpectedDisposal()
@@ -216,7 +216,7 @@ namespace Hydrospanner.Wireup
 		static IDisruptor<JournalItem> journalDisruptor;
 		static IDisruptor<SnapshotItem> snapshotDisruptor;
 		static IDisruptor<TransformationItem> transformationDisruptor;
-		static RingBufferHarness<TransformationItem> transformationRingBuffer;
+		static TestRingBuffer<TransformationItem> transformationRingBuffer;
 		static MessageListener listener;
 		static List<TimeSpan> naps;
 	}

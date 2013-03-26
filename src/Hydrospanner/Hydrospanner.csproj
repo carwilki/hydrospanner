@@ -51,6 +51,7 @@
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Phases\Transformation\DuplicateHandler.cs" />
+    <Compile Include="RingBufferBase.cs" />
     <Compile Include="Wireup\DisruptorFactory.cs" />
     <Compile Include="Wireup\MessagingFactory.cs" />
     <Compile Include="Wireup\SnapshotFactory.cs" />
@@ -81,7 +82,6 @@
     <Compile Include="Wireup\PersistenceBootstrapper.cs" />
     <Compile Include="Phases\Bootstrap\SerializationHandler.cs" />
     <Compile Include="Wireup\SnapshotBootstrapper.cs" />
-    <Compile Include="Phases\IDisruptor.cs" />
     <Compile Include="Phases\Journal\AcknowledgmentHandler.cs" />
     <Compile Include="Phases\Journal\DispatchCheckpointHandler.cs" />
     <Compile Include="Phases\Journal\DispatchHandler.cs" />

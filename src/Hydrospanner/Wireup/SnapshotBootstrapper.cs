@@ -2,7 +2,6 @@
 {
 	using System;
 	using System.Threading;
-	using Disruptor;
 	using Persistence;
 	using Phases.Bootstrap;
 	using Phases.Snapshot;
@@ -36,7 +35,7 @@
 				}	
 			}
 		}
-		private static void Publish(SystemSnapshotStreamReader reader, RingBuffer<BootstrapItem> ring)
+		private static void Publish(SystemSnapshotStreamReader reader, IRingBuffer<BootstrapItem> ring)
 		{
 			foreach (var memento in reader.Read())
 			{

@@ -1,14 +1,13 @@
 ﻿namespace Hydrospanner.Wireup
 {
 	using System;
-	using Disruptor;
 	using Messaging;
 	using Messaging.Rabbit;
 	using Phases.Transformation;
 
 	public class MessagingFactory
 	{
-		public virtual MessageListener CreateMessageListener(RingBuffer<TransformationItem> ring)
+		public virtual MessageListener CreateMessageListener(IRingBuffer<TransformationItem> ring)
 		{
 			return new MessageListener(
 				() => new RabbitChannel(this.connector, this.nodeId, x => new RabbitSubscription(x, this.sourceQueue)),

@@ -1,19 +1,26 @@
 ﻿namespace Hydrospanner
 {
-	using Disruptor;
+	using System;
 	using Disruptor.Dsl;
-	using Phases;
+	
+	public interface IDisruptor<T> : IDisposable where T : class
+	{
+		IRingBuffer<T> RingBuffer { get; }
+		IRingBuffer<T> Start();
+		void Stop();
+	}
 
 	public sealed class DisruptorBase<T> : IDisruptor<T> where T : class
 	{
-		public RingBuffer<T> RingBuffer
+		public IRingBuffer<T> RingBuffer
 		{
-			get { return this.disruptor.RingBuffer; }
+			get { return this.ring; }
 		}
 
-		public RingBuffer<T> Start()
+		public IRingBuffer<T> Start()
 		{
-			return this.disruptor.Start();
+			this.disruptor.Start();
+			return this.ring;
 		}
 		public void Stop()
 		{
@@ -23,6 +30,7 @@
 		public DisruptorBase(Disruptor<T> disruptor)
 		{
 			this.disruptor = disruptor;
+			this.ring = new RingBufferBase<T>(disruptor.RingBuffer);
 		}
 		public void Dispose()
 		{
@@ -30,5 +38,6 @@
 		}
 
 		private readonly Disruptor<T> disruptor;
+		private readonly RingBufferBase<T> ring; 
 	}
 }

@@ -2,7 +2,6 @@
 {
 	using System;
 	using System.Threading;
-	using Disruptor;
 	using Messaging;
 
 	public class MessageListener : IDisposable
@@ -40,7 +39,7 @@
 			this.ring.Publish(next);
 		}
 
-		public MessageListener(Func<IMessageReceiver> receiverFactory, RingBuffer<TransformationItem> ring)
+		public MessageListener(Func<IMessageReceiver> receiverFactory, IRingBuffer<TransformationItem> ring)
 		{
 			if (receiverFactory == null)
 				throw new ArgumentNullException("receiverFactory");
@@ -71,7 +70,7 @@
 
 		private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(2);
 		private readonly Func<IMessageReceiver> receiverFactory;
-		private readonly RingBuffer<TransformationItem> ring;
+		private readonly IRingBuffer<TransformationItem> ring;
 		private bool started;
 		private bool disposed;
 	}

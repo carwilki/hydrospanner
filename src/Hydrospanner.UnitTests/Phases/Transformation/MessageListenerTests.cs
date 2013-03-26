@@ -16,7 +16,7 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_no_receiver_is_provided
 		{
 			Because of = () =>
-				Try(() => new MessageListener(null, harness.RingBuffer));
+				Try(() => new MessageListener(null, harness));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
@@ -76,10 +76,7 @@ namespace Hydrospanner.Phases.Transformation
 			}
 
 			Because of = () =>
-			{
 				listener.Start();
-				Thread.Sleep(10);
-			};
 
 			It should_not_push_the_empty_message_to_the_Ring_buffer = () =>
 				harness.AllItems.Count.ShouldEqual(0);
@@ -103,10 +100,7 @@ namespace Hydrospanner.Phases.Transformation
 			}
 
 			Because of = () =>
-			{
 				listener.Start();
-				Thread.Sleep(10);
-			};
 
 			It should_push_the_message_to_the_ring_buffer = () =>
 				harness.AllItems.Count.ShouldBeGreaterThan(0);
@@ -126,10 +120,7 @@ namespace Hydrospanner.Phases.Transformation
 				listener.Start();
 
 			Because of = () =>
-			{
 				listener.Dispose();
-				Thread.Sleep(10);
-			};
 
 			It should_dispose_the_underlying_messaging_handle = () =>
 				receiver.Received(1).Dispose();
@@ -141,7 +132,6 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				listener.Start();
 				listener.Dispose();
-				Thread.Sleep(10);
 			};
 
 			Because of = () =>
@@ -180,19 +170,18 @@ namespace Hydrospanner.Phases.Transformation
 		Establish context = () =>
 		{
 			receiver = Substitute.For<IMessageReceiver>();
-			harness = new RingBufferHarness<TransformationItem>();
-			listener = new MessageListener(() => receiver, harness.RingBuffer);
+			harness = new TestRingBuffer<TransformationItem>();
+			listener = new MessageListener(() => receiver, harness);
 		};
 
 		Cleanup after = () =>
 		{
 			thrown = null;
 			listener.Dispose();
-			harness.Dispose();
 		};
 
 		static IMessageReceiver receiver;
-		static RingBufferHarness<TransformationItem> harness;
+		static TestRingBuffer<TransformationItem> harness;
 		static MessageListener listener;
 		static Exception thrown;
 	}

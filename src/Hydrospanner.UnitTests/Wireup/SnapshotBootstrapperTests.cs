@@ -9,7 +9,6 @@ namespace Hydrospanner.Wireup
 	using Machine.Specifications;
 	using NSubstitute;
 	using Persistence;
-	using Phases;
 	using Phases.Bootstrap;
 	using Phases.Snapshot;
 
@@ -52,7 +51,7 @@ namespace Hydrospanner.Wireup
 				count = 0;
 				completeCallback = null;
 
-				ring = new RingBufferHarness<BootstrapItem>(CompleteCallback);
+				ring = new TestRingBuffer<BootstrapItem>(CompleteCallback);
 				reader = Substitute.For<SystemSnapshotStreamReader>();
 				reader.Read().Returns(new[]
 				{
@@ -62,7 +61,7 @@ namespace Hydrospanner.Wireup
 				});
 
 				disruptor = Substitute.For<IDisruptor<BootstrapItem>>();
-				disruptor.Start().Returns(ring.RingBuffer);
+				disruptor.Start().Returns(ring);
 
 				reader.Count.Returns(ItemCount);
 				reader.MessageSequence.Returns(providedInfo.JournaledSequence - 1);
@@ -70,14 +69,11 @@ namespace Hydrospanner.Wireup
 				snapshots.CreateSystemSnapshotStreamReader(providedInfo.JournaledSequence).Returns(reader);
 				disruptors.CreateBootstrapDisruptor(repository, ItemCount, Arg.Do<Action>(x => completeCallback = x)).Returns(disruptor);
 			};
-			static void CompleteCallback(BootstrapItem item)
+			static void CompleteCallback()
 			{
 				if (++count == ItemCount)
 					completeCallback();
 			}
-
-			Cleanup after = () =>
-				ring.Dispose();
 
 			Because of = () =>
 				returnedInfo = bootstrapper.RestoreSnapshots(providedInfo, repository);
@@ -109,7 +105,7 @@ namespace Hydrospanner.Wireup
 						.AddSnapshotSequence(reader.MessageSequence));
 
 			const int ItemCount = 3;
-			static RingBufferHarness<BootstrapItem> ring;
+			static TestRingBuffer<BootstrapItem> ring;
 			static SystemSnapshotStreamReader reader;
 			static IDisruptor<BootstrapItem> disruptor;
 			static int count;
