@@ -23,8 +23,7 @@
 		{
 			var next = this.ring.Next();
 			var claimed = this.ring[next];
-			claimed.AsForeignMessage(
-				item.MessageSequence, item.SerializedBody, item.Body, item.Headers, item.ForeignId, item.Acknowledgment);
+			claimed.AsForeignMessage(0, item.SerializedBody, item.Body, item.Headers, item.ForeignId, item.Acknowledgment);
 			this.ring.Publish(next);
 		}
 
