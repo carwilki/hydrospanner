@@ -1,11 +1,11 @@
-﻿namespace Hydrospanner.Phases.Bootstrap
+﻿namespace Hydrospanner.Configuration
 {
 	using System;
 	using System.Threading;
-	using Configuration;
 	using Disruptor;
 	using Persistence;
-	using Snapshot;
+	using Phases.Bootstrap;
+	using Phases.Snapshot;
 
 	public class SnapshotBootstrapper
 	{

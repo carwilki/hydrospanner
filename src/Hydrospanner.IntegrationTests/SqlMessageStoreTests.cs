@@ -8,9 +8,9 @@ namespace Hydrospanner.IntegrationTests
 	using System.Data.Common;
 	using System.Linq;
 	using System.Text;
+	using Configuration;
 	using Machine.Specifications;
 	using Persistence.SqlPersistence;
-	using Phases.Bootstrap;
 	using Phases.Journal;
 	using Serialization;
 

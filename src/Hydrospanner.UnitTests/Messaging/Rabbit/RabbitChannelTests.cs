@@ -8,9 +8,9 @@ namespace Hydrospanner.Messaging.Rabbit
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.Text;
-	using Hydrospanner.Phases.Journal;
 	using Machine.Specifications;
 	using NSubstitute;
+	using Phases.Journal;
 	using RabbitMQ.Client;
 	using RabbitMQ.Client.Events;
 	using RabbitMQ.Client.Framing.v0_9_1;

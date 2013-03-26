@@ -1,8 +1,7 @@
-﻿namespace Hydrospanner.Phases.Bootstrap
+﻿namespace Hydrospanner.Configuration
 {
 	using System;
-	using Hydrospanner.Configuration;
-	using Hydrospanner.Persistence;
+	using Persistence;
 
 	public class PersistenceBootstrapper
 	{

@@ -6,7 +6,7 @@
 	using System.Data.Common;
 	using System.Linq;
 	using System.Text;
-	using Phases.Bootstrap;
+	using Configuration;
 	using Phases.Journal;
 
 	public sealed class SqlMessageStore : IMessageStore

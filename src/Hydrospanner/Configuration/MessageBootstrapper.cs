@@ -1,11 +1,11 @@
-﻿namespace Hydrospanner.Phases.Bootstrap
+﻿namespace Hydrospanner.Configuration
 {
 	using System;
 	using System.Threading;
-	using Configuration;
-	using Journal;
 	using Persistence;
-	using Transformation;
+	using Phases;
+	using Phases.Journal;
+	using Phases.Transformation;
 
 	public class MessageBootstrapper
 	{

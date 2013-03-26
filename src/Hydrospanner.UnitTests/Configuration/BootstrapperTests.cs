@@ -1,19 +1,19 @@
 ﻿#pragma warning disable 169
 // ReSharper disable InconsistentNaming
 
-namespace Hydrospanner.Phases.Bootstrap
+namespace Hydrospanner.Configuration
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Collections.ObjectModel;
-	using Configuration;
-	using Journal;
 	using Machine.Specifications;
 	using NSubstitute;
 	using NSubstitute.Experimental;
 	using Persistence;
-	using Snapshot;
-	using Transformation;
+	using Phases;
+	using Phases.Journal;
+	using Phases.Snapshot;
+	using Phases.Transformation;
 
 	[Subject(typeof(Bootstrapper))]
 	public class when_instantiating_the_bootstrapper

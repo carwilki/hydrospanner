@@ -1,10 +1,9 @@
 ﻿#pragma warning disable 169
 // ReSharper disable InconsistentNaming
 
-namespace Hydrospanner.Phases.Bootstrap
+namespace Hydrospanner.Configuration
 {
 	using System;
-	using Configuration;
 	using Machine.Specifications;
 	using NSubstitute;
 	using Persistence;

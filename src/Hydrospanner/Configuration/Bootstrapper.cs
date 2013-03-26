@@ -1,10 +1,10 @@
-﻿namespace Hydrospanner.Phases.Bootstrap
+﻿namespace Hydrospanner.Configuration
 {
 	using System;
-	using Configuration;
-	using Journal;
-	using Snapshot;
-	using Transformation;
+	using Phases;
+	using Phases.Journal;
+	using Phases.Snapshot;
+	using Phases.Transformation;
 
 	public class Bootstrapper : IDisposable
 	{

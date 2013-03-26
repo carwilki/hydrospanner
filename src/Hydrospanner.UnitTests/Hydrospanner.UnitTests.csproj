@@ -51,10 +51,10 @@
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItemTests.cs" />
-    <Compile Include="Phases\Bootstrap\MessageBootstrapperTests.cs" />
-    <Compile Include="Phases\Bootstrap\SnapshotBootstrapperTests.cs" />
-    <Compile Include="Phases\Bootstrap\PersistenceBootstrapperTests.cs" />
-    <Compile Include="Phases\Bootstrap\BootstrapperTests.cs" />
+    <Compile Include="Configuration\MessageBootstrapperTests.cs" />
+    <Compile Include="Configuration\SnapshotBootstrapperTests.cs" />
+    <Compile Include="Configuration\PersistenceBootstrapperTests.cs" />
+    <Compile Include="Configuration\BootstrapperTests.cs" />
     <Compile Include="Phases\Bootstrap\MementoHandlerTests.cs" />
     <Compile Include="Phases\Bootstrap\SerializationHandlerTests.cs" />
     <Compile Include="Phases\Bootstrap\CountdownHandlerTests.cs" />

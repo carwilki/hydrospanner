@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Phases.Bootstrap
+﻿namespace Hydrospanner.Configuration
 {
 	public sealed class JournaledMessage
 	{
