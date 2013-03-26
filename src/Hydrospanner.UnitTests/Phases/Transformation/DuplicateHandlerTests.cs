@@ -6,7 +6,6 @@ namespace Hydrospanner.Phases.Transformation
 	using System;
 	using System.Linq;
 	using System.Text;
-	using System.Threading;
 	using Journal;
 	using Machine.Specifications;
 	using Serialization;
@@ -19,7 +18,7 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				item.AsLocalMessage(42, new object(), null);
-				ring = new TestRingBuffer<JournalItem>();
+				ring = new RingBufferHarness<JournalItem>();
 				handler = new DuplicateHandler(store, ring);
 			};
 
@@ -36,7 +35,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 			
 			static DuplicateHandler handler;
-			static TestRingBuffer<JournalItem> ring;
+			static RingBufferHarness<JournalItem> ring;
 		}
 
 		public class and_the_message_is_foreign
@@ -52,7 +51,7 @@ namespace Hydrospanner.Phases.Transformation
 					expected = new JournalItem();
 					expected.AsForeignMessage(0, Body, 1, null, ForeignId, Console.WriteLine);
 					
-					ring = new TestRingBuffer<JournalItem>();
+					ring = new RingBufferHarness<JournalItem>();
 					handler = new DuplicateHandler(store, ring);
 				};
 
@@ -82,7 +81,7 @@ namespace Hydrospanner.Phases.Transformation
 				static readonly Guid ForeignId = Guid.NewGuid();
 				static readonly byte[] Body = Encoding.UTF8.GetBytes("1");
 				static JournalItem expected;
-				static TestRingBuffer<JournalItem> ring;
+				static RingBufferHarness<JournalItem> ring;
 				static DuplicateHandler handler;
 				static JournalItem actual;
 			}
@@ -94,7 +93,7 @@ namespace Hydrospanner.Phases.Transformation
 					item.AsForeignMessage(Body, TypeName, null, ForeignId, Console.WriteLine);
 					item.Deserialize(new JsonSerializer());
 
-					ring = new TestRingBuffer<JournalItem>();
+					ring = new RingBufferHarness<JournalItem>();
 					handler = new DuplicateHandler(store, ring);
 				};
 
@@ -112,7 +111,7 @@ namespace Hydrospanner.Phases.Transformation
 				static readonly Guid ForeignId = Guid.NewGuid();
 				static readonly byte[] Body = Encoding.UTF8.GetBytes("1");
 				static JournalItem expected;
-				static TestRingBuffer<JournalItem> ring;
+				static RingBufferHarness<JournalItem> ring;
 				static DuplicateHandler handler;
 				static JournalItem actual;
 			}

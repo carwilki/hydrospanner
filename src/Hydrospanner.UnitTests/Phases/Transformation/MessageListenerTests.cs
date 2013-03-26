@@ -5,7 +5,6 @@ namespace Hydrospanner.Phases.Transformation
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Threading;
 	using Machine.Specifications;
 	using Messaging;
 	using NSubstitute;
@@ -170,7 +169,7 @@ namespace Hydrospanner.Phases.Transformation
 		Establish context = () =>
 		{
 			receiver = Substitute.For<IMessageReceiver>();
-			harness = new TestRingBuffer<TransformationItem>();
+			harness = new RingBufferHarness<TransformationItem>();
 			listener = new MessageListener(() => receiver, harness);
 		};
 
@@ -181,7 +180,7 @@ namespace Hydrospanner.Phases.Transformation
 		};
 
 		static IMessageReceiver receiver;
-		static TestRingBuffer<TransformationItem> harness;
+		static RingBufferHarness<TransformationItem> harness;
 		static MessageListener listener;
 		static Exception thrown;
 	}

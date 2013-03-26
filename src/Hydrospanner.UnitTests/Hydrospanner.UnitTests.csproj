@@ -48,11 +48,12 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="DisruptorHarness.cs" />
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItemTests.cs" />
     <Compile Include="Phases\Transformation\DuplicateHandlerTests.cs" />
-    <Compile Include="TestRingBuffer.cs" />
+    <Compile Include="RingBufferHarness.cs" />
     <Compile Include="Wireup\MessageBootstrapperTests.cs" />
     <Compile Include="Wireup\SnapshotBootstrapperTests.cs" />
     <Compile Include="Wireup\PersistenceBootstrapperTests.cs" />

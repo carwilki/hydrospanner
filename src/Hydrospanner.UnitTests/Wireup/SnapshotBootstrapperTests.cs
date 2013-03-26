@@ -51,7 +51,6 @@ namespace Hydrospanner.Wireup
 				count = 0;
 				completeCallback = null;
 
-				ring = new TestRingBuffer<BootstrapItem>(CompleteCallback);
 				reader = Substitute.For<SystemSnapshotStreamReader>();
 				reader.Read().Returns(new[]
 				{
@@ -60,8 +59,7 @@ namespace Hydrospanner.Wireup
 					new KeyValuePair<string, byte[]>("3", new byte[] { 3 })
 				});
 
-				disruptor = Substitute.For<IDisruptor<BootstrapItem>>();
-				disruptor.Start().Returns(ring);
+				disruptor = new DisruptorHarness<BootstrapItem>(CompleteCallback);
 
 				reader.Count.Returns(ItemCount);
 				reader.MessageSequence.Returns(providedInfo.JournaledSequence - 1);
@@ -85,7 +83,7 @@ namespace Hydrospanner.Wireup
 				disruptors.Received(1).CreateBootstrapDisruptor(repository, ItemCount, Arg.Any<Action>());
 
 			It should_start_the_disruptor = () =>
-				disruptor.Received(1).Start();
+				disruptor.Started.ShouldBeTrue();
 
 			It should_publish_each_item_to_the_journal = () =>
 				count.ShouldEqual(ItemCount);
@@ -94,7 +92,7 @@ namespace Hydrospanner.Wireup
 				reader.Received(1).Dispose();
 
 			It should_dispose_the_disruptor = () =>
-				disruptor.Received(1).Dispose();
+				disruptor.Disposed.ShouldBeTrue();
 
 			It should_return_the_bootstrap_info_augmented_with_the_current_snapshot_sequence = () =>
 				returnedInfo.ShouldBeLike(new BootstrapInfo(
@@ -105,9 +103,8 @@ namespace Hydrospanner.Wireup
 						.AddSnapshotSequence(reader.MessageSequence));
 
 			const int ItemCount = 3;
-			static TestRingBuffer<BootstrapItem> ring;
 			static SystemSnapshotStreamReader reader;
-			static IDisruptor<BootstrapItem> disruptor;
+			static DisruptorHarness<BootstrapItem> disruptor;
 			static int count;
 			static Action completeCallback;
 		}

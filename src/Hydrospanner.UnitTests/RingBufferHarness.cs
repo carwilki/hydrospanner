@@ -4,7 +4,7 @@
 	using System.Collections.Generic;
 	using Disruptor;
 
-	public class TestRingBuffer<T> : IRingBuffer<T> where T : class, new()
+	public class RingBufferHarness<T> : IRingBuffer<T> where T : class, new()
 	{
 		public List<T> AllItems { get; private set; }
 		public List<T> PublishedItems { get; private set; }
@@ -49,7 +49,7 @@
 				this.callback();
 		}
 
-		public TestRingBuffer(Action callback = null)
+		public RingBufferHarness(Action callback = null)
 		{
 			this.callback = callback;
 			this.AllItems = new List<T>();
@@ -58,35 +58,5 @@
 
 		private readonly Action callback;
 		private int index;
-	}
-
-	public class TestDisruptor<T> : IDisruptor<T> where T : class, new()
-	{
-		public IRingBuffer<T> RingBuffer { get; private set; }
-
-		public IRingBuffer<T> Start()
-		{
-			this.Started = true;
-			return this.RingBuffer;
-		}
-
-		public void Stop()
-		{
-			this.Stopped = true;
-		}
-
-		public TestDisruptor()
-		{
-			this.RingBuffer = new TestRingBuffer<T>();
-		}
-
-		public void Dispose()
-		{
-			this.Disposed = true;
-		}
-
-		public bool Started { get; private set; }
-		public bool Stopped { get; private set; }
-		public bool Disposed { get; private set; }
 	}
 }

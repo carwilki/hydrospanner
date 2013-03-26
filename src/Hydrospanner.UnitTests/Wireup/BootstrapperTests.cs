@@ -157,7 +157,7 @@ namespace Hydrospanner.Wireup
 			journalDisruptor = Substitute.For<IDisruptor<JournalItem>>();
 			snapshotDisruptor = Substitute.For<IDisruptor<SnapshotItem>>();
 			transformationDisruptor = Substitute.For<IDisruptor<TransformationItem>>();
-			transformationRingBuffer = new TestRingBuffer<TransformationItem>();
+			transformationRingBuffer = Substitute.For<IRingBuffer<TransformationItem>>();
 			listener = Substitute.For<MessageListener>();
 
 			bootstrapper = new Bootstrapper(repository, disruptors, persistence, snapshots, messages, messaging);
@@ -216,7 +216,7 @@ namespace Hydrospanner.Wireup
 		static IDisruptor<JournalItem> journalDisruptor;
 		static IDisruptor<SnapshotItem> snapshotDisruptor;
 		static IDisruptor<TransformationItem> transformationDisruptor;
-		static TestRingBuffer<TransformationItem> transformationRingBuffer;
+		static IRingBuffer<TransformationItem> transformationRingBuffer;
 		static MessageListener listener;
 		static List<TimeSpan> naps;
 	}
