@@ -76,6 +76,7 @@ namespace Hydrospanner.Phases.Bootstrap
 			{
 				Establish context = () =>
 				{
+					itemCount = 1;
 					info.DispatchSequence = 41;
 					info.SnapshotSequence = int.MaxValue;
 					message = new JournaledMessage { Sequence = 42 };
@@ -100,7 +101,7 @@ namespace Hydrospanner.Phases.Bootstrap
 				};
 
 				It should_create_a_transformation_disruptor = () =>
-					factory.CreateStartupTransformationDisruptor(repository, info, complete).Received(1);
+					factory.CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action>()).Received(1);
 
 				It should_publish_the_messages_to_the_newly_created_disruptor = () =>
 					transformationRingBuffer.AllItems.Single().ShouldBeLike(new TransformationItem
@@ -136,7 +137,7 @@ namespace Hydrospanner.Phases.Bootstrap
 					});
 
 				It should_create_a_transformation_disruptor = () =>
-					factory.CreateStartupTransformationDisruptor(repository, info, complete).Received(1);
+					factory.CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action>()).Received(1);
 
 				It should_publish_the_messages_requiring_transformation_to_the_newly_created_disruptor = () =>
 					transformationRingBuffer.AllItems.ShouldBeLike(new[]
@@ -155,7 +156,6 @@ namespace Hydrospanner.Phases.Bootstrap
 			Because of = () =>
 			{
 				bootstrapper.Restore(info, journalRing, repository);
-				ThreadExtensions.Unfreeze();
 				Thread.Sleep(10); // let ring buffer catch up
 			};
 		}
@@ -169,7 +169,6 @@ namespace Hydrospanner.Phases.Bootstrap
 			info = new BootstrapInfo();
 			store = Substitute.For<IMessageStore>();
 			factory = Substitute.For<DisruptorFactory>();
-			complete = Console.WriteLine;
 			bootstrapper = new MessageBootstrapper(store, factory);
 
 			transformationRing = Substitute.For<IDisruptor<TransformationItem>>();
@@ -188,12 +187,12 @@ namespace Hydrospanner.Phases.Bootstrap
 		{
 			journalRingBuffer = journalRingBuffer.TryDispose();
 			transformationRingBuffer = transformationRingBuffer.TryDispose();
+			bootstrapper = null;
 		};
 
 		static int count;
 		static int itemCount;
 		static Action completeCallback;
-		static Action complete;
 		static DisruptorFactory factory;
 		static IMessageStore store;
 		static IRepository repository;
