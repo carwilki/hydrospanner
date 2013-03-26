@@ -59,7 +59,9 @@
 			if (countdown == 0)
 				return null;
 
-			this.transformationHandler = new TransformationHandler(info.JournaledSequence, this.snapshotRing, this.journalRing);
+			this.duplicateHandler = new DuplicateHandler(new DuplicateStore(), this.journalRing);
+			this.transformationHandler = new TransformationHandler(
+				info.JournaledSequence, this.snapshotRing, this.journalRing, this.duplicateHandler);
 
 			var disruptor = CreateDisruptor<TransformationItem>(new YieldingWaitStrategy(), 1024 * 128);
 			disruptor.HandleEventsWith(this.serializationHandler)
@@ -100,6 +102,7 @@
 		private readonly PersistenceFactory persistence;
 
 		private TransformationHandler transformationHandler;
+		private DuplicateHandler duplicateHandler;
 		private RingBuffer<JournalItem> journalRing;
 		private RingBuffer<SnapshotItem> snapshotRing;
 	}

@@ -117,7 +117,7 @@ namespace Hydrospanner.Wireup
 				Because of = () =>
 				{
 					bootstrapper.Restore(info, journalRing, repository);
-					Thread.Sleep(20);
+					Thread.Sleep(100);
 				};
 
 				Cleanup after = () =>
@@ -223,7 +223,7 @@ namespace Hydrospanner.Wireup
 				Because of = () =>
 				{
 					bootstrapper.Restore(info, journalRing, repository);
-					Thread.Sleep(10); // let ring buffer catch up
+					Thread.Sleep(100); // let ring buffer catch up
 				};
 
 				It should_send_each_message_that_should_be_dispatched_to_the_journal_ring_to_be_dispatched = () =>

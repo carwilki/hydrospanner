@@ -22,10 +22,10 @@
 			return false;
 		}
 
-		public DuplicateStore(int capacity)
+		public DuplicateStore(int capacity = 1024)
 		{
 			this.capacity = capacity;
-			this.entries = new HashSet<Guid>();
+			this.entries = new HashSet<Guid>(new Guid[capacity]);
 		}
 
 		private readonly Queue<Guid> cache = new Queue<Guid>();

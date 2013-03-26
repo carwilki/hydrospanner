@@ -50,6 +50,7 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Phases\Transformation\DuplicateHandler.cs" />
     <Compile Include="Wireup\DisruptorFactory.cs" />
     <Compile Include="Wireup\MessagingFactory.cs" />
     <Compile Include="Wireup\SnapshotFactory.cs" />
