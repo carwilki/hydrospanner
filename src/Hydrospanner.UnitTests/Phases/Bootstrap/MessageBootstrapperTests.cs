@@ -48,6 +48,16 @@ namespace Hydrospanner.Phases.Bootstrap
 	{
 		public class when_input_parameters_are_null
 		{
+			Establish context = () =>
+			{
+				repository = Substitute.For<IRepository>();
+				journalRing = Substitute.For<IDisruptor<JournalItem>>();
+				info = new BootstrapInfo();
+				store = Substitute.For<IMessageStore>();
+				factory = Substitute.For<DisruptorFactory>();
+				bootstrapper = new MessageBootstrapper(store, factory);
+			};
+
 			It should_throw_when_the_info_is_null = () =>
 				Catch.Exception(() => bootstrapper.Restore(null, journalRing, repository)).ShouldBeOfType<ArgumentNullException>();
 
@@ -56,6 +66,13 @@ namespace Hydrospanner.Phases.Bootstrap
 
 			It should_throw_when_the_repository_is_null = () =>
 				Catch.Exception(() => bootstrapper.Restore(info, journalRing, null)).ShouldBeOfType<ArgumentNullException>();
+
+			static DisruptorFactory factory;
+			static IMessageStore store;
+			static IRepository repository;
+			static IDisruptor<JournalItem> journalRing;
+			static BootstrapInfo info;
+			static MessageBootstrapper bootstrapper;
 		}
 
 		public class during_message_restoration
@@ -63,28 +80,52 @@ namespace Hydrospanner.Phases.Bootstrap
 			public class when_the_application_is_completely_caught_up_with_dispatching_and_transformations
 			{
 				Establish context = () =>
+				{
 					store.Load(Arg.Any<long>()).Returns(new JournaledMessage[0]);
+					transformationRing = Substitute.For<IDisruptor<TransformationItem>>();
+					transformationRingBuffer = new RingBufferHarness<TransformationItem>();
+					transformationRing.RingBuffer.Returns(transformationRingBuffer.RingBuffer);
+					factory.CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action>()).Returns(transformationRing);
+				};
+
+				Because of = () =>
+					bootstrapper.Restore(info, journalRing, repository);
 
 				It should_NOT_publish_any_items_to_the_journal_ring_to_be_dispatched = () =>
 					journalRingBuffer.AllItems.ShouldBeEmpty();
 
 				It should_NOT_publish_any_items_to_the_transformation_ring = () =>
 					transformationRingBuffer.AllItems.ShouldBeEmpty();
+
+				Cleanup after = () =>
+				{
+					transformationRingBuffer = transformationRingBuffer.TryDispose();
+					transformationRing = null;
+				};
+
+				static IDisruptor<TransformationItem> transformationRing;
+				static RingBufferHarness<TransformationItem> transformationRingBuffer;
 			}
 
 			public class when_there_are_messages_that_need_to_be_dispatched
 			{
 				Establish context = () =>
 				{
-					itemCount = 1;
 					info.DispatchSequence = 41;
 					info.SnapshotSequence = int.MaxValue;
 					message = new JournaledMessage { Sequence = 42 };
 					store.Load(41).Returns(new List<JournaledMessage> { message });
 				};
 
+				Because of = () =>
+				{
+					bootstrapper.Restore(info, journalRing, repository);
+					Thread.Sleep(10);
+				};
+
 				It should_send_each_to_the_journal_ring_to_be_dispatched = () =>
-					journalRingBuffer.AllItems.Single().ShouldBeLike(new JournalItem { MessageSequence = 42, ItemActions = JournalItemAction.Dispatch });
+					journalRingBuffer.AllItems.Single()
+						.ShouldBeLike(new JournalItem { MessageSequence = 42, ItemActions = JournalItemAction.Dispatch });
 
 				static JournaledMessage message;
 			}
@@ -98,7 +139,15 @@ namespace Hydrospanner.Phases.Bootstrap
 					info.DispatchSequence = int.MaxValue;
 					message = new JournaledMessage { Sequence = 42 };
 					store.Load(41).Returns(new List<JournaledMessage> { message });
+
+					transformationRing = Substitute.For<IDisruptor<TransformationItem>>();
+					transformationRingBuffer = new RingBufferHarness<TransformationItem>(CompleteCallback);
+					transformationRing.RingBuffer.Returns(transformationRingBuffer.RingBuffer);
+					factory.CreateStartupTransformationDisruptor(repository, info, Arg.Do<Action>(x => completeCallback = x)).Returns(transformationRing);
 				};
+
+				Because of = () =>
+					bootstrapper.Restore(info, journalRing, repository);
 
 				It should_create_a_transformation_disruptor = () =>
 					factory.CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action>()).Received(1);
@@ -114,7 +163,26 @@ namespace Hydrospanner.Phases.Bootstrap
 				It should_shutdown_the_transformation_disruptor_after_everything_is_processed = () =>
 					transformationRing.Received(1).Dispose();
 
+				Cleanup after = () =>
+				{
+					transformationRingBuffer = transformationRingBuffer.TryDispose();
+					transformationRing = null;
+				};
+
+				static void CompleteCallback(TransformationItem item)
+				{
+					if (++count == itemCount)
+						completeCallback();
+				}
+
+				static int count;
+				static int itemCount;
+				static Action completeCallback;
+				
 				static JournaledMessage message;
+
+				static IDisruptor<TransformationItem> transformationRing;
+				static RingBufferHarness<TransformationItem> transformationRingBuffer;
 			}
 
 			public class when_there_are_messages_that_need_to_be_dispatched_and_that_require_additional_transformations
@@ -127,6 +195,17 @@ namespace Hydrospanner.Phases.Bootstrap
 					message1 = new JournaledMessage { Sequence = 41 };
 					message2 = new JournaledMessage { Sequence = 42 };
 					store.Load(40).Returns(new List<JournaledMessage> { message1, message2 });
+
+					transformationRing = Substitute.For<IDisruptor<TransformationItem>>();
+					transformationRingBuffer = new RingBufferHarness<TransformationItem>(CompleteCallback);
+					transformationRing.RingBuffer.Returns(transformationRingBuffer.RingBuffer);
+					factory.CreateStartupTransformationDisruptor(repository, info, Arg.Do<Action>(x => completeCallback = x)).Returns(transformationRing);
+				};
+
+				Because of = () =>
+				{
+					bootstrapper.Restore(info, journalRing, repository);
+					Thread.Sleep(10); // let ring buffer catch up
 				};
 
 				It should_send_each_message_that_should_be_dispatched_to_the_journal_ring_to_be_dispatched = () =>
@@ -139,6 +218,9 @@ namespace Hydrospanner.Phases.Bootstrap
 				It should_create_a_transformation_disruptor = () =>
 					factory.CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action>()).Received(1);
 
+				It should_shutdown_the_transformation_disruptor_after_everything_is_processed = () =>
+					transformationRing.Received(1).Dispose();
+
 				It should_publish_the_messages_requiring_transformation_to_the_newly_created_disruptor = () =>
 					transformationRingBuffer.AllItems.ShouldBeLike(new[]
 					{
@@ -146,62 +228,61 @@ namespace Hydrospanner.Phases.Bootstrap
 						new TransformationItem { MessageSequence = 42, IsDocumented = true, IsLocal = true }
 					});
 
-				It should_shutdown_the_transformation_disruptor_after_everything_is_processed = () =>
-					transformationRing.Received(1).Dispose();
+				Cleanup after = () =>
+				{
+					transformationRingBuffer = transformationRingBuffer.TryDispose();
+					transformationRing = null;
+				};
+
+				static void CompleteCallback(TransformationItem item)
+				{
+					if (++count == itemCount)
+						completeCallback();
+				}
+
+				static int count;
+				static int itemCount;
+				static Action completeCallback;
 
 				static JournaledMessage message1;
 				static JournaledMessage message2;
-			}
 
-			Because of = () =>
-			{
-				bootstrapper.Restore(info, journalRing, repository);
-				Thread.Sleep(10); // let ring buffer catch up
-			};
+				static IDisruptor<TransformationItem> transformationRing;
+				static RingBufferHarness<TransformationItem> transformationRingBuffer;
+			}
 		}
 
 		Establish context = () =>
 		{
-			repository = Substitute.For<IRepository>();
-			journalRing = Substitute.For<IDisruptor<JournalItem>>();
-			journalRingBuffer = new RingBufferHarness<JournalItem>();
-			journalRing.RingBuffer.Returns(journalRingBuffer.RingBuffer);
 			info = new BootstrapInfo();
 			store = Substitute.For<IMessageStore>();
 			factory = Substitute.For<DisruptorFactory>();
 			bootstrapper = new MessageBootstrapper(store, factory);
 
-			transformationRing = Substitute.For<IDisruptor<TransformationItem>>();
-			transformationRingBuffer = new RingBufferHarness<TransformationItem>(CompleteCallback);
-			transformationRing.RingBuffer.Returns(transformationRingBuffer.RingBuffer);
-			factory.CreateStartupTransformationDisruptor(repository, info, Arg.Do<Action>(x => completeCallback = x)).Returns(transformationRing);
+			repository = Substitute.For<IRepository>();
+			journalRing = Substitute.For<IDisruptor<JournalItem>>();
+			journalRingBuffer = new RingBufferHarness<JournalItem>();
+			journalRing.RingBuffer.Returns(journalRingBuffer.RingBuffer);
 		};
-
-		static void CompleteCallback(TransformationItem item)
-		{
-			if (++count == itemCount)
-				completeCallback();
-		}
 
 		Cleanup after = () =>
 		{
-			journalRingBuffer = journalRingBuffer.TryDispose();
-			transformationRingBuffer = transformationRingBuffer.TryDispose();
+			info = null;
+			store = null;
+			factory = null;
 			bootstrapper = null;
+			repository = null;
+			journalRing = null;
+			journalRingBuffer = journalRingBuffer.TryDispose();
 		};
-
-		static int count;
-		static int itemCount;
-		static Action completeCallback;
+		
+		static BootstrapInfo info;
 		static DisruptorFactory factory;
 		static IMessageStore store;
+		static MessageBootstrapper bootstrapper;
 		static IRepository repository;
 		static IDisruptor<JournalItem> journalRing;
-		static IDisruptor<TransformationItem> transformationRing; 
-		static BootstrapInfo info;
-		static MessageBootstrapper bootstrapper;
 		static RingBufferHarness<JournalItem> journalRingBuffer;
-		static RingBufferHarness<TransformationItem> transformationRingBuffer;
 	}
 }
 
