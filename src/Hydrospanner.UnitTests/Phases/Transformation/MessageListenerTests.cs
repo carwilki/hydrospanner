@@ -91,7 +91,6 @@ namespace Hydrospanner.Phases.Transformation
 			static int counter;
 		}
 
-		[Ignore("Fix this test")] // TODO: fix this test
 		public class when_a_populated_message_arrives
 		{
 			Establish context = () =>
