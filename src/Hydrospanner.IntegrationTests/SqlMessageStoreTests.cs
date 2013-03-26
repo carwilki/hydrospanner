@@ -8,11 +8,11 @@ namespace Hydrospanner.IntegrationTests
 	using System.Data.Common;
 	using System.Linq;
 	using System.Text;
-	using Configuration;
 	using Machine.Specifications;
 	using Persistence.SqlPersistence;
 	using Phases.Journal;
 	using Serialization;
+	using Wireup;
 
 	[Subject(typeof(SqlMessageStore))]
 	public class when_saving_messages : TestDatabase

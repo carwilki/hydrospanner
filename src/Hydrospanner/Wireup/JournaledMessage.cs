@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Configuration
+﻿namespace Hydrospanner.Wireup
 {
 	public sealed class JournaledMessage
 	{

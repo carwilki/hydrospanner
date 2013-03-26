@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 169
 // ReSharper disable InconsistentNaming
 
-namespace Hydrospanner.Configuration
+namespace Hydrospanner.Wireup
 {
 	using System;
 	using Machine.Specifications;

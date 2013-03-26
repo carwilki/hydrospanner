@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Configuration
+﻿namespace Hydrospanner.Wireup
 {
 	using System;
 	using System.Threading.Tasks;
@@ -56,6 +56,9 @@
 		public virtual IDisruptor<TransformationItem> CreateStartupTransformationDisruptor(IRepository repository, BootstrapInfo info, Action complete)
 		{
 			var countdown = info.JournaledSequence - info.SnapshotSequence;
+			if (countdown == 0)
+				return null;
+
 			this.transformationHandler = new TransformationHandler(info.JournaledSequence, this.snapshotRing, this.journalRing);
 
 			var disruptor = CreateDisruptor<TransformationItem>(new YieldingWaitStrategy(), 1024 * 128);

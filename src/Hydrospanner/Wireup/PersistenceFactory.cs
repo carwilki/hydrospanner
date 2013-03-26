@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner.Configuration
+﻿namespace Hydrospanner.Wireup
 {
 	using System;
 	using System.Collections.Generic;

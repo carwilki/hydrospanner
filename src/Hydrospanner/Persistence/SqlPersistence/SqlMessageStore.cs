@@ -6,8 +6,8 @@
 	using System.Data.Common;
 	using System.Linq;
 	using System.Text;
-	using Configuration;
 	using Phases.Journal;
+	using Wireup;
 
 	public sealed class SqlMessageStore : IMessageStore
 	{

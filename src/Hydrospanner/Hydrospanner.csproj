@@ -50,10 +50,10 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\DisruptorFactory.cs" />
-    <Compile Include="Configuration\MessagingFactory.cs" />
-    <Compile Include="Configuration\SnapshotFactory.cs" />
-    <Compile Include="Configuration\PersistenceFactory.cs" />
+    <Compile Include="Wireup\DisruptorFactory.cs" />
+    <Compile Include="Wireup\MessagingFactory.cs" />
+    <Compile Include="Wireup\SnapshotFactory.cs" />
+    <Compile Include="Wireup\PersistenceFactory.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="Messaging\IMessageReceiver.cs" />
     <Compile Include="Messaging\IMessageSender.cs" />
@@ -72,14 +72,14 @@
     <Compile Include="Persistence\SqlPersistence\SqlMessageStore.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlMessageStoreReader.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItem.cs" />
-    <Compile Include="Configuration\Bootstrapper.cs" />
-    <Compile Include="Configuration\JournaledMessage.cs" />
+    <Compile Include="Wireup\Bootstrapper.cs" />
+    <Compile Include="Wireup\JournaledMessage.cs" />
     <Compile Include="Phases\Bootstrap\CountdownHandler.cs" />
     <Compile Include="Phases\Bootstrap\MementoHandler.cs" />
-    <Compile Include="Configuration\MessageBootstrapper.cs" />
-    <Compile Include="Configuration\PersistenceBootstrapper.cs" />
+    <Compile Include="Wireup\MessageBootstrapper.cs" />
+    <Compile Include="Wireup\PersistenceBootstrapper.cs" />
     <Compile Include="Phases\Bootstrap\SerializationHandler.cs" />
-    <Compile Include="Configuration\SnapshotBootstrapper.cs" />
+    <Compile Include="Wireup\SnapshotBootstrapper.cs" />
     <Compile Include="Phases\IDisruptor.cs" />
     <Compile Include="Phases\Journal\AcknowledgmentHandler.cs" />
     <Compile Include="Phases\Journal\DispatchCheckpointHandler.cs" />
