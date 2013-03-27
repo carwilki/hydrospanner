@@ -9,11 +9,6 @@
 		IEnumerable<object> Handle(object message, long currentSequence);
 	}
 
-	public interface ISnapshotTracker
-	{
-		void Increment(int messages);
-	}
-
 	public class Transformer : ITransformer
 	{
 		public IEnumerable<object> Handle(TransformationItem message)
@@ -27,17 +22,6 @@
 		}
 
 		public Transformer(long journaledSequence, IRingBuffer<SnapshotItem> snapshotRing, IRepository repository)
-		{
-		}
-	}
-
-	public class SnapshotTracker : ISnapshotTracker
-	{
-		public void Increment(int messages)
-		{
-		}
-
-		public SnapshotTracker(long journaledSequence, IRingBuffer<SnapshotItem> snapshotRing, IRepository repository)
 		{
 		}
 	}

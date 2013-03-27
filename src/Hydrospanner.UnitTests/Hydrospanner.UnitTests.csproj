@@ -53,6 +53,7 @@
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItemTests.cs" />
     <Compile Include="Phases\Transformation\DuplicateHandlerTests.cs" />
+    <Compile Include="Phases\Transformation\SnapshotTrackerTests.cs" />
     <Compile Include="Phases\Transformation\TransformationHandlerTests.cs" />
     <Compile Include="RingBufferHarness.cs" />
     <Compile Include="Wireup\MessageBootstrapperTests.cs" />

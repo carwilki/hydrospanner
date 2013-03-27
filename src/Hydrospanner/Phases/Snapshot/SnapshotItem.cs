@@ -21,10 +21,9 @@
 			this.Memento = memento;
 		}
 
-		public void AsPartOfSystemSnapshot(long sequence, int remaining, string key, object memento)
+		public void AsPartOfSystemSnapshot(long sequence, int remaining, object memento)
 		{
 			this.Clear();
-			this.Key = key;
 			this.Memento = memento;
 			this.CurrentSequence = sequence;
 			this.MementosRemaining = remaining;

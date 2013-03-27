@@ -38,13 +38,12 @@ namespace Hydrospanner.Phases.Snapshot
 			item = new SnapshotItem();
 
 		Because of = () =>
-			item.AsPartOfSystemSnapshot(1, 2, "key", "value");
+			item.AsPartOfSystemSnapshot(1, 2, "value");
 
 		It should_set_the_following_properties_according_to_the_given_arguments = () =>
 		{
 			item.CurrentSequence.ShouldEqual(1);
 			item.MementosRemaining.ShouldEqual(2);
-			item.Key.ShouldEqual("key");
 			item.Memento.ShouldEqual("value");
 		};
 
@@ -52,6 +51,7 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			item.IsPublicSnapshot.ShouldBeFalse();
 			item.Serialized.ShouldBeNull();
+			item.Key.ShouldBeNull();
 		};
 
 		static SnapshotItem item;

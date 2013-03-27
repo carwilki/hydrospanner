@@ -4,7 +4,6 @@
 namespace Hydrospanner.IntegrationTests
 {
 	using System.Collections.Generic;
-	using System.Globalization;
 	using System.IO;
 	using System.IO.Abstractions;
 	using System.Linq;
@@ -54,7 +53,7 @@ namespace Hydrospanner.IntegrationTests
 		static SnapshotItem Generate(int value, long sequence, int remaining)
 		{
 			var item = new SnapshotItem();
-			item.AsPartOfSystemSnapshot(sequence, remaining, value.ToString(CultureInfo.InvariantCulture), value);
+			item.AsPartOfSystemSnapshot(sequence, remaining, value);
 			item.Serialize(serializer);
 			return item;
 		}
