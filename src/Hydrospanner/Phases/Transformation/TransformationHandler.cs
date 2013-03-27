@@ -35,10 +35,10 @@
 				live = true;
 			}
 
-			this.buffer.AddRange(this.transformer.Handle(data));
+			this.buffer.AddRange(this.transformer.Handle(data, live));
 
 			for (var i = 0; i < this.buffer.Count; i++)
-				this.buffer.AddRange(this.transformer.Handle(this.buffer[i], this.currentSequnce + IncomingMessage + i));
+				this.buffer.AddRange(this.transformer.Handle(this.buffer[i], live));
 
 			return live;
 		}
