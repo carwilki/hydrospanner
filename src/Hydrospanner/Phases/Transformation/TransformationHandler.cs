@@ -17,27 +17,33 @@
 
 		private void Handle(TransformationItem data)
 		{
-			this.Transform(data);
-			this.Publish(data);
+			var liveMessage = this.Transform(data);
+			
+			if (liveMessage)
+				this.PublishToNextPhase(data);
+
 			this.Increment();
 		}
 
-		private void Increment()
+		private bool Transform(TransformationItem data)
 		{
-			this.snapshot.Increment(this.buffer.Count + IncomingMessage);
-			this.currentSequnce += this.buffer.Count + IncomingMessage;
-			this.buffer.Clear();
-		}
+			var live = false;
 
-		private void Transform(TransformationItem data)
-		{
-			this.buffer.AddRange(this.transformer.Handle(data, this.currentSequnce));
+			if (data.MessageSequence == 0)
+			{
+				data.MessageSequence = this.currentSequnce;
+				live = true;
+			}
+
+			this.buffer.AddRange(this.transformer.Handle(data));
 
 			for (var i = 0; i < this.buffer.Count; i++)
 				this.buffer.AddRange(this.transformer.Handle(this.buffer[i], this.currentSequnce + IncomingMessage + i));
+
+			return live;
 		}
 
-		private void Publish(TransformationItem data)
+		private void PublishToNextPhase(TransformationItem data)
 		{
 			var batch = this.journalRing.NewBatchDescriptor(this.buffer.Count + IncomingMessage);
 
@@ -49,6 +55,13 @@
 					.AsTransformationResultMessage(this.currentSequnce + i, this.buffer[i - IncomingMessage], null); // TODO: headers?
 
 			this.journalRing.Publish(batch);
+		}
+
+		private void Increment()
+		{
+			this.snapshot.Increment(this.buffer.Count + IncomingMessage);
+			this.currentSequnce += this.buffer.Count + IncomingMessage;
+			this.buffer.Clear();
 		}
 
 		public TransformationHandler(

@@ -62,191 +62,324 @@ namespace Hydrospanner.Phases.Transformation
 				journal.AllItems.ShouldBeEmpty();
 		}
 
-		public class when_the_message_yields_NO_resulting_messages
+		public class when_the_message_is_handled_during_replay
 		{
-			Establish context = () =>
+			public class when_the_message_yields_NO_resulting_messages
 			{
-				item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
-				item.Deserialize(new JsonSerializer());
-				transformer.Handle(item, JournaledSequence + 1).Returns(new object[0]);
-				handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
-			};
-
-			Because of = () =>
-				handler.OnNext(item, 1, false);
-
-			It should_publish_the_incoming_message_and_nothing_else = () =>
-				journal.AllItems.Single().ShouldBeLike(new JournalItem
+				Establish context = () =>
 				{
-					Body = item.Body,
-					ForeignId = item.ForeignId,
-					SerializedBody = item.SerializedBody,
-					ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
-					MessageSequence = JournaledSequence + 1,
-					SerializedType = item.SerializedType,
-				});
+					transformer.Handle(item).Returns(new object[0]);
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.MessageSequence = JournaledSequence - 1;
+					item.Deserialize(new JsonSerializer());
+					transformer.Handle(item, JournaledSequence + 1).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+				};
 
-			It should_increment_the_snapshot_by_one = () =>
-				snapshot.Received().Increment(1);
-		}
+				Because of = () =>
+					handler.OnNext(item, 1, false);
 
-		public class when_the_message_yeilds_a_resulting_messages
-		{
-			Establish context = () =>
+				It should_NOT_publish_the_incoming_message_or_anything_else = () =>
+					journal.AllItems.ShouldBeEmpty();
+
+				It should_increment_the_snapshot_by_one = () =>
+					snapshot.Received().Increment(1);
+
+				It should_NOT_assign_the_message_sequence_on_the_incoming_message = () =>
+					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
+			}
+			
+			public class when_the_message_yeilds_a_resulting_messages
 			{
-				item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
-				item.Deserialize(new JsonSerializer());
-				transformer.Handle(item, JournaledSequence + 1).Returns(new object[] { "hello", "world" });
-				transformer.Handle("hello", JournaledSequence + 2).Returns(new object[0]);
-				transformer.Handle("world", JournaledSequence + 3).Returns(new object[0]);
-				handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
-			};
-
-			Because of = () =>
-				handler.OnNext(item, 1, false);
-
-			It should_publish_the_incoming_message_and_the_resulting_messages = () =>
-				journal.AllItems.ShouldBeLike(new[]
+				Establish context = () =>
 				{
-					new JournalItem
-					{
-						Body = item.Body,
-						ForeignId = item.ForeignId,
-						SerializedBody = item.SerializedBody,
-						ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
-						MessageSequence = JournaledSequence + 1,
-						SerializedType = item.SerializedType
-					},
-					new JournalItem
-					{
-						Body = "hello",
-						MessageSequence = JournaledSequence + 2, 
-						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-						SerializedType = typeof(string).AssemblyQualifiedName
-					},
-					new JournalItem
-					{
-						Body = "world",
-						MessageSequence = JournaledSequence + 3, 
-						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-						SerializedType = typeof(string).AssemblyQualifiedName
-					}
-				});
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.MessageSequence = JournaledSequence - 1;
+					item.Deserialize(new JsonSerializer());
+					transformer.Handle(item).Returns(new object[] { "hello", "world" });
+					transformer.Handle("hello", JournaledSequence + 2).Returns(new object[0]);
+					transformer.Handle("world", JournaledSequence + 3).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+				};
 
-			It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
-				snapshot.Received().Increment(3);
-		}
+				Because of = () =>
+					handler.OnNext(item, 1, false);
 
-		public class when_the_yielded_messages_yield_more_messages
-		{
-			Establish context = () =>
+				It should_NOT_publish_the_incoming_message_or_the_resulting_messages = () =>
+					journal.AllItems.ShouldBeEmpty();
+
+				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
+					snapshot.Received().Increment(3);
+
+				It should_NOT_reassign_the_sequence_number_of_the_incoming_message = () =>
+					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
+			}
+
+			public class when_the_yielded_messages_yield_more_messages
 			{
-				item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
-				item.Deserialize(new JsonSerializer());
-				transformer.Handle(item, JournaledSequence + 1).Returns(new object[] { "hello" });
-				transformer.Handle("hello", JournaledSequence + 2).Returns(new object[] { "world" });
-				transformer.Handle("world", JournaledSequence + 3).Returns(new object[0]);
-				handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
-			};
-
-			Because of = () =>
-				handler.OnNext(item, 1, false);
-
-			It should_publish_the_incoming_message_and_the_resulting_messages = () =>
-				journal.AllItems.ShouldBeLike(new[]
+				Establish context = () =>
 				{
-					new JournalItem
-					{
-						Body = item.Body,
-						ForeignId = item.ForeignId,
-						SerializedBody = item.SerializedBody,
-						ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
-						MessageSequence = JournaledSequence + 1,
-						SerializedType = item.SerializedType
-					},
-					new JournalItem
-					{
-						Body = "hello",
-						MessageSequence = JournaledSequence + 2, 
-						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-						SerializedType = typeof(string).AssemblyQualifiedName
-					},
-					new JournalItem
-					{
-						Body = "world",
-						MessageSequence = JournaledSequence + 3, 
-						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-						SerializedType = typeof(string).AssemblyQualifiedName
-					}
-				});
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.MessageSequence = JournaledSequence - 1;
+					item.Deserialize(new JsonSerializer());
+					transformer.Handle(item).Returns(new object[] { "hello" });
+					transformer.Handle("hello", JournaledSequence + 2).Returns(new object[] { "world" });
+					transformer.Handle("world", JournaledSequence + 3).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+				};
 
-			It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
-				snapshot.Received().Increment(3);
+				Because of = () =>
+					handler.OnNext(item, 1, false);
+
+				It should_publish_the_incoming_message_and_the_resulting_messages = () =>
+					journal.AllItems.ShouldBeEmpty();
+
+				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
+					snapshot.Received().Increment(3);
+
+				It should_NOT_reassign_the_message_sequence_of_the_incoming_message = () =>
+					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
+			}
+
+			public class when_a_subsequent_message_is_received
+			{
+				Establish context = () =>
+				{
+					var serializer = new JsonSerializer();
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.MessageSequence = JournaledSequence - 2;
+					item.Deserialize(serializer);
+					item2 = new TransformationItem();
+					item2.AsForeignMessage(Encoding.UTF8.GetBytes("2"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item2.MessageSequence = JournaledSequence - 1;
+					item2.Deserialize(serializer);
+
+					transformer.Handle(item).Returns(new object[] { "hello" });
+					transformer.Handle("hello", JournaledSequence + 2).Returns(new object[] { "world" });
+					transformer.Handle("world", JournaledSequence + 3).Returns(new object[0]);
+					transformer.Handle(item2).Returns(new object[0]);
+					
+					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+					handler.OnNext(item, 1, false);
+				};
+
+				Because of = () =>
+					handler.OnNext(item2, 2, false);
+
+				It should_track_the_sequence_number_correctly = () => 
+					journal.AllItems.ShouldBeEmpty();
+
+				It should_NOT_reassign_the_message_sequences_for_the_incoming_messages = () =>
+				{
+					item.MessageSequence.ShouldEqual(JournaledSequence - 2);
+					item2.MessageSequence.ShouldEqual(JournaledSequence - 1);
+				};
+
+				static TransformationItem item2;
+			}
 		}
 		
-		public class when_a_subsequent_message_is_received
+		public class when_the_message_is_from_the_live_stream
 		{
-			Establish context = () =>
+			public class when_the_message_yields_NO_resulting_messages
 			{
-				var serializer = new JsonSerializer();
-				item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
-				item.Deserialize(serializer);
-				item2 = new TransformationItem();
-				item2.AsForeignMessage(Encoding.UTF8.GetBytes("2"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
-				item2.Deserialize(serializer);
+				Establish context = () =>
+				{
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.Deserialize(new JsonSerializer());
+					transformer.Handle(item, JournaledSequence + 1).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+				};
 
-				transformer.Handle(item, JournaledSequence + 1).Returns(new object[] { "hello" });
-				transformer.Handle("hello", JournaledSequence + 2).Returns(new object[] { "world" });
-				transformer.Handle("world", JournaledSequence + 3).Returns(new object[0]);
-				transformer.Handle(item2, JournaledSequence + 4).Returns(new object[0]);
-				handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
-				handler.OnNext(item, 1, false);
-			};
+				Because of = () =>
+					handler.OnNext(item, 1, false);
 
-			Because of = () =>
-				handler.OnNext(item2, 2, false);
+				It should_publish_the_incoming_message_and_nothing_else = () =>
+					journal.AllItems.Single().ShouldBeLike(new JournalItem
+					{
+						Body = item.Body,
+						ForeignId = item.ForeignId,
+						SerializedBody = item.SerializedBody,
+						ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
+						MessageSequence = JournaledSequence + 1,
+						SerializedType = item.SerializedType,
+					});
 
-			It should_track_the_sequence_number_correctly = () => journal.AllItems.ShouldBeLike(new[]
+				It should_increment_the_snapshot_by_one = () =>
+					snapshot.Received().Increment(1);
+
+				It should_assign_the_message_sequence_on_the_incoming_message = () =>
+					item.MessageSequence.ShouldEqual(JournaledSequence + 1);
+			}
+
+			public class when_the_message_yeilds_a_resulting_messages
 			{
-				new JournalItem
+				Establish context = () =>
 				{
-					Body = item.Body,
-					ForeignId = item.ForeignId,
-					SerializedBody = item.SerializedBody,
-					ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
-					MessageSequence = JournaledSequence + 1,
-					SerializedType = item.SerializedType
-				},
-				new JournalItem
-				{
-					Body = "hello",
-					MessageSequence = JournaledSequence + 2,
-					ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-					SerializedType = typeof(string).AssemblyQualifiedName
-				},
-				new JournalItem
-				{
-					Body = "world",
-					MessageSequence = JournaledSequence + 3,
-					ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-					SerializedType = typeof(string).AssemblyQualifiedName
-				},
-				new JournalItem
-				{
-					Body = item2.Body,
-					ForeignId = item2.ForeignId,
-					SerializedBody = item2.SerializedBody,
-					ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
-					MessageSequence = JournaledSequence + 4,
-					SerializedType = item2.SerializedType
-				}
-			});
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.Deserialize(new JsonSerializer());
+					transformer.Handle(item).Returns(new object[] { "hello", "world" });
+					transformer.Handle("hello", JournaledSequence + 2).Returns(new object[0]);
+					transformer.Handle("world", JournaledSequence + 3).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+				};
 
-			static TransformationItem item2;
+				Because of = () =>
+					handler.OnNext(item, 1, false);
+
+				It should_publish_the_incoming_message_and_the_resulting_messages = () =>
+					journal.AllItems.ShouldBeLike(new[]
+					{
+						new JournalItem
+						{
+							Body = item.Body,
+							ForeignId = item.ForeignId,
+							SerializedBody = item.SerializedBody,
+							ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
+							MessageSequence = JournaledSequence + 1,
+							SerializedType = item.SerializedType
+						},
+						new JournalItem
+						{
+							Body = "hello",
+							MessageSequence = JournaledSequence + 2, 
+							ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
+							SerializedType = typeof(string).AssemblyQualifiedName
+						},
+						new JournalItem
+						{
+							Body = "world",
+							MessageSequence = JournaledSequence + 3, 
+							ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
+							SerializedType = typeof(string).AssemblyQualifiedName
+						}
+					});
+
+				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
+					snapshot.Received().Increment(3);
+
+				It should_assign_the_message_sequence_of_the_incoming_message = () =>
+					item.MessageSequence.ShouldEqual(JournaledSequence + 1);
+			}
+
+			public class when_the_yielded_messages_yield_more_messages
+			{
+				Establish context = () =>
+				{
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.Deserialize(new JsonSerializer());
+					transformer.Handle(item).Returns(new object[] { "hello" });
+					transformer.Handle("hello", JournaledSequence + 2).Returns(new object[] { "world" });
+					transformer.Handle("world", JournaledSequence + 3).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+				};
+
+				Because of = () =>
+					handler.OnNext(item, 1, false);
+
+				It should_publish_the_incoming_message_and_the_resulting_messages = () =>
+					journal.AllItems.ShouldBeLike(new[]
+				{
+					new JournalItem
+					{
+						Body = item.Body,
+						ForeignId = item.ForeignId,
+						SerializedBody = item.SerializedBody,
+						ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
+						MessageSequence = JournaledSequence + 1,
+						SerializedType = item.SerializedType
+					},
+					new JournalItem
+					{
+						Body = "hello",
+						MessageSequence = JournaledSequence + 2, 
+						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
+						SerializedType = typeof(string).AssemblyQualifiedName
+					},
+					new JournalItem
+					{
+						Body = "world",
+						MessageSequence = JournaledSequence + 3, 
+						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
+						SerializedType = typeof(string).AssemblyQualifiedName
+					}
+				});
+
+				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
+					snapshot.Received().Increment(3);
+
+				It should_assign_the_message_sequence = () =>
+					item.MessageSequence.ShouldEqual(JournaledSequence + 1);
+			}
+
+			public class when_a_subsequent_message_is_received
+			{
+				Establish context = () =>
+				{
+					var serializer = new JsonSerializer();
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.Deserialize(serializer);
+					item2 = new TransformationItem();
+					item2.AsForeignMessage(Encoding.UTF8.GetBytes("2"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item2.Deserialize(serializer);
+
+					transformer.Handle(item).Returns(new object[] { "hello" });
+					transformer.Handle("hello", JournaledSequence + 2).Returns(new object[] { "world" });
+					transformer.Handle("world", JournaledSequence + 3).Returns(new object[0]);
+					transformer.Handle(item2).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+					handler.OnNext(item, 1, false);
+				};
+
+				Because of = () =>
+					handler.OnNext(item2, 2, false);
+
+				It should_track_the_sequence_number_correctly = () => journal.AllItems.ShouldBeLike(new[]
+				{
+					new JournalItem
+					{
+						Body = item.Body,
+						ForeignId = item.ForeignId,
+						SerializedBody = item.SerializedBody,
+						ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
+						MessageSequence = JournaledSequence + 1,
+						SerializedType = item.SerializedType
+					},
+					new JournalItem
+					{
+						Body = "hello",
+						MessageSequence = JournaledSequence + 2,
+						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
+						SerializedType = typeof(string).AssemblyQualifiedName
+					},
+					new JournalItem
+					{
+						Body = "world",
+						MessageSequence = JournaledSequence + 3,
+						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
+						SerializedType = typeof(string).AssemblyQualifiedName
+					},
+					new JournalItem
+					{
+						Body = item2.Body,
+						ForeignId = item2.ForeignId,
+						SerializedBody = item2.SerializedBody,
+						ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
+						MessageSequence = JournaledSequence + 4,
+						SerializedType = item2.SerializedType
+					}
+				});
+
+				It should_assign_the_sequence_numbers_of_the_incoming_messages = () =>
+				{
+					item.MessageSequence.ShouldEqual(JournaledSequence + 1);
+					item2.MessageSequence.ShouldEqual(JournaledSequence + 4);
+				};
+
+				static TransformationItem item2;
+			}
 		}
-
-		// TODO: increment internal counter for subsequent messages
-
+		
 		Establish context = () =>
 		{
 			item = new TransformationItem();
