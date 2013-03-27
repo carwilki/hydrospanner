@@ -14,9 +14,7 @@
 			if (item.Acknowledgment == null)
 				return false;
 
-			item.IsDuplicate = this.store.Contains(item.ForeignId);
-
-			if (!item.IsDuplicate)
+			if (!this.store.Contains(item.ForeignId))
 				return false;
 
 			this.PublishForAcknowledgement(item);

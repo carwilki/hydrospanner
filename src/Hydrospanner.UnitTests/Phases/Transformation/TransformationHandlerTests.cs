@@ -4,6 +4,7 @@
 namespace Hydrospanner.Phases.Transformation
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Linq;
 	using System.Text;
 	using Journal;
@@ -53,7 +54,7 @@ namespace Hydrospanner.Phases.Transformation
 				handler.OnNext(item, 0, false);
 
 			It should_NOT_use_the_message_for_transformation = () =>
-				transformer.DidNotReceive().Handle((object)item, Arg.Any<bool>());
+				transformer.DidNotReceive().Handle(item, Arg.Any<Dictionary<string, string>>(), Arg.Any<bool>());
 
 			It should_NOT_increment_the_snapshot = () =>
 				snapshot.DidNotReceive().Increment(Arg.Any<int>());
@@ -64,17 +65,16 @@ namespace Hydrospanner.Phases.Transformation
 
 		public class when_the_message_is_handled_during_replay
 		{
-			const bool replayValue = false;
+			const bool ReplayValue = false;
 
 			public class when_the_message_yields_NO_resulting_messages
 			{
 				Establish context = () =>
 				{
-					transformer.Handle(item, replayValue).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, ReplayValue).Returns(new object[0]);
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
 					item.MessageSequence = JournaledSequence - 1;
 					item.Deserialize(new JsonSerializer());
-					transformer.Handle((object)item, replayValue).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 				};
 
@@ -98,9 +98,9 @@ namespace Hydrospanner.Phases.Transformation
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
 					item.MessageSequence = JournaledSequence - 1;
 					item.Deserialize(new JsonSerializer());
-					transformer.Handle(item, replayValue).Returns(new object[] { "hello", "world" });
-					transformer.Handle("hello", replayValue).Returns(new object[0]);
-					transformer.Handle("world", replayValue).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, ReplayValue).Returns(new object[] { "hello", "world" });
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayValue).Returns(new object[0]);
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayValue).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 				};
 
@@ -124,9 +124,9 @@ namespace Hydrospanner.Phases.Transformation
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
 					item.MessageSequence = JournaledSequence - 1;
 					item.Deserialize(new JsonSerializer());
-					transformer.Handle(item, replayValue).Returns(new object[] { "hello" });
-					transformer.Handle("hello", replayValue).Returns(new object[] { "world" });
-					transformer.Handle("world", replayValue).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, ReplayValue).Returns(new object[] { "hello" });
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayValue).Returns(new object[] { "world" });
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayValue).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 				};
 
@@ -156,10 +156,10 @@ namespace Hydrospanner.Phases.Transformation
 					item2.MessageSequence = JournaledSequence - 1;
 					item2.Deserialize(serializer);
 
-					transformer.Handle(item, replayValue).Returns(new object[] { "hello" });
-					transformer.Handle("hello", replayValue).Returns(new object[] { "world" });
-					transformer.Handle("world", replayValue).Returns(new object[0]);
-					transformer.Handle(item2, replayValue).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, ReplayValue).Returns(new object[] { "hello" });
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayValue).Returns(new object[] { "world" });
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayValue).Returns(new object[0]);
+					transformer.Handle(item2.Body, item2.Headers, ReplayValue).Returns(new object[0]);
 					
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 					handler.OnNext(item, 1, false);
@@ -183,7 +183,7 @@ namespace Hydrospanner.Phases.Transformation
 		
 		public class when_the_message_is_from_the_live_stream
 		{
-			const bool liveValue = true;
+			const bool LiveValue = true;
 
 			public class when_the_message_yields_NO_resulting_messages
 			{
@@ -191,7 +191,7 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
-					transformer.Handle((object)item, liveValue).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, LiveValue).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 				};
 
@@ -222,9 +222,9 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
-					transformer.Handle(item, liveValue).Returns(new object[] { "hello", "world" });
-					transformer.Handle("hello", liveValue).Returns(new object[0]);
-					transformer.Handle("world", liveValue).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, LiveValue).Returns(new object[] { "hello", "world" });
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveValue).Returns(new object[0]);
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveValue).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 				};
 
@@ -272,9 +272,9 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
-					transformer.Handle(item, liveValue).Returns(new object[] { "hello" });
-					transformer.Handle("hello", liveValue).Returns(new object[] { "world" });
-					transformer.Handle("world", liveValue).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, LiveValue).Returns(new object[] { "hello" });
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveValue).Returns(new object[] { "world" });
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveValue).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 				};
 
@@ -327,10 +327,10 @@ namespace Hydrospanner.Phases.Transformation
 					item2.AsForeignMessage(Encoding.UTF8.GetBytes("2"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
 					item2.Deserialize(serializer);
 
-					transformer.Handle(item, liveValue).Returns(new object[] { "hello" });
-					transformer.Handle("hello", liveValue).Returns(new object[] { "world" });
-					transformer.Handle("world", liveValue).Returns(new object[0]);
-					transformer.Handle(item2, liveValue).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, LiveValue).Returns(new object[] { "hello" });
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveValue).Returns(new object[] { "world" });
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveValue).Returns(new object[0]);
+					transformer.Handle(item2.Body, item.Headers, LiveValue).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 					handler.OnNext(item, 1, false);
 				};

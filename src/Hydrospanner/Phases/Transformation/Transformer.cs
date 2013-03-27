@@ -5,18 +5,12 @@
 
 	public interface ITransformer
 	{
-		IEnumerable<object> Handle(TransformationItem message, bool currentSequence);
-		IEnumerable<object> Handle(object message, bool live);
+		IEnumerable<object> Handle(object message, Dictionary<string, string> headers, bool live);
 	}
 
 	public class Transformer : ITransformer
 	{
-		public IEnumerable<object> Handle(TransformationItem message, bool live)
-		{
-			yield break;
-		}
-
-		public IEnumerable<object> Handle(object message, bool live)
+		public IEnumerable<object> Handle(object message, Dictionary<string, string> headers, bool live)
 		{
 			yield break;
 		}

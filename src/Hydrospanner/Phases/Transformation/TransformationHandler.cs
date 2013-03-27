@@ -20,7 +20,7 @@
 			var liveMessage = this.Transform(data);
 			
 			if (liveMessage)
-				this.PublishToNextPhase(data);
+				this.PublishToJournalPhase(data);
 
 			this.Increment();
 		}
@@ -35,15 +35,15 @@
 				live = true;
 			}
 
-			this.buffer.AddRange(this.transformer.Handle(data, live));
+			this.buffer.AddRange(this.transformer.Handle(data.Body, data.Headers, live));
 
 			for (var i = 0; i < this.buffer.Count; i++)
-				this.buffer.AddRange(this.transformer.Handle(this.buffer[i], live));
+				this.buffer.AddRange(this.transformer.Handle(this.buffer[i], BlankHeaders, live));
 
 			return live;
 		}
 
-		private void PublishToNextPhase(TransformationItem data)
+		private void PublishToJournalPhase(TransformationItem data)
 		{
 			var batch = this.journalRing.NewBatchDescriptor(this.buffer.Count + IncomingMessage);
 
@@ -52,15 +52,16 @@
 
 			for (var i = 1; i < this.buffer.Count + IncomingMessage; i++)
 				this.journalRing[i + batch.Start]
-					.AsTransformationResultMessage(this.currentSequnce + i, this.buffer[i - IncomingMessage], null); // TODO: headers?
+					.AsTransformationResultMessage(this.currentSequnce + i, this.buffer[i - IncomingMessage], null); // TODO: headers? shared instance of dict for all
 
 			this.journalRing.Publish(batch);
 		}
 
 		private void Increment()
 		{
-			this.snapshot.Increment(this.buffer.Count + IncomingMessage);
-			this.currentSequnce += this.buffer.Count + IncomingMessage;
+			var count = this.buffer.Count + IncomingMessage;
+			this.snapshot.Increment(count);
+			this.currentSequnce += count;
 			this.buffer.Clear();
 		}
 
@@ -94,6 +95,7 @@
 		}
 
 		private const int IncomingMessage = 1;
+		private static readonly Dictionary<string, string> BlankHeaders = new Dictionary<string, string>(); 
 		private readonly IRingBuffer<JournalItem> journalRing;
 		private readonly IDuplicateHandler duplicates;
 		private readonly ITransformer transformer;

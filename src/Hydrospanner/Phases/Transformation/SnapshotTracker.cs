@@ -42,7 +42,7 @@
 
 		public SnapshotTracker(long journaledSequence, int frequency, IRingBuffer<SnapshotItem> snapshotRing, IRepository repository)
 		{
-			if (journaledSequence < 1)
+			if (journaledSequence < 0)
 				throw new ArgumentOutOfRangeException("journaledSequence");
 
 			if (frequency < 100)

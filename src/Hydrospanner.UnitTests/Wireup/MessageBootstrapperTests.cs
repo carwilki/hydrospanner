@@ -111,12 +111,7 @@ namespace Hydrospanner.Wireup
 					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action>());
 
 				It should_publish_the_messages_to_the_newly_created_disruptor = () =>
-					transformation.Ring.AllItems.Single().ShouldBeLike(new TransformationItem
-					{
-						MessageSequence = 42,
-						IsDocumented = true,
-						IsLocal = true
-					});
+					transformation.Ring.AllItems.Single().ShouldBeLike(new TransformationItem { MessageSequence = 42 });
 
 				It should_shutdown_the_transformation_disruptor_after_everything_is_processed = () =>
 					transformation.Disposed.ShouldBeTrue();
@@ -155,8 +150,8 @@ namespace Hydrospanner.Wireup
 				It should_publish_the_messages_requiring_transformation_to_the_newly_created_disruptor = () =>
 					transformation.Ring.AllItems.ShouldBeLike(new[]
 					{
-						new TransformationItem { MessageSequence = 41, IsDocumented = true, IsLocal = true },
-						new TransformationItem { MessageSequence = 42, IsDocumented = true, IsLocal = true }
+						new TransformationItem { MessageSequence = 41 },
+						new TransformationItem { MessageSequence = 42 }
 					});
 
 				static JournaledMessage message1;

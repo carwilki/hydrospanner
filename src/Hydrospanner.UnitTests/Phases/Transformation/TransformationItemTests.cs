@@ -29,7 +29,6 @@ namespace Hydrospanner.Phases.Transformation
 			item.SerializedType.ShouldEqual(type);
 			item.Headers.ShouldEqual(headers);
 			item.Acknowledgment.ShouldEqual(ack);
-			item.CanJournal.ShouldBeTrue();
 		};
 
 		It should_set_the_following_properties_to_their_defaults = () =>
@@ -37,9 +36,6 @@ namespace Hydrospanner.Phases.Transformation
 			item.MessageSequence.ShouldEqual(0);
 			item.SerializedHeaders.ShouldBeNull();
 			item.Body.ShouldBeNull();
-			item.IsDocumented.ShouldBeFalse();
-			item.IsLocal.ShouldBeFalse();
-			item.IsDuplicate.ShouldBeFalse();
 		};
 
 		static TransformationItem item;
@@ -69,16 +65,12 @@ namespace Hydrospanner.Phases.Transformation
 			item.SerializedType.ShouldStartWith("System.String, mscorlib");
 			item.Body.ShouldEqual(body);
 			item.Headers.ShouldEqual(headers);
-			item.IsLocal.ShouldBeTrue();
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>
 		{
 			item.SerializedBody.ShouldBeNull();
 			item.SerializedHeaders.ShouldBeNull();
-			item.CanJournal.ShouldBeFalse();
-			item.IsDocumented.ShouldBeFalse();
-			item.IsDuplicate.ShouldBeFalse();
 			item.ForeignId.ShouldEqual(Guid.Empty);
 			item.Acknowledgment.ShouldBeNull();
 		};
@@ -109,16 +101,12 @@ namespace Hydrospanner.Phases.Transformation
 			item.SerializedType.ShouldStartWith("System.String, mscorlib");
 			item.SerializedBody.ShouldEqual(body);
 			item.SerializedHeaders.ShouldEqual(headers);
-			item.IsLocal.ShouldBeTrue();
-			item.IsDocumented.ShouldBeTrue();
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>
 		{
 			item.Body.ShouldBeNull();
 			item.Headers.ShouldBeNull();
-			item.CanJournal.ShouldBeFalse();
-			item.IsDuplicate.ShouldBeFalse();
 			item.Acknowledgment.ShouldBeNull();
 			item.ForeignId.ShouldEqual(Guid.Empty);
 		};

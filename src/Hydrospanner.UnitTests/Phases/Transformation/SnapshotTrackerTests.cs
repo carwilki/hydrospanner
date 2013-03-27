@@ -15,7 +15,6 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			It should_throw_if_the_journaled_sequence_is_out_of_range = () =>
 			{
-				Try(() => new SnapshotTracker(0, 100, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
 				Try(() => new SnapshotTracker(-1, 100, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
 				Try(() => new SnapshotTracker(long.MinValue, 100, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
 			};

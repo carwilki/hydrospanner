@@ -25,9 +25,6 @@ namespace Hydrospanner.Phases.Transformation
 			Because of = () =>
 				forwarded = handler.Forward(item);
 
-			It should_NOT_mark_the_message_as_duplicate = () =>
-				item.IsDuplicate.ShouldBeFalse();
-
 			It should_NOT_forward_the_message = () =>
 			{
 				forwarded.ShouldBeFalse();
@@ -57,9 +54,6 @@ namespace Hydrospanner.Phases.Transformation
 
 				Because of = () =>
 					result = handler.Forward(item);
-
-				It should_mark_the_item_as_a_duplicate = () =>
-					item.IsDuplicate.ShouldBeTrue();
 
 				It should_forward_the_message_for_acknowledgement_only = () =>
 				{

@@ -14,17 +14,12 @@
 		public object Body { get; set; }
 		public Dictionary<string, string> Headers { get; set; }
 
-		public bool CanJournal { get; set; }
-		public bool IsDocumented { get; set; }
-		public bool IsLocal { get; set; }
-		public bool IsDuplicate { get; set; }
 		public Guid ForeignId { get; set; }
 		public Action Acknowledgment { get; set; }
 
 		public void AsForeignMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action ack)
 		{
 			this.Clear();
-			this.CanJournal = true;
 			this.SerializedBody = body;
 			this.SerializedType = type;
 			this.Headers = headers;
@@ -35,7 +30,6 @@
 		public void AsLocalMessage(long sequence, object body, Dictionary<string, string> headers)
 		{
 			this.Clear();
-			this.IsLocal = true;
 			this.MessageSequence = sequence;
 			this.SerializedType = body.GetType().AssemblyQualifiedName;
 			this.Body = body;
@@ -49,8 +43,6 @@
 			this.SerializedBody = body;
 			this.SerializedType = type;
 			this.SerializedHeaders = headers;
-			this.IsDocumented = true;
-			this.IsLocal = true;
 		}
 
 		private void Clear()
@@ -59,10 +51,6 @@
 			this.SerializedBody = this.SerializedHeaders = null;
 			this.Body = this.Headers = null;
 			this.SerializedType = null;
-			this.CanJournal = false;
-			this.IsDocumented = false;
-			this.IsLocal = false;
-			this.IsDuplicate = false;
 			this.ForeignId = Guid.Empty;
 			this.Acknowledgment = null;
 		}
