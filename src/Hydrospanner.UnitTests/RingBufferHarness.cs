@@ -32,7 +32,7 @@
 
 			this.index += size;
 
-			return new BatchDescriptor(size);
+			return new BatchDescriptor(size) { End = this.index - 1 };
 		}
 
 		public void Publish(BatchDescriptor batch)

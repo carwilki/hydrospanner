@@ -60,7 +60,7 @@
 
 			this.duplicateHandler = new DuplicateHandler(new DuplicateStore(), this.journalRing);
 			this.transformationHandler = new TransformationHandler(
-				info.JournaledSequence, this.snapshotRing, this.journalRing, this.duplicateHandler);
+				info.JournaledSequence, this.journalRing, this.duplicateHandler, null, null); // TODO
 
 			var disruptor = CreateDisruptor<TransformationItem>(new YieldingWaitStrategy(), 1024 * 128);
 			disruptor.HandleEventsWith(this.serializationHandler)

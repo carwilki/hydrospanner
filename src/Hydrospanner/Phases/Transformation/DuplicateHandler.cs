@@ -2,7 +2,12 @@
 {
 	using Journal;
 
-	public class DuplicateHandler
+	public interface IDuplicateHandler
+	{
+		bool Forward(TransformationItem item);
+	}
+
+	public class DuplicateHandler : IDuplicateHandler
 	{
 		public virtual bool Forward(TransformationItem item)
 		{
