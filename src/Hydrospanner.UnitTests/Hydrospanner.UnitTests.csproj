@@ -49,6 +49,7 @@
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DisruptorHarness.cs" />
+    <Compile Include="HydratableGraveyardTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItemTests.cs" />

@@ -51,6 +51,7 @@
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DefaultRepository.cs" />
+    <Compile Include="HydratableGraveyard.cs" />
     <Compile Include="Phases\Transformation\ISnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\ITransformer.cs" />
     <Compile Include="Phases\Transformation\SnapshotTracker.cs" />
