@@ -22,21 +22,18 @@
 			// that internally; would it be better to pass it in there as well?
 			this.currentSequence++;
 
-			var hydratables = this.repository.Load(message, headers); // this is responsible for creating if it doesn't exist (and tracking tombstones)
-
-			// the repo will never hand back a completed hydratable
-			foreach (var h in hydratables)
+			foreach (var hydratable in this.repository.Load(message, headers))
 			{
-				h.Hydrate(message, headers, live);
+				hydratable.Hydrate(message, headers, live);
 
 				if (live)
-					this.gathered.AddRange(h.GatherMessages());
+					this.gathered.AddRange(hydratable.GatherMessages());
 
-				if (h.IsPublicSnapshot || h.IsComplete)
-					this.TakeSnapshot(h);
+				if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
+					this.TakeSnapshot(hydratable);
 
-				if (h.IsComplete)
-					this.repository.Delete(h);
+				if (hydratable.IsComplete)
+					this.repository.Delete(hydratable); // this ensures that completed hydratables are never returned during the load phase
 			}
 
 			return this.gathered;
