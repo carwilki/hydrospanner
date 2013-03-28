@@ -248,14 +248,16 @@ namespace Hydrospanner.Phases.Transformation
 							Body = "hello",
 							MessageSequence = JournaledSequence + 2, 
 							ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-							SerializedType = typeof(string).AssemblyQualifiedName
+							SerializedType = typeof(string).AssemblyQualifiedName,
+							Headers = new Dictionary<string, string>()
 						},
 						new JournalItem
 						{
 							Body = "world",
 							MessageSequence = JournaledSequence + 3, 
 							ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-							SerializedType = typeof(string).AssemblyQualifiedName
+							SerializedType = typeof(string).AssemblyQualifiedName,
+							Headers = new Dictionary<string, string>()
 						}
 					});
 
@@ -283,31 +285,33 @@ namespace Hydrospanner.Phases.Transformation
 
 				It should_publish_the_incoming_message_and_the_resulting_messages = () =>
 					journal.AllItems.ShouldBeLike(new[]
-				{
-					new JournalItem
 					{
-						Body = item.Body,
-						ForeignId = item.ForeignId,
-						SerializedBody = item.SerializedBody,
-						ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
-						MessageSequence = JournaledSequence + 1,
-						SerializedType = item.SerializedType
-					},
-					new JournalItem
-					{
-						Body = "hello",
-						MessageSequence = JournaledSequence + 2, 
-						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-						SerializedType = typeof(string).AssemblyQualifiedName
-					},
-					new JournalItem
-					{
-						Body = "world",
-						MessageSequence = JournaledSequence + 3, 
-						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-						SerializedType = typeof(string).AssemblyQualifiedName
-					}
-				});
+						new JournalItem
+						{
+							Body = item.Body,
+							ForeignId = item.ForeignId,
+							SerializedBody = item.SerializedBody,
+							ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
+							MessageSequence = JournaledSequence + 1,
+							SerializedType = item.SerializedType
+						},
+						new JournalItem
+						{
+							Body = "hello",
+							MessageSequence = JournaledSequence + 2, 
+							ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
+							SerializedType = typeof(string).AssemblyQualifiedName,
+							Headers = new Dictionary<string, string>()
+						},
+						new JournalItem
+						{
+							Body = "world",
+							MessageSequence = JournaledSequence + 3, 
+							ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
+							SerializedType = typeof(string).AssemblyQualifiedName,
+							Headers = new Dictionary<string, string>()
+						}
+					});
 
 				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
 					snapshot.Received().Increment(3);
@@ -354,14 +358,16 @@ namespace Hydrospanner.Phases.Transformation
 						Body = "hello",
 						MessageSequence = JournaledSequence + 2,
 						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-						SerializedType = typeof(string).AssemblyQualifiedName
+						SerializedType = typeof(string).AssemblyQualifiedName,
+						Headers = new Dictionary<string, string>()
 					},
 					new JournalItem
 					{
 						Body = "world",
 						MessageSequence = JournaledSequence + 3,
 						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-						SerializedType = typeof(string).AssemblyQualifiedName
+						SerializedType = typeof(string).AssemblyQualifiedName,
+						Headers = new Dictionary<string, string>()
 					},
 					new JournalItem
 					{

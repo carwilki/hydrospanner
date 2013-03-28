@@ -55,6 +55,7 @@
     <Compile Include="Phases\Transformation\DuplicateHandlerTests.cs" />
     <Compile Include="Phases\Transformation\SnapshotTrackerTests.cs" />
     <Compile Include="Phases\Transformation\TransformationHandlerTests.cs" />
+    <Compile Include="Phases\Transformation\TransformerTests.cs" />
     <Compile Include="RingBufferHarness.cs" />
     <Compile Include="Wireup\MessageBootstrapperTests.cs" />
     <Compile Include="Wireup\SnapshotBootstrapperTests.cs" />

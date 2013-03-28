@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Transformation
 {
+	using System;
 	using System.Collections.Generic;
 	using Snapshot;
 
@@ -10,34 +11,39 @@
 
 	public sealed class Transformer : ITransformer
 	{
-		// TODO: delete and TDD; this is just spike code to see if I've got the concepts down...
-
 		public IEnumerable<object> Handle(object message, Dictionary<string, string> headers, bool live)
 		{
 			this.gathered.Clear();
 
-			// TODO: perhaps we should make the handle method receive the current sequence again?
-			// then we can compare it to the journaled sequence to see if we are live;
-			// I also noticed that the snapshot tracker needs the current sequence and is tracking
-			// that internally; would it be better to pass it in there as well?
+			this.Transform(message, headers, live);
+			
 			this.currentSequence++;
 
+			return this.gathered;
+		}
+
+		private void Transform(object message, Dictionary<string, string> headers, bool live)
+		{
 			foreach (var hydratable in this.repository.Load(message, headers))
 			{
 				hydratable.Hydrate(message, headers, live);
 
-				if (live)
-					this.gathered.AddRange(hydratable.GatherMessages());
-
-				if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
-					this.TakeSnapshot(hydratable);
-
-				if (hydratable.IsComplete)
-					this.repository.Delete(hydratable); // this ensures that completed hydratables are never returned during the load phase
+				this.GatherState(live, hydratable);
 			}
-
-			return this.gathered;
 		}
+
+		private void GatherState(bool live, IHydratable hydratable)
+		{
+			if (live)
+				this.gathered.AddRange(hydratable.GatherMessages());
+				
+			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
+				this.TakeSnapshot(hydratable);
+
+			if (hydratable.IsComplete)
+				this.repository.Delete(hydratable);
+		}
+
 		private void TakeSnapshot(IHydratable hydratable)
 		{
 			var next = this.snapshotRing.Next();
@@ -48,9 +54,18 @@
 
 		public Transformer(IRepository repository, IRingBuffer<SnapshotItem> snapshotRing, long journaledSequence)
 		{
+			if (repository == null)
+				throw new ArgumentNullException("repository");
+
+			if (snapshotRing == null)
+				throw new ArgumentNullException("snapshotRing");
+
+			if (journaledSequence < 0)
+				throw new ArgumentOutOfRangeException("journaledSequence");
+
+			this.repository = repository;
 			this.snapshotRing = snapshotRing;
 			this.currentSequence = journaledSequence + 1;
-			this.repository = repository;
 		}
 
 		private readonly List<object> gathered = new List<object>();
