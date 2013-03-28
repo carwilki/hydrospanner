@@ -50,6 +50,9 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="DefaultRepository.cs" />
+    <Compile Include="Phases\Transformation\ISnapshotTracker.cs" />
+    <Compile Include="Phases\Transformation\ITransformer.cs" />
     <Compile Include="Phases\Transformation\SnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\Transformer.cs" />
     <Compile Include="Phases\Transformation\DuplicateHandler.cs" />

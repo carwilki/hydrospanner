@@ -4,11 +4,6 @@
 	using System.Linq;
 	using Snapshot;
 
-	public interface ISnapshotTracker
-	{
-		void Increment(int messages);
-	}
-
 	public sealed class SnapshotTracker : ISnapshotTracker
 	{
 		public void Increment(int messages)
@@ -23,7 +18,7 @@
 		}
 		private void PublishMementos()
 		{
-			var mementos = this.repository.GetMemento().ToArray();
+			var mementos = this.repository.GetMementos().ToArray();
 
 			for (var i = mementos.Length; i-- > 0;)
 			{

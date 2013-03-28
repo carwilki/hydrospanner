@@ -147,7 +147,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			snapshots = new RingBufferHarness<SnapshotItem>();
 			repository = Substitute.For<IRepository>();
-			repository.GetMemento().Returns(new object[] { 1, 2 });
+			repository.GetMementos().Returns(new object[] { 1, 2 });
 		};
 
 		static SnapshotTracker tracker;

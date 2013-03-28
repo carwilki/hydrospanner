@@ -4,11 +4,6 @@
 	using System.Collections.Generic;
 	using Snapshot;
 
-	public interface ITransformer
-	{
-		IEnumerable<object> Handle(object message, Dictionary<string, string> headers, bool live);
-	}
-
 	public sealed class Transformer : ITransformer
 	{
 		public IEnumerable<object> Handle(object message, Dictionary<string, string> headers, bool live)
