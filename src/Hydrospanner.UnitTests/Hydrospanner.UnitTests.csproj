@@ -48,6 +48,7 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="DefaultRepositoryTests.cs" />
     <Compile Include="DisruptorHarness.cs" />
     <Compile Include="HydratableGraveyardTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />

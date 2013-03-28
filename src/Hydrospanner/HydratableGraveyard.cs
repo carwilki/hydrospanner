@@ -4,7 +4,7 @@
 
 	public class HydratableGraveyard
 	{
-		public virtual void Bury(string key)
+		public void Bury(string key)
 		{
 			if (string.IsNullOrEmpty(key))
 				return;
@@ -16,12 +16,12 @@
 			this.window.Enqueue(key);
 		}
 
-		public virtual bool Contains(string key)
+		public bool Contains(string key)
 		{
 			return !string.IsNullOrEmpty(key) && this.graveyard.Contains(key);
 		}
 
-		public virtual string[] GetMemento()
+		public string[] GetMemento()
 		{
 			return this.window.ToArray();
 		}

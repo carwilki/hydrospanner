@@ -7,7 +7,7 @@
 	{
 		public IEnumerable<object> GetMementos()
 		{
-			yield return this.graveyard; // TODO: sliding window, underlying collection
+			yield return this.graveyard.GetMemento();
 
 			foreach (var hydratable in this.catalog.Values)
 				yield return hydratable.GetMemento();
@@ -17,27 +17,28 @@
 		{
 			foreach (var key in this.routes.Lookup(message, headers))
 			{
-				if (this.graveyard.Contains(key)) 
+				if (this.graveyard.Contains(key))
 					continue;
 
-				var hydratable = this.catalog.ValueOrDefault(key);
-				yield return hydratable ?? this.routes.Create(message, headers);
+				yield return this.catalog.ValueOrDefault(key) ?? (this.catalog[key] = this.routes.Create(message, headers));
 			}
 		}
 
 		public void Delete(IHydratable hydratable)
 		{
-			
+			this.graveyard.Bury(hydratable.Key);
+			this.catalog.Remove(hydratable.Key);
 		}
 
 		public void Restore(object memento)
 		{
-			// if memento is a graveyard memento, add to graveyard
-
-			// otherwise:
-
-			var hydratable = this.routes.Create(memento);
-			this.catalog[hydratable.Key] = hydratable;
+			if (memento is string[])
+				this.graveyard = new HydratableGraveyard(memento);
+			else
+			{
+				var hydratable = this.routes.Create(memento);
+				this.catalog[hydratable.Key] = hydratable;
+			}
 		}
 
 		public DefaultRepository(IRoutingTable routes)
@@ -46,7 +47,7 @@
 		}
 
 		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>();
-		private readonly HashSet<string> graveyard = new HashSet<string>();
 		private readonly IRoutingTable routes;
+		private HydratableGraveyard graveyard = new HydratableGraveyard();
 	}
 }
