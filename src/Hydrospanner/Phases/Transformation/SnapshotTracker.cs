@@ -9,7 +9,7 @@
 		void Increment(int messages);
 	}
 
-	public class SnapshotTracker : ISnapshotTracker
+	public sealed class SnapshotTracker : ISnapshotTracker
 	{
 		public void Increment(int messages)
 		{
@@ -21,8 +21,7 @@
 			this.PublishMementos();
 			this.CalculateNextSnapshotSequence();
 		}
-
-		void PublishMementos()
+		private void PublishMementos()
 		{
 			var mementos = this.repository.GetMemento().ToArray();
 
@@ -34,7 +33,6 @@
 				this.snapshotRing.Publish(next);
 			}
 		}
-
 		private void CalculateNextSnapshotSequence()
 		{
 			this.nextSnapshotSequence = ((this.currentSequence / this.frequency) * this.frequency) + this.frequency;
@@ -61,10 +59,10 @@
 			this.repository = repository;
 		}
 
-		readonly long frequency;
-		readonly IRingBuffer<SnapshotItem> snapshotRing;
-		readonly IRepository repository;
-		long currentSequence;
-		long nextSnapshotSequence;
+		private readonly long frequency;
+		private readonly IRingBuffer<SnapshotItem> snapshotRing;
+		private readonly IRepository repository;
+		private long currentSequence;
+		private long nextSnapshotSequence;
 	}
 }

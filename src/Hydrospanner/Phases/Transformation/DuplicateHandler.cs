@@ -7,9 +7,9 @@
 		bool Forward(TransformationItem item);
 	}
 
-	public class DuplicateHandler : IDuplicateHandler
+	public sealed class DuplicateHandler : IDuplicateHandler
 	{
-		public virtual bool Forward(TransformationItem item)
+		public bool Forward(TransformationItem item)
 		{
 			if (item.Acknowledgment == null)
 				return false;
@@ -21,8 +21,7 @@
 
 			return true;
 		}
-
-		void PublishForAcknowledgement(TransformationItem item)
+		private void PublishForAcknowledgement(TransformationItem item)
 		{
 			var next = this.ring.Next();
 			var claimed = this.ring[next];
