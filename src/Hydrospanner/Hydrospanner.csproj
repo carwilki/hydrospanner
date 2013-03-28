@@ -58,6 +58,7 @@
     <Compile Include="Phases\Transformation\DuplicateHandler.cs" />
     <Compile Include="RingBufferBase.cs" />
     <Compile Include="Wireup\DisruptorFactory.cs" />
+    <Compile Include="Wireup\IRoutingTable.cs" />
     <Compile Include="Wireup\MessagingFactory.cs" />
     <Compile Include="Wireup\SnapshotFactory.cs" />
     <Compile Include="Wireup\PersistenceFactory.cs" />

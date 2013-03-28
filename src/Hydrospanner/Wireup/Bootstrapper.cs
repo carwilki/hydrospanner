@@ -1,7 +1,6 @@
 ﻿namespace Hydrospanner.Wireup
 {
 	using System;
-	using Phases;
 	using Phases.Journal;
 	using Phases.Snapshot;
 	using Phases.Transformation;

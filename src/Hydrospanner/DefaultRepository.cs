@@ -1,45 +1,52 @@
 ﻿namespace Hydrospanner
 {
 	using System.Collections.Generic;
-	using System.Linq;
-	using Phases.Transformation;
+	using Wireup;
 
 	public class DefaultRepository : IRepository
 	{
 		public IEnumerable<object> GetMementos()
 		{
-			return this.catalog.Select(item => item.Value.GetMemento());
+			yield return this.graveyard; // TODO: sliding window, underlying collection
+
+			foreach (var hydratable in this.catalog.Values)
+				yield return hydratable.GetMemento();
 		}
 
 		public IEnumerable<IHydratable> Load(object message, Dictionary<string, string> headers)
 		{
-			return this.selector.Keys(message, headers)
-				.Select(key => this.graveyard.ValueOrDefault(key.Name) 
-					?? this.catalog.ValueOrDefault(key.Name) 
-						?? key.Create());
+			foreach (var key in this.routes.Lookup(message, headers))
+			{
+				if (this.graveyard.Contains(key)) 
+					continue;
+
+				var hydratable = this.catalog.ValueOrDefault(key);
+				yield return hydratable ?? this.routes.Create(message, headers);
+			}
 		}
 
 		public void Delete(IHydratable hydratable)
 		{
-			this.catalog.Remove(hydratable.Key);
-			this.graveyard[hydratable.Key] = hydratable;
+			
 		}
 
 		public void Restore(object memento)
 		{
-			// TODO: no idea here...
+			// if memento is a graveyard memento, add to graveyard
 
-			// NOTE: this implementation of IRepo keeps track of tomb-stoned objects which is extremely convenient because when we 
-			// restore the state of the system from snapshots, it can just look for a special memento that it understands and restore it...
+			// otherwise:
+
+			var hydratable = this.routes.Create(memento);
+			this.catalog[hydratable.Key] = hydratable;
 		}
 
-		public DefaultRepository(IHydratableSelector selector)
+		public DefaultRepository(IRoutingTable routes)
 		{
-			this.selector = selector;
+			this.routes = routes;
 		}
 
-		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>(); 
-		private readonly Dictionary<string, IHydratable> graveyard = new Dictionary<string, IHydratable>();
-		private readonly IHydratableSelector selector;
+		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>();
+		private readonly HashSet<string> graveyard = new HashSet<string>();
+		private readonly IRoutingTable routes;
 	}
 }

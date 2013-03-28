@@ -15,24 +15,4 @@
 	{
 		void Hydrate(T message, Dictionary<string, string> headers, bool live);
 	}
-
-	public interface IHydratableKey
-	{
-		string Name { get; }
-		IHydratable Create();
-	}
-
-	public interface IHydratableSelector
-	{
-	}
-
-	public interface IHydratableSelector<T> : IHydratableSelector
-	{
-		IEnumerable<IHydratableKey> Keys(T message, Dictionary<string, string> headers = null);
-	}
-
-	public interface IHydratableFactory<T> : IHydratableSelector
-	{
-		IHydratable Create(T memento);
-	}
 }
