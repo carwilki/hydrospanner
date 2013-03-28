@@ -5,6 +5,7 @@ namespace Hydrospanner.Phases.Transformation
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Threading;
 	using Machine.Specifications;
 	using Messaging;
 	using NSubstitute;
@@ -75,12 +76,14 @@ namespace Hydrospanner.Phases.Transformation
 			}
 
 			Because of = () =>
+			{
 				listener.Start();
+				Thread.Sleep(50);
+			};
 
 			It should_not_push_the_empty_message_to_the_Ring_buffer = () =>
 				harness.AllItems.Count.ShouldEqual(0);
 
-			[Ignore("Not sure why it's not receiving enough calls...")] // TODO
 			It should_attempt_to_receive_another_message_from_the_underlying_messaging_handler_until_disposed = () =>
 				receiver.Received(MaxReceives).Receive(Arg.Any<TimeSpan>());
 
