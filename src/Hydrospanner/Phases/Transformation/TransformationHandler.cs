@@ -45,14 +45,14 @@
 
 		private void PublishToJournalPhase(TransformationItem data)
 		{
-			var batch = this.journalRing.NewBatchDescriptor(this.buffer.Count + IncomingMessage);
+			var size = this.buffer.Count + IncomingMessage;
+			var batch = this.journalRing.NewBatchDescriptor(size);
 
 			this.journalRing[batch.Start].AsForeignMessage(
 				this.currentSequnce, data.SerializedBody, data.Body, data.Headers, data.ForeignId, data.Acknowledgment);
 
-			for (var i = 1; i < this.buffer.Count + IncomingMessage; i++)
-				this.journalRing[i + batch.Start]
-					.AsTransformationResultMessage(this.currentSequnce + i, this.buffer[i - IncomingMessage], null); // TODO: headers? shared instance of dict for all
+			for (var i = 1; i < size; i++)
+				this.journalRing[i + batch.Start].AsTransformationResultMessage(this.currentSequnce + i, this.buffer[i - IncomingMessage], BlankHeaders);
 
 			this.journalRing.Publish(batch);
 		}
