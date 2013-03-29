@@ -2,6 +2,7 @@
 {
 	using System.Collections.Generic;
 	using Hydrospanner;
+	using Hydrospanner.Wireup;
 
 	public class FizzBuzzAggregateHydrator : 
 		IHydratable, 
@@ -60,12 +61,35 @@
 				this.aggregate.Apply(message.Value);
 		}
 
-		readonly FizzBuzzAggregate aggregate = new FizzBuzzAggregate();
-		readonly Queue<object> gathered = new Queue<object>();
-
 		public FizzBuzzAggregateHydrator(int memento = 0)
 		{
 			this.aggregate = new FizzBuzzAggregate(memento);
 		}
+
+		readonly FizzBuzzAggregate aggregate = new FizzBuzzAggregate();
+		readonly Queue<object> gathered = new Queue<object>();
+
+		public static FizzBuzzAggregateHydrator Create(int memento)
+		{
+			return new FizzBuzzAggregateHydrator(memento);
+		}
+		public static HydrationInfo Lookup(CountEvent message, Dictionary<string, string> headers)
+		{
+			return Creation;
+		}
+		public static HydrationInfo Lookup(FizzEvent message, Dictionary<string, string> headers)
+		{
+			return Creation;
+		}
+		public static HydrationInfo Lookup(BuzzEvent message, Dictionary<string, string> headers)
+		{
+			return Creation;
+		}
+		public static HydrationInfo Lookup(FizzBuzzEvent message, Dictionary<string, string> headers)
+		{
+			return Creation;
+		}
+
+		static readonly HydrationInfo Creation = new HydrationInfo(TheKey, () => new FizzBuzzAggregateHydrator());
 	}
 }

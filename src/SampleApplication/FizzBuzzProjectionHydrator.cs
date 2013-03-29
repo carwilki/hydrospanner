@@ -3,6 +3,7 @@
 	using System.Collections.Generic;
 	using System.Globalization;
 	using Hydrospanner;
+	using Hydrospanner.Wireup;
 
 	public class FizzBuzzProjectionHydrator : 
 		IHydratable, 
@@ -53,6 +54,28 @@
 				this.document = memento;
 		}
 
+		public static FizzBuzzProjectionHydrator Create(FizzBuzzProjection memento)
+		{
+			return new FizzBuzzProjectionHydrator(memento);
+		}
+		public static HydrationInfo Lookup(CountEvent message, Dictionary<string, string> headers)
+		{
+			return Creation;
+		}
+		public static HydrationInfo Lookup(FizzEvent message, Dictionary<string, string> headers)
+		{
+			return Creation;
+		}
+		public static HydrationInfo Lookup(BuzzEvent message, Dictionary<string, string> headers)
+		{
+			return Creation;
+		}
+		public static HydrationInfo Lookup(FizzBuzzEvent message, Dictionary<string, string> headers)
+		{
+			return Creation;
+		}
+
+		static readonly HydrationInfo Creation = new HydrationInfo(TheKey, () => new FizzBuzzProjectionHydrator());
 		readonly FizzBuzzProjection document = new FizzBuzzProjection { Value = string.Empty };
 	}
 }

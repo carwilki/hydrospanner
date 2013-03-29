@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Configuration;
+	using System.Reflection;
 	using System.Threading;
 	using Hydrospanner;
 	using Hydrospanner.Wireup;
@@ -19,7 +20,7 @@
 
 		private static void Main()
 		{
-			var repository = new DefaultRepository(new FizzBuzzRoutingTable()); // TODO: use ConventionRoutingTable when it is finished
+			var repository = new DefaultRepository(new ConventionRoutingTable(Assembly.GetExecutingAssembly()));
 			var messagingFactory = new MessagingFactory(NodeId, new Uri(BrokerAddress), SourceQueue);
 			var persistenceFactory = new PersistenceFactory(MessageLogConnectionName, DuplicateWindow);
 			var persistenceBootstrapper = new PersistenceBootstrapper(persistenceFactory);
