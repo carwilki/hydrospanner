@@ -123,7 +123,10 @@ namespace Hydrospanner.Phases.Transformation
 				listener.Start();
 
 			Because of = () =>
+			{
 				listener.Dispose();
+				Thread.Sleep(50);
+			};
 
 			It should_dispose_the_underlying_messaging_handle = () =>
 				receiver.Received(1).Dispose();
