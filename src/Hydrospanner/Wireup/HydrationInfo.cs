@@ -15,7 +15,7 @@
 
 		public HydrationInfo(string key, Func<IHydratable> factory) : this()
 		{
-			if (string.IsNullOrEmpty(key))
+			if (key == null)
 				throw new ArgumentNullException("key");
 
 			if (factory == null)

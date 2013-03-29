@@ -9,7 +9,19 @@
 	{
 		public IEnumerable<HydrationInfo> Lookup(object message, Dictionary<string, string> headers)
 		{
-			throw new NotSupportedException();
+			if (message == null)
+				return null;
+
+			this.routes.Clear();
+
+			List<LookupDelegate> delegates;
+			if (!this.lookups.TryGetValue(message.GetType(), out delegates))
+				return this.routes;
+
+			foreach (var item in delegates)
+				this.routes.Add(item(message, headers));
+
+			return this.routes;
 		}
 		public IHydratable Create(object memento)
 		{
@@ -30,14 +42,6 @@
 		}
 		public ConventionRoutingTable(IEnumerable<Type> types)
 		{
-			// TODO: Find methods with the following signatures:
-			// 1. "static Key(T, Dictionary<string, string>):string"
-			// 2. "static Create(T, Dictionary<string, string>):IHydratable"
-			// 3. "static Create(T):IHydratable"
-
-			// take each of the methods found and register it with the corresponding dictionary
-			// then during the lookup/create phases, invoke those various methods
-
 			foreach (var type in types ?? new Type[0])
 				this.RegisterType(type);
 		}
@@ -56,56 +60,78 @@
 			switch (method.Name)
 			{
 				case FactoryMethodName:
-					this.RegisterFactory(method);
+					this.RegisterMemento(method);
 					break;
-				case KeyMethodName:
-					this.RegisterKey(method);
+				case LookupMethodName:
+					this.RegisterLookup(method);
 					break;
 			}
 		}
-		private void RegisterFactory(MethodInfo method)
+		private void RegisterMemento(MethodInfo method)
 		{
 			if (!typeof(IHydratable).IsAssignableFrom(method.ReturnType))
 				return;
 
 			var parameters = method.GetParameters();
-			if (parameters.Length == 1)
-				this.RegisterMementoFactory(method, parameters);
-			if (parameters.Length == 2)
-				this.RegisterMessageFactory(method, parameters);
-		}
-		private void RegisterMementoFactory(MethodInfo method, IList<ParameterInfo> parameters)
-		{
+			if (parameters.Length != 1)
+				return;
+
 			var mementoType = parameters[0].ParameterType;
 			if (mementoType == typeof(object))
 				return;
 
+			if (this.mementos.ContainsKey(mementoType))
+				throw new InvalidOperationException("Memento of type '{0}' cannot be registered multiple times.".FormatWith(mementoType));
+
 			var callback = Delegate.CreateDelegate(typeof(MementoDelegate<>).MakeGenericType(mementoType), method);
 			RegisterMementoMethod.MakeGenericMethod(mementoType).Invoke(this, new object[] { callback });
 		}
-		private void RegisterMessageFactory(MethodInfo method, IList<ParameterInfo> parameters)
+		private void RegisterLookup(MethodInfo method)
 		{
-		}
-		private void RegisterKey(MethodInfo method)
-		{
+			if (!typeof(HydrationInfo).IsAssignableFrom(method.ReturnType))
+				return;
+
+			var parameters = method.GetParameters();
+			if (parameters.Length != 2)
+				return;
+
+			var messageType = parameters[0].ParameterType;
+			if (messageType == typeof(object))
+				return;
+
+			if (parameters[1].ParameterType != typeof(Dictionary<string, string>))
+				return;
+
+			var callback = Delegate.CreateDelegate(typeof(LookupDelegate<>).MakeGenericType(messageType), method);
+			RegisterLookupMethod.MakeGenericMethod(messageType).Invoke(this, new object[] { callback });
 		}
 
 // ReSharper disable UnusedMember.Local
-		private void RegisterMemento<T>(MementoDelegate<T> callback)
+		private void RegisterGenericMemento<T>(MementoDelegate<T> callback)
 		{
 			this.mementos[typeof(T)] = x => callback((T)x);
+		}
+		private void RegisterGenericLookup<T>(LookupDelegate<T> callback)
+		{
+			List<LookupDelegate> delegates;
+			if (!this.lookups.TryGetValue(typeof(T), out delegates))
+				this.lookups[typeof(T)] = delegates = new List<LookupDelegate>();
+
+			delegates.Add((message, headers) => callback((T)message, headers));
 		}
 // ReSharper restore UnusedMember.Local
 
 		private const string FactoryMethodName = "Create";
-		private const string KeyMethodName = "Key";
-		private static readonly MethodInfo RegisterMementoMethod = typeof(ConventionRoutingTable).GetMethod("RegisterMemento", BindingFlags.Instance | BindingFlags.NonPublic);
-		private readonly Dictionary<Type, MementoDelegate> mementos = new Dictionary<Type, MementoDelegate>();
-		private readonly Dictionary<Type, MessageDelegate> messages = new Dictionary<Type, MessageDelegate>();
+		private const string LookupMethodName = "Lookup";
+		private static readonly MethodInfo RegisterMementoMethod = typeof(ConventionRoutingTable).GetMethod("RegisterGenericMemento", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly MethodInfo RegisterLookupMethod = typeof(ConventionRoutingTable).GetMethod("RegisterGenericLookup", BindingFlags.Instance | BindingFlags.NonPublic);
+		private readonly Dictionary<Type, MementoDelegate> mementos = new Dictionary<Type, MementoDelegate>(128);
+		private readonly Dictionary<Type, List<LookupDelegate>> lookups = new Dictionary<Type, List<LookupDelegate>>(128);
+		private readonly List<HydrationInfo> routes = new List<HydrationInfo>(16);
 	}
 
-	internal delegate string KeyDelegate(object message, Dictionary<string, string> headers);
-	internal delegate IHydratable MessageDelegate(object message, Dictionary<string, string> headers);
+	internal delegate HydrationInfo LookupDelegate(object message, Dictionary<string, string> headers);
+	internal delegate HydrationInfo LookupDelegate<T>(T message, Dictionary<string, string> headers);
 	internal delegate IHydratable MementoDelegate(object memento);
 	internal delegate IHydratable MementoDelegate<T>(T memento);
 }
