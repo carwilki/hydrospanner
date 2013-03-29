@@ -3,7 +3,6 @@
 	using System.Collections.Generic;
 	using System.Globalization;
 	using Hydrospanner;
-	using Hydrospanner.Wireup;
 
 	public class FizzBuzzProjectionHydrator : 
 		IHydratable, 

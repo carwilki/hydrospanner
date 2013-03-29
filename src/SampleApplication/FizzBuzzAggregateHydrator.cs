@@ -2,7 +2,6 @@
 {
 	using System.Collections.Generic;
 	using Hydrospanner;
-	using Hydrospanner.Wireup;
 
 	public class FizzBuzzAggregateHydrator : 
 		IHydratable, 
