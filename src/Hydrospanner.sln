@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hydrospanner.UnitTests", "H
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hydrospanner.IntegrationTests", "Hydrospanner.IntegrationTests\Hydrospanner.IntegrationTests.csproj", "{13FDB7B2-EB82-4B44-A084-E5ACF1FD2FD8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApplication", "SampleApplication\SampleApplication.csproj", "{AAAEB656-3DDE-4DF1-B393-C2A19BDA7CC1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{13FDB7B2-EB82-4B44-A084-E5ACF1FD2FD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13FDB7B2-EB82-4B44-A084-E5ACF1FD2FD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13FDB7B2-EB82-4B44-A084-E5ACF1FD2FD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAAEB656-3DDE-4DF1-B393-C2A19BDA7CC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAAEB656-3DDE-4DF1-B393-C2A19BDA7CC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAAEB656-3DDE-4DF1-B393-C2A19BDA7CC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAAEB656-3DDE-4DF1-B393-C2A19BDA7CC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
