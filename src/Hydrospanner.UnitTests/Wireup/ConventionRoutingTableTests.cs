@@ -34,7 +34,34 @@ namespace Hydrospanner.Wireup
 			static IHydratable hydratable;
 		}
 
+		public class when_providing_a_null_message
+		{
+			It should_return_null = () =>
+				new ConventionRoutingTable().Create(null, null).ShouldBeNull();
+		}
+		public class when_providing_a_message_and_headers
+		{
+			//Establish context = () =>
+			//{
+			//	message = new TestMessage();
+			//	table = new ConventionRoutingTable(typeof(TestHydratable));
+			//};
+
+			//Because of = () =>
+			//	hydratable = table.Create(message, new Dictionary<string, string>());
+
+			//It should_return_a_hydratable = () =>
+			//	hydratable.ShouldBeOfType<TestHydratable>();
+
+			static IRoutingTable table;
+			static TestMessage message;
+			static IHydratable hydratable;
+		}
+
 		private class TestMemento
+		{
+		}
+		public class TestMessage
 		{
 		}
 		private class TestHydratable : IHydratable
@@ -51,6 +78,15 @@ namespace Hydrospanner.Wireup
 			public static TestHydratable Create<T>(TestMemento memento)
 			{
 				throw new NotSupportedException("never executed because of filtering logic within the routing table method selection process.");
+			}
+
+			public static TestHydratable Create(TestMessage message, Dictionary<string, string> headers)
+			{
+				return new TestHydratable();
+			}
+			public static TestHydratable Create<T>(TestMessage message, Dictionary<string, string> headers)
+			{
+				throw new NotSupportedException("Shouldn't use this method.");
 			}
 
 			public string Key { get; private set; }

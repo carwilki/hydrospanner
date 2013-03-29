@@ -73,15 +73,22 @@
 				return;
 
 			var parameters = method.GetParameters();
-			if (parameters.Length != 1)
-				return;
-
+			if (parameters.Length == 1)
+				this.RegisterMementoFactory(method, parameters);
+			if (parameters.Length == 2)
+				this.RegisterMessageFactory(method, parameters);
+		}
+		private void RegisterMementoFactory(MethodInfo method, IList<ParameterInfo> parameters)
+		{
 			var mementoType = parameters[0].ParameterType;
 			if (mementoType == typeof(object))
 				return;
 
 			var callback = Delegate.CreateDelegate(typeof(MementoDelegate<>).MakeGenericType(mementoType), method);
 			RegisterMementoMethod.MakeGenericMethod(mementoType).Invoke(this, new object[] { callback });
+		}
+		private void RegisterMessageFactory(MethodInfo method, IList<ParameterInfo> parameters)
+		{
 		}
 		private void RegisterKey(MethodInfo method)
 		{
@@ -98,6 +105,7 @@
 		private const string KeyMethodName = "Key";
 		private static readonly MethodInfo RegisterMementoMethod = typeof(ConventionRoutingTable).GetMethod("RegisterMemento", BindingFlags.Instance | BindingFlags.NonPublic);
 		private readonly Dictionary<Type, MementoDelegate> mementos = new Dictionary<Type, MementoDelegate>();
+		private readonly Dictionary<Type, MessageDelegate> messages = new Dictionary<Type, MessageDelegate>();
 	}
 
 	internal delegate string KeyDelegate(object message, Dictionary<string, string> headers);

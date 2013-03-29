@@ -4,8 +4,7 @@
 
 	public interface IRoutingTable
 	{
-		IEnumerable<string> Lookup(object message, Dictionary<string, string> headers);
-		IHydratable Create(object message, Dictionary<string, string> headers);
+		IEnumerable<HydrationInfo> Lookup(object message, Dictionary<string, string> headers);
 		IHydratable Create(object memento);
 	}
 }

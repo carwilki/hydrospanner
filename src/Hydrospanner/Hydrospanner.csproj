@@ -60,6 +60,7 @@
     <Compile Include="RingBufferBase.cs" />
     <Compile Include="Wireup\ConventionRoutingTable.cs" />
     <Compile Include="Wireup\DisruptorFactory.cs" />
+    <Compile Include="Wireup\HydrationInfo.cs" />
     <Compile Include="Wireup\IRoutingTable.cs" />
     <Compile Include="Wireup\MessagingFactory.cs" />
     <Compile Include="Wireup\SnapshotFactory.cs" />
