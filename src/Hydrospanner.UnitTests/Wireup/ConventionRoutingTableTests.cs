@@ -36,8 +36,8 @@ namespace Hydrospanner.Wireup
 
 		public class when_providing_a_null_message
 		{
-			It should_return_null = () =>
-				new ConventionRoutingTable().Create(null, null).ShouldBeNull();
+			//It should_return_null = () =>
+			//	new ConventionRoutingTable().Create(null, null).ShouldBeNull();
 		}
 		public class when_providing_a_message_and_headers
 		{

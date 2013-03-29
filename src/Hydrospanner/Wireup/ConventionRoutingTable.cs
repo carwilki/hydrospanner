@@ -9,11 +9,7 @@
 	{
 		public IEnumerable<HydrationInfo> Lookup(object message, Dictionary<string, string> headers)
 		{
-			return null;
-		}
-		public IHydratable Create(object message, Dictionary<string, string> headers)
-		{
-			return null;
+			throw new NotSupportedException();
 		}
 		public IHydratable Create(object memento)
 		{
