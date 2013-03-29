@@ -20,19 +20,11 @@ namespace Hydrospanner
 				Because of = () =>
 					loadResult = repository.Load(Message, Headers).ToList();
 
-				It should_use_the_routing_table_to_create_new_hydratables = () =>
-					routes.Received().Create(Message, Headers);
-
 				It should_add_them_to_the_repository_for_future_retreival = () =>
 					repository.Load(42, Headers).Single().ShouldEqual(Document);
 
 				It should_return_the_newly_created_hydratables = () =>
 					loadResult.Single().ShouldEqual(Document);
-			}
-
-			public class when_the_routing_table_cannot_supply_a_newly_created_hydratable
-			{
-				// TODO: what happens?
 			}
 
 			public class when_the_hydratable_has_been_tombstoned
@@ -59,8 +51,8 @@ namespace Hydrospanner
 			Establish context = () =>
 			{
 				tombstoned = new MyHydratable(Tombstone);
-				routes.Lookup(Tombstone, Headers).Returns(new[] { Tombstone });
-				routes.Create(Tombstone, Headers).Returns(tombstoned);
+				tombstoneInfo = new HydrationInfo(Tombstone, () => tombstoned);
+				routes.Lookup(Tombstone, Headers).Returns(new[] { tombstoneInfo });
 				routes.Create(Document).Returns(Document);
 
 				repository.Load(Message, Headers).ToList();
@@ -89,6 +81,7 @@ namespace Hydrospanner
 				snapshotOfRestoredRepository.ShouldBeLike(snapshot);
 
 			const string Tombstone = "Deleted";
+			static HydrationInfo tombstoneInfo;
 			static MyHydratable tombstoned;
 			static List<object> snapshot;
 			static List<object> snapshotOfRestoredRepository; 
@@ -98,15 +91,16 @@ namespace Hydrospanner
 		{
 			routes = Substitute.For<IRoutingTable>();
 			repository = new DefaultRepository(routes);
+			myHydrationInfo = new HydrationInfo(Key, () => Document);
 
-			routes.Lookup(Message, Headers).Returns(new[] { Key });
-			routes.Create(Message, Headers).Returns(Document);
+			routes.Lookup(Message, Headers).Returns(new[] { myHydrationInfo });
 		};
 
 		const int Message = 42;
 		static readonly string Key = Message.ToString(CultureInfo.InvariantCulture);
 		static readonly MyHydratable Document = new MyHydratable(Key);
 		static readonly Dictionary<string, string> Headers = new Dictionary<string, string>();
+		static HydrationInfo myHydrationInfo;
 		static IEnumerable<IHydratable> loadResult;
 		static DefaultRepository repository;
 		static IRoutingTable routes;

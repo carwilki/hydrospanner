@@ -7,7 +7,7 @@
 
 	public class ConventionRoutingTable : IRoutingTable
 	{
-		public IEnumerable<string> Lookup(object message, Dictionary<string, string> headers)
+		public IEnumerable<HydrationInfo> Lookup(object message, Dictionary<string, string> headers)
 		{
 			return null;
 		}

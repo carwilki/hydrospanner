@@ -15,12 +15,12 @@
 
 		public IEnumerable<IHydratable> Load(object message, Dictionary<string, string> headers)
 		{
-			foreach (var key in this.routes.Lookup(message, headers))
+			foreach (var info in this.routes.Lookup(message, headers))
 			{
-				if (this.graveyard.Contains(key))
+				if (this.graveyard.Contains(info.Key))
 					continue;
 
-				yield return this.catalog.ValueOrDefault(key) ?? (this.catalog[key] = this.routes.Create(message, headers));
+				yield return this.catalog.ValueOrDefault(info.Key) ?? (this.catalog[info.Key] = info.Create());
 			}
 		}
 
