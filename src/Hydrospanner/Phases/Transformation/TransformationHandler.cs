@@ -31,14 +31,14 @@
 
 			if (data.MessageSequence == 0)
 			{
-				data.MessageSequence = this.currentSequnce;
+				data.MessageSequence = this.currentSequnce + 1;
 				live = true;
 			}
 
 			this.buffer.AddRange(this.transformer.Handle(data.Body, data.Headers, data.MessageSequence));
 
 			for (var i = 0; i < this.buffer.Count; i++)
-				this.buffer.AddRange(this.transformer.Handle(this.buffer[i], BlankHeaders, data.MessageSequence));
+				this.buffer.AddRange(this.transformer.Handle(this.buffer[i], BlankHeaders, data.MessageSequence + 1 + i));
 
 			return live;
 		}
@@ -49,19 +49,18 @@
 			var batch = this.journalRing.NewBatchDescriptor(size);
 
 			this.journalRing[batch.Start].AsForeignMessage(
-				this.currentSequnce, data.SerializedBody, data.Body, data.Headers, data.ForeignId, data.Acknowledgment);
+				this.currentSequnce + 1, data.SerializedBody, data.Body, data.Headers, data.ForeignId, data.Acknowledgment);
 
 			for (var i = 1; i < size; i++)
-				this.journalRing[i + batch.Start].AsTransformationResultMessage(this.currentSequnce + i, this.buffer[i - IncomingMessage], BlankHeaders);
+				this.journalRing[i + batch.Start].AsTransformationResultMessage(this.currentSequnce + 1 + i, this.buffer[i - IncomingMessage], BlankHeaders);
 
 			this.journalRing.Publish(batch);
 		}
 
 		private void Increment()
 		{
-			var count = this.buffer.Count + IncomingMessage;
-			this.snapshot.Increment(count);
-			this.currentSequnce += count;
+			this.currentSequnce += this.buffer.Count + IncomingMessage;
+			this.snapshot.Track(this.currentSequnce);
 			this.buffer.Clear();
 		}
 
@@ -87,7 +86,7 @@
 			if (snapshot == null)
 				throw new ArgumentNullException("snapshot");
 
-			this.currentSequnce = journaledSequence + 1;
+			this.currentSequnce = journaledSequence;
 			this.journalRing = journalRing;
 			this.duplicates = duplicates;
 			this.transformer = transformer;

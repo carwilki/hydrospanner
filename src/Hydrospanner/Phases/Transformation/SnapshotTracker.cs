@@ -6,17 +6,18 @@
 
 	public sealed class SnapshotTracker : ISnapshotTracker
 	{
-		public void Increment(int messages)
+		public void Track(long sequence)
 		{
-			this.currentSequence += messages;
-
-			if (this.currentSequence < this.nextSnapshotSequence)
+			if (sequence < this.nextSnapshotSequence) 
 				return;
-
-			this.PublishMementos();
-			this.CalculateNextSnapshotSequence();
+			
+			this.PublishMementos(sequence);
+			
+			while (sequence >= this.nextSnapshotSequence)
+				this.nextSnapshotSequence += this.frequency;
 		}
-		private void PublishMementos()
+
+		private void PublishMementos(long sequence)
 		{
 			var mementos = this.repository.GetMementos().ToArray();
 
@@ -24,13 +25,9 @@
 			{
 				var next = this.snapshotRing.Next();
 				var claimed = this.snapshotRing[next];
-				claimed.AsPartOfSystemSnapshot(this.currentSequence, i, mementos[i]);
+				claimed.AsPartOfSystemSnapshot(sequence, i, mementos[i]);
 				this.snapshotRing.Publish(next);
 			}
-		}
-		private void CalculateNextSnapshotSequence()
-		{
-			this.nextSnapshotSequence = ((this.currentSequence / this.frequency) * this.frequency) + this.frequency;
 		}
 
 		public SnapshotTracker(long journaledSequence, int frequency, IRingBuffer<SnapshotItem> snapshotRing, IRepository repository)
@@ -47,9 +44,8 @@
 			if (repository == null)
 				throw new ArgumentNullException("repository");
 
-			this.currentSequence = journaledSequence;
 			this.frequency = frequency;
-			this.CalculateNextSnapshotSequence();
+			this.nextSnapshotSequence = ((journaledSequence / this.frequency) * this.frequency) + this.frequency;
 			this.snapshotRing = snapshotRing;
 			this.repository = repository;
 		}
@@ -57,7 +53,6 @@
 		private readonly long frequency;
 		private readonly IRingBuffer<SnapshotItem> snapshotRing;
 		private readonly IRepository repository;
-		private long currentSequence;
 		private long nextSnapshotSequence;
 	}
 }

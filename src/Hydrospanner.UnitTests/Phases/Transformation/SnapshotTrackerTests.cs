@@ -44,7 +44,7 @@ namespace Hydrospanner.Phases.Transformation
 				tracker = new SnapshotTracker(98, 100, snapshots, repository);
 
 			Because of = () =>
-				tracker.Increment(1);
+				tracker.Track(99);
 
 			It should_NOT_generate_a_snapshot = () =>
 				snapshots.AllItems.ShouldBeEmpty();
@@ -56,7 +56,7 @@ namespace Hydrospanner.Phases.Transformation
 				tracker = new SnapshotTracker(99, 100, snapshots, repository);
 
 			Because of = () =>
-				tracker.Increment(1);
+				tracker.Track(100);
 
 			It should_generate_a_snapshot = () =>
 				snapshots.AllItems.ShouldBeLike(new[] 
@@ -82,7 +82,7 @@ namespace Hydrospanner.Phases.Transformation
 				tracker = new SnapshotTracker(99, 100, snapshots, repository);
 
 			Because of = () =>
-				tracker.Increment(2);
+				tracker.Track(101);
 
 			It should_generate_a_snapshot = () =>
 				snapshots.AllItems.ShouldBeLike(new[] 
@@ -102,28 +102,28 @@ namespace Hydrospanner.Phases.Transformation
 				});
 		}
 
-		public class when_the_snapshot_tracker_does_NOT_go_beyond_the_snapshot_frequency_on_a_subsequent_increment
-		{
-			Establish context = () =>
-			{
-				tracker = new SnapshotTracker(99, 100, snapshots, repository);
-				tracker.Increment(100); // will cross here
-			};
-
-			Because of = () =>
-				tracker.Increment(2); // will cross here too
-		}
-
 		public class when_the_snapshot_tracker_goes_beyond_the_snapshot_frequency_on_a_subsequent_increment
 		{
 			Establish context = () =>
 			{
 				tracker = new SnapshotTracker(99, 100, snapshots, repository);
-				tracker.Increment(2); // will cross here
+				tracker.Track(101); // will cross here
 			};
 
 			Because of = () =>
-				tracker.Increment(2); // will NOT cross here
+				tracker.Track(201); // will cross here too
+		}
+
+		public class when_the_snapshot_tracker_does_NOT_go_beyond_the_snapshot_frequency_on_a_subsequent_increment
+		{
+			Establish context = () =>
+			{
+				tracker = new SnapshotTracker(99, 100, snapshots, repository);
+				tracker.Track(101); // will cross here
+			};
+
+			Because of = () =>
+				tracker.Track(102); // will NOT cross here
 
 			It should_generate_a_snapshot_second_snapshot = () =>
 				snapshots.AllItems.ShouldBeLike(new[] 
@@ -137,6 +137,53 @@ namespace Hydrospanner.Phases.Transformation
 					new SnapshotItem
 					{
 						CurrentSequence = 101,
+						Memento = 1,
+						MementosRemaining = 0
+					}
+				});
+		}
+
+		public class when_enough_messages_are_tracked_that_one_or_more_snapshots_are_skipped
+		{
+			Establish context = () =>
+			{
+				tracker = new SnapshotTracker(1, 100, snapshots, repository);
+				tracker.Track(200); // skips several snapshots; should generate a snapshot
+			};
+
+			Because of = () =>
+			{
+				tracker.Track(201); // should not generate another snapshot
+				tracker.Track(300); // should generate another snapshot
+			};
+
+			It should_continue_tracking_the_snapshot_from_the_provided_current_sequence = () =>
+				snapshots.AllItems.ShouldBeLike(new[]
+				{
+					// First snapshot @ 200
+					new SnapshotItem
+					{
+						CurrentSequence = 200,
+						Memento = 2,
+						MementosRemaining = 1
+					},
+					new SnapshotItem
+					{
+						CurrentSequence = 200,
+						Memento = 1,
+						MementosRemaining = 0
+					},
+
+					// Second snapshot @ 300
+					new SnapshotItem
+					{
+						CurrentSequence = 300,
+						Memento = 2,
+						MementosRemaining = 1
+					},
+					new SnapshotItem
+					{
+						CurrentSequence = 300,
 						Memento = 1,
 						MementosRemaining = 0
 					}

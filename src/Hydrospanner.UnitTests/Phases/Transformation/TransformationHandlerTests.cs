@@ -57,7 +57,7 @@ namespace Hydrospanner.Phases.Transformation
 				transformer.DidNotReceive().Handle(item, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>());
 
 			It should_NOT_increment_the_snapshot = () =>
-				snapshot.DidNotReceive().Increment(Arg.Any<int>());
+				snapshot.DidNotReceive().Track(Arg.Any<long>());
 
 			It should_NOT_publish_the_message_to_the_journal_ring = () =>
 				journal.AllItems.ShouldBeEmpty();
@@ -83,7 +83,7 @@ namespace Hydrospanner.Phases.Transformation
 					journal.AllItems.ShouldBeEmpty();
 
 				It should_increment_the_snapshot_by_one = () =>
-					snapshot.Received().Increment(1);
+					snapshot.Received().Track(JournaledSequence + 1);
 
 				It should_NOT_assign_the_message_sequence_on_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
@@ -109,7 +109,7 @@ namespace Hydrospanner.Phases.Transformation
 					journal.AllItems.ShouldBeEmpty();
 
 				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
-					snapshot.Received().Increment(3);
+					snapshot.Received().Track(JournaledSequence + 3);
 
 				It should_NOT_reassign_the_sequence_number_of_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
@@ -123,8 +123,8 @@ namespace Hydrospanner.Phases.Transformation
 					item.MessageSequence = JournaledSequence - 1;
 					item.Deserialize(new JsonSerializer());
 					transformer.Handle(item.Body, item.Headers, ReplayMessageSequence).Returns(new object[] { "hello" });
-					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence).Returns(new object[] { "world" });
-					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence).Returns(new object[0]);
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence + 1).Returns(new object[] { "world" });
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence + 1).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 				};
 
@@ -135,7 +135,7 @@ namespace Hydrospanner.Phases.Transformation
 					journal.AllItems.ShouldBeEmpty();
 
 				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
-					snapshot.Received().Increment(3);
+					snapshot.Received().Track(JournaledSequence + 3);
 
 				It should_NOT_reassign_the_message_sequence_of_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
@@ -206,7 +206,7 @@ namespace Hydrospanner.Phases.Transformation
 					});
 
 				It should_increment_the_snapshot_by_one = () =>
-					snapshot.Received().Increment(1);
+					snapshot.Received().Track(JournaledSequence + 1);
 
 				It should_assign_the_message_sequence_on_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence + 1);
@@ -258,7 +258,7 @@ namespace Hydrospanner.Phases.Transformation
 					});
 
 				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
-					snapshot.Received().Increment(3);
+					snapshot.Received().Track(JournaledSequence + 3);
 
 				It should_assign_the_message_sequence_of_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence + 1);
@@ -271,8 +271,8 @@ namespace Hydrospanner.Phases.Transformation
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
 					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[] { "hello" });
-					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence).Returns(new object[] { "world" });
-					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence).Returns(new object[0]);
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1).Returns(new object[] { "world" });
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 				};
 
@@ -310,7 +310,7 @@ namespace Hydrospanner.Phases.Transformation
 					});
 
 				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
-					snapshot.Received().Increment(3);
+					snapshot.Received().Track(JournaledSequence + 3);
 
 				It should_assign_the_message_sequence = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence + 1);
@@ -328,9 +328,9 @@ namespace Hydrospanner.Phases.Transformation
 					item2.Deserialize(serializer);
 
 					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[] { "hello" });
-					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence).Returns(new object[] { "world" });
-					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence).Returns(new object[0]);
-					transformer.Handle(item2.Body, item.Headers, LiveMessageSequence).Returns(new object[0]);
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1).Returns(new object[] { "world" });
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 2).Returns(new object[0]);
+					transformer.Handle(item2.Body, item.Headers, LiveMessageSequence + 3).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
 					handler.OnNext(item, 1, false);
 				};

@@ -2,6 +2,6 @@
 {
 	public interface ISnapshotTracker
 	{
-		void Increment(int messages);
+		void Track(long sequence);
 	}
 }
