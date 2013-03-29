@@ -69,7 +69,7 @@
 			IRingBuffer<JournalItem> journalRing,
 			IDuplicateHandler duplicates,
 			ITransformer transformer,
-			ISnapshotTracker snapshot)
+			ISystemSnapshotTracker snapshot)
 		{
 			if (journaledSequence < 1)
 				throw new ArgumentOutOfRangeException("journaledSequence");
@@ -98,7 +98,7 @@
 		private readonly IRingBuffer<JournalItem> journalRing;
 		private readonly IDuplicateHandler duplicates;
 		private readonly ITransformer transformer;
-		private readonly ISnapshotTracker snapshot;
+		private readonly ISystemSnapshotTracker snapshot;
 		private readonly List<object> buffer = new List<object>();
 		private long currentSequnce;
 	}

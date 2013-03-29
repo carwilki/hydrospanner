@@ -4,7 +4,7 @@
 	using System.Linq;
 	using Snapshot;
 
-	public sealed class SnapshotTracker : ISnapshotTracker
+	public sealed class SystemSnapshotTracker : ISystemSnapshotTracker
 	{
 		public void Track(long sequence)
 		{
@@ -30,7 +30,7 @@
 			}
 		}
 
-		public SnapshotTracker(long journaledSequence, int frequency, IRingBuffer<SnapshotItem> snapshotRing, IRepository repository)
+		public SystemSnapshotTracker(long journaledSequence, int frequency, IRingBuffer<SnapshotItem> snapshotRing, IRepository repository)
 		{
 			if (journaledSequence < 0)
 				throw new ArgumentOutOfRangeException("journaledSequence");

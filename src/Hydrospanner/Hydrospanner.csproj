@@ -52,9 +52,9 @@
     </Compile>
     <Compile Include="DefaultRepository.cs" />
     <Compile Include="HydratableGraveyard.cs" />
-    <Compile Include="Phases\Transformation\ISnapshotTracker.cs" />
+    <Compile Include="Phases\Transformation\ISystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\ITransformer.cs" />
-    <Compile Include="Phases\Transformation\SnapshotTracker.cs" />
+    <Compile Include="Phases\Transformation\SystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\Transformer.cs" />
     <Compile Include="Phases\Transformation\DuplicateHandler.cs" />
     <Compile Include="RingBufferBase.cs" />

@@ -1,6 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Transformation
 {
-	public interface ISnapshotTracker
+	public interface ISystemSnapshotTracker
 	{
 		void Track(long sequence);
 	}

@@ -392,7 +392,7 @@ namespace Hydrospanner.Phases.Transformation
 			journal = new RingBufferHarness<JournalItem>();
 			duplicates = Substitute.For<IDuplicateHandler>();
 			transformer = Substitute.For<ITransformer>();
-			snapshot = Substitute.For<ISnapshotTracker>();
+			snapshot = Substitute.For<ISystemSnapshotTracker>();
 		};
 
 		const long JournaledSequence = 42;
@@ -403,7 +403,7 @@ namespace Hydrospanner.Phases.Transformation
 		static RingBufferHarness<JournalItem> journal;
 		static IDuplicateHandler duplicates;
 		static ITransformer transformer;
-		static ISnapshotTracker snapshot;
+		static ISystemSnapshotTracker snapshot;
 	}
 }
 

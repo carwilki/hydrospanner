@@ -8,29 +8,29 @@ namespace Hydrospanner.Phases.Transformation
 	using NSubstitute;
 	using Snapshot;
 
-	[Subject(typeof(SnapshotTracker))]
+	[Subject(typeof(SystemSnapshotTracker))]
 	public class when_tracking_system_snapshots
 	{
 		public class when_constructor_parameters_are_invalid
 		{
 			It should_throw_if_the_journaled_sequence_is_out_of_range = () =>
 			{
-				Try(() => new SnapshotTracker(-1, 100, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
-				Try(() => new SnapshotTracker(long.MinValue, 100, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Try(() => new SystemSnapshotTracker(-1, 100, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Try(() => new SystemSnapshotTracker(long.MinValue, 100, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
 			};
 
 			It should_throw_if_the_frequency_is_out_of_range = () =>
 			{
-				Try(() => new SnapshotTracker(1, 99, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
-				Try(() => new SnapshotTracker(1, 0, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
-				Try(() => new SnapshotTracker(1, int.MinValue, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Try(() => new SystemSnapshotTracker(1, 99, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Try(() => new SystemSnapshotTracker(1, 0, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Try(() => new SystemSnapshotTracker(1, int.MinValue, snapshots, repository)).ShouldBeOfType<ArgumentOutOfRangeException>();
 			};
 
 			It should_throw_if_the_snapshot_ring_is_null = () =>
-				Try(() => new SnapshotTracker(1, 100, null, repository)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new SystemSnapshotTracker(1, 100, null, repository)).ShouldBeOfType<ArgumentNullException>();
 
 			It should_throw_if_the_repository_is_null = () =>
-				Try(() => new SnapshotTracker(1, 100, snapshots, null)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new SystemSnapshotTracker(1, 100, snapshots, null)).ShouldBeOfType<ArgumentNullException>();
 
 			static Exception Try(Action action)
 			{
@@ -41,7 +41,7 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_the_snapshot_tracker_is_not_yet_ready_for_a_snapshot
 		{
 			Establish context = () =>
-				tracker = new SnapshotTracker(98, 100, snapshots, repository);
+				tracker = new SystemSnapshotTracker(98, 100, snapshots, repository);
 
 			Because of = () =>
 				tracker.Track(99);
@@ -53,7 +53,7 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_the_snapshot_tracker_lands_on_the_snapshot_frequency
 		{
 			Establish context = () =>
-				tracker = new SnapshotTracker(99, 100, snapshots, repository);
+				tracker = new SystemSnapshotTracker(99, 100, snapshots, repository);
 
 			Because of = () =>
 				tracker.Track(100);
@@ -79,7 +79,7 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_the_snapshot_tracker_goes_beyond_the_snapshot_frequency
 		{
 			Establish context = () =>
-				tracker = new SnapshotTracker(99, 100, snapshots, repository);
+				tracker = new SystemSnapshotTracker(99, 100, snapshots, repository);
 
 			Because of = () =>
 				tracker.Track(101);
@@ -106,7 +106,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				tracker = new SnapshotTracker(99, 100, snapshots, repository);
+				tracker = new SystemSnapshotTracker(99, 100, snapshots, repository);
 				tracker.Track(101); // will cross here
 			};
 
@@ -118,7 +118,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				tracker = new SnapshotTracker(99, 100, snapshots, repository);
+				tracker = new SystemSnapshotTracker(99, 100, snapshots, repository);
 				tracker.Track(101); // will cross here
 			};
 
@@ -147,7 +147,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				tracker = new SnapshotTracker(1, 100, snapshots, repository);
+				tracker = new SystemSnapshotTracker(1, 100, snapshots, repository);
 				tracker.Track(200); // skips several snapshots; should generate a snapshot
 			};
 
@@ -197,7 +197,7 @@ namespace Hydrospanner.Phases.Transformation
 			repository.GetMementos().Returns(new object[] { 1, 2 });
 		};
 
-		static SnapshotTracker tracker;
+		static SystemSnapshotTracker tracker;
 		static RingBufferHarness<SnapshotItem> snapshots;
 		static IRepository repository;
 	}
