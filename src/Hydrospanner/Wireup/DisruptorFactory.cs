@@ -54,13 +54,15 @@
 
 		public virtual IDisruptor<TransformationItem> CreateStartupTransformationDisruptor(IRepository repository, BootstrapInfo info, Action complete)
 		{
+			this.duplicateHandler = new DuplicateHandler(new DuplicateStore(), this.journalRing);
+			var transformer = new Transformer(repository, this.snapshotRing, info.JournaledSequence);
+			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, 1000, this.snapshotRing, repository);
+			this.transformationHandler = new TransformationHandler(
+				info.JournaledSequence, this.journalRing, this.duplicateHandler, transformer, systemSnapshotTracker);
+
 			var countdown = info.JournaledSequence - info.SnapshotSequence;
 			if (countdown == 0)
 				return null;
-
-			this.duplicateHandler = new DuplicateHandler(new DuplicateStore(), this.journalRing);
-			this.transformationHandler = new TransformationHandler(
-				info.JournaledSequence, this.journalRing, this.duplicateHandler, null, null); // TODO
 
 			var disruptor = CreateDisruptor<TransformationItem>(new YieldingWaitStrategy(), 1024 * 128);
 			disruptor.HandleEventsWith(this.serializationHandler)

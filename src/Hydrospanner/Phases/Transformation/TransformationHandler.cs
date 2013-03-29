@@ -71,7 +71,7 @@
 			ITransformer transformer,
 			ISystemSnapshotTracker snapshot)
 		{
-			if (journaledSequence < 1)
+			if (journaledSequence < 0)
 				throw new ArgumentOutOfRangeException("journaledSequence");
 
 			if (journalRing == null)

@@ -19,13 +19,16 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			It should_throw_if_the_sequence_is_out_of_range = () =>
 			{
-				Try(() => new TransformationHandler(0, journal, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
 				Try(() => new TransformationHandler(-1, journal, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
 				Try(() => new TransformationHandler(long.MinValue, journal, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
 			};
 
 			It should_throw_if_the_journal_is_null = () =>
+			{
+				Try(() => new TransformationHandler(0, null, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();
 				Try(() => new TransformationHandler(1, null, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new TransformationHandler(int.MaxValue, null, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();
+			};
 
 			It should_throw_if_the_duplicates_is_null = () =>
 				Try(() => new TransformationHandler(1, journal, null, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();

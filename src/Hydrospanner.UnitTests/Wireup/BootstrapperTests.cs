@@ -73,7 +73,7 @@ namespace Hydrospanner.Wireup
 		public class when_starting_the_bootstrapper
 		{
 			Because of = () =>
-				bootstrapper.Start();
+				bootstrapper.Start(info);
 
 			It should_get_everything_going = () =>
 				Received.InOrder(ExpectedStartCalls);
@@ -94,7 +94,7 @@ namespace Hydrospanner.Wireup
 		public class when_disposing_a_started_bootstrapper
 		{
 			Establish context = () =>
-				bootstrapper.Start();
+				bootstrapper.Start(info);
 
 			Because of = () =>
 				bootstrapper.Dispose();
@@ -110,7 +110,7 @@ namespace Hydrospanner.Wireup
 		{
 			Establish context = () =>
 			{
-				bootstrapper.Start();
+				bootstrapper.Start(info);
 				bootstrapper.Dispose();
 			};
 
@@ -128,10 +128,10 @@ namespace Hydrospanner.Wireup
 		public class when_starting_a_started_bootstrapper
 		{
 			Establish context = () =>
-				bootstrapper.Start();
+				bootstrapper.Start(info);
 
 			Because of = () =>
-				bootstrapper.Start();
+				bootstrapper.Start(info);
 
 			It should_NOT_try_to_bootstrap_the_system_a_second_time = () =>
 				Received.InOrder(ExpectedStartCalls); // only one time
@@ -167,7 +167,6 @@ namespace Hydrospanner.Wireup
 		static void SetupStuff()
 		{
 			ThreadExtensions.Freeze(x => naps.Add(x));
-			persistence.Restore().Returns(info);
 			snapshots.RestoreSnapshots(info, repository).Returns(info2);
 			disruptors.CreateJournalDisruptor(info2).Returns(journalDisruptor);
 			disruptors.CreateSnapshotDisruptor().Returns(snapshotDisruptor);
@@ -179,20 +178,21 @@ namespace Hydrospanner.Wireup
 
 		static void ExpectedStartCalls()
 		{
-			persistence.Restore();
 			snapshots.RestoreSnapshots(info, repository);
 
 			disruptors.CreateJournalDisruptor(info2);
 			disruptors.CreateSnapshotDisruptor();
+			messages.Restore(info2, journalDisruptor, repository);
+			
 			disruptors.CreateTransformationDisruptor();
 
 			journalDisruptor.Start();
 			snapshotDisruptor.Start();
-			messages.Restore(info2, journalDisruptor, repository);
 
 			transformationDisruptor.Start();
 
 			messaging.CreateMessageListener(transformationRingBuffer);
+			listener.Start();
 		}
 
 		static void ExpectedDisposal()

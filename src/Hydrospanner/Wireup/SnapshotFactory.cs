@@ -14,38 +14,38 @@
 
 		public virtual SystemSnapshotStreamReader CreateSystemSnapshotStreamReader(long journaledSequence)
 		{
-			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), this.snapshotPath);
+			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), this.systemSnapshotPath);
 			return loader.Load(journaledSequence, this.snapshotGeneration);
 		}
 		public virtual ISnapshotRecorder CreateSystemSnapshotRecorder()
 		{
-			return new SystemSnapshotRecorder(new FileWrapper(), this.snapshotPath);
+			return new SystemSnapshotRecorder(new FileWrapper(), this.systemSnapshotPath);
 		}
 		public virtual ISnapshotRecorder CreatePublicSnapshotRecorder()
 		{
 			return new PublicSnapshotRecorder(this.settings);
 		}
 
-		public SnapshotFactory(int snapshotGeneration, string snapshotPath, string connectionName)
+		public SnapshotFactory(int snapshotGeneration, string systemSnapshotPath, string publicSnapshotConnectionName)
 		{
-			if (string.IsNullOrWhiteSpace(snapshotPath))
-				throw new ArgumentNullException("snapshotPath");
+			if (string.IsNullOrWhiteSpace(systemSnapshotPath))
+				throw new ArgumentNullException("systemSnapshotPath");
 
 			if (snapshotGeneration < 0)
 				throw new ArgumentOutOfRangeException("snapshotGeneration");
 
-			if (string.IsNullOrWhiteSpace(connectionName))
-				throw new ArgumentNullException("connectionName");
+			if (string.IsNullOrWhiteSpace(publicSnapshotConnectionName))
+				throw new ArgumentNullException("publicSnapshotConnectionName");
 
-			this.settings = ConfigurationManager.ConnectionStrings[connectionName];
+			this.settings = ConfigurationManager.ConnectionStrings[publicSnapshotConnectionName];
 			if (this.settings == null)
-				throw new ConfigurationErrorsException("No persistence configuration info found for connection named '{0}'.".FormatWith(connectionName));
+				throw new ConfigurationErrorsException("No persistence configuration info found for connection named '{0}'.".FormatWith(publicSnapshotConnectionName));
 
 			if (string.IsNullOrWhiteSpace(this.settings.ProviderName) || string.IsNullOrWhiteSpace(this.settings.ConnectionString))
-				throw new ConfigurationErrorsException("Connection named '{0}' missing provider info or connection string info.".FormatWith(connectionName));
+				throw new ConfigurationErrorsException("Connection named '{0}' missing provider info or connection string info.".FormatWith(publicSnapshotConnectionName));
 
 			this.snapshotGeneration = snapshotGeneration;
-			this.snapshotPath = snapshotPath;
+			this.systemSnapshotPath = systemSnapshotPath;
 		}
 		protected SnapshotFactory()
 		{
@@ -53,6 +53,6 @@
 
 		private readonly ConnectionStringSettings settings;
 		private readonly int snapshotGeneration;
-		private readonly string snapshotPath;
+		private readonly string systemSnapshotPath;
 	}
 }

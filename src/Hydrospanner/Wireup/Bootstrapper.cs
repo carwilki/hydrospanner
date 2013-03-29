@@ -1,32 +1,34 @@
 ﻿namespace Hydrospanner.Wireup
 {
 	using System;
+	using Persistence;
 	using Phases.Journal;
 	using Phases.Snapshot;
 	using Phases.Transformation;
 
 	public class Bootstrapper : IDisposable
 	{
-		public void Start()
+		public void Start(BootstrapInfo info)
 		{
 			if (this.started)
 				return;
 
-			var info = this.persistence.Restore();
 			info = this.snapshots.RestoreSnapshots(info, this.repository);
 			
 			this.journalDisruptor = this.disruptors.CreateJournalDisruptor(info);
 			this.snapshotDisruptor = this.disruptors.CreateSnapshotDisruptor();
+
+			this.messages.Restore(info, this.journalDisruptor, this.repository);
 			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor();
 
 			this.journalDisruptor.Start();
 			this.snapshotDisruptor.Start();
-			this.messages.Restore(info, this.journalDisruptor, this.repository);
 
 			this.transformationDisruptor.Start();
 
 			this.listener = this.messaging.CreateMessageListener(this.transformationDisruptor.RingBuffer);
-			
+			this.listener.Start();
+
 			this.started = true;
 		}
 
