@@ -6,32 +6,34 @@
 	using System.Reflection;
 
 	public class ConventionRoutingTable : IRoutingTable
-    {
-        public IEnumerable<string> Lookup(object message, Dictionary<string, string> headers)
-        {
-            return null;
-        }
-        public IHydratable Create(object message, Dictionary<string, string> headers)
-        {
-            return null;
-        }
-        public IHydratable Create(object memento)
-        {
-            return null;
-        }
+	{
+		public IEnumerable<string> Lookup(object message, Dictionary<string, string> headers)
+		{
+			return null;
+		}
+		public IHydratable Create(object message, Dictionary<string, string> headers)
+		{
+			return null;
+		}
+		public IHydratable Create(object memento)
+		{
+			if (memento == null)
+				return null;
+
+			return this.mementos[memento.GetType()](memento);
+		}
 
 		public ConventionRoutingTable()
 		{
 		}
-        public ConventionRoutingTable(params Assembly[] assemblies) : this(assemblies.SelectMany(x => x.GetTypes()))
-        {
-        }
+		public ConventionRoutingTable(params Assembly[] assemblies) : this(assemblies.SelectMany(x => x.GetTypes()))
+		{
+		}
 		public ConventionRoutingTable(params Type[] types) : this((IEnumerable<Type>)types)
 		{
 		}
 		public ConventionRoutingTable(IEnumerable<Type> types)
 		{
-
 			// TODO: Find methods with the following signatures:
 			// 1. "static Key(T, Dictionary<string, string>):string"
 			// 2. "static Create(T, Dictionary<string, string>):IHydratable"
@@ -41,26 +43,36 @@
 			// then during the lookup/create phases, invoke those various methods
 
 			foreach (var type in types ?? new Type[0])
-				this.RegisterMementoFactory(type);
+				this.RegisterType(type);
 		}
-		private void RegisterMementoFactory(Type type)
+
+		private void RegisterType(Type type)
 		{
 			var methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public);
 			foreach (var method in methods)
-				RegisterMementoFactory(method);
+				this.RegisterType(method);
 		}
-		private void RegisterMementoFactory(MethodInfo method)
+		private void RegisterType(MethodInfo method)
 		{
 			if (method.IsGenericMethod)
 				return;
 
-			if (method.Name != FactoryMethodName)
-				return;
-
+			switch (method.Name)
+			{
+				case FactoryMethodName:
+					this.RegisterFactory(method);
+					break;
+				case KeyMethodName:
+					this.RegisterKey(method);
+					break;
+			}
+		}
+		private void RegisterFactory(MethodInfo method)
+		{
 			if (!typeof(IHydratable).IsAssignableFrom(method.ReturnType))
 				return;
 
-			var parameters = method.GetParameters(); // TODO: fork at this point and register the factory from a memento or message
+			var parameters = method.GetParameters();
 			if (parameters.Length != 1)
 				return;
 
@@ -68,15 +80,28 @@
 			if (mementoType == typeof(object))
 				return;
 
-			this.mementos[mementoType] = MakeFactoryMethod(method, mementoType);
+			var callback = Delegate.CreateDelegate(typeof(MementoDelegate<>).MakeGenericType(mementoType), method);
+			RegisterMementoMethod.MakeGenericMethod(mementoType).Invoke(this, new object[] { callback });
+		}
+		private void RegisterKey(MethodInfo method)
+		{
 		}
 
-		private static Func<object, IHydratable> MakeFactoryMethod(MethodInfo method, Type generic)
+// ReSharper disable UnusedMember.Local
+		private void RegisterMemento<T>(MementoDelegate<T> callback)
 		{
-			return null;
+			this.mementos[typeof(T)] = x => callback((T)x);
 		}
+// ReSharper restore UnusedMember.Local
 
 		private const string FactoryMethodName = "Create";
-		private readonly Dictionary<Type, Func<object, IHydratable>> mementos = new Dictionary<Type, Func<object, IHydratable>>();
-    }
+		private const string KeyMethodName = "Key";
+		private static readonly MethodInfo RegisterMementoMethod = typeof(ConventionRoutingTable).GetMethod("RegisterMemento", BindingFlags.Instance | BindingFlags.NonPublic);
+		private readonly Dictionary<Type, MementoDelegate> mementos = new Dictionary<Type, MementoDelegate>();
+	}
+
+	internal delegate string KeyDelegate(object message, Dictionary<string, string> headers);
+	internal delegate IHydratable MessageDelegate(object message, Dictionary<string, string> headers);
+	internal delegate IHydratable MementoDelegate(object memento);
+	internal delegate IHydratable MementoDelegate<T>(T memento);
 }

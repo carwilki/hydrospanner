@@ -3,6 +3,7 @@
 
 namespace Hydrospanner.Wireup
 {
+	using System;
 	using System.Collections.Generic;
 	using Machine.Specifications;
 
@@ -14,7 +15,6 @@ namespace Hydrospanner.Wireup
 			It should_return_null = () =>
 				new ConventionRoutingTable().Create(null).ShouldBeNull();
 		}
-		[Ignore("Still testing...")]
 		public class when_providing_a_memento
 		{
 			Establish context = () =>
@@ -39,9 +39,18 @@ namespace Hydrospanner.Wireup
 		}
 		private class TestHydratable : IHydratable
 		{
+// ReSharper disable UnusedMember.Local
 			public static TestHydratable Create(TestMemento memento)
 			{
 				return new TestHydratable();
+			}
+			public static TestHydratable Create()
+			{
+				throw new NotSupportedException("never executed because of filtering logic within the routing table method selection process.");
+			}
+			public static TestHydratable Create<T>(TestMemento memento)
+			{
+				throw new NotSupportedException("never executed because of filtering logic within the routing table method selection process.");
 			}
 
 			public string Key { get; private set; }
@@ -49,12 +58,13 @@ namespace Hydrospanner.Wireup
 			public bool IsPublicSnapshot { get; private set; }
 			public IEnumerable<object> GatherMessages()
 			{
-				throw new System.NotImplementedException();
+				throw new NotImplementedException();
 			}
 			public object GetMemento()
 			{
-				throw new System.NotImplementedException();
+				throw new NotImplementedException();
 			}
+// ReSharper restore UnusedMember.Local
 		}
 	}
 }
