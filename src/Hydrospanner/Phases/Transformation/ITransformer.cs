@@ -4,6 +4,6 @@
 
 	public interface ITransformer
 	{
-		IEnumerable<object> Handle(object message, Dictionary<string, string> headers, bool live);
+		IEnumerable<object> Handle(object message, Dictionary<string, string> headers, long sequence);
 	}
 }

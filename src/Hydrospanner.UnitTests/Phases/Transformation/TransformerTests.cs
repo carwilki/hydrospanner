@@ -49,7 +49,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				result = transformer.Handle(Incoming, Headers, IsLiveMessage).ToList();
+				result = transformer.Handle(Incoming, Headers, LiveMessageSequence).ToList();
 
 			It should_transform_the_hydratable_with_the_incoming_message_and_return_the_resulting_messages = () =>
 				result.Single().ShouldBeLike(Incoming);
@@ -64,7 +64,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				result = transformer.Handle(Incoming, Headers, !IsLiveMessage).ToList();
+				result = transformer.Handle(Incoming, Headers, ReplayMessage).ToList();
 
 			It should_NOT_gather_and_return_any_messages = () =>
 				result.ShouldBeEmpty();
@@ -79,12 +79,12 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				transformer.Handle(Incoming, Headers, !IsLiveMessage);
+				transformer.Handle(Incoming, Headers, ReplayMessage);
 
 			It should_take_a_snapshot = () =>
 				snapshotRing.AllItems.Single().ShouldBeLike(new SnapshotItem
 				{
-					CurrentSequence = 43,
+					CurrentSequence = ReplayMessage,
 					IsPublicSnapshot = true,
 					Key = hydratable.Key,
 					Memento = new SomethingHappenedProjection { Value = Incoming.Value },
@@ -102,7 +102,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				transformer.Handle(Incoming, Headers, IsLiveMessage);
+				transformer.Handle(Incoming, Headers, LiveMessageSequence);
 
 			It should_take_a_snapshot = () =>
 				snapshotRing.AllItems.Single().ShouldBeLike(new SnapshotItem
@@ -127,11 +127,11 @@ namespace Hydrospanner.Phases.Transformation
 				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
 				repository.Load(Incoming, Headers).Returns(new[] { hydratable });
 				repository.Load(subsequentIncoming, Headers).Returns(new[] { hydratable });
-				transformer.Handle(Incoming, Headers, IsLiveMessage);
+				transformer.Handle(Incoming, Headers, LiveMessageSequence);
 			};
 
 			Because of = () =>
-				transformer.Handle(subsequentIncoming, Headers, IsLiveMessage);
+				transformer.Handle(subsequentIncoming, Headers, LiveMessageSequence + 1);
 
 			It should_keep_track_of_the_message_sequence_on_the_snapshot = () =>
 				snapshotRing.AllItems.ShouldBeLike(new[]
@@ -163,12 +163,14 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			repository = Substitute.For<IRepository>();
 			snapshotRing = new RingBufferHarness<SnapshotItem>();
-			transformer = new Transformer(repository, snapshotRing, 42);
+			transformer = new Transformer(repository, snapshotRing, JournaledSequence);
 		};
 
+		const long JournaledSequence = 42;
+		const long LiveMessageSequence = JournaledSequence + 1;
+		const long ReplayMessage = JournaledSequence - 1;
 		const bool IsPublicSnapshot = true;
 		const bool BecomesComplete = true;
-		const bool IsLiveMessage = true;
 		const string Key = "Key";
 		static readonly Dictionary<string, string> Headers = null;
 		static readonly SomethingHappenedEvent Incoming = new SomethingHappenedEvent { Value = "Hello, World!" };

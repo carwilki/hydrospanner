@@ -6,44 +6,44 @@
 
 	public sealed class Transformer : ITransformer
 	{
-		public IEnumerable<object> Handle(object message, Dictionary<string, string> headers, bool live)
+		public IEnumerable<object> Handle(object message, Dictionary<string, string> headers, long sequence)
 		{
 			this.gathered.Clear();
 
-			this.Transform(message, headers, live);
-			
-			this.currentSequence++;
+			this.Transform(message, headers, sequence);
 
 			return this.gathered;
 		}
 
-		private void Transform(object message, Dictionary<string, string> headers, bool live)
+		private void Transform(object message, Dictionary<string, string> headers, long sequence)
 		{
+			var live = sequence > this.journaledSequence;
+
 			foreach (var hydratable in this.repository.Load(message, headers))
 			{
 				hydratable.Hydrate(message, headers, live);
 
-				this.GatherState(live, hydratable);
+				this.GatherState(live, sequence, hydratable);
 			}
 		}
 
-		private void GatherState(bool live, IHydratable hydratable)
+		private void GatherState(bool live, long messageSequence, IHydratable hydratable)
 		{
 			if (live)
 				this.gathered.AddRange(hydratable.GatherMessages());
 				
 			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
-				this.TakeSnapshot(hydratable);
+				this.TakeSnapshot(hydratable, messageSequence);
 
 			if (hydratable.IsComplete)
 				this.repository.Delete(hydratable);
 		}
 
-		private void TakeSnapshot(IHydratable hydratable)
+		private void TakeSnapshot(IHydratable hydratable, long messageSequence)
 		{
 			var next = this.snapshotRing.Next();
 			var claimed = this.snapshotRing[next];
-			claimed.AsPublicSnapshot(hydratable.Key, hydratable.GetMemento(), this.currentSequence);
+			claimed.AsPublicSnapshot(hydratable.Key, hydratable.GetMemento(), messageSequence);
 			this.snapshotRing.Publish(next);
 		}
 
@@ -60,12 +60,12 @@
 
 			this.repository = repository;
 			this.snapshotRing = snapshotRing;
-			this.currentSequence = journaledSequence + 1;
+			this.journaledSequence = journaledSequence;
 		}
 
 		private readonly List<object> gathered = new List<object>();
 		private readonly IRingBuffer<SnapshotItem> snapshotRing;
 		private readonly IRepository repository;
-		private long currentSequence;
+		private long journaledSequence;
 	}
 }
