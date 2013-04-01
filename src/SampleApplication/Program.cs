@@ -34,7 +34,6 @@
 			var bootstrapper = new Bootstrapper(
 				repository, 
 				disruptorFactory, 
-				persistenceBootstrapper, 
 				snapshotBootstrapper, 
 				messageBootstrapper, 
 				messagingFactory);

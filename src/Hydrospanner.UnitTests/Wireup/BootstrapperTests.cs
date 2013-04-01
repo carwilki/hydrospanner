@@ -20,28 +20,25 @@ namespace Hydrospanner.Wireup
 		public class with_null_values
 		{
 			It should_throw_if_the_repository_is_null = () =>
-				Try(() => new Bootstrapper(null, disruptors, persistence, snapshots, messages, messaging)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new Bootstrapper(null, disruptors, snapshots, messages, messaging)).ShouldBeOfType<ArgumentNullException>();
 
 			It should_throw_if_the_disruptors_are_null = () =>
-				Try(() => new Bootstrapper(repository, null, persistence, snapshots, messages, messaging)).ShouldBeOfType<ArgumentNullException>();
-
-			It should_throw_if_the_persistence_is_null = () =>
-				Try(() => new Bootstrapper(repository, disruptors, null, snapshots, messages, messaging)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new Bootstrapper(repository, null, snapshots, messages, messaging)).ShouldBeOfType<ArgumentNullException>();
 
 			It should_throw_if_the_snapshots_are_null = () =>
-				Try(() => new Bootstrapper(repository, disruptors, persistence, null, messages, messaging)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new Bootstrapper(repository, disruptors, null, messages, messaging)).ShouldBeOfType<ArgumentNullException>();
 
 			It should_throw_if_the_messages_are_null = () =>
-				Try(() => new Bootstrapper(repository, disruptors, persistence, snapshots, null, messaging)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new Bootstrapper(repository, disruptors, snapshots, null, messaging)).ShouldBeOfType<ArgumentNullException>();
 			
 			It should_throw_if_the_messaging_is_null = () =>
-				Try(() => new Bootstrapper(repository, disruptors, persistence, snapshots, messages, null)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new Bootstrapper(repository, disruptors, snapshots, messages, null)).ShouldBeOfType<ArgumentNullException>();
 		}
 
 		public class with_valid_values
 		{
 			It should_NOT_throw = () =>
-				Try(() => new Bootstrapper(repository, disruptors, persistence, snapshots, messages, messaging)).ShouldBeNull();
+				Try(() => new Bootstrapper(repository, disruptors, snapshots, messages, messaging)).ShouldBeNull();
 		}
 
 		static Exception Try(Action action)
@@ -53,7 +50,6 @@ namespace Hydrospanner.Wireup
 		{
 			repository = Substitute.For<IRepository>();
 			disruptors = Substitute.For<DisruptorFactory>();
-			persistence = Substitute.For<PersistenceBootstrapper>();
 			snapshots = Substitute.For<SnapshotBootstrapper>();
 			messages = Substitute.For<MessageBootstrapper>();
 			messaging = Substitute.For<MessagingFactory>();
@@ -61,7 +57,6 @@ namespace Hydrospanner.Wireup
 
 		static IRepository repository;
 		static DisruptorFactory disruptors;
-		static PersistenceBootstrapper persistence;
 		static SnapshotBootstrapper snapshots;
 		static MessageBootstrapper messages;
 		static MessagingFactory messaging;
@@ -149,7 +144,6 @@ namespace Hydrospanner.Wireup
 			info2 = new BootstrapInfo(43, 25, new[] { "blah" }, new Collection<Guid>());
 			repository = Substitute.For<IRepository>();
 			disruptors = Substitute.For<DisruptorFactory>();
-			persistence = Substitute.For<PersistenceBootstrapper>();
 			snapshots = Substitute.For<SnapshotBootstrapper>();
 			messages = Substitute.For<MessageBootstrapper>();
 			messaging = Substitute.For<MessagingFactory>();
@@ -160,7 +154,7 @@ namespace Hydrospanner.Wireup
 			transformationRingBuffer = Substitute.For<IRingBuffer<TransformationItem>>();
 			listener = Substitute.For<MessageListener>();
 
-			bootstrapper = new Bootstrapper(repository, disruptors, persistence, snapshots, messages, messaging);
+			bootstrapper = new Bootstrapper(repository, disruptors, snapshots, messages, messaging);
 			naps = new List<TimeSpan>();
 		}
 
@@ -208,7 +202,6 @@ namespace Hydrospanner.Wireup
 		static Bootstrapper bootstrapper;
 		static IRepository repository;
 		static DisruptorFactory disruptors;
-		static PersistenceBootstrapper persistence;
 		static SnapshotBootstrapper snapshots;
 		static MessageBootstrapper messages;
 		static MessagingFactory messaging;

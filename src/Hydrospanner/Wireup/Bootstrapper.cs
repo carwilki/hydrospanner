@@ -35,21 +35,18 @@
 		public Bootstrapper(
 			IRepository repository,
 			DisruptorFactory disruptors,
-			PersistenceBootstrapper persistence,
 			SnapshotBootstrapper snapshots,
 			MessageBootstrapper messages,
 			MessagingFactory messaging)
 		{
 			if (repository == null) throw new ArgumentNullException("repository");
 			if (disruptors == null) throw new ArgumentNullException("disruptors");
-			if (persistence == null) throw new ArgumentNullException("persistence");
 			if (snapshots == null) throw new ArgumentNullException("snapshots");
 			if (messages == null) throw new ArgumentNullException("messages");
 			if (messaging == null) throw new ArgumentNullException("messaging");
 
 			this.repository = repository;
 			this.disruptors = disruptors;
-			this.persistence = persistence;
 			this.snapshots = snapshots;
 			this.messages = messages;
 			this.messaging = messaging;
@@ -77,7 +74,6 @@
 		
 		private readonly IRepository repository;
 		private readonly DisruptorFactory disruptors;
-		private readonly PersistenceBootstrapper persistence;
 		private readonly SnapshotBootstrapper snapshots;
 		private readonly MessageBootstrapper messages;
 		private readonly MessagingFactory messaging;
