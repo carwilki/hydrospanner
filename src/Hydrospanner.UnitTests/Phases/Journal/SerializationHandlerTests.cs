@@ -8,8 +8,8 @@ namespace Hydrospanner.Phases.Journal
 	using System.Linq;
 	using System.Text;
 	using Machine.Specifications;
-	using Serialization;
 	using NSubstitute;
+	using Serialization;
 
 	[Subject(typeof(SerializationHandler))]
 	public class when_serializing_journal_items
@@ -39,7 +39,7 @@ namespace Hydrospanner.Phases.Journal
 			Establish context = () =>
 			{
 				serializer = Substitute.For<ISerializer>();
-				serializer.Serialize(Value).Returns (SerializedValue);
+				serializer.Serialize(Value).Returns(SerializedValue);
 				
 				handler = new SerializationHandler(serializer);
 				item.AsTransformationResultMessage(0, Value, null);
@@ -72,10 +72,10 @@ namespace Hydrospanner.Phases.Journal
 			{
 				serializer = Substitute.For<ISerializer>();
 				var headers = new Dictionary<string, string> { { "Value", "42" } };
-				serializer.Serialize (headers).Returns (SerializedValue);
+				serializer.Serialize(headers).Returns(SerializedValue);
 
 				handler = new SerializationHandler(serializer);
-				item.AsTransformationResultMessage(0, new object (), headers);
+				item.AsTransformationResultMessage(0, new object(), headers);
 			};
 
 			It should_serialize_the_headers = () =>

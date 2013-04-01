@@ -30,7 +30,7 @@
 						var json = JsonConvert.SerializeObject(message, Formatting.Indented, Settings);
 						var payload = DefaultEncoding.GetBytes(json);
 
-						properties.MessageId = (i).ToString(CultureInfo.InvariantCulture);
+						properties.MessageId = i.ToString(CultureInfo.InvariantCulture);
 						properties.Type = message.GetType().AssemblyQualifiedName;
 
 						channel.BasicPublish(string.Empty, QueueName, properties, payload);
