@@ -1,4 +1,4 @@
-﻿#pragma warning disable 169
+﻿#pragma warning disable 169, 414
 // ReSharper disable InconsistentNaming
 
 namespace Hydrospanner.IntegrationTests
@@ -101,4 +101,4 @@ namespace Hydrospanner.IntegrationTests
 }
 
 // ReSharper restore InconsistentNaming
-#pragma warning restore 169
+#pragma warning restore 169, 414

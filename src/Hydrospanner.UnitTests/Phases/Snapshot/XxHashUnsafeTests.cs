@@ -1,4 +1,4 @@
-﻿#pragma warning disable 169
+﻿#pragma warning disable 169, 414
 // ReSharper disable InconsistentNaming
 
 // Adapted Verification and Sanity checks from SMHasher: http://code.google.com/p/smhasher/
@@ -155,4 +155,4 @@ namespace Hydrospanner.Phases.Snapshot
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // ReSharper restore InconsistentNaming
-#pragma warning restore 169
+#pragma warning restore 169, 414

@@ -1,4 +1,4 @@
-﻿#pragma warning disable 169
+﻿#pragma warning disable 169, 414
 // ReSharper disable InconsistentNaming
 
 namespace Hydrospanner
@@ -80,4 +80,4 @@ namespace Hydrospanner
 }
 
 // ReSharper restore InconsistentNaming
-#pragma warning restore 169
+#pragma warning restore 169, 414

@@ -1,4 +1,4 @@
-﻿#pragma warning disable 169
+﻿#pragma warning disable 169, 414
 // ReSharper disable InconsistentNaming
 
 namespace Hydrospanner.Phases.Journal
@@ -219,4 +219,4 @@ namespace Hydrospanner.Phases.Journal
 }
 
 // ReSharper restore InconsistentNaming
-#pragma warning restore 169
+#pragma warning restore 169, 414
