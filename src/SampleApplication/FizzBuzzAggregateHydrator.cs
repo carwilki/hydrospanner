@@ -89,6 +89,6 @@
 			return Creation;
 		}
 
-		static readonly HydrationInfo Creation = new HydrationInfo(TheKey, () => new FizzBuzzAggregateHydrator());
+		private static readonly HydrationInfo Creation = new HydrationInfo(TheKey, () => new FizzBuzzAggregateHydrator());
 	}
 }

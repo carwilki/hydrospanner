@@ -74,7 +74,7 @@
 			return Creation;
 		}
 
-		static readonly HydrationInfo Creation = new HydrationInfo(TheKey, () => new FizzBuzzProjectionHydrator());
-		readonly FizzBuzzProjection document = new FizzBuzzProjection { Value = string.Empty };
+		private static readonly HydrationInfo Creation = new HydrationInfo(TheKey, () => new FizzBuzzProjectionHydrator());
+		private readonly FizzBuzzProjection document = new FizzBuzzProjection { Value = string.Empty };
 	}
 }

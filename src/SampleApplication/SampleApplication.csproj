@@ -53,7 +53,6 @@
     <Compile Include="FizzBuzzAggregateHydrator.cs" />
     <Compile Include="FizzBuzzProjection.cs" />
     <Compile Include="FizzBuzzProjectionHydrator.cs" />
-    <Compile Include="FizzBuzzRoutingTable.cs" />
     <Compile Include="Messages.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
