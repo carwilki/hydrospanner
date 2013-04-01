@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Threading;
+	using log4net;
 	using Messaging;
 
 	public class MessageListener : IDisposable
@@ -20,13 +21,28 @@
 		private void StartListening()
 		{
 			using (var receiver = this.receiverFactory())
-				while (this.started)
-					this.Publish(receiver.Receive(DefaultTimeout));
+			{
+				try
+				{
+					Log.Debug("Now listening for messages.");
+					while (this.started)
+						this.Publish(receiver.Receive(DefaultTimeout));
+				}
+				catch (Exception)
+				{
+					Log.Debug("Failure listening to messages occurred.");
+				}
+			}
 		}
 		private void Publish(MessageDelivery delivery)
 		{
 			if (!delivery.Populated)
 				return;
+
+			Log.DebugFormat(
+				"New message ({0}) of type '{1}' arrived, publishing to transformation disruptor.",
+				delivery.MessageId, 
+				delivery.MessageType);
 
 			var next = this.ring.Next();
 			var claimed = this.ring[next];
@@ -68,6 +84,7 @@
 			this.disposed = true;
 		}
 
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MessageListener));
 		private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(2);
 		private readonly Func<IMessageReceiver> receiverFactory;
 		private readonly IRingBuffer<TransformationItem> ring;

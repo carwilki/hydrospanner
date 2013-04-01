@@ -4,6 +4,7 @@
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Reflection;
+	using log4net;
 
 	public class ConventionRoutingTable : IRoutingTable
 	{
@@ -48,6 +49,8 @@
 
 		private void RegisterType(Type type)
 		{
+			Log.DebugFormat("Attempting to register type ({0}) with the ConventionRoutingTable.", type);
+
 			var methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public);
 			foreach (var method in methods)
 				this.RegisterType(method);
@@ -83,6 +86,8 @@
 			if (this.mementos.ContainsKey(mementoType))
 				throw new InvalidOperationException("Memento of type '{0}' cannot be registered multiple times.".FormatWith(mementoType));
 
+			Log.DebugFormat("Registering memento ({0}) with the ConventionRoutingTable.", method.Name);
+
 			var callback = Delegate.CreateDelegate(typeof(MementoDelegate<>).MakeGenericType(mementoType), method);
 			RegisterMementoMethod.MakeGenericMethod(mementoType).Invoke(this, new object[] { callback });
 		}
@@ -101,6 +106,8 @@
 
 			if (parameters[1].ParameterType != typeof(Dictionary<string, string>))
 				return;
+
+			Log.DebugFormat("Registering lookup ({0}) with the ConventionRoutingTable.", method.Name);
 
 			var callback = Delegate.CreateDelegate(typeof(LookupDelegate<>).MakeGenericType(messageType), method);
 			RegisterLookupMethod.MakeGenericMethod(messageType).Invoke(this, new object[] { callback });
@@ -125,6 +132,7 @@
 		private const string LookupMethodName = "Lookup";
 		private static readonly MethodInfo RegisterMementoMethod = typeof(ConventionRoutingTable).GetMethod("RegisterGenericMemento", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly MethodInfo RegisterLookupMethod = typeof(ConventionRoutingTable).GetMethod("RegisterGenericLookup", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ConventionRoutingTable));
 		private readonly Dictionary<Type, MementoDelegate> mementos = new Dictionary<Type, MementoDelegate>(128);
 		private readonly Dictionary<Type, List<LookupDelegate>> lookups = new Dictionary<Type, List<LookupDelegate>>(128);
 		private readonly List<HydrationInfo> routes = new List<HydrationInfo>(16);

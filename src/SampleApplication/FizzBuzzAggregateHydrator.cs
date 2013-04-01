@@ -72,6 +72,11 @@
 		{
 			return new FizzBuzzAggregateHydrator(memento);
 		}
+
+		public static HydrationInfo Lookup(CountCommand message, Dictionary<string, string> headers)
+		{
+			return Creation;
+		}
 		public static HydrationInfo Lookup(CountEvent message, Dictionary<string, string> headers)
 		{
 			return Creation;
@@ -88,7 +93,6 @@
 		{
 			return Creation;
 		}
-
 		private static readonly HydrationInfo Creation = new HydrationInfo(TheKey, () => new FizzBuzzAggregateHydrator());
 	}
 }

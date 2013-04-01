@@ -2,6 +2,7 @@
 {
 	using System.Collections.Generic;
 	using Disruptor;
+	using log4net;
 	using Messaging;
 
 	public sealed class DispatchHandler : IEventHandler<JournalItem>
@@ -9,7 +10,10 @@
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{
 			if (data.ItemActions.HasFlag(JournalItemAction.Dispatch))
+			{
+				Log.DebugFormat("Received journal item of type {0} for dispatch.", data.SerializedType);
 				this.buffer.Add(data);
+			}
 
 			if (!endOfBatch)
 				return;
@@ -25,9 +29,17 @@
 			if (this.buffer.Count == 0)
 				return true;
 
+			Log.DebugFormat("Dispatching {0} items.", this.buffer.Count);
 			for (var i = 0; i < this.buffer.Count; i++)
 				if (!this.sender.Send(this.buffer[i]))
+				{
+					Log.DebugFormat(
+						"Failed to dispatch message sequence {0} of type {1}.", 
+						this.buffer[i].MessageSequence, 
+						this.buffer[i].SerializedType);
+
 					return false;
+				}
 			
 			return this.sender.Commit();
 		}
@@ -37,6 +49,7 @@
 			this.sender = sender;
 		}
 
+		private static readonly ILog Log = LogManager.GetLogger(typeof(DispatchHandler));
 		private readonly List<JournalItem> buffer = new List<JournalItem>(1024 * 32);
 		private readonly IMessageSender sender;
 	}

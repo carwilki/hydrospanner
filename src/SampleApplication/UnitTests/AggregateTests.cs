@@ -3,6 +3,7 @@
 
 namespace SampleApplication.UnitTests
 {
+	using Hydrospanner;
 	using Machine.Specifications;
 
 	[Subject(typeof(FizzBuzzAggregate))]
@@ -32,6 +33,7 @@ namespace SampleApplication.UnitTests
 		static FizzBuzzAggregateHydrator aggregate;
 	}
 
+	[Subject(typeof(FizzBuzzAggregate))]
 	public class when_applying_replay_events
 	{
 		Establish context = () =>
@@ -50,6 +52,72 @@ namespace SampleApplication.UnitTests
 			aggregate.GetMemento().ShouldEqual(17);
 
 		static FizzBuzzAggregateHydrator aggregate;
+	}
+
+	[Subject(typeof(FizzBuzzAggregateHydrator))]
+	public class when_doing_lookups
+	{
+		public class using_a_count_event
+		{
+			Because of = () =>
+				result = FizzBuzzAggregateHydrator.Lookup(new CountEvent(), null);
+
+			It should_provide_the_string_key = () =>
+				result.Key.ShouldEqual(FizzBuzzAggregateHydrator.TheKey);
+
+			It should_provide_the_factory_method = () =>
+				result.Create().ShouldBeOfType<FizzBuzzAggregateHydrator>();
+		}
+
+		public class using_a_fizz_event
+		{
+			Because of = () =>
+				result = FizzBuzzAggregateHydrator.Lookup(new FizzEvent(), null);
+
+			It should_provide_the_string_key = () =>
+				result.Key.ShouldEqual(FizzBuzzAggregateHydrator.TheKey);
+
+			It should_provide_the_factory_method = () =>
+				result.Create().ShouldBeOfType<FizzBuzzAggregateHydrator>();
+		}
+
+		public class using_a_buzz_event
+		{
+			Because of = () =>
+				result = FizzBuzzAggregateHydrator.Lookup(new BuzzEvent(), null);
+
+			It should_provide_the_string_key = () =>
+				result.Key.ShouldEqual(FizzBuzzAggregateHydrator.TheKey);
+
+			It should_provide_the_factory_method = () =>
+				result.Create().ShouldBeOfType<FizzBuzzAggregateHydrator>();
+		}
+
+		public class using_a_fizzbuzz_event
+		{
+			Because of = () =>
+				result = FizzBuzzAggregateHydrator.Lookup(new FizzBuzzEvent(), null);
+
+			It should_provide_the_string_key = () =>
+				result.Key.ShouldEqual(FizzBuzzAggregateHydrator.TheKey);
+
+			It should_provide_the_factory_method = () =>
+				result.Create().ShouldBeOfType<FizzBuzzAggregateHydrator>();
+		}
+
+		public class using_a_count_command
+		{
+			Because of = () =>
+				result = FizzBuzzAggregateHydrator.Lookup(new CountCommand(), null);
+
+			It should_provide_the_string_key = () =>
+				result.Key.ShouldEqual(FizzBuzzAggregateHydrator.TheKey);
+
+			It should_provide_the_factory_method = () =>
+				result.Create().ShouldBeOfType<FizzBuzzAggregateHydrator>();
+		}
+
+		static HydrationInfo result;
 	}
 }
 

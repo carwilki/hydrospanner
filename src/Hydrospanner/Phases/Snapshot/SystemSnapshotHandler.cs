@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner.Phases.Snapshot
 {
 	using Disruptor;
+	using log4net;
 
 	internal class SystemSnapshotHandler : IEventHandler<SnapshotItem>
 	{
@@ -12,6 +13,10 @@
 
 		private void Record(SnapshotItem data)
 		{
+			Log.DebugFormat("Recording system snapshot item at message sequence {0}. {1} items remaining in snapshot.", 
+				data.CurrentSequence, 
+				data.MementosRemaining);
+			
 			if (!this.recording)
 				this.StartRecording(data);
 
@@ -39,6 +44,7 @@
 			this.currentGeneration = currentGeneration;
 		}
 
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SystemSnapshotHandler));
 		private readonly ISnapshotRecorder recorder;
 		private readonly int currentGeneration;
 		private bool recording;

@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner.Wireup
 {
 	using System;
+	using log4net;
 	using Persistence;
 	using Phases.Journal;
 	using Phases.Snapshot;
@@ -13,6 +14,8 @@
 			if (this.started)
 				return;
 
+			Log.Debug("Attempting to bootstrap the system.");
+
 			info = this.snapshots.RestoreSnapshots(info, this.repository);
 			
 			this.journalDisruptor = this.disruptors.CreateJournalDisruptor(info);
@@ -21,15 +24,19 @@
 			this.messages.Restore(info, this.journalDisruptor, this.repository);
 			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor();
 
+			Log.Debug("Starting disruptors (journal, snapshot, transformation).");
 			this.journalDisruptor.Start();
 			this.snapshotDisruptor.Start();
-
 			this.transformationDisruptor.Start();
 
 			this.listener = this.messaging.CreateMessageListener(this.transformationDisruptor.RingBuffer);
+			
+			Log.Debug("Attempting to start message listener.");
 			this.listener.Start();
 
 			this.started = true;
+
+			Log.Debug("Bootstrap process complete.");
 		}
 
 		public Bootstrapper(
@@ -71,7 +78,8 @@
 			
 			this.started = false;
 		}
-		
+
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Bootstrapper));
 		private readonly IRepository repository;
 		private readonly DisruptorFactory disruptors;
 		private readonly SnapshotBootstrapper snapshots;

@@ -2,6 +2,7 @@
 {
 	using System;
 	using Disruptor;
+	using log4net;
 	using Persistence;
 
 	public sealed class DispatchCheckpointHandler : IEventHandler<JournalItem>
@@ -15,7 +16,10 @@
 				return;
 
 			if (this.current > this.previous)
+			{
+				Log.DebugFormat("Setting journal checkpoint to {0}", this.current);
 				this.store.Save(this.current);
+			}
 
 			this.previous = this.current;
 		}
@@ -25,6 +29,7 @@
 			this.store = store;
 		}
 
+		private static readonly ILog Log = LogManager.GetLogger(typeof(DispatchCheckpointHandler));
 		private readonly IDispatchCheckpointStore store;
 		private long previous;
 		private long current;

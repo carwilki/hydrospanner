@@ -3,7 +3,6 @@
 	using System;
 	using System.Configuration;
 	using System.Reflection;
-	using System.Threading;
 	using Hydrospanner;
 	using Hydrospanner.Wireup;
 
@@ -41,7 +40,9 @@
 			using (bootstrapper)
 			{
 				bootstrapper.Start(info);
-				Thread.Sleep(1000);
+				Console.WriteLine("<ENTER> to quit...");
+				Console.ReadLine();
+				Console.WriteLine("Shutting down.");
 			}
 		}
 	}

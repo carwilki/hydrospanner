@@ -2,11 +2,14 @@
 {
 	using System;
 	using Disruptor;
+	using log4net;
 
 	public class MementoHandler : IEventHandler<BootstrapItem>
 	{
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{
+			Log.DebugFormat("Restoring memento of type {0}.", data.SerializedType);
+
 			this.repository.Restore(data.Memento);
 		}
 
@@ -18,6 +21,7 @@
 			this.repository = repository;
 		}
 
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MementoHandler));
 		private readonly IRepository repository;
 	}
 }

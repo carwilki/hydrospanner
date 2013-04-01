@@ -6,7 +6,6 @@ namespace Hydrospanner.Wireup
 	using System;
 	using System.Collections.Generic;
 	using System.Linq;
-	using System.Threading;
 	using Machine.Specifications;
 	using NSubstitute;
 	using Persistence;
