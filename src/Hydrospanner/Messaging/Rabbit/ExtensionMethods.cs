@@ -47,6 +47,10 @@
 
 		public static string NormalizeType(this string value)
 		{
+			var end = value.IndexOf(',');
+			if (end >= 0)
+				value = value.Substring(0, end);
+
 			return value.Trim().ToLowerInvariant().Replace(".", "-");
 		}
 

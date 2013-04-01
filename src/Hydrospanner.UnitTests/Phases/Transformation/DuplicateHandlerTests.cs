@@ -71,7 +71,7 @@ namespace Hydrospanner.Phases.Transformation
 				};
 
 				static bool result;
-				static readonly string TypeName = typeof(int).AssemblyQualifiedName;
+				static readonly string TypeName = typeof(int).FullName;
 				static readonly Guid ForeignId = Guid.NewGuid();
 				static readonly byte[] Body = Encoding.UTF8.GetBytes("1");
 				static JournalItem expected;

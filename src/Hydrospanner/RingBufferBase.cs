@@ -4,36 +4,37 @@
 
 	public interface IRingBuffer<T> where T : class
 	{
-		long Next();
 		T this[long sequence] { get; }
+
+		long Next();
 		void Publish(long sequence);
 
-		BatchDescriptor NewBatchDescriptor(int size);
+		BatchDescriptor Next(int size);
 		void Publish(BatchDescriptor batch);
 	}
 
 	public sealed class RingBufferBase<T> : IRingBuffer<T> where T : class
 	{
-		public long Next()
-		{
-			return this.inner.Next();
-		}
-
 		public T this[long sequence]
 		{
 			get { return this.inner[sequence]; }
 		}
 
+		public long Next()
+		{
+			return this.inner.Next();
+		}
 		public void Publish(long sequence)
 		{
 			this.inner.Publish(sequence);
 		}
 
-		public BatchDescriptor NewBatchDescriptor(int size)
+		public BatchDescriptor Next(int size)
 		{
-			return this.inner.NewBatchDescriptor(size);
+			var batch = this.inner.NewBatchDescriptor(size);
+			this.inner.Next(batch);
+			return batch;
 		}
-
 		public void Publish(BatchDescriptor batch)
 		{
 			this.inner.Publish(batch);

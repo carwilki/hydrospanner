@@ -25,7 +25,7 @@
 			this.Publish((int)sequence);
 		}
 
-		public BatchDescriptor NewBatchDescriptor(int size)
+		public BatchDescriptor Next(int size)
 		{
 			for (var i = 0; i < size; i++)
 				this.AllItems.Add(new T());

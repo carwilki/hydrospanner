@@ -188,7 +188,7 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				Establish context = () =>
 				{
-					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).FullName, null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
 					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
@@ -219,7 +219,7 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				Establish context = () =>
 				{
-					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).FullName, null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
 					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[] { "hello", "world" });
 					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence).Returns(new object[0]);
@@ -247,7 +247,7 @@ namespace Hydrospanner.Phases.Transformation
 							Body = "hello",
 							MessageSequence = JournaledSequence + 2, 
 							ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-							SerializedType = typeof(string).AssemblyQualifiedName,
+							SerializedType = typeof(string).FullName,
 							Headers = new Dictionary<string, string>()
 						},
 						new JournalItem
@@ -255,7 +255,7 @@ namespace Hydrospanner.Phases.Transformation
 							Body = "world",
 							MessageSequence = JournaledSequence + 3, 
 							ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-							SerializedType = typeof(string).AssemblyQualifiedName,
+							SerializedType = typeof(string).FullName,
 							Headers = new Dictionary<string, string>()
 						}
 					});
@@ -271,7 +271,7 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				Establish context = () =>
 				{
-					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).FullName, null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
 					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[] { "hello" });
 					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1).Returns(new object[] { "world" });
@@ -299,7 +299,7 @@ namespace Hydrospanner.Phases.Transformation
 							Body = "hello",
 							MessageSequence = JournaledSequence + 2, 
 							ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-							SerializedType = typeof(string).AssemblyQualifiedName,
+							SerializedType = typeof(string).FullName,
 							Headers = new Dictionary<string, string>()
 						},
 						new JournalItem
@@ -307,7 +307,7 @@ namespace Hydrospanner.Phases.Transformation
 							Body = "world",
 							MessageSequence = JournaledSequence + 3, 
 							ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-							SerializedType = typeof(string).AssemblyQualifiedName,
+							SerializedType = typeof(string).FullName,
 							Headers = new Dictionary<string, string>()
 						}
 					});
@@ -324,10 +324,10 @@ namespace Hydrospanner.Phases.Transformation
 				Establish context = () =>
 				{
 					var serializer = new JsonSerializer();
-					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), typeof(int).FullName, null, Guid.NewGuid(), null);
 					item.Deserialize(serializer);
 					item2 = new TransformationItem();
-					item2.AsForeignMessage(Encoding.UTF8.GetBytes("2"), typeof(int).AssemblyQualifiedName, null, Guid.NewGuid(), null);
+					item2.AsForeignMessage(Encoding.UTF8.GetBytes("2"), typeof(int).FullName, null, Guid.NewGuid(), null);
 					item2.Deserialize(serializer);
 
 					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[] { "hello" });
@@ -357,7 +357,7 @@ namespace Hydrospanner.Phases.Transformation
 						Body = "hello",
 						MessageSequence = JournaledSequence + 2,
 						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-						SerializedType = typeof(string).AssemblyQualifiedName,
+						SerializedType = typeof(string).FullName,
 						Headers = new Dictionary<string, string>()
 					},
 					new JournalItem
@@ -365,7 +365,7 @@ namespace Hydrospanner.Phases.Transformation
 						Body = "world",
 						MessageSequence = JournaledSequence + 3,
 						ItemActions = JournalItemAction.Dispatch | JournalItemAction.Journal,
-						SerializedType = typeof(string).AssemblyQualifiedName,
+						SerializedType = typeof(string).FullName,
 						Headers = new Dictionary<string, string>()
 					},
 					new JournalItem

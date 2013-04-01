@@ -108,7 +108,8 @@ namespace Hydrospanner.IntegrationTests
 							throw new SpecificationException("reader is null and should not be.");
 						reader.Read().ShouldBeTrue();
 						reader.GetInt16(0).ShouldEqual((short)1);
-						reader.GetString(1).ShouldEqual(typeof(string).AssemblyQualifiedName);
+						string actual = reader.GetString(1);
+						actual.ShouldEqual(typeof(string).FullName);
 						reader.Read().ShouldBeFalse();
 					}
 				}
@@ -173,28 +174,28 @@ namespace Hydrospanner.IntegrationTests
 						Sequence = 1,
 						SerializedBody = serializer.Serialize(42),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).AssemblyQualifiedName
+						SerializedType = typeof(int).FullName
 					},
 					new JournaledMessage
 					{
 						Sequence = 2,
 						SerializedBody = serializer.Serialize(43),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).AssemblyQualifiedName
+						SerializedType = typeof(int).FullName
 					},
 					new JournaledMessage
 					{
 						Sequence = 3,
 						SerializedBody = serializer.Serialize(44),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).AssemblyQualifiedName
+						SerializedType = typeof(int).FullName
 					},
 					new JournaledMessage
 					{
 						Sequence = 4,
 						SerializedBody = serializer.Serialize(45),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).AssemblyQualifiedName
+						SerializedType = typeof(int).FullName
 					}
 				});
 
@@ -219,21 +220,21 @@ namespace Hydrospanner.IntegrationTests
 						Sequence = 2,
 						SerializedBody = serializer.Serialize(43),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).AssemblyQualifiedName
+						SerializedType = typeof(int).FullName
 					},
 					new JournaledMessage
 					{
 						Sequence = 3,
 						SerializedBody = serializer.Serialize(44),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).AssemblyQualifiedName
+						SerializedType = typeof(int).FullName
 					},
 					new JournaledMessage
 					{
 						Sequence = 4,
 						SerializedBody = serializer.Serialize(45),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).AssemblyQualifiedName
+						SerializedType = typeof(int).FullName
 					}
 				});
 		

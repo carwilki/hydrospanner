@@ -24,7 +24,7 @@
 
 				try
 				{
-					for (var i = 1; i < 2; i++)
+					for (var i = 1; i < 100001; i++)
 					{
 						var message = new CountCommand { Value = i, MessageId = Guid.NewGuid() };
 						var json = JsonConvert.SerializeObject(message, Formatting.Indented, Settings);

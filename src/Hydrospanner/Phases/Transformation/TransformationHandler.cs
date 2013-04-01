@@ -53,7 +53,7 @@
 			Log.DebugFormat("Publishing {0} items to the Journal Disruptor.", this.buffer.Count + IncomingMessage);
 
 			var size = this.buffer.Count + IncomingMessage;
-			var batch = this.journalRing.NewBatchDescriptor(size);
+			var batch = this.journalRing.Next(size);
 
 			this.journalRing[batch.Start].AsForeignMessage(
 				this.currentSequnce + 1, data.SerializedBody, data.Body, data.Headers, data.ForeignId, data.Acknowledgment);

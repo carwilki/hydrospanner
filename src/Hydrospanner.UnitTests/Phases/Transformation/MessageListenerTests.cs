@@ -58,7 +58,10 @@ namespace Hydrospanner.Phases.Transformation
 				listener.Start();
 
 			Because of = () =>
+			{
 				listener.Start();
+				Thread.Sleep(50);
+			};
 
 			It should_attempt_to_receive_from_the_underlying_messaging_handler = () =>
 				receiver.Received().Receive(Arg.Any<TimeSpan>());

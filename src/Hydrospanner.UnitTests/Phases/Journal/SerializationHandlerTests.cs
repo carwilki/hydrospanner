@@ -49,7 +49,7 @@ namespace Hydrospanner.Phases.Journal
 				item.SerializedBody.SequenceEqual(SerializedValue).ShouldBeTrue();
 
 			It should_note_the_serialized_type = () =>
-				item.SerializedType.ShouldEqual(Value.GetType().AssemblyQualifiedName);
+				item.SerializedType.ShouldEqual(Value.GetType().FullName);
 
 			static ISerializer serializer;
 		}

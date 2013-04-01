@@ -126,7 +126,7 @@
 			});
 		}
 
-		private IModel OpenChannel(bool setBufferSize)
+		private IModel OpenChannel(bool receive)
 		{
 			var currentChannel = this.channel;
 			if (currentChannel != null)
@@ -138,8 +138,10 @@
 
 			try
 			{
-				if (setBufferSize)
+				if (receive)
 					currentChannel.BasicQos(0, ushort.MaxValue, false);
+				else
+					currentChannel.TxSelect(); // TODO: under test
 			}
 			catch
 			{

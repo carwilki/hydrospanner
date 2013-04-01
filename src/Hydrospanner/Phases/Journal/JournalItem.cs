@@ -28,7 +28,7 @@
 			this.Headers = headers;
 			this.ForeignId = foreignId;
 			this.Acknowledgment = acknowledgment;
-			this.SerializedType = body.GetType().AssemblyQualifiedName;
+			this.SerializedType = body.GetType().FullName;
 		}
 
 		public void AsTransformationResultMessage(long sequence, object body, Dictionary<string, string> headers)
@@ -39,7 +39,7 @@
 			this.Body = body;
 			this.Headers = headers;
 			if (body != null)
-				this.SerializedType = body.GetType().AssemblyQualifiedName;
+				this.SerializedType = body.GetType().FullName;
 		}
 
 		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, string typeName, byte[] headers)
@@ -70,7 +70,7 @@
 			{
 				this.SerializedBody = serializer.Serialize(this.Body);
 				if (this.Body != null)
-					this.SerializedType = this.Body.GetType().AssemblyQualifiedName;
+					this.SerializedType = this.Body.GetType().FullName;
 			}
 
 			if (this.ItemActions.HasFlag(JournalItemAction.Dispatch) && this.Headers == null)
