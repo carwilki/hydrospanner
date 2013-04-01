@@ -157,7 +157,7 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.IO.Abstractions">
-      <HintPath>..\packages\System.IO.Abstractions.1.4.0.41\lib\net35\System.IO.Abstractions.dll</HintPath>
+      <HintPath>..\packages\System.IO.Abstractions.1.4.0.48\lib\net35\System.IO.Abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
