@@ -9,6 +9,7 @@ namespace Hydrospanner.Phases.Journal
 	using System.Text;
 	using Machine.Specifications;
 	using Serialization;
+	using NSubstitute;
 
 	[Subject(typeof(SerializationHandler))]
 	public class when_serializing_journal_items
@@ -36,13 +37,21 @@ namespace Hydrospanner.Phases.Journal
 		public class when_the_body_needs_to_be_serialized
 		{
 			Establish context = () =>
+			{
+				serializer = Substitute.For<ISerializer>();
+				serializer.Serialize(Value).Returns (SerializedValue);
+				
+				handler = new SerializationHandler(serializer);
 				item.AsTransformationResultMessage(0, Value, null);
+			};
 
 			It should_serialize_the_body = () =>
 				item.SerializedBody.SequenceEqual(SerializedValue).ShouldBeTrue();
 
 			It should_note_the_serialized_type = () =>
 				item.SerializedType.ShouldEqual(Value.GetType().AssemblyQualifiedName);
+
+			static ISerializer serializer;
 		}
 
 		public class when_the_headers_have_already_been_serialized
@@ -60,10 +69,19 @@ namespace Hydrospanner.Phases.Journal
 		public class when_the_headers_need_to_be_serialized
 		{
 			Establish context = () =>
-				item.AsTransformationResultMessage(0, new object(), new Dictionary<string, string> { { "Value", "42" } });
+			{
+				serializer = Substitute.For<ISerializer>();
+				var headers = new Dictionary<string, string> { { "Value", "42" } };
+				serializer.Serialize (headers).Returns (SerializedValue);
+
+				handler = new SerializationHandler(serializer);
+				item.AsTransformationResultMessage(0, new object (), headers);
+			};
 
 			It should_serialize_the_headers = () =>
 				item.SerializedHeaders.SequenceEqual(SerializedValue).ShouldBeTrue();
+
+			static ISerializer serializer;
 		}
 
 		Establish context = () =>
@@ -76,7 +94,7 @@ namespace Hydrospanner.Phases.Journal
 				handler.OnNext(item, 0, false);
 
 		static readonly Dictionary<string, string> Value = new Dictionary<string, string> { { "Value", "42" } };
-		static readonly byte[] SerializedValue = Encoding.UTF8.GetBytes("{\r\n  \"Value\": \"42\"\r\n}");
+		static readonly byte[] SerializedValue = Encoding.UTF8.GetBytes("{\n  \"Value\": \"42\"\n}");
 		static SerializationHandler handler;
 		static JournalItem item;
 	}
