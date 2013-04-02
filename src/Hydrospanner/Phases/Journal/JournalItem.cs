@@ -28,7 +28,7 @@
 			this.Headers = headers;
 			this.ForeignId = foreignId;
 			this.Acknowledgment = acknowledgment;
-			this.SerializedType = body.GetType().FullName;
+			this.SerializedType = body.GetType().FullName; // TODO: fullname + assembly name?
 		}
 
 		public void AsTransformationResultMessage(long sequence, object body, Dictionary<string, string> headers)

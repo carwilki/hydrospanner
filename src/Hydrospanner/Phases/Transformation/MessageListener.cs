@@ -31,6 +31,7 @@
 				catch (Exception)
 				{
 					Log.Debug("Failure listening to messages occurred.");
+					throw; // TODO: get under test
 				}
 			}
 		}
