@@ -52,11 +52,13 @@
 			return new DisruptorBase<SnapshotItem>(disruptor);
 		}
 
-		public virtual IDisruptor<TransformationItem> CreateStartupTransformationDisruptor(IRepository repository, BootstrapInfo info, Action complete)
+		public virtual IDisruptor<TransformationItem> CreateStartupTransformationDisruptor(
+			IRepository repository, BootstrapInfo info, int snapshotFrequency, Action complete)
 		{
 			this.duplicateHandler = new DuplicateHandler(new DuplicateStore(), this.journalRing);
 			var transformer = new Transformer(repository, this.snapshotRing, info.JournaledSequence);
-			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, 1000, this.snapshotRing, repository);
+			var systemSnapshotTracker = new SystemSnapshotTracker(
+				info.JournaledSequence, snapshotFrequency, this.snapshotRing, repository);
 			this.transformationHandler = new TransformationHandler(
 				info.JournaledSequence, this.journalRing, this.duplicateHandler, transformer, systemSnapshotTracker);
 

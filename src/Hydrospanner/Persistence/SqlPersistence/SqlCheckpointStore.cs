@@ -42,7 +42,7 @@
 			this.connectionString = connectionString;
 		}
 
-		private const string SqlStatement = @"UPDATE checkpoints SET dispatch = {0} WHERE {0} > dispatch;";
+		private const string SqlStatement = @"UPDATE checkpoints SET dispatch = {0} WHERE dispatch < {0};";
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;

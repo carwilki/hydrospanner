@@ -22,6 +22,8 @@ CREATE TABLE checkpoints (
     CONSTRAINT PK_checkpoints PRIMARY KEY CLUSTERED (dispatch)
 );
 
+INSERT INTO checkpoints SELECT 0;
+
 CREATE TABLE IF NOT EXISTS documents (
 	`identifier` VARCHAR(256) NOT NULL,
 	`message_sequence` BIGINT NOT NULL,

@@ -12,7 +12,10 @@
 		{
 			ValidateInput(info, journalRing, repository);
 
-			using (this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(repository, info, () => this.mutex.Set()))
+			this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(
+				repository, info, this.snapshotFrequency, () => this.mutex.Set());
+
+			using (this.transformRing)
 			{
 				this.RestoreFrom(info, journalRing);
 				this.mutex.WaitOne();
@@ -59,7 +62,7 @@
 				this.mutex.Set();
 		}
 
-		public MessageBootstrapper(IMessageStore store, DisruptorFactory disruptors)
+		public MessageBootstrapper(IMessageStore store, DisruptorFactory disruptors, int snapshotFrequency)
 		{
 			if (store == null) 
 				throw new ArgumentNullException("store");
@@ -67,8 +70,12 @@
 			if (disruptors == null) 
 				throw new ArgumentNullException("disruptors");
 
+			if (snapshotFrequency < 1)
+				throw new ArgumentOutOfRangeException("snapshotFrequency");
+
 			this.store = store;
 			this.disruptors = disruptors;
+			this.snapshotFrequency = snapshotFrequency;
 		}
 
 		protected MessageBootstrapper()
@@ -78,6 +85,7 @@
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
 		private readonly IMessageStore store;
 		private readonly DisruptorFactory disruptors;
+		readonly int snapshotFrequency;
 		private IDisruptor<TransformationItem> transformRing;
 	}
 }

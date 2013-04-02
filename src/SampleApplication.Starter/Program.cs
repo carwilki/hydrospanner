@@ -17,37 +17,63 @@
 			var factory = new ConnectionFactory { Endpoint = new AmqpTcpEndpoint(ServerAddress) };
 			using (var connection = factory.CreateConnection())
 			using (var channel = connection.CreateModel())
-			{
-				var properties = channel.CreateBasicProperties();
-				properties.SetPersistent(false);
-				properties.Headers = new Hashtable();
-
-				try
-				{
-					for (var i = 1; i < 100001; i++)
-					{
-						var message = new CountCommand { Value = i, MessageId = Guid.NewGuid() };
-						var json = JsonConvert.SerializeObject(message, Formatting.Indented, Settings);
-						var payload = DefaultEncoding.GetBytes(json);
-
-						properties.MessageId = i.ToString(CultureInfo.InvariantCulture);
-						properties.Type = message.GetType().AssemblyQualifiedName;
-
-						channel.BasicPublish(string.Empty, QueueName, properties, payload);
-					}
-				}
-				catch (Exception e)
-				{
-					Console.WriteLine(e.Message);
-				}
-			}
+				SendMessages(channel);
 
 			Console.WriteLine("Done");
 		}
 
+		static void SendMessages(IModel channel)
+		{
+			try
+			{
+				SendTheMessages(channel);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+		}
+
+		static void SendTheMessages(IModel channel)
+		{
+			var properties = channel.CreateBasicProperties();
+			properties.SetPersistent(false);
+			properties.Headers = new Hashtable();
+			
+			var count = DetermineBoundsOfMessageGeneration();
+
+			for (var i = count.Item1; i < count.Item2 + 1; i++)
+			{
+				var message = new CountCommand { Value = i, MessageId = Guid.NewGuid() };
+				var json = JsonConvert.SerializeObject(message, Formatting.Indented, Settings);
+				var payload = DefaultEncoding.GetBytes(json);
+
+				properties.MessageId = i.ToString(CultureInfo.InvariantCulture);
+				properties.Type = message.GetType().AssemblyQualifiedName;
+
+				channel.BasicPublish(string.Empty, QueueName, properties, payload);
+			}
+		}
+
+		static Tuple<int, int> DetermineBoundsOfMessageGeneration()
+		{
+			Console.Write("Enter starting number: (1) ");
+			var start = Console.ReadLine();
+			if (string.IsNullOrWhiteSpace(start) || int.Parse(start) < 1)
+				start = "1";
+
+			Console.Write("Enter ending number: (100) ");
+			var end = Console.ReadLine();
+			if (string.IsNullOrWhiteSpace(end) || int.Parse(end) < 1)
+				end = "100";
+
+			Console.WriteLine("\n\nSending messages numbered {0} through {1}...", start, end);
+
+			return Tuple.Create(int.Parse(start), int.Parse(end));
+		}
+
 		private static readonly Uri ServerAddress = new Uri(ConfigurationManager.AppSettings["rabbit-server"]);
 		private static readonly string QueueName = ConfigurationManager.AppSettings["queue-name"];
-
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
 		private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
 		{

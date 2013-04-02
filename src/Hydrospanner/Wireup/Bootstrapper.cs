@@ -17,16 +17,16 @@
 			Log.Debug("Attempting to bootstrap the system.");
 
 			info = this.snapshots.RestoreSnapshots(info, this.repository);
-			
-			this.journalDisruptor = this.disruptors.CreateJournalDisruptor(info);
+
 			this.snapshotDisruptor = this.disruptors.CreateSnapshotDisruptor();
+			this.snapshotDisruptor.Start();
+
+			this.journalDisruptor = this.disruptors.CreateJournalDisruptor(info);
+			this.journalDisruptor.Start();
 
 			this.messages.Restore(info, this.journalDisruptor, this.repository);
+			
 			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor();
-
-			Log.Debug("Starting disruptors (journal, snapshot, transformation).");
-			this.journalDisruptor.Start();
-			this.snapshotDisruptor.Start();
 			this.transformationDisruptor.Start();
 
 			this.listener = this.messaging.CreateMessageListener(this.transformationDisruptor.RingBuffer);

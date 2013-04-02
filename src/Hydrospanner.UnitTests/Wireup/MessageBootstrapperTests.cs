@@ -15,7 +15,7 @@ namespace Hydrospanner.Wireup
 	[Subject(typeof(MessageBootstrapper))]
 	public class when_initializing_the_message_bootstrapper
 	{
-		public class and_constructor_parameters_are_null
+		public class and_constructor_parameters_are_invalid
 		{
 			Establish context = () =>
 			{
@@ -24,20 +24,27 @@ namespace Hydrospanner.Wireup
 			};
 
 			It should_throw_if_the_message_store_is_null = () =>
-				Catch.Exception(() => new MessageBootstrapper(null, disruptorFactory)).ShouldBeOfType<ArgumentNullException>();
+				Catch.Exception(() => new MessageBootstrapper(null, disruptorFactory, 100)).ShouldBeOfType<ArgumentNullException>();
 
 			It should_throw_if_the_disruptor_factory_is_null = () =>
-				Catch.Exception(() => new MessageBootstrapper(store, null)).ShouldBeOfType<ArgumentNullException>();
+				Catch.Exception(() => new MessageBootstrapper(store, null, 100)).ShouldBeOfType<ArgumentNullException>();
+
+			It should_throw_if_the_snapshot_frequency_is_out_of_range = () =>
+			{
+				Catch.Exception(() => new MessageBootstrapper(store, disruptorFactory, 0)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Catch.Exception(() => new MessageBootstrapper(store, disruptorFactory, -1)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Catch.Exception(() => new MessageBootstrapper(store, disruptorFactory, int.MinValue)).ShouldBeOfType<ArgumentOutOfRangeException>();
+			};
 
 			static IMessageStore store;
 			static DisruptorFactory disruptorFactory;
 		}
 
-		public class and_constructor_parameters_are_NOT_null
+		public class and_constructor_parameters_are_valid
 		{
 			It should_NOT_throw = () =>
 				Catch.Exception(() => new MessageBootstrapper(
-					Substitute.For<IMessageStore>(), Substitute.For<DisruptorFactory>())).ShouldBeNull();
+					Substitute.For<IMessageStore>(), Substitute.For<DisruptorFactory>(), 100)).ShouldBeNull();
 		}
 	}
 
@@ -108,7 +115,7 @@ namespace Hydrospanner.Wireup
 					bootstrapper.Restore(info, journal, repository);
 
 				It should_create_a_transformation_disruptor = () =>
-					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action>());
+					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, SnapshotFrequency, Arg.Any<Action>());
 
 				It should_publish_the_messages_to_the_newly_created_disruptor = () =>
 					transformation.Ring.AllItems.Single().ShouldBeLike(new TransformationItem { MessageSequence = 42 });
@@ -136,13 +143,13 @@ namespace Hydrospanner.Wireup
 
 				It should_send_each_message_that_should_be_dispatched_to_the_journal_ring_to_be_dispatched = () =>
 					journal.Ring.AllItems.ShouldBeLike(new[] 
-					{ 
+					{
 						new JournalItem { MessageSequence = 41, ItemActions = JournalItemAction.Dispatch },
 						new JournalItem { MessageSequence = 42, ItemActions = JournalItemAction.Dispatch }
 					});
 
 				It should_create_a_transformation_disruptor = () =>
-					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action>());
+					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, SnapshotFrequency, Arg.Any<Action>());
 
 				It should_shutdown_the_transformation_disruptor_after_everything_is_processed = () =>
 					transformation.Disposed.ShouldBeTrue();
@@ -164,11 +171,12 @@ namespace Hydrospanner.Wireup
 			info = new BootstrapInfo();
 			store = Substitute.For<IMessageStore>();
 			factory = Substitute.For<DisruptorFactory>();
-			bootstrapper = new MessageBootstrapper(store, factory);
+			bootstrapper = new MessageBootstrapper(store, factory, SnapshotFrequency);
 
 			repository = Substitute.For<IRepository>();
 			transformation = new DisruptorHarness<TransformationItem>(CompleteCallback);
-			factory.CreateStartupTransformationDisruptor(repository, info, Arg.Do<Action>(x => completeCallback = x)).Returns(transformation);
+			factory.CreateStartupTransformationDisruptor(repository, info, SnapshotFrequency, Arg.Do<Action>(x => completeCallback = x))
+				.Returns(transformation);
 			journal = new DisruptorHarness<JournalItem>();
 		};
 
@@ -189,6 +197,7 @@ namespace Hydrospanner.Wireup
 				completeCallback();
 		}
 
+		const int SnapshotFrequency = 100;
 		static int count;
 		static int itemCount;
 		static Action completeCallback;

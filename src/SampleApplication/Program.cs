@@ -16,6 +16,7 @@
 		static readonly string SnapshotPath = ConfigurationManager.AppSettings["SnapshotPath"];
 		static readonly int SnapshotGeneration = int.Parse(ConfigurationManager.AppSettings[SnapshotGeneration]);
 		static readonly int DuplicateWindow = int.Parse(ConfigurationManager.AppSettings["DuplicateWindow"]);
+		static readonly int SnapshotFrequency = int.Parse(ConfigurationManager.AppSettings["SnapshotFrequency"]);
 
 		private static void Main()
 		{
@@ -28,7 +29,7 @@
 			var snapshotFactory = new SnapshotFactory(SnapshotGeneration, SnapshotPath, PublicSnapshotConnectionName);
 			var disruptorFactory = new DisruptorFactory(messagingFactory, persistenceFactory, snapshotFactory);
 			var snapshotBootstrapper = new SnapshotBootstrapper(snapshotFactory, disruptorFactory);
-			var messageBootstrapper = new MessageBootstrapper(messageStore, disruptorFactory);
+			var messageBootstrapper = new MessageBootstrapper(messageStore, disruptorFactory, SnapshotFrequency);
 			
 			var bootstrapper = new Bootstrapper(
 				repository, 
