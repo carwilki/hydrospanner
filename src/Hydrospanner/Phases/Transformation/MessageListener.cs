@@ -21,19 +21,8 @@
 		private void StartListening()
 		{
 			using (var receiver = this.receiverFactory())
-			{
-				try
-				{
-					Log.Debug("Now listening for messages.");
-					while (this.started)
-						this.Publish(receiver.Receive(DefaultTimeout));
-				}
-				catch (Exception)
-				{
-					Log.Debug("Failure listening to messages occurred.");
-					throw; // TODO: get under test
-				}
-			}
+				while (this.started)
+					this.Publish(receiver.Receive(DefaultTimeout));
 		}
 		private void Publish(MessageDelivery delivery)
 		{
