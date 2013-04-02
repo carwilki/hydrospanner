@@ -68,7 +68,16 @@ namespace Hydrospanner.Wireup
 			public class when_the_application_is_completely_caught_up_with_dispatching_and_transformations
 			{
 				Establish context = () =>
+				{
 					store.Load(Arg.Any<long>()).Returns(new JournaledMessage[0]);
+					factory
+						.CreateStartupTransformationDisruptor(
+							repository, 
+							Arg.Is<BootstrapInfo>(x => x.JournaledSequence - x.SnapshotSequence == 0), 
+							SnapshotFrequency, 
+							Arg.Do<Action>(x => completeCallback = x))
+						.Returns(default(DisruptorHarness<TransformationItem>));
+				};
 
 				Because of = () =>
 					bootstrapper.Restore(info, journal, repository);
@@ -78,6 +87,9 @@ namespace Hydrospanner.Wireup
 
 				It should_NOT_publish_any_items_to_the_transformation_ring = () =>
 					transformation.Ring.AllItems.ShouldBeEmpty();
+
+				It should_NOT_attempt_to_start_the_transformation_ring = () =>
+					transformation.Started.ShouldBeFalse();
 			}
 
 			public class when_there_are_messages_that_need_to_be_dispatched
@@ -116,6 +128,9 @@ namespace Hydrospanner.Wireup
 
 				It should_create_a_transformation_disruptor = () =>
 					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, SnapshotFrequency, Arg.Any<Action>());
+
+				It should_start_the_transformation_disruptor = () =>
+					transformation.Started.ShouldBeTrue();
 
 				It should_publish_the_messages_to_the_newly_created_disruptor = () =>
 					transformation.Ring.AllItems.Single().ShouldBeLike(new TransformationItem { MessageSequence = 42 });

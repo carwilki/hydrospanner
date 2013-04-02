@@ -15,7 +15,8 @@
 			this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(
 				repository, info, this.snapshotFrequency, () => this.mutex.Set());
 
-			this.transformRing.Start();
+			if (this.transformRing != null)
+				this.transformRing.Start();
 
 			using (this.transformRing)
 			{
@@ -87,7 +88,7 @@
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
 		private readonly IMessageStore store;
 		private readonly DisruptorFactory disruptors;
-		readonly int snapshotFrequency;
+		private readonly int snapshotFrequency;
 		private IDisruptor<TransformationItem> transformRing;
 	}
 }
