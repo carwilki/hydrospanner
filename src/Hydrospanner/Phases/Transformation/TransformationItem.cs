@@ -31,7 +31,7 @@
 		{
 			this.Clear();
 			this.MessageSequence = sequence;
-			this.SerializedType = body.GetType().AssemblyQualifiedName;
+			this.SerializedType = body.ResolvableTypeName();
 			this.Body = body;
 			this.Headers = headers;
 		}

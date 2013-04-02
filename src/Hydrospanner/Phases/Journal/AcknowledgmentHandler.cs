@@ -8,7 +8,7 @@
 	{
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{
-			Log.DebugFormat("Receiving acknowledgement action for journal item of type {0}", data.SerializedType);
+			Log.DebugFormat("Receiving acknowledgement action for journal item of type {0}, at sequence {1}", data.SerializedType, data.MessageSequence);
 
 			this.ack = data.Acknowledgment ?? this.ack;
 
@@ -18,7 +18,7 @@
 			if (this.ack == null)
 				return;
 
-			Log.Debug("Executing end-of-batch acknowledgement action.");
+			Log.DebugFormat("Executing end-of-batch acknowledgement action (current message sequence: {0}).", data.MessageSequence);
 
 			this.ack();
 			this.ack = null;

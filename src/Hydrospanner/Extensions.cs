@@ -9,6 +9,18 @@
 	using System.Text;
 	using System.Threading;
 
+	internal static class ReflectionExtensions
+	{
+		public static string ResolvableTypeName(this object value)
+		{
+			if (value == null)
+				return null;
+
+			var type = value.GetType();
+			return "{0}, {1}".FormatWith(type.FullName, type.Assembly.GetName().Name);
+		}
+	}
+
 	internal static class StringExtensions
 	{
 		public static string FormatWith(this string template, params object[] args)

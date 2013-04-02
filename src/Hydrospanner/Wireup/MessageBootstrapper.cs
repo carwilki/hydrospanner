@@ -15,6 +15,8 @@
 			this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(
 				repository, info, this.snapshotFrequency, () => this.mutex.Set());
 
+			this.transformRing.Start();
+
 			using (this.transformRing)
 			{
 				this.RestoreFrom(info, journalRing);

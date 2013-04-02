@@ -108,8 +108,7 @@ namespace Hydrospanner.IntegrationTests
 							throw new SpecificationException("reader is null and should not be.");
 						reader.Read().ShouldBeTrue();
 						reader.GetInt16(0).ShouldEqual((short)1);
-						string actual = reader.GetString(1);
-						actual.ShouldEqual(typeof(string).FullName);
+						reader.GetString(1).ShouldEqual(string.Empty.ResolvableTypeName());
 						reader.Read().ShouldBeFalse();
 					}
 				}
@@ -174,28 +173,28 @@ namespace Hydrospanner.IntegrationTests
 						Sequence = 1,
 						SerializedBody = serializer.Serialize(42),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).FullName
+						SerializedType = 0.ResolvableTypeName()
 					},
 					new JournaledMessage
 					{
 						Sequence = 2,
 						SerializedBody = serializer.Serialize(43),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).FullName
+						SerializedType = 0.ResolvableTypeName()
 					},
 					new JournaledMessage
 					{
 						Sequence = 3,
 						SerializedBody = serializer.Serialize(44),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).FullName
+						SerializedType = 0.ResolvableTypeName()
 					},
 					new JournaledMessage
 					{
 						Sequence = 4,
 						SerializedBody = serializer.Serialize(45),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).FullName
+						SerializedType = 0.ResolvableTypeName()
 					}
 				});
 
@@ -220,21 +219,21 @@ namespace Hydrospanner.IntegrationTests
 						Sequence = 2,
 						SerializedBody = serializer.Serialize(43),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).FullName
+						SerializedType = 0.ResolvableTypeName()
 					},
 					new JournaledMessage
 					{
 						Sequence = 3,
 						SerializedBody = serializer.Serialize(44),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).FullName
+						SerializedType = 0.ResolvableTypeName()
 					},
 					new JournaledMessage
 					{
 						Sequence = 4,
 						SerializedBody = serializer.Serialize(45),
 						SerializedHeaders = null,
-						SerializedType = typeof(int).FullName
+						SerializedType = 0.ResolvableTypeName()
 					}
 				});
 		

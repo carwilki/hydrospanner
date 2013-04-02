@@ -25,7 +25,7 @@ namespace Hydrospanner.Phases.Journal
 			item.Headers.ShouldEqual(headers);
 			item.ForeignId.ShouldEqual(ForeignId);
 			item.Body.ShouldEqual(Body);
-			item.SerializedType.ShouldEqual(Body.GetType().FullName);
+			item.SerializedType.ShouldEqual(Body.ResolvableTypeName());
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>
@@ -56,7 +56,7 @@ namespace Hydrospanner.Phases.Journal
 			item.Headers.ShouldEqual(headers);
 			item.ForeignId.ShouldEqual(ForeignId);
 			item.Body.ShouldEqual(Body);
-			item.SerializedType.ShouldEqual(Body.GetType().FullName);
+			item.SerializedType.ShouldEqual(Body.ResolvableTypeName());
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>
@@ -88,7 +88,7 @@ namespace Hydrospanner.Phases.Journal
 			item.MessageSequence.ShouldEqual(42);
 			item.Headers.ShouldEqual(headers);
 			item.Body.ShouldEqual(Body);
-			item.SerializedType.ShouldEqual(Body.GetType().FullName);
+			item.SerializedType.ShouldEqual(Body.ResolvableTypeName());
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>

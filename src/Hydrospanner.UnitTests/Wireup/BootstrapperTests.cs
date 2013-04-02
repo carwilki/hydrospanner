@@ -174,15 +174,15 @@ namespace Hydrospanner.Wireup
 		{
 			snapshots.RestoreSnapshots(info, repository);
 
-			disruptors.CreateJournalDisruptor(info2);
 			disruptors.CreateSnapshotDisruptor();
+			snapshotDisruptor.Start();
+			
+			disruptors.CreateJournalDisruptor(info2);
+			journalDisruptor.Start();
+			
 			messages.Restore(info2, journalDisruptor, repository);
 			
 			disruptors.CreateTransformationDisruptor();
-
-			journalDisruptor.Start();
-			snapshotDisruptor.Start();
-
 			transformationDisruptor.Start();
 
 			messaging.CreateMessageListener(transformationRingBuffer);
