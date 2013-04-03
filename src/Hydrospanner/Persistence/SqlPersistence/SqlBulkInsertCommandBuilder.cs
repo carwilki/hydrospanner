@@ -4,13 +4,12 @@
 	using System.Text;
 	using Phases.Journal;
 
-	public class BulkMessageInsertBuilder
+	public class SqlBulkInsertCommandBuilder
 	{
-		public void NewInsert(IDbTransaction transaction)
+		public void NewInsert()
 		{
 			this.index = 0;
 			this.statement.Clear();
-			this.command = transaction.CreateCommand();
 		}
 
 		public void Include(JournalItem item)
@@ -23,8 +22,8 @@
 		}
 		private void AddSerializedData(JournalItem item)
 		{
-			this.command.AddParameter("@p{0}", this.index, DbType.Binary, item.SerializedBody);
-			this.command.AddParameter("@h{0}", this.index, DbType.Binary, item.SerializedHeaders);
+			this.session.IncludeParameter("@p{0}", this.index, item.SerializedBody, DbType.Binary);
+			this.session.IncludeParameter("@h{0}", this.index, item.SerializedHeaders, DbType.Binary);
 		}
 		private short AddMetadata(JournalItem item)
 		{
@@ -32,7 +31,7 @@
 			if (!this.types.IsRegistered(item.SerializedType))
 			{
 				metadataId = this.types.Register(item.SerializedType);
-				this.command.AddParameter("@t{0}", metadataId, DbType.String, item.SerializedType);
+				this.session.IncludeParameter("@t{0}", metadataId, item.SerializedType, DbType.String);
 				this.statement.AppendFormat(InsertType, metadataId);
 			}
 			else
@@ -45,14 +44,13 @@
 			if (!item.ItemActions.HasFlag(JournalItemAction.Acknowledge))
 				return InsertLocalMessage;
 
-			this.command.AddParameter("@f{0}", this.index, DbType.Binary, item.ForeignId.ToByteArray());
+			this.session.IncludeParameter("@f{0}", this.index, item.ForeignId.ToByteArray(), DbType.Binary);
 			return InsertForeignMessage;
 		}
 
-		public IDbCommand Build()
+		public string Build()
 		{
-			this.command.CommandText = this.statement.ToString();
-			return this.command;
+			return this.statement.ToString();
 		}
 
 		public void Cleanup()
@@ -61,17 +59,18 @@
 			this.types.DropPendingTypes();
 		}
 
-		public BulkMessageInsertBuilder(JournalMessageTypeRegistrar types)
+		public SqlBulkInsertCommandBuilder(JournalMessageTypeRegistrar types, SqlBulkInsertSession session)
 		{
 			this.types = types;
+			this.session = session;
 		}
 
 		private const string InsertType = "INSERT INTO metadata SELECT {0}, @t{0};\n";
 		private const string InsertLocalMessage = "INSERT INTO messages SELECT {0}, {1}, NULL, @p{2}, @h{2};\n";
 		private const string InsertForeignMessage = "INSERT INTO messages SELECT {0}, {1}, @f{2}, @p{2}, @h{2};\n";
-		private readonly JournalMessageTypeRegistrar types;
 		private readonly StringBuilder statement = new StringBuilder();
-		private IDbCommand command;
+		private readonly JournalMessageTypeRegistrar types;
+		private readonly SqlBulkInsertSession session;
 		int index;
 	}
 }

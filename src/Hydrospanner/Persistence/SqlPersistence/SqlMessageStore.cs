@@ -21,19 +21,17 @@
 
 			while (true)
 			{
-				var writer = new SqlMessageStoreWriter(this.factory, this.connectionString, this.builder, this.types);
 				try
 				{
-					writer.TryWrite(items);
-					break;
+					using (var writer = this.writerFactory())
+					{
+						writer.TryWrite(items);
+						break;
+					}
 				}
 				catch
 				{
 					Timeout.Sleep();
-				}
-				finally
-				{
-					writer.Cleanup();
 				}
 			}
 		}
@@ -41,7 +39,7 @@
 		public SqlMessageStore(
 			DbProviderFactory factory,
 			string connectionString, 
-			BulkMessageInsertBuilder builder, 
+			Func<SqlMessageStoreWriter> writerFactory, 
 			JournalMessageTypeRegistrar types)
 		{
 			if (factory == null)
@@ -54,14 +52,14 @@
 
 			this.factory = factory;
 			this.connectionString = connectionString;
-			this.builder = builder;
+			this.writerFactory = writerFactory;
 			this.types = types;
 		}
 
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(3);
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
-		private readonly BulkMessageInsertBuilder builder;
+		private readonly Func<SqlMessageStoreWriter> writerFactory;
 		private readonly JournalMessageTypeRegistrar types;
 	}
 }

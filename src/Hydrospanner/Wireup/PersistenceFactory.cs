@@ -20,8 +20,13 @@
 		public virtual IMessageStore CreateMessageStore(IEnumerable<string> journaledTypes)
 		{
 			var types = new JournalMessageTypeRegistrar(journaledTypes); // TODO: passed in via constructor of this class?
-			var builder = new BulkMessageInsertBuilder(types);
-			return new SqlMessageStore(this.factory, this.connectionString, builder, types);
+			var session = new SqlBulkInsertSession(this.factory, this.connectionString); // TODO: passed in via constructor of this class?
+			var builder = new SqlBulkInsertCommandBuilder(types, session); // TODO: passed in via constructor of this class?
+			return new SqlMessageStore(
+				this.factory, 
+				this.connectionString, 
+				() => new SqlMessageStoreWriter(() => session, builder, types), 
+				types);
 		}
 
 		public PersistenceFactory(string connectionName, int duplicateWindow)

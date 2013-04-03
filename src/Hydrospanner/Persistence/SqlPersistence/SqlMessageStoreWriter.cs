@@ -2,29 +2,30 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Data;
-	using System.Data.Common;
 	using Phases.Journal;
 
-	public class SqlMessageStoreWriter
+	public class SqlMessageStoreWriter : IDisposable
 	{
 		public void TryWrite(IList<JournalItem> items)
 		{
-			using (var connection = this.factory.OpenConnection(this.connectionString))
-			using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
+			using (var session = this.sessionFactory())
 			{
-				this.SaveInSlices(items, transaction);
-				transaction.Commit();
+				session.BeginNewSession();
+				this.SaveInSlices(session, items);
+				session.CommitTransaction();
 				types.MarkPendingAsRegistered();
 			}
 		}
 
-		void SaveInSlices(IList<JournalItem> items, IDbTransaction transaction)
+		void SaveInSlices(SqlBulkInsertSession session, IList<JournalItem> items)
 		{
 			var slices = CountSlices(items);
 			for (var slice = 0; slice < slices; slice++)
-				using (var command = this.BuildCommand(items, slice, transaction))
-					TryExecute(command);
+			{
+				session.PrepareNewCommand();
+				var commandText = this.BuildCommand(items, slice);
+				session.ExecuteCurrentCommand(commandText);
+			}
 		}
 
 		static int CountSlices(ICollection<JournalItem> items)
@@ -33,13 +34,13 @@
 			return items.Count % MaxSliceSize != 0 ? slices + 1 : slices;
 		}
 
-		IDbCommand BuildCommand(IList<JournalItem> items, int sliceIndex, IDbTransaction transaction)
+		string BuildCommand(IList<JournalItem> items, int sliceIndex)
 		{
 			var start = sliceIndex*MaxSliceSize;
 			var finish = Math.Min(items.Count, start + MaxSliceSize);
 			var sliceSize = finish - start;
 
-			this.builder.NewInsert(transaction);
+			this.builder.NewInsert();
 
 			for (var i = 0; i < sliceSize; i++)
 				this.builder.Include(items[start + i]);
@@ -47,41 +48,26 @@
 			return this.builder.Build();
 		}
 
-		static void TryExecute(IDbCommand command)
-		{
-			try
-			{
-				command.ExecuteNonQuery();
-			}
-			catch (Exception)
-			{
-				throw;
-			}
-		}
-
-		public void Cleanup()
-		{
-			this.builder.Cleanup();
-		}
-
 		public SqlMessageStoreWriter(
-			DbProviderFactory factory, 
-			string connectionString, 
-			BulkMessageInsertBuilder builder, 
+			Func<SqlBulkInsertSession> sessionFactory,
+			SqlBulkInsertCommandBuilder builder, 
 			JournalMessageTypeRegistrar types)
 		{
 			// TODO: null checks
 
-			this.factory = factory;
-			this.connectionString = connectionString;
+			this.sessionFactory = sessionFactory;
 			this.builder = builder;
 			this.types = types;
 		}
 
+		public void Dispose()
+		{
+			this.builder.Cleanup();
+		}
+
 		private const int MaxSliceSize = 5000;
-		private readonly DbProviderFactory factory;
-		private readonly string connectionString;
-		private readonly BulkMessageInsertBuilder builder;
+		private readonly SqlBulkInsertCommandBuilder builder;
 		private readonly JournalMessageTypeRegistrar types;
+		private readonly Func<SqlBulkInsertSession> sessionFactory;
 	}
 }
