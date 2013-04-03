@@ -25,7 +25,7 @@
 			return new SqlMessageStore(
 				this.factory, 
 				this.connectionString, 
-				() => new SqlMessageStoreWriter(() => session, builder, types), 
+				() => new SqlMessageStoreWriter(() => session, builder, types, 5000), // TODO: configurable parameter (MaxSliceSize) 
 				types);
 		}
 

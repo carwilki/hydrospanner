@@ -20,20 +20,29 @@
 				return;
 
 			while (true)
+				if (this.TrySave(items)) 
+					break;
+		}
+
+		bool TrySave(IList<JournalItem> items)
+		{
+			try
 			{
-				try
-				{
-					using (var writer = this.writerFactory())
-					{
-						writer.TryWrite(items);
-						break;
-					}
-				}
-				catch
-				{
-					Timeout.Sleep();
-				}
+				this.Save(items);
+				return true;
 			}
+			catch
+			{
+				Timeout.Sleep();
+			}
+
+			return false;
+		}
+
+		void Save(IList<JournalItem> items)
+		{
+			using (var writer = this.writerFactory())
+				writer.Write(items);
 		}
 
 		public SqlMessageStore(

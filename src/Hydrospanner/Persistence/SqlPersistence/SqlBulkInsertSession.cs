@@ -6,7 +6,7 @@
 
 	public class SqlBulkInsertSession : IDisposable
 	{
-		public virtual SqlBulkInsertSession BeginNewSession()
+		public virtual SqlBulkInsertSession BeginTransaction()
 		{
 			this.connection = this.factory.OpenConnection(this.connectionString);
 			this.transaction = this.connection.BeginTransaction(IsolationLevel.ReadCommitted);

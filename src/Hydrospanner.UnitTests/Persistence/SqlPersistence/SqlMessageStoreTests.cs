@@ -74,7 +74,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 			{
 				items = new List<JournalItem> { new JournalItem() };
 				ThreadExtensions.Freeze(n => nap = n);
-				writer.TryWrite(Arg.Do<IList<JournalItem>>(t =>
+				writer.Write(Arg.Do<IList<JournalItem>>(t =>
 				{
 					if (thrown)
 						return;
@@ -91,7 +91,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 				nap.ShouldEqual(TimeSpan.FromSeconds(3));
 
 			It should_retry_until_successful = () =>
-				writer.Received(2).TryWrite(items);
+				writer.Received(2).Write(items);
 
 			It should_cleanup_before_the_retry = () =>
 				writer.Received(2).Dispose();
@@ -110,7 +110,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 				store.Save(items);
 
 			It should_persist_the_items = () =>
-				writer.Received(1).TryWrite(items);
+				writer.Received(1).Write(items);
 
 			It should_cleanup = () =>
 				writer.Received(1).Dispose();

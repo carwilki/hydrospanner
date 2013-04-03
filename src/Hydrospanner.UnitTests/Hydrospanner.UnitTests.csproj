@@ -54,6 +54,7 @@
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlMessageStoreTests.cs" />
+    <Compile Include="Persistence\SqlPersistence\SqlMessageStoreWriterTests.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItemTests.cs" />
     <Compile Include="Phases\Transformation\DuplicateHandlerTests.cs" />
     <Compile Include="Phases\Transformation\SystemSnapshotTrackerTests.cs" />

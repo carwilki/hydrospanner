@@ -5,7 +5,7 @@
 
 	public class SqlBulkInsertCommandBuilder
 	{
-		public void NewInsert()
+		public virtual void NewBatch()
 		{
 			this.index = 0;
 			this.statement.Clear();
@@ -47,12 +47,12 @@
 			return InsertForeignMessage;
 		}
 
-		public string Build()
+		public virtual string Build()
 		{
 			return this.statement.ToString();
 		}
 
-		public void Cleanup()
+		public virtual void Cleanup()
 		{
 			this.statement.Clear();
 			this.types.DropPendingTypes();
@@ -62,6 +62,9 @@
 		{
 			this.types = types;
 			this.session = session;
+		}
+		protected SqlBulkInsertCommandBuilder()
+		{
 		}
 
 		private const string InsertType = "INSERT INTO metadata SELECT {0}, @t{0};\n";
