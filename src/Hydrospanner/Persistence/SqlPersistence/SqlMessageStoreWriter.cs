@@ -6,7 +6,7 @@
 
 	public class SqlMessageStoreWriter : IDisposable
 	{
-		public void TryWrite(IList<JournalItem> items)
+		public virtual void TryWrite(IList<JournalItem> items)
 		{
 			using (var session = this.sessionFactory())
 			{
@@ -30,13 +30,14 @@
 
 		static int CountSlices(ICollection<JournalItem> items)
 		{
-			var slices = items.Count / MaxSliceSize;
-			return items.Count % MaxSliceSize != 0 ? slices + 1 : slices;
+			int remainder;
+			var slices = Math.DivRem(items.Count, MaxSliceSize, out remainder);
+			return slices + Math.Sign(remainder);
 		}
 
 		string BuildCommand(IList<JournalItem> items, int sliceIndex)
 		{
-			var start = sliceIndex*MaxSliceSize;
+			var start = sliceIndex * MaxSliceSize;
 			var finish = Math.Min(items.Count, start + MaxSliceSize);
 			var sliceSize = finish - start;
 
@@ -59,10 +60,18 @@
 			this.builder = builder;
 			this.types = types;
 		}
-
-		public void Dispose()
+		protected SqlMessageStoreWriter()
 		{
-			this.builder.Cleanup();
+		}
+		public virtual void Dispose()
+		{
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+				this.builder.Cleanup();
 		}
 
 		private const int MaxSliceSize = 5000;

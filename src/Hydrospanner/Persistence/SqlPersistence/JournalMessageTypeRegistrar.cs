@@ -45,6 +45,8 @@
 
 		public JournalMessageTypeRegistrar(IEnumerable<string> types)
 		{
+			// TODO: null checks
+
 			foreach (var type in types)
 				this.registeredTypeCommittedIndex = this.Register(type);
 		}

@@ -1,6 +1,5 @@
 ﻿namespace Hydrospanner.Persistence.SqlPersistence
 {
-	using System.Data;
 	using System.Text;
 	using Phases.Journal;
 
@@ -22,8 +21,8 @@
 		}
 		private void AddSerializedData(JournalItem item)
 		{
-			this.session.IncludeParameter("@p{0}", this.index, item.SerializedBody, DbType.Binary);
-			this.session.IncludeParameter("@h{0}", this.index, item.SerializedHeaders, DbType.Binary);
+			this.session.IncludeParameter("@p{0}".FormatWith(this.index), item.SerializedBody);
+			this.session.IncludeParameter("@h{0}".FormatWith(this.index), item.SerializedHeaders);
 		}
 		private short AddMetadata(JournalItem item)
 		{
@@ -31,7 +30,7 @@
 			if (!this.types.IsRegistered(item.SerializedType))
 			{
 				metadataId = this.types.Register(item.SerializedType);
-				this.session.IncludeParameter("@t{0}", metadataId, item.SerializedType, DbType.String);
+				this.session.IncludeParameter("@t{0}".FormatWith(metadataId), item.SerializedType);
 				this.statement.AppendFormat(InsertType, metadataId);
 			}
 			else
@@ -44,7 +43,7 @@
 			if (!item.ItemActions.HasFlag(JournalItemAction.Acknowledge))
 				return InsertLocalMessage;
 
-			this.session.IncludeParameter("@f{0}", this.index, item.ForeignId.ToByteArray(), DbType.Binary);
+			this.session.IncludeParameter("@f{0}".FormatWith(this.index), item.ForeignId.ToByteArray());
 			return InsertForeignMessage;
 		}
 
@@ -71,6 +70,6 @@
 		private readonly StringBuilder statement = new StringBuilder();
 		private readonly JournalMessageTypeRegistrar types;
 		private readonly SqlBulkInsertSession session;
-		int index;
+		private int index;
 	}
 }

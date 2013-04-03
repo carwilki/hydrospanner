@@ -15,12 +15,14 @@
 
 		public virtual void PrepareNewCommand()
 		{
-			this.command = this.transaction.CreateCommand();
+			this.command = this.transaction.Connection.CreateCommand();
+			command.Transaction = this.transaction;
 		}
 
-		public virtual void IncludeParameter(string format, int index, object value, DbType type)
+		public virtual void IncludeParameter(string name, object value)
 		{
-			this.command.AddParameter(format, index, type, value);
+			var type = value is byte[] ? DbType.Binary : DbType.String;
+			this.command.AddParameter(name, value, type);
 		}
 
 		public virtual void ExecuteCurrentCommand(string commandText)
@@ -32,9 +34,7 @@
 		public virtual void CommitTransaction()
 		{
 			this.transaction.Commit();
-			this.command = this.command.TryDispose();
-			this.transaction = this.transaction.TryDispose();
-			this.connection = this.connection.TryDispose();
+			this.Dispose(true);
 		}
 
 		public SqlBulkInsertSession(DbProviderFactory factory, string connectionString)

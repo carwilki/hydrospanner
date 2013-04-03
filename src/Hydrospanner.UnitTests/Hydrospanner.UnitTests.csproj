@@ -53,6 +53,7 @@
     <Compile Include="HydratableGraveyardTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
+    <Compile Include="Persistence\SqlPersistence\SqlMessageStoreTests.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItemTests.cs" />
     <Compile Include="Phases\Transformation\DuplicateHandlerTests.cs" />
     <Compile Include="Phases\Transformation\SystemSnapshotTrackerTests.cs" />
@@ -101,6 +102,7 @@
       <HintPath>..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.IO.Abstractions">
       <HintPath>..\packages\System.IO.Abstractions.1.4.0.48\lib\net35\System.IO.Abstractions.dll</HintPath>
     </Reference>

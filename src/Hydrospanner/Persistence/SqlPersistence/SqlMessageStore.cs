@@ -48,7 +48,11 @@
 			if (string.IsNullOrWhiteSpace(connectionString))
 				throw new ArgumentNullException("connectionString");
 
-			// TODO: more null checks?
+			if (writerFactory == null)
+				throw new ArgumentNullException("writerFactory");
+
+			if (types == null)
+				throw new ArgumentNullException("types");
 
 			this.factory = factory;
 			this.connectionString = connectionString;
