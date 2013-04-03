@@ -62,10 +62,10 @@
 			if (string.IsNullOrWhiteSpace(start) || int.Parse(start) < 1)
 				start = "1";
 
-			Console.Write("Enter ending number: (100) ");
+			Console.Write("Enter ending number: (100000) ");
 			var end = Console.ReadLine();
 			if (string.IsNullOrWhiteSpace(end) || int.Parse(end) < 1)
-				end = "100";
+				end = "100000";
 
 			Console.WriteLine("\n\nSending messages numbered {0} through {1}...", start, end);
 

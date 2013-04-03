@@ -108,7 +108,6 @@
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
 		private long currentSequence;
-
 		private IDbConnection connection;
 		private IDbCommand command;
 		private IDataReader reader;

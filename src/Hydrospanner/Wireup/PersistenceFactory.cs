@@ -19,7 +19,9 @@
 		}
 		public virtual IMessageStore CreateMessageStore(IEnumerable<string> journaledTypes)
 		{
-			return new SqlMessageStore(this.factory, this.connectionString, journaledTypes);
+			var types = new JournalMessageTypeRegistrar(journaledTypes); // TODO: passed in via constructor of this class?
+			var builder = new BulkMessageInsertBuilder(types);
+			return new SqlMessageStore(this.factory, this.connectionString, builder, types);
 		}
 
 		public PersistenceFactory(string connectionName, int duplicateWindow)

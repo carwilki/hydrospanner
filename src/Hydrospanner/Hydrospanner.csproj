@@ -52,6 +52,9 @@
     </Compile>
     <Compile Include="DefaultRepository.cs" />
     <Compile Include="HydratableGraveyard.cs" />
+    <Compile Include="Persistence\SqlPersistence\BulkMessageInsertBuilder.cs" />
+    <Compile Include="Persistence\SqlPersistence\JournalMessageTypeRegistrar.cs" />
+    <Compile Include="Persistence\SqlPersistence\SqlMessageStoreWriter.cs" />
     <Compile Include="Phases\Transformation\ISystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\ITransformer.cs" />
     <Compile Include="Phases\Transformation\SystemSnapshotTracker.cs" />

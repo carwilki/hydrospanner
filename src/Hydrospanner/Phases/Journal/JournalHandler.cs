@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Journal
 {
+	using System;
 	using System.Collections.Generic;
 	using Disruptor;
 	using log4net;
@@ -9,6 +10,9 @@
 	{
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{
+			if (data.MessageSequence % 1000 == 0)
+				Console.WriteLine(data.MessageSequence);
+
 			Log.DebugFormat("Received message sequence {0} of type {1} for journaling.", data.MessageSequence, data.SerializedType);
 			if (data.ItemActions.HasFlag(JournalItemAction.Journal))
 				this.buffer.Add(data);
