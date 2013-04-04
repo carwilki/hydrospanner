@@ -129,13 +129,15 @@ namespace Hydrospanner.IntegrationTests
 
 		Because of = () =>
 		{
-			types = new List<string>();
 			var factory = DbProviderFactories.GetFactory(settings.ProviderName);
-			store = new SqlMessageStore(factory, settings.ConnectionString, types);
+			var types = new JournalMessageTypeRegistrar(new string[0]);
+			var session = new SqlBulkInsertSession(factory, settings.ConnectionString);
+			var builder = new SqlBulkInsertCommandBuilder(types, session);
+			var writer = new SqlMessageStoreWriter(() => session, builder, types, 100);
+			store = new SqlMessageStore(factory, settings.ConnectionString, () => writer, types);
 			store.Save(items);
 		};
 
-		static List<string> types; 
 		static List<JournalItem> items;
 		static SqlMessageStore store;
 	}
@@ -243,7 +245,11 @@ namespace Hydrospanner.IntegrationTests
 		Establish context = () =>
 		{
 			var factory = DbProviderFactories.GetFactory(settings.ProviderName);
-			store = new SqlMessageStore(factory, settings.ConnectionString, new string[0]);
+			var types = new JournalMessageTypeRegistrar(new string[0]);
+			var session = new SqlBulkInsertSession(factory, settings.ConnectionString);
+			var builder = new SqlBulkInsertCommandBuilder(types, session);
+			var writer = new SqlMessageStoreWriter(() => session, builder, types, 100);
+			store = new SqlMessageStore(factory, settings.ConnectionString, () => writer, types);
 			serializer = new JsonSerializer();
 
 			first = new JournalItem();
