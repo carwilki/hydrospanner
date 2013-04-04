@@ -9,9 +9,9 @@
 		{
 			using (new Wireup(new ConventionWireupParameters()).Start())
 			{
-				Console.Write("<ENTER> to quit: ");
+				Console.Write(@"<ENTER> to quit: ");
 				Console.ReadLine();
-				Console.WriteLine("Shutting down...");
+				Console.WriteLine(@"Shutting down...");
 			}
 		}
 	}
