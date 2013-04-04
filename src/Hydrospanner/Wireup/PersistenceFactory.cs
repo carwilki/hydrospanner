@@ -19,17 +19,14 @@
 		}
 		public virtual IMessageStore CreateMessageStore(IEnumerable<string> journaledTypes)
 		{
-			var types = new JournalMessageTypeRegistrar(journaledTypes); // TODO: passed in via constructor of this class?
-			var session = new SqlBulkInsertSession(this.factory, this.connectionString); // TODO: passed in via constructor of this class?
-			var builder = new SqlBulkInsertCommandBuilder(types, session); // TODO: passed in via constructor of this class?
-			return new SqlMessageStore(
-				this.factory, 
-				this.connectionString, 
-				() => new SqlMessageStoreWriter(() => session, builder, types, 5000), // TODO: configurable parameter (MaxSliceSize) 
-				types);
+			var types = new JournalMessageTypeRegistrar(journaledTypes);
+			var session = new SqlBulkInsertSession(this.factory, this.connectionString);
+			var builder = new SqlBulkInsertCommandBuilder(types, session);
+			var writer = new SqlMessageStoreWriter(() => session, builder, types, this.maxJournalBatchSize);
+			return new SqlMessageStore(this.factory, this.connectionString, () => writer, types);
 		}
 
-		public PersistenceFactory(string connectionName, int duplicateWindow)
+		public PersistenceFactory(string connectionName, int duplicateWindow, int maxJournalBatchSize)
 		{
 			if (string.IsNullOrWhiteSpace(connectionName))
 				throw new ArgumentNullException("connectionName");
@@ -44,9 +41,13 @@
 			if (string.IsNullOrWhiteSpace(settings.ProviderName) || string.IsNullOrWhiteSpace(settings.ConnectionString))
 				throw new ConfigurationErrorsException("Connection named '{0}' missing provider info or connection string info.".FormatWith(connectionName));
 
+			if (maxJournalBatchSize < 10)
+				throw new ArgumentOutOfRangeException("maxJournalBatchSize");
+
 			this.factory = DbProviderFactories.GetFactory(settings.ProviderName);
 			this.connectionString = settings.ConnectionString;
 			this.duplicateWindow = duplicateWindow;
+			this.maxJournalBatchSize = maxJournalBatchSize;
 		}
 		protected PersistenceFactory()
 		{
@@ -55,5 +56,6 @@
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
 		private readonly int duplicateWindow;
+		readonly int maxJournalBatchSize;
 	}
 }

@@ -17,12 +17,13 @@
 		static readonly int SnapshotGeneration = int.Parse(ConfigurationManager.AppSettings[SnapshotGeneration]);
 		static readonly int DuplicateWindow = int.Parse(ConfigurationManager.AppSettings["DuplicateWindow"]);
 		static readonly int SnapshotFrequency = int.Parse(ConfigurationManager.AppSettings["SnapshotFrequency"]);
+		static readonly int MaxJournalBatchSize = int.Parse(ConfigurationManager.AppSettings["MaxJournalBatchSize"]);
 
 		private static void Main()
 		{
 			var repository = new DefaultRepository(new ConventionRoutingTable(Assembly.GetExecutingAssembly()));
 			var messagingFactory = new MessagingFactory(NodeId, new Uri(BrokerAddress), SourceQueue);
-			var persistenceFactory = new PersistenceFactory(MessageLogConnectionName, DuplicateWindow);
+			var persistenceFactory = new PersistenceFactory(MessageLogConnectionName, DuplicateWindow, MaxJournalBatchSize);
 			var persistenceBootstrapper = new PersistenceBootstrapper(persistenceFactory);
 			var info = persistenceBootstrapper.Restore();
 			var messageStore = persistenceFactory.CreateMessageStore(info.SerializedTypes);
