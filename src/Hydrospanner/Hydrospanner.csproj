@@ -63,6 +63,7 @@
     <Compile Include="Phases\Transformation\DuplicateHandler.cs" />
     <Compile Include="RingBufferBase.cs" />
     <Compile Include="Wireup\ConventionRoutingTable.cs" />
+    <Compile Include="Wireup\ConventionWireupParameters.cs" />
     <Compile Include="Wireup\DisruptorFactory.cs" />
     <Compile Include="HydrationInfo.cs" />
     <Compile Include="Wireup\IRoutingTable.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Phases\Snapshot\SnapshotItem.cs" />
     <Compile Include="Phases\Transformation\TransformationItem.cs" />
     <Compile Include="SystemTime.cs" />
+    <Compile Include="Wireup\Wireup.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\CustomDictionary.xml">
