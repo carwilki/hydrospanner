@@ -13,13 +13,13 @@
 				session.BeginTransaction();
 				this.SaveInSlices(session, items);
 				session.CommitTransaction();
-				types.MarkPendingAsRegistered();
+				this.types.MarkPendingAsRegistered();
 			}
 		}
 
 		private void SaveInSlices(SqlBulkInsertSession session, IList<JournalItem> items)
 		{
-			var slices = CountSlices(items);
+			var slices = this.CountSlices(items);
 			for (var slice = 0; slice < slices; slice++)
 			{
 				session.PrepareNewCommand();

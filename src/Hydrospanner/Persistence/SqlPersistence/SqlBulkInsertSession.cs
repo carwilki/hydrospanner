@@ -16,7 +16,7 @@
 		public virtual void PrepareNewCommand()
 		{
 			this.command = this.transaction.Connection.CreateCommand();
-			command.Transaction = this.transaction;
+			this.command.Transaction = this.transaction;
 		}
 
 		public virtual void IncludeParameter(string name, object value)
@@ -41,7 +41,6 @@
 		{
 			this.factory = factory;
 			this.connectionString = connectionString;
-
 		}
 		protected SqlBulkInsertSession()
 		{

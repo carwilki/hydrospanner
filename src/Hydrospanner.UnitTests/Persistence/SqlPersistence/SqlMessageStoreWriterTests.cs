@@ -32,7 +32,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 			Catch.Exception(() => new SqlMessageStoreWriter(sessionFactory, builder, types, int.MinValue)).ShouldBeOfType<ArgumentOutOfRangeException>();
 		};
 
-		It should_NOT_throw_if_all_parameters_are_valid = ()=>
+		It should_NOT_throw_if_all_parameters_are_valid = () =>
 			Catch.Exception(() => new SqlMessageStoreWriter(sessionFactory, builder, types, MaxSliceSize)).ShouldBeNull();
 
 		Establish context = () =>
@@ -67,7 +67,8 @@ namespace Hydrospanner.Persistence.SqlPersistence
 				local.Serialize(new JsonSerializer());
 				
 				foreign = new JournalItem();
-				foreign.AsForeignMessage(42, Encoding.UTF8.GetBytes("42"), 42, new Dictionary<string, string>(), Guid.NewGuid(), () => {});
+				foreign.AsForeignMessage(
+					42, Encoding.UTF8.GetBytes("42"), 42, new Dictionary<string, string>(), Guid.NewGuid(), () => { });
 				
 				items.Add(local);
 				items.Add(foreign);
@@ -138,7 +139,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 				var item = new JournalItem();
 
 				if (sequence++ % 2 == 0)
-					item.AsForeignMessage(sequence, Body(), sequence, Headers, Guid.NewGuid(), () => {});
+					item.AsForeignMessage(sequence, Body(), sequence, Headers, Guid.NewGuid(), () => { });
 				else
 					item.AsTransformationResultMessage(sequence, sequence, Headers);
 
