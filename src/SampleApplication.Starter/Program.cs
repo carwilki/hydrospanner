@@ -3,7 +3,6 @@
 	using System;
 	using System.Collections;
 	using System.Configuration;
-	using System.Globalization;
 	using System.Runtime.Serialization.Formatters;
 	using System.Text;
 	using Newtonsoft.Json;
