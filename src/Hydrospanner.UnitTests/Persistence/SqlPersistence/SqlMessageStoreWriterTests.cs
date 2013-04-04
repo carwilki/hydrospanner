@@ -5,6 +5,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Globalization;
 	using System.Text;
 	using Machine.Specifications;
 	using NSubstitute;
@@ -50,6 +51,8 @@ namespace Hydrospanner.Persistence.SqlPersistence
 	[Subject(typeof(SqlMessageStoreWriter))]
 	public class when_writing_messages
 	{
+		const int MaxSliceSize = 10;
+
 		public class when_there_is_a_single_batch_of_items
 		{
 			Establish context = () =>
@@ -96,6 +99,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 					local.SerializedBody, 
 					local.SerializedHeaders, 
 					local.SerializedType, 
+					
 					foreign.SerializedBody, 
 					null, // we don't save empty headers on foreign messages
 					foreign.SerializedType, 
@@ -112,7 +116,41 @@ namespace Hydrospanner.Persistence.SqlPersistence
 
 		public class when_there_are_enough_items_to_constitute_multiple_batches
 		{
-			// TODO: next test
+			Establish context = () =>
+			{
+				for (var i = 0; i < MaxSliceSize * 3; i++)
+					items.Add(Next());
+			};
+
+			Because of = () =>
+				writer.Write(items);
+
+			It should_write_all_items_in_a_transaction_using_multiple_batches = () =>
+			{
+				session.Received(1).BeginTransaction();
+				session.Received(3).PrepareNewCommand();
+				session.Received(3).ExecuteCurrentCommand(Arg.Any<string>());
+				session.Received(1).CommitTransaction();
+			};
+
+			static JournalItem Next()
+			{
+				var item = new JournalItem();
+
+				if (sequence++ % 2 == 0)
+					item.AsForeignMessage(sequence, Body(), sequence, Headers, Guid.NewGuid(), () => {});
+				else
+					item.AsTransformationResultMessage(sequence, sequence, Headers);
+
+				item.Serialize(Serializer);
+
+				return item;
+			}
+
+			static readonly JsonSerializer Serializer = new JsonSerializer();
+			static readonly Func<byte[]> Body = () => Encoding.UTF8.GetBytes(sequence.ToString(CultureInfo.InvariantCulture));
+			static readonly Dictionary<string, string> Headers = new Dictionary<string, string>();
+			static long sequence;
 		}
 
 		Establish context = () =>
@@ -120,7 +158,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 			session = Substitute.For<SqlBulkInsertSession>();
 			types = new JournalMessageTypeRegistrar(new string[0]);
 			builder = new SqlBulkInsertCommandBuilder(types, session);
-			writer = new SqlMessageStoreWriter(SessionFactory, builder, types, 10);
+			writer = new SqlMessageStoreWriter(SessionFactory, builder, types, MaxSliceSize);
 			items = new List<JournalItem>();
 		};
 

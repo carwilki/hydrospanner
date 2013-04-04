@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Persistence.SqlPersistence
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Linq;
 
@@ -19,9 +20,7 @@
 
 		public virtual short Register(string type)
 		{
-			var toRegister = this.registeredTypes[type] = (short)(this.registeredTypes.Count + 1);
-			this.typesPendingRegistration.Add(toRegister);
-			return toRegister;
+			return this.RegisterInternal(type);
 		}
 
 		public virtual void MarkPendingAsRegistered()
@@ -43,13 +42,22 @@
 
 		public JournalMessageTypeRegistrar(IEnumerable<string> types)
 		{
-			// TODO: null checks
+			if (types == null)
+				throw new ArgumentNullException("types");
 
 			foreach (var type in types)
-				this.registeredTypeCommittedIndex = this.Register(type);
+				this.registeredTypeCommittedIndex = this.RegisterInternal(type);
 		}
+
 		protected JournalMessageTypeRegistrar()
 		{
+		}
+
+		private short RegisterInternal(string type)
+		{
+			var toRegister = this.registeredTypes[type] = (short)(this.registeredTypes.Count + 1);
+			this.typesPendingRegistration.Add(toRegister);
+			return toRegister;
 		}
 
 		private readonly Dictionary<string, short> registeredTypes = new Dictionary<string, short>(1024);
