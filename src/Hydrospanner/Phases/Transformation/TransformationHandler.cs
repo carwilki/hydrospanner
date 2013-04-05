@@ -23,7 +23,7 @@
 			if (liveMessage)
 				this.PublishToJournalPhase(data);
 
-			this.Increment();
+			this.Increment(data);
 		}
 
 		private bool Transform(TransformationItem data)
@@ -64,10 +64,13 @@
 			this.journalRing.Publish(batch);
 		}
 
-		private void Increment()
+		private void Increment(TransformationItem data)
 		{
-			this.currentSequnce += this.buffer.Count + IncomingMessage;
-			this.snapshot.Track(this.currentSequnce);
+			if (data.MessageSequence > this.currentSequnce)
+			{
+				this.currentSequnce += this.buffer.Count + IncomingMessage;
+				this.snapshot.Track(this.currentSequnce);
+			}
 			this.buffer.Clear();
 		}
 

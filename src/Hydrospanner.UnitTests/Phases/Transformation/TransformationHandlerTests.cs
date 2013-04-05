@@ -86,10 +86,10 @@ namespace Hydrospanner.Phases.Transformation
 					journal.AllItems.ShouldBeEmpty();
 
 				It should_increment_the_snapshot_by_one = () =>
-					snapshot.Received().Track(JournaledSequence + 1);
+					snapshot.DidNotReceive().Track(Arg.Any<long>());
 
 				It should_NOT_assign_the_message_sequence_on_the_incoming_message = () =>
-					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
+					item.MessageSequence.ShouldEqual(JournaledSequence);
 			}
 			
 			public class when_the_message_yeilds_a_resulting_messages
@@ -112,7 +112,7 @@ namespace Hydrospanner.Phases.Transformation
 					journal.AllItems.ShouldBeEmpty();
 
 				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
-					snapshot.Received().Track(JournaledSequence + 3);
+					snapshot.DidNotReceive().Track(Arg.Any<long>());
 
 				It should_NOT_reassign_the_sequence_number_of_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
@@ -138,7 +138,7 @@ namespace Hydrospanner.Phases.Transformation
 					journal.AllItems.ShouldBeEmpty();
 
 				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
-					snapshot.Received().Track(JournaledSequence + 3);
+					snapshot.DidNotReceive().Track(Arg.Any<long>());
 
 				It should_NOT_reassign_the_message_sequence_of_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
@@ -388,6 +388,35 @@ namespace Hydrospanner.Phases.Transformation
 				static TransformationItem item2;
 			}
 		}
+
+		public class when_transitioning_from_replay_to_the_live_stream
+		{
+			Establish context = () =>
+			{
+				transformer.Handle(item.Body, item.Headers, ReplayMessageSequence).Returns(new object[0]);
+				item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
+				item.MessageSequence = ReplayMessageSequence;
+				item.Deserialize(new JsonSerializer());
+
+				liveItem = new TransformationItem();
+				liveItem.AsForeignMessage(Encoding.UTF8.GetBytes("2"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
+				item.Deserialize(new JsonSerializer());
+
+				handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+				handler.OnNext(item, 234234, false);
+			};
+
+			Because of = () =>
+				handler.OnNext(liveItem, 234235, false);
+
+			It should_wait_until_the_live_stream_to_begin_incrementing_the_sequence_number = () =>
+			{
+				item.MessageSequence.ShouldEqual(ReplayMessageSequence); // didn't change
+				liveItem.MessageSequence.ShouldEqual(LiveMessageSequence); // was assigned
+			};
+
+			static TransformationItem liveItem;
+		}
 		
 		Establish context = () =>
 		{
@@ -400,7 +429,7 @@ namespace Hydrospanner.Phases.Transformation
 
 		const long JournaledSequence = 42;
 		const long LiveMessageSequence = JournaledSequence + 1;
-		const long ReplayMessageSequence = JournaledSequence - 1;
+		const long ReplayMessageSequence = JournaledSequence;
 		static TransformationItem item;
 		static TransformationHandler handler;
 		static RingBufferHarness<JournalItem> journal;

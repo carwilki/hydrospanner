@@ -31,9 +31,7 @@
 
 		public BatchDescriptor Next(int size)
 		{
-			var batch = this.inner.NewBatchDescriptor(size);
-			this.inner.Next(batch);
-			return batch;
+			return this.inner.Next(this.inner.NewBatchDescriptor(size));
 		}
 		public void Publish(BatchDescriptor batch)
 		{
