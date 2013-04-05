@@ -99,7 +99,7 @@ namespace Hydrospanner.Wireup
 					info.DispatchSequence = 41;
 					info.SnapshotSequence = int.MaxValue;
 					message = new JournaledMessage { Sequence = 42 };
-					store.Load(41).Returns(new List<JournaledMessage> { message });
+					store.Load(info.DispatchSequence + 1).Returns(new List<JournaledMessage> { message });
 				};
 
 				Because of = () =>
@@ -120,7 +120,7 @@ namespace Hydrospanner.Wireup
 					info.SnapshotSequence = 41;
 					info.DispatchSequence = int.MaxValue;
 					message = new JournaledMessage { Sequence = 42 };
-					store.Load(41).Returns(new List<JournaledMessage> { message });
+					store.Load(info.SnapshotSequence + 1).Returns(new List<JournaledMessage> { message });
 				};
 
 				Because of = () =>
@@ -146,11 +146,12 @@ namespace Hydrospanner.Wireup
 				Establish context = () =>
 				{
 					itemCount = 2;
-					info.SnapshotSequence = 40;
-					info.DispatchSequence = 40;
+					const long Checkpoint = 40;
+					info.SnapshotSequence = Checkpoint;
+					info.DispatchSequence = Checkpoint;
 					message1 = new JournaledMessage { Sequence = 41 };
 					message2 = new JournaledMessage { Sequence = 42 };
-					store.Load(40).Returns(new List<JournaledMessage> { message1, message2 });
+					store.Load(Checkpoint + 1).Returns(new List<JournaledMessage> { message1, message2 });
 				};
 
 				Because of = () =>

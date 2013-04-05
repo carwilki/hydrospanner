@@ -41,7 +41,7 @@
 		{
 			var transformed = 0;
 
-			foreach (var message in this.store.Load(Math.Min(info.DispatchSequence, info.SnapshotSequence)))
+			foreach (var message in this.store.Load(Math.Min(info.DispatchSequence + 1, info.SnapshotSequence + 1)))
 			{
 				if (message.Sequence > info.DispatchSequence)
 				{
