@@ -12,14 +12,20 @@
 			Log.DebugFormat("Countdown at {0}, receiving bootstrap item.", this.countdown);
 
 			if (--this.countdown == 0)
+			{
+				Log.InfoFormat("Successfully restored {0} mementos from snapshot", this.items);
 				this.callback();
+			}
 		}
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
 			Log.DebugFormat("Countdown at {0}, receiving transformation item.", this.countdown);
 
 			if (--this.countdown == 0)
+			{
+				Log.InfoFormat("Successfully replayed {0} messages from journal.", this.items);
 				this.callback();
+			}
 		}
 
 		public CountdownHandler(long countdown, Action callback)
@@ -30,12 +36,14 @@
 			if (callback == null)
 				throw new ArgumentNullException("callback");
 
+			this.items = countdown;
 			this.countdown = countdown;
 			this.callback = callback;
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(CountdownHandler));
 		private readonly Action callback;
+		private readonly long items;
 		private long countdown;
 	}
 }

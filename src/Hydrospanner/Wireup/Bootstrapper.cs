@@ -33,12 +33,12 @@
 
 			this.listener = this.messaging.CreateMessageListener(this.transformationDisruptor.RingBuffer);
 			
-			Log.Debug("Attempting to start message listener.");
+			Log.Info("Attempting to start message listener.");
 			this.listener.Start();
 
 			this.started = true;
 
-			Log.Debug("Bootstrap process complete.");
+			Log.Info("Bootstrap process complete.");
 		}
 
 		public Bootstrapper(

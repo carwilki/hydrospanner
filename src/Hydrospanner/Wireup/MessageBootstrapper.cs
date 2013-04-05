@@ -74,7 +74,7 @@
 			var toDispatch = Math.Max(0, info.DispatchSequence - loadPoint);
 			var toReplay = Math.Max(0, info.JournaledSequence - loadPoint);
 
-			Log.InfoFormat(
+			Log.InfoFormat( // TODO: numbers don't seem right here...
 			    "Starting from sequence {0}, will dispatch {1} messages and will replay {2} messages (this could take some time...).",
 			    loadPoint,
 			    toDispatch,

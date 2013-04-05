@@ -38,8 +38,6 @@
 				{
 					Publish(reader, disruptor.Start());
 					this.mutex.WaitOne();
-
-					Log.InfoFormat("Successfully restored {0} mementos from snapshot.", reader.Count);
 					return info.AddSnapshotSequence(reader.MessageSequence);
 				}	
 			}
