@@ -36,7 +36,7 @@
 				this.graveyard = new HydratableGraveyard(memento);
 			else
 			{
-				var hydratable = this.routes.Create(memento);
+				var hydratable = this.routes.Restore(memento);
 				this.catalog[hydratable.Key] = hydratable;
 			}
 		}

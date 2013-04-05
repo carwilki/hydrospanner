@@ -53,7 +53,7 @@ namespace Hydrospanner
 				tombstoned = new MyHydratable(Tombstone);
 				tombstoneInfo = new HydrationInfo(Tombstone, () => tombstoned);
 				routes.Lookup(Tombstone, Headers).Returns(new[] { tombstoneInfo });
-				routes.Create(Document).Returns(Document);
+				routes.Restore(Document).Returns(Document);
 
 				repository.Load(Message, Headers).ToList();
 				repository.Load(Tombstone, Headers).ToList();

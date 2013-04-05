@@ -14,7 +14,7 @@ namespace Hydrospanner.Wireup
 		public class when_providing_a_null_memento
 		{
 			It should_return_null = () =>
-				new ConventionRoutingTable().Create(null).ShouldBeNull();
+				new ConventionRoutingTable().Restore(null).ShouldBeNull();
 		}
 		public class when_providing_a_memento
 		{
@@ -25,7 +25,7 @@ namespace Hydrospanner.Wireup
 			};
 
 			Because of = () =>
-				hydratable = table.Create(memento);
+				hydratable = table.Restore(memento);
 
 			It should_create_a_hydratable = () =>
 				hydratable.ShouldBeOfType<TestHydratable>();
@@ -46,14 +46,14 @@ namespace Hydrospanner.Wireup
 
 			private class MementoHydratable
 			{
-				public static SomeHydratable Create(TestMemento memento)
+				public static SomeHydratable Restore(TestMemento memento)
 				{
 					return new SomeHydratable();
 				}
 			}
 			private class DuplicateMementoHydratable
 			{
-				public static SomeHydratable Create(TestMemento memento)
+				public static SomeHydratable Restore(TestMemento memento)
 				{
 					return new SomeHydratable();
 				}
@@ -107,7 +107,7 @@ namespace Hydrospanner.Wireup
 		}
 		private class TestHydratable : SomeHydratable
 		{
-			public static TestHydratable Create(TestMemento memento)
+			public static TestHydratable Restore(TestMemento memento)
 			{
 				return new TestHydratable();
 			}

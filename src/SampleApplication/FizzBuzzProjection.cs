@@ -1,7 +1,11 @@
 ﻿namespace SampleApplication
 {
+	using System;
+
 	public class FizzBuzzProjection
 	{
-		public string Value { get; set; }
+		public Guid StreamId { get; set; }
+		public string Message { get; set; }
+		public int Value { get; set; }
 	}
 }

@@ -35,40 +35,55 @@
 
 		static void SendTheMessages(IModel channel)
 		{
+			var random = new Random();
+
 			var properties = channel.CreateBasicProperties();
 			properties.SetPersistent(false);
 			properties.Headers = new Hashtable();
 			
 			var count = DetermineBoundsOfMessageGeneration();
 
-			for (var i = count.Item1; i < count.Item2 + 1; i++)
+			for (var i = 0; i < count.Item1 + 1; i++)
 			{
-				var message = new CountCommand { Value = i, MessageId = Guid.NewGuid() };
-				var json = JsonConvert.SerializeObject(message, Formatting.Indented, Settings);
-				var payload = DefaultEncoding.GetBytes(json);
-
-				properties.MessageId = Guid.NewGuid().ToString();
-				properties.Type = message.GetType().AssemblyQualifiedName;
-
-				channel.BasicPublish(string.Empty, QueueName, properties, payload);
+				var streamId = Guid.NewGuid();
+				for (var x = 0; x < random.Next(1, count.Item2); x++)
+					SendMessage(channel, streamId, x + 1, properties);
 			}
+		}
+
+		static void SendMessage(IModel channel, Guid streamId, int value, IBasicProperties properties)
+		{
+			var messageId = Guid.NewGuid();
+			var message = new CountCommand
+			{
+				StreamId = streamId,
+				Value = value,
+				MessageId = messageId
+			};
+			var json = JsonConvert.SerializeObject(message, Formatting.Indented, Settings);
+			var payload = DefaultEncoding.GetBytes(json);
+
+			properties.MessageId = messageId.ToString();
+			properties.Type = message.GetType().AssemblyQualifiedName;
+
+			channel.BasicPublish(string.Empty, QueueName, properties, payload);
 		}
 
 		static Tuple<int, int> DetermineBoundsOfMessageGeneration()
 		{
-			Console.Write("Enter starting number: (1) ");
-			var start = Console.ReadLine();
-			if (string.IsNullOrWhiteSpace(start) || int.Parse(start) < 1)
-				start = "1";
+			Console.Write("How many streams: (1000) ");
+			var streams = Console.ReadLine();
+			if (string.IsNullOrWhiteSpace(streams) || int.Parse(streams) < 1)
+				streams = "1000";
 
-			Console.Write("Enter ending number: (100000) ");
-			var end = Console.ReadLine();
-			if (string.IsNullOrWhiteSpace(end) || int.Parse(end) < 1)
-				end = "100000";
+			Console.Write("Max commands per stream: (10) ");
+			var commands = Console.ReadLine();
+			if (string.IsNullOrWhiteSpace(commands) || int.Parse(commands) < 1)
+				commands = "10";
 
-			Console.WriteLine("\n\nSending messages numbered {0} through {1}...", start, end);
+			Console.WriteLine("\n\nSending up to {0} commands for {1} streams...", commands, streams);
 
-			return Tuple.Create(int.Parse(start), int.Parse(end));
+			return Tuple.Create(int.Parse(streams), int.Parse(commands));
 		}
 
 		private static readonly Uri ServerAddress = new Uri(ConfigurationManager.AppSettings["rabbit-server"]);

@@ -83,7 +83,6 @@
     <Compile Include="Phases\Snapshot\SystemSnapshotStreamReaderTests.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotHandlerTests.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotRecorderTests.cs" />
-    <Compile Include="Phases\Snapshot\XxHashUnsafeTests.cs" />
     <Compile Include="Phases\Transformation\DuplicateStoreTests.cs" />
     <Compile Include="Phases\Transformation\HydratableExtensionsTests.cs" />
     <Compile Include="Phases\Transformation\MessageListenerTests.cs" />

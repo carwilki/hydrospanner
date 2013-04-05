@@ -70,6 +70,19 @@
 		{
 			return BitConverter.GetBytes(value);
 		}
+
+		// Reference: http://stackoverflow.com/a/425184/605022
+		public static uint ComputeHash(this byte[] data)
+		{
+			unchecked
+			{
+				uint result = 0;
+				for (var i = 0; i < data.Length; i++)
+					result = (result * 31) ^ data[i];
+
+				return result;
+			}
+		}
 	}
 
 	internal static class DisposableExtensions

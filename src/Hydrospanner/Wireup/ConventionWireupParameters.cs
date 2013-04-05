@@ -17,7 +17,6 @@
 				return parsed;
 			}
 		}
-
 		public virtual Uri BrokerAddress
 		{
 			get

@@ -110,7 +110,6 @@
     <Compile Include="Phases\Snapshot\SystemSnapshotLoader.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotRecorder.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotHandler.cs" />
-    <Compile Include="Phases\Snapshot\XxHashUnsafeExtensions.cs" />
     <Compile Include="Phases\Transformation\DeserializationHandler.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IHydratable.cs" />

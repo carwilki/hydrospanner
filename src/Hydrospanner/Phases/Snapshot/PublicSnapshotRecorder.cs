@@ -102,7 +102,7 @@
 		{
 			command.WithParameter("@id" + i, item.Key, DbType.String);
 			command.WithParameter("@sequence" + i, item.CurrentSequence, DbType.Int64);
-			command.WithParameter("@hash" + i, item.Serialized.ComputeHash(), DbType.Int32);
+			command.WithParameter("@hash" + i, item.Serialized.ComputeHash(), DbType.UInt32);
 			command.WithParameter("@document" + i, item.Serialized, DbType.Binary);
 			builder.AppendFormat(Upsert, i);
 		}

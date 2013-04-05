@@ -24,7 +24,7 @@
 
 			return this.routes;
 		}
-		public IHydratable Create(object memento)
+		public IHydratable Restore(object memento)
 		{
 			if (memento == null)
 				return null;
@@ -128,7 +128,7 @@
 		}
 // ReSharper restore UnusedMember.Local
 
-		private const string FactoryMethodName = "Create";
+		private const string FactoryMethodName = "Restore";
 		private const string LookupMethodName = "Lookup";
 		private static readonly MethodInfo RegisterMementoMethod = typeof(ConventionRoutingTable).GetMethod("RegisterGenericMemento", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly MethodInfo RegisterLookupMethod = typeof(ConventionRoutingTable).GetMethod("RegisterGenericLookup", BindingFlags.Instance | BindingFlags.NonPublic);

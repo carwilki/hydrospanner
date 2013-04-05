@@ -8,7 +8,7 @@
 	{
 		public Wireup(ConventionWireupParameters conventionWireup)
 		{
-			var repository = new DefaultRepository(new ConventionRoutingTable(Assembly.GetExecutingAssembly()));
+			var repository = new DefaultRepository(new ConventionRoutingTable(Assembly.GetEntryAssembly()));
 			var messagingFactory = new MessagingFactory(conventionWireup.NodeId, conventionWireup.BrokerAddress, conventionWireup.SourceQueueName);
 			var persistenceFactory = new PersistenceFactory(conventionWireup.JournalConnectionName, conventionWireup.DuplicateWindow, conventionWireup.JournalBatchSize);
 			var persistenceBootstrapper = new PersistenceBootstrapper(persistenceFactory);
