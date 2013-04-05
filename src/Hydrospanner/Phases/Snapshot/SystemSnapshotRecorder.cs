@@ -16,7 +16,8 @@
 					this.CloseSnapshot();
 
 				this.file.Delete(this.pathToCurrentSnapshot);
-				this.currentSnapshot = new BinaryWriter(new BufferedStream(this.file.Create(this.pathToCurrentSnapshot)));
+				this.currentSnapshot = new BinaryWriter(new BufferedStream(
+					this.file.Create(this.pathToCurrentSnapshot), SnapshotBufferSize));
 				this.currentSnapshot.Write(expectedItems);
 			});
 		}
@@ -93,6 +94,7 @@
 
 		const string SnapshotFilenameTemplate = "{0}-{1}-{2}";
 		const string TemporaryFilename = "current_snapshot";
+		const int SnapshotBufferSize = 1024 * 32;
 		private readonly FileBase file;
 		private readonly string location;
 		private readonly string pathToCurrentSnapshot;
