@@ -13,7 +13,7 @@
 		IHydratable<FizzBuzzEvent>
 	{
 		public string Key { get { return KeyFactory(this.streamId); } }
-		public bool IsComplete { get { return false; } }
+		public bool IsComplete { get { return this.aggregate.IsComplete; } }
 		public bool IsPublicSnapshot { get { return false; } }
 		public IEnumerable<object> GatherMessages()
 		{
@@ -29,6 +29,8 @@
 		{
 			if (live)
 				this.gathered.Enqueue(this.aggregate.Increment(message.Value));
+
+			this.aggregate.Apply(message.Value);
 		}
 		public void Hydrate(CountEvent message, Dictionary<string, string> headers, bool live)
 		{
