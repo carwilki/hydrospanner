@@ -76,7 +76,7 @@
 		}
 		protected virtual void Dispose(bool disposing)
 		{
-			if (disposing)
+			if (disposing && this.stream != null)
 				this.stream.Dispose();
 		}
 

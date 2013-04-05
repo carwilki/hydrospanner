@@ -127,6 +127,13 @@ namespace Hydrospanner.Phases.Snapshot
 		static MemoryStream stream;
 		static SystemSnapshotStreamReader reader;
 	}
+
+	[Subject(typeof(SystemSnapshotStreamReader))]
+	public class when_disposing_a_blank_snapshot
+	{
+		It should_NOT_throw = () =>
+			Catch.Exception(() => new SystemSnapshotStreamReader().Dispose()).ShouldBeNull();
+	}
 }
 
 // ReSharper restore InconsistentNaming
