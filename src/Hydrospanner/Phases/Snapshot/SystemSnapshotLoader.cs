@@ -8,19 +8,13 @@
 	{
 		public virtual SystemSnapshotStreamReader Load(long maxSequence, int currentGeneration)
 		{
-			var files = this.directory.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly);
-			
-			var snapshots = files
+			return this.directory.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly)
 				.Select(ParsedSystemSnapshotFilename.Parse)
-				.Where(x => x != null && x.Sequence <= maxSequence && x.Generation <= currentGeneration);
-
-			var mostRecentViableSnapshot = snapshots
+				.Where(x => x != null && x.Sequence <= maxSequence && x.Generation <= currentGeneration)
 				.OrderByDescending(x => x.Generation)
 				.ThenByDescending(x => x.Sequence)
 				.Select(this.OpenOrDefault)
-				.FirstOrDefault(x => x != null && x.Count > 0);
-
-			return mostRecentViableSnapshot ?? new SystemSnapshotStreamReader();
+				.FirstOrDefault(x => x != null && x.Count > 0) ?? new SystemSnapshotStreamReader();
 		}
 
 		private SystemSnapshotStreamReader OpenOrDefault(ParsedSystemSnapshotFilename snapshot)
