@@ -16,6 +16,7 @@
 
 			var mostRecentViableSnapshot = snapshots
 				.OrderByDescending(x => x.Generation)
+				.ThenByDescending(x => x.Sequence)
 				.Select(this.OpenOrDefault)
 				.FirstOrDefault(x => x != null && x.Count > 0);
 

@@ -79,13 +79,15 @@ namespace Hydrospanner.Phases.Snapshot
 			{
 				Establish context = () =>
 				{
+					var reallyEarlyPath = Path + EarlierGeneration + "-" + ReallyEarlySnapshotSequence + "-" + hash;
 					var earlierPath = Path + EarlierGeneration + "-" + EarlySnapshotSequence + "-" + hash;
 					var laterPath = Path + EarlierGeneration + "-" + LaterSnapshotSequence + "-" + hash;
 
 					directory
 						.GetFiles(Path, "*", SearchOption.TopDirectoryOnly)
-						.Returns(new[] { laterPath, earlierPath });
+						.Returns(new[] { laterPath, reallyEarlyPath, earlierPath });
 
+					file.OpenRead(reallyEarlyPath).Returns(new MemoryStream(contents));
 					file.OpenRead(earlierPath).Returns(new MemoryStream(contents));
 					file.OpenRead(laterPath).Returns(new MemoryStream(contents));
 				};
@@ -93,12 +95,13 @@ namespace Hydrospanner.Phases.Snapshot
 				Because of = () =>
 					reader = loader.Load(StoredMessageSequence, int.MaxValue);
 
-				It should_load_the_snapshot_whose_message_sequence_is_at_or_lower_the_provided_sequence = () =>
+				It should_load_the_snapshot_whose_message_sequence_is_closest_to_but_higher_than_the_provided_sequence = () =>
 				{
 					reader.MessageSequence.ShouldEqual(EarlySnapshotSequence);
 					reader.Read().First().Value.ShouldBeLike(FirstRecord);
 				};
 
+				const long ReallyEarlySnapshotSequence = StoredMessageSequence - 1;
 				const long EarlySnapshotSequence = StoredMessageSequence;
 				const long LaterSnapshotSequence = StoredMessageSequence + 1;
 			}
