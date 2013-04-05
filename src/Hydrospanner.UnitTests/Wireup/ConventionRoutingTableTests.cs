@@ -111,11 +111,11 @@ namespace Hydrospanner.Wireup
 			{
 				return new TestHydratable();
 			}
-			public static TestHydratable Create()
+			public static TestHydratable Restore()
 			{
 				throw new NotSupportedException("never executed because of filtering logic within the routing table method selection process.");
 			}
-			public static TestHydratable Create<T>(TestMemento memento)
+			public static TestHydratable Restore<T>(TestMemento memento)
 			{
 				throw new NotSupportedException("never executed because of filtering logic within the routing table method selection process.");
 			}
@@ -127,7 +127,7 @@ namespace Hydrospanner.Wireup
 		}
 		private class TestHydratable2 : SomeHydratable
 		{
-			public static TestHydratable2 Create(TestMemento2 memento)
+			public static TestHydratable2 Restore(TestMemento2 memento)
 			{
 				return new TestHydratable2();
 			}
