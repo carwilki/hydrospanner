@@ -44,6 +44,8 @@ namespace Hydrospanner.Wireup
 
 			static Exception thrown;
 
+			// ReSharper disable UnusedMember.Local
+			// ReSharper disable UnusedParameter.Local
 			private class MementoHydratable
 			{
 				public static SomeHydratable Restore(TestMemento memento)
@@ -58,6 +60,8 @@ namespace Hydrospanner.Wireup
 					return new SomeHydratable();
 				}
 			}
+			// ReSharper restore UnusedParameter.Local
+			// ReSharper restore UnusedMember.Local
 		}
 
 		public class when_providing_a_null_message
@@ -95,7 +99,10 @@ namespace Hydrospanner.Wireup
 		}
 
 		// ReSharper disable UnusedMember.Local
+		// ReSharper disable UnusedTypeParameter
+		// ReSharper disable UnusedParameter.Local
 		// ReSharper disable ClassNeverInstantiated.Local
+		// ReSharper disable UnusedAutoPropertyAccessor.Local
 		private class TestMemento
 		{
 		}
@@ -151,7 +158,10 @@ namespace Hydrospanner.Wireup
 				throw new NotImplementedException();
 			}
 		}
+		// ReSharper restore UnusedAutoPropertyAccessor.Local
 		// ReSharper restore ClassNeverInstantiated.Local
+		// ReSharper restore UnusedParameter.Local
+		// ReSharper restore UnusedTypeParameter
 		// ReSharper restore UnusedMember.Local
 	}
 }
