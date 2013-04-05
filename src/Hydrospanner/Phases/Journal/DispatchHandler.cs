@@ -29,11 +29,11 @@
 			if (this.buffer.Count == 0)
 				return true;
 
-			Log.DebugFormat("Dispatching {0} items.", this.buffer.Count);
+			Log.InfoFormat("Dispatching {0} items.", this.buffer.Count);
 			for (var i = 0; i < this.buffer.Count; i++)
 				if (!this.sender.Send(this.buffer[i]))
 				{
-					Log.DebugFormat(
+					Log.WarnFormat(
 						"Failed to dispatch message sequence {0} of type {1}.", 
 						this.buffer[i].MessageSequence, 
 						this.buffer[i].SerializedType);

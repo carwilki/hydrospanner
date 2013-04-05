@@ -24,7 +24,7 @@
 
 		private void RecordPublicSnapshots()
 		{
-			Log.DebugFormat("Persisting {0} public snapshot items to disk.", this.buffer.Count);
+			Log.InfoFormat("Persisting {0} public snapshot items to disk.", this.buffer.Count);
 
 			this.recorder.StartRecording(this.buffer.Count);
 

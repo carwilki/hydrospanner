@@ -14,7 +14,7 @@
 			if (this.started)
 				return;
 
-			Log.Debug("Attempting to bootstrap the system.");
+			Log.Info("Loading mementos from latest snapshot.");
 
 			info = this.snapshots.RestoreSnapshots(info, this.repository);
 
@@ -23,6 +23,8 @@
 
 			this.journalDisruptor = this.disruptors.CreateJournalDisruptor(info);
 			this.journalDisruptor.Start();
+
+			Log.Info("Loading messages from checkpoints.");
 
 			this.messages.Restore(info, this.journalDisruptor, this.repository);
 			

@@ -5,6 +5,7 @@
 	using Persistence;
 	using Phases.Bootstrap;
 	using Phases.Snapshot;
+	using log4net;
 
 	public class SnapshotBootstrapper
 	{
@@ -27,10 +28,18 @@
 				if (reader.Count == 0)
 					return info.AddSnapshotSequence(reader.MessageSequence);
 
+				Log.InfoFormat(
+					"Restoring {0} mementos from the snapshot at generation {1}, message sequence {2} (this could take some time...).", 
+					reader.Count, 
+					reader.Generation, 
+					reader.MessageSequence);
+
 				using (var disruptor = this.disruptorFactory.CreateBootstrapDisruptor(repository, reader.Count, () => this.mutex.Set()))
 				{
 					Publish(reader, disruptor.Start());
 					this.mutex.WaitOne();
+
+					Log.InfoFormat("Successfully restored {0} mementos from snapshot.", reader.Count);
 					return info.AddSnapshotSequence(reader.MessageSequence);
 				}	
 			}
@@ -61,6 +70,7 @@
 		{
 		}
 
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SnapshotBootstrapper));
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
 		private readonly SnapshotFactory snapshotFactory;
 		private readonly DisruptorFactory disruptorFactory;

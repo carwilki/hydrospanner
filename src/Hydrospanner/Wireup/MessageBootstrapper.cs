@@ -5,6 +5,7 @@
 	using Persistence;
 	using Phases.Journal;
 	using Phases.Transformation;
+	using log4net;
 
 	public class MessageBootstrapper
 	{
@@ -41,7 +42,9 @@
 		{
 			var transformed = 0;
 
-			foreach (var message in this.store.Load(Math.Min(info.DispatchSequence + 1, info.SnapshotSequence + 1)))
+			var loadPoint = LogOperations(info);
+
+			foreach (var message in this.store.Load(loadPoint))
 			{
 				if (message.Sequence > info.DispatchSequence)
 				{
@@ -65,6 +68,21 @@
 				this.mutex.Set();
 		}
 
+		static long LogOperations(BootstrapInfo info)
+		{
+			var loadPoint = Math.Min(info.DispatchSequence + 1, info.SnapshotSequence + 1);
+			var toDispatch = Math.Max(0, info.DispatchSequence - loadPoint);
+			var toReplay = Math.Max(0, info.JournaledSequence - loadPoint);
+
+			Log.InfoFormat(
+			    "Starting from sequence {0}, will dispatch {1} messages and will replay {2} messages (this could take some time...).",
+			    loadPoint,
+			    toDispatch,
+			    toReplay);
+
+			return loadPoint;
+		}
+
 		public MessageBootstrapper(IMessageStore store, DisruptorFactory disruptors, int snapshotFrequency)
 		{
 			if (store == null) 
@@ -85,6 +103,7 @@
 		{
 		}
 
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MessageBootstrapper));
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
 		private readonly IMessageStore store;
 		private readonly DisruptorFactory disruptors;

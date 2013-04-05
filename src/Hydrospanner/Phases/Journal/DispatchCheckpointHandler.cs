@@ -17,7 +17,7 @@
 
 			if (this.current > this.previous)
 			{
-				Log.DebugFormat("Setting journal checkpoint to {0}", this.current);
+				Log.InfoFormat("Setting journal checkpoint to {0}", this.current);
 				this.store.Save(this.current);
 			}
 

@@ -13,14 +13,10 @@
 
 		private void Record(SnapshotItem data)
 		{
-			Log.DebugFormat("Recording system snapshot item at message sequence {0}. {1} items remaining in snapshot.", 
-				data.CurrentSequence, 
-				data.MementosRemaining);
-			
 			if (!this.recording)
 				this.StartRecording(data);
 
-			this.recorder.Record(data);
+			this.RecordItem(data);
 
 			if (data.MementosRemaining == 0)
 				this.FinishRecording(data);
@@ -28,14 +24,28 @@
 
 		private void StartRecording(SnapshotItem data)
 		{
+			Log.InfoFormat(
+				"Recording started for system snapshot at message sequence {0} with {1} items",
+				data.CurrentSequence,
+				data.MementosRemaining + 1);
 			this.recorder.StartRecording(data.MementosRemaining + 1);
 			this.recording = true;
+		}
+
+		private void RecordItem(SnapshotItem data)
+		{
+			Log.DebugFormat("Recording system snapshot item at message sequence {0}. {1} items remaining in snapshot.",
+				data.CurrentSequence,
+				data.MementosRemaining);
+
+			this.recorder.Record(data);
 		}
 
 		private void FinishRecording(SnapshotItem data)
 		{
 			this.recorder.FinishRecording(this.currentGeneration, data.CurrentSequence);
 			this.recording = false;
+			Log.InfoFormat("Recording finished for system snapshot at message sequence {0}.", data.CurrentSequence);
 		}
 
 		public SystemSnapshotHandler(ISnapshotRecorder recorder, int currentGeneration)

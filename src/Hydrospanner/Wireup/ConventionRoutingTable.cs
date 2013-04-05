@@ -86,7 +86,7 @@
 			if (this.mementos.ContainsKey(mementoType))
 				throw new InvalidOperationException("Memento of type '{0}' cannot be registered multiple times.".FormatWith(mementoType));
 
-			Log.DebugFormat("Registering memento ({0}) with the ConventionRoutingTable.", method.Name);
+			Log.InfoFormat("Registering memento ({0}) with the ConventionRoutingTable.", method.Name);
 
 			var callback = Delegate.CreateDelegate(typeof(MementoDelegate<>).MakeGenericType(mementoType), method);
 			RegisterMementoMethod.MakeGenericMethod(mementoType).Invoke(this, new object[] { callback });
@@ -107,7 +107,7 @@
 			if (parameters[1].ParameterType != typeof(Dictionary<string, string>))
 				return;
 
-			Log.DebugFormat("Registering lookup ({0}) with the ConventionRoutingTable.", method.Name);
+			Log.InfoFormat("Registering lookup ({0}) with the ConventionRoutingTable.", method.Name);
 
 			var callback = Delegate.CreateDelegate(typeof(LookupDelegate<>).MakeGenericType(messageType), method);
 			RegisterLookupMethod.MakeGenericMethod(messageType).Invoke(this, new object[] { callback });
