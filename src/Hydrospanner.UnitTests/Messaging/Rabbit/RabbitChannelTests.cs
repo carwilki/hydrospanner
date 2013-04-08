@@ -146,6 +146,9 @@ namespace Hydrospanner.Messaging.Rabbit
 			It should_attempt_to_establish_a_connection_to_the_broker = () =>
 				connector.Received(1).OpenChannel();
 
+			It should_enable_TX_mode_for_the_session = () =>
+				actualChannel.Received(1).TxSelect();
+
 			It should_indicate_the_message_type_in_the_metadata = () =>
 				properties.Type.ShouldEqual(messageToSend.SerializedType);
 

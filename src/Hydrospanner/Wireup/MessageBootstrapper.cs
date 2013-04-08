@@ -71,14 +71,10 @@
 		static long LogOperations(BootstrapInfo info)
 		{
 			var loadPoint = Math.Min(info.DispatchSequence + 1, info.SnapshotSequence + 1);
-			var toDispatch = Math.Max(0, info.DispatchSequence - loadPoint);
-			var toReplay = Math.Max(0, info.JournaledSequence - loadPoint);
 
-			Log.InfoFormat( // TODO: numbers don't seem right here...
-			    "Starting from sequence {0}, will dispatch {1} messages and will replay {2} messages (this could take some time...).",
-			    loadPoint,
-			    toDispatch,
-			    toReplay);
+			Log.InfoFormat(
+			    "Starting from sequence {0}, will dispatch and will replay messages (this could take some time...).",
+			    loadPoint);
 
 			return loadPoint;
 		}

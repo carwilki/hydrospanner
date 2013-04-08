@@ -141,7 +141,7 @@
 				if (receive)
 					currentChannel.BasicQos(0, ushort.MaxValue, false);
 				else
-					currentChannel.TxSelect(); // TODO: under test
+					currentChannel.TxSelect();
 			}
 			catch
 			{
