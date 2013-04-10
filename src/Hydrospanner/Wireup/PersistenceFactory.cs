@@ -22,7 +22,7 @@
 			var types = new JournalMessageTypeRegistrar(journaledTypes);
 			var session = new SqlBulkInsertSession(this.factory, this.connectionString);
 			var builder = new SqlBulkInsertCommandBuilder(types, session);
-			var writer = new SqlMessageStoreWriter(() => session, builder, types, this.maxJournalBatchSize);
+			var writer = new SqlMessageStoreWriter(session, builder, types, this.maxJournalBatchSize);
 			return new SqlMessageStore(this.factory, this.connectionString, () => writer, types);
 		}
 

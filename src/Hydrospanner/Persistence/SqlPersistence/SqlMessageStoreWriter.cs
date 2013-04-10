@@ -8,24 +8,33 @@
 	{
 		public virtual void Write(IList<JournalItem> items)
 		{
-			// TODO: the session isn't truly disposed, instead we should probably use try/finally.
-			using (var session = this.sessionFactory())
+			try
 			{
-				session.BeginTransaction();
-				this.SaveInSlices(session, items);
-				session.CommitTransaction();
-				this.types.MarkPendingAsRegistered();
+				this.TryWrite(items);
+			}
+			catch
+			{
+				this.session.Cleanup();
+				throw;
 			}
 		}
 
-		private void SaveInSlices(SqlBulkInsertSession session, IList<JournalItem> items)
+		private void TryWrite(IList<JournalItem> items)
+		{
+			this.session.BeginTransaction();
+			this.SaveInSlices(items);
+			this.session.CommitTransaction();
+			this.types.MarkPendingAsRegistered();
+		}
+
+		private void SaveInSlices(IList<JournalItem> items)
 		{
 			var slices = this.CountSlices(items);
 			for (var slice = 0; slice < slices; slice++)
 			{
-				session.PrepareNewCommand();
+				this.session.PrepareNewCommand();
 				var commandText = this.BuildCommand(items, slice);
-				session.ExecuteCurrentCommand(commandText);
+				this.session.ExecuteCurrentCommand(commandText);
 			}
 		}
 
@@ -51,13 +60,13 @@
 		}
 
 		public SqlMessageStoreWriter(
-			Func<SqlBulkInsertSession> sessionFactory,
+			SqlBulkInsertSession session,
 			SqlBulkInsertCommandBuilder builder,
 			JournalMessageTypeRegistrar types,
 			int maxSliceSize)
 		{
-			if (sessionFactory == null)
-				throw new ArgumentNullException("sessionFactory");
+			if (session == null)
+				throw new ArgumentNullException("session");
 
 			if (builder == null)
 				throw new ArgumentNullException("builder");
@@ -68,7 +77,7 @@
 			if (maxSliceSize < 10)
 				throw new ArgumentOutOfRangeException("maxSliceSize");
 
-			this.sessionFactory = sessionFactory;
+			this.session = session;
 			this.builder = builder;
 			this.types = types;
 			this.maxSliceSize = maxSliceSize;
@@ -87,7 +96,7 @@
 				this.builder.Cleanup();
 		}
 
-		private readonly Func<SqlBulkInsertSession> sessionFactory;
+		private readonly SqlBulkInsertSession session;
 		private readonly SqlBulkInsertCommandBuilder builder;
 		private readonly JournalMessageTypeRegistrar types;
 		private readonly int maxSliceSize;

@@ -19,30 +19,30 @@ namespace Hydrospanner.Persistence.SqlPersistence
 			Catch.Exception(() => new SqlMessageStoreWriter(null, builder, types, MaxSliceSize)).ShouldBeOfType<ArgumentNullException>();
 
 		It should_throw_if_the_builder_is_null = () =>
-			Catch.Exception(() => new SqlMessageStoreWriter(sessionFactory, null, types, MaxSliceSize)).ShouldBeOfType<ArgumentNullException>();
+			Catch.Exception(() => new SqlMessageStoreWriter(session, null, types, MaxSliceSize)).ShouldBeOfType<ArgumentNullException>();
 
 		It should_throw_if_the_type_registrar_is_null = () =>
-			Catch.Exception(() => new SqlMessageStoreWriter(sessionFactory, builder, null, MaxSliceSize)).ShouldBeOfType<ArgumentNullException>();
+			Catch.Exception(() => new SqlMessageStoreWriter(session, builder, null, MaxSliceSize)).ShouldBeOfType<ArgumentNullException>();
 
 		It should_throw_if_the_slice_size_is_out_of_range = () =>
 		{
-			Catch.Exception(() => new SqlMessageStoreWriter(sessionFactory, builder, types, 9)).ShouldBeOfType<ArgumentOutOfRangeException>();
-			Catch.Exception(() => new SqlMessageStoreWriter(sessionFactory, builder, types, 0)).ShouldBeOfType<ArgumentOutOfRangeException>();
-			Catch.Exception(() => new SqlMessageStoreWriter(sessionFactory, builder, types, -1)).ShouldBeOfType<ArgumentOutOfRangeException>();
-			Catch.Exception(() => new SqlMessageStoreWriter(sessionFactory, builder, types, int.MinValue)).ShouldBeOfType<ArgumentOutOfRangeException>();
+			Catch.Exception(() => new SqlMessageStoreWriter(session, builder, types, 9)).ShouldBeOfType<ArgumentOutOfRangeException>();
+			Catch.Exception(() => new SqlMessageStoreWriter(session, builder, types, 0)).ShouldBeOfType<ArgumentOutOfRangeException>();
+			Catch.Exception(() => new SqlMessageStoreWriter(session, builder, types, -1)).ShouldBeOfType<ArgumentOutOfRangeException>();
+			Catch.Exception(() => new SqlMessageStoreWriter(session, builder, types, int.MinValue)).ShouldBeOfType<ArgumentOutOfRangeException>();
 		};
 
 		It should_NOT_throw_if_all_parameters_are_valid = () =>
-			Catch.Exception(() => new SqlMessageStoreWriter(sessionFactory, builder, types, MaxSliceSize)).ShouldBeNull();
+			Catch.Exception(() => new SqlMessageStoreWriter(session, builder, types, MaxSliceSize)).ShouldBeNull();
 
 		Establish context = () =>
 		{
-			sessionFactory = () => null;
+			session = Substitute.For<SqlBulkInsertSession>();
 			builder = Substitute.For<SqlBulkInsertCommandBuilder>();
 			types = Substitute.For<JournalMessageTypeRegistrar>();
 		};
 
-		static Func<SqlBulkInsertSession> sessionFactory;
+		static SqlBulkInsertSession session;
 		static SqlBulkInsertCommandBuilder builder;
 		static JournalMessageTypeRegistrar types;
 		const int MaxSliceSize = 42;
@@ -133,25 +133,28 @@ namespace Hydrospanner.Persistence.SqlPersistence
 				session.Received(3).ExecuteCurrentCommand(Arg.Any<string>());
 				session.Received(1).CommitTransaction();
 			};
+		}
 
-			static JournalItem Next()
+		public class when_there_is_a_problem_when_writing_a_batch
+		{
+			Establish context = () =>
 			{
-				var item = new JournalItem();
+				for (var i = 0; i < MaxSliceSize * 3; i++)
+					items.Add(Next());
 
-				if (sequence++ % 2 == 0)
-					item.AsForeignMessage(sequence, Body(), sequence, Headers, Guid.NewGuid(), () => { });
-				else
-					item.AsTransformationResultMessage(sequence, sequence, Headers);
+				session.BeginTransaction().Returns(x => { throw new DivideByZeroException(); });
+			};
 
-				item.Serialize(Serializer);
+			Because of = () =>
+				exception = Catch.Exception(() => writer.Write(items));
 
-				return item;
-			}
+			It should_dispose_of_the_resourses = () =>
+				session.Received().Cleanup();
 
-			static readonly JsonSerializer Serializer = new JsonSerializer();
-			static readonly Func<byte[]> Body = () => Encoding.UTF8.GetBytes(sequence.ToString(CultureInfo.InvariantCulture));
-			static readonly Dictionary<string, string> Headers = new Dictionary<string, string>();
-			static long sequence;
+			It should_rethrow_the_exception = () =>
+				exception.ShouldBeOfType<DivideByZeroException>();
+
+			static Exception exception;
 		}
 
 		Establish context = () =>
@@ -159,15 +162,28 @@ namespace Hydrospanner.Persistence.SqlPersistence
 			session = Substitute.For<SqlBulkInsertSession>();
 			types = new JournalMessageTypeRegistrar(new string[0]);
 			builder = new SqlBulkInsertCommandBuilder(types, session);
-			writer = new SqlMessageStoreWriter(SessionFactory, builder, types, MaxSliceSize);
+			writer = new SqlMessageStoreWriter(session, builder, types, MaxSliceSize);
 			items = new List<JournalItem>();
 		};
 
-		static SqlBulkInsertSession SessionFactory()
+		static JournalItem Next()
 		{
-			return session;
+			var item = new JournalItem();
+
+			if (sequence++ % 2 == 0)
+				item.AsForeignMessage(sequence, Body(), sequence, Headers, Guid.NewGuid(), () => { });
+			else
+				item.AsTransformationResultMessage(sequence, sequence, Headers);
+
+			item.Serialize(Serializer);
+
+			return item;
 		}
 
+		static readonly JsonSerializer Serializer = new JsonSerializer();
+		static readonly Func<byte[]> Body = () => Encoding.UTF8.GetBytes(sequence.ToString(CultureInfo.InvariantCulture));
+		static readonly Dictionary<string, string> Headers = new Dictionary<string, string>();
+		static long sequence;
 		static SqlBulkInsertSession session;
 		static SqlBulkInsertCommandBuilder builder;
 		static JournalMessageTypeRegistrar types;

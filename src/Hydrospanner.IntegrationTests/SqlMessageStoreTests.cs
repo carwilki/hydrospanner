@@ -133,7 +133,7 @@ namespace Hydrospanner.IntegrationTests
 			var types = new JournalMessageTypeRegistrar(new string[0]);
 			var session = new SqlBulkInsertSession(factory, settings.ConnectionString);
 			var builder = new SqlBulkInsertCommandBuilder(types, session);
-			var writer = new SqlMessageStoreWriter(() => session, builder, types, 100);
+			var writer = new SqlMessageStoreWriter(session, builder, types, 100);
 			store = new SqlMessageStore(factory, settings.ConnectionString, () => writer, types);
 			store.Save(items);
 		};
@@ -248,7 +248,7 @@ namespace Hydrospanner.IntegrationTests
 			var types = new JournalMessageTypeRegistrar(new string[0]);
 			var session = new SqlBulkInsertSession(factory, settings.ConnectionString);
 			var builder = new SqlBulkInsertCommandBuilder(types, session);
-			var writer = new SqlMessageStoreWriter(() => session, builder, types, 100);
+			var writer = new SqlMessageStoreWriter(session, builder, types, 100);
 			store = new SqlMessageStore(factory, settings.ConnectionString, () => writer, types);
 			serializer = new JsonSerializer();
 
