@@ -41,6 +41,7 @@
 
 		void Save(IList<JournalItem> items)
 		{
+			// TOD: the writer isn't actually disposed, we should use a try/finally instead.
 			using (var writer = this.writerFactory())
 				writer.Write(items);
 		}

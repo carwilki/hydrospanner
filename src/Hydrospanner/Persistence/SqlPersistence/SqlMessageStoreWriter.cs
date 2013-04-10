@@ -8,6 +8,7 @@
 	{
 		public virtual void Write(IList<JournalItem> items)
 		{
+			// TODO: the session isn't truly disposed, instead we should probably use try/finally.
 			using (var session = this.sessionFactory())
 			{
 				session.BeginTransaction();
