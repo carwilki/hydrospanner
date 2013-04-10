@@ -34,7 +34,14 @@
 		public virtual void CommitTransaction()
 		{
 			this.transaction.Commit();
-			this.Dispose(true);
+			this.Cleanup();
+		}
+
+		private void Cleanup()
+		{
+			this.command = this.command.TryDispose();
+			this.transaction = this.transaction.TryDispose();
+			this.connection = this.connection.TryDispose();
 		}
 
 		public SqlBulkInsertSession(DbProviderFactory factory, string connectionString)
@@ -53,12 +60,8 @@
 		}
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposing)
-				return;
-
-			this.connection = this.connection.TryDispose();
-			this.transaction = this.transaction.TryDispose();
-			this.command = this.command.TryDispose();
+			if (disposing)
+				this.Cleanup();
 		}
 
 		private readonly DbProviderFactory factory;
