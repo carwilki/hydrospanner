@@ -11,7 +11,7 @@
 			get
 			{
 				short parsed;
-				if (!short.TryParse(RetrieveAppSetting("NodeId"), out parsed))
+				if (!short.TryParse(RetrieveAppSetting("hydrospanner-node-id"), out parsed))
 					throw new ArgumentException("Please supply a NodeId in the form of a parse-able 2-byte integer (short).");
 
 				return parsed;
@@ -23,7 +23,7 @@
 			{
 				try
 				{
-					return new Uri(RetrieveAppSetting("BrokerAddress"));
+					return new Uri(RetrieveAppSetting("hydrospanner-broker-address"));
 				}
 				catch (Exception)
 				{
@@ -31,14 +31,14 @@
 				}
 			}
 		}
-		public virtual string SourceQueueName { get { return RetrieveAppSetting("SourceQueue"); } }
-		public virtual string JournalConnectionName { get { return RetrieveConnectionName("MessageJournal"); } }
-		public virtual string PublicSnapshotConnectionName { get { return RetrieveConnectionName("PublicSnapshots"); } }
-		public virtual int DuplicateWindow { get { return RetrieveNumericAppSetting("DuplicateWindow"); } }
-		public virtual int JournalBatchSize { get { return RetrieveNumericAppSetting("JournalBatchSize"); } }
-		public virtual int SnapshotGeneration { get { return RetrieveNumericAppSetting("SnapshotGeneration"); } }
-		public virtual string SnapshotLocation { get { return RetrieveAppSetting("SnapshotLocation"); } }
-		public virtual int SystemSnapshotFrequency { get { return RetrieveNumericAppSetting("SystemSnapshotFrequency"); } }
+		public virtual string SourceQueueName { get { return RetrieveAppSetting("hydrospanner-source-queue"); } }
+		public virtual string JournalConnectionName { get { return RetrieveConnectionName("hydrospanner-journal"); } }
+		public virtual string PublicSnapshotConnectionName { get { return RetrieveConnectionName("hydrospanner-public-snapshots"); } }
+		public virtual int DuplicateWindow { get { return RetrieveNumericAppSetting("hydrospanner-duplicate-window", 1024 * 1024); } }
+		public virtual int JournalBatchSize { get { return RetrieveNumericAppSetting("hydrospanner-journal-batch-size", 1024); } }
+		public virtual int SnapshotGeneration { get { return RetrieveNumericAppSetting("hydrospanner-system-snapshot-generation"); } }
+		public virtual string SnapshotLocation { get { return RetrieveAppSetting("hydrospanner-system-snapshot-location"); } }
+		public virtual int SystemSnapshotFrequency { get { return RetrieveNumericAppSetting("hydrospanner-system-snapshot-frequency", 50000); } }
 
 		private static readonly NameValueCollection Settings = ConfigurationManager.AppSettings;
 		private static readonly ConnectionStringSettingsCollection Connections = ConfigurationManager.ConnectionStrings;
@@ -59,15 +59,19 @@
 			return settings.Name;
 		}
 
-		private static int RetrieveNumericAppSetting(string name)
+		private static int RetrieveNumericAppSetting(string name, int defaultValue = -1)
 		{
 			var value = RetrieveAppSetting(name);
+
 			int parsed;
-			if (!int.TryParse(value, out parsed))
+			if (int.TryParse(value, out parsed) && parsed > 0)
+				return parsed;
+
+			if (defaultValue <= 0 || parsed <= 0)
 				throw new ArgumentException(
 					string.Format("Please supply a value for the app setting '{0}' that can be parsed as a 4-byte integer.", name));
 
-			return parsed;
+			return defaultValue;
 		}
 	}
 }
