@@ -4,27 +4,15 @@
 	using System.Collections.Generic;
 	using Phases.Journal;
 
-	public class SqlMessageStoreWriter : IDisposable
+	public class SqlMessageStoreWriter
 	{
 		public virtual void Write(IList<JournalItem> items)
-		{
-			try
-			{
-				this.TryWrite(items);
-			}
-			catch
-			{
-				this.session.Cleanup();
-				throw;
-			}
-		}
-
-		private void TryWrite(IList<JournalItem> items)
 		{
 			this.session.BeginTransaction();
 			this.SaveInSlices(items);
 			this.session.CommitTransaction();
 			this.types.MarkPendingAsRegistered();
+			this.Cleanup();
 		}
 
 		private void SaveInSlices(IList<JournalItem> items)
@@ -59,6 +47,12 @@
 			return this.builder.Build();
 		}
 
+		public virtual void Cleanup()
+		{
+			this.builder.Cleanup();
+			this.session.Cleanup();
+		}
+
 		public SqlMessageStoreWriter(
 			SqlBulkInsertSession session,
 			SqlBulkInsertCommandBuilder builder,
@@ -82,18 +76,9 @@
 			this.types = types;
 			this.maxSliceSize = maxSliceSize;
 		}
+
 		protected SqlMessageStoreWriter()
 		{
-		}
-		public virtual void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-				this.builder.Cleanup();
 		}
 
 		private readonly SqlBulkInsertSession session;

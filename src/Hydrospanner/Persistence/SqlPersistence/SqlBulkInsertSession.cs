@@ -37,7 +37,7 @@
 			this.Cleanup();
 		}
 
-		public void Cleanup()
+		public virtual void Cleanup()
 		{
 			this.command = this.command.TryDispose();
 			this.transaction = this.transaction.TryDispose();

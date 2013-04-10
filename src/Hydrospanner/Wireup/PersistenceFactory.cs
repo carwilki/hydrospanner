@@ -23,7 +23,7 @@
 			var session = new SqlBulkInsertSession(this.factory, this.connectionString);
 			var builder = new SqlBulkInsertCommandBuilder(types, session);
 			var writer = new SqlMessageStoreWriter(session, builder, types, this.maxJournalBatchSize);
-			return new SqlMessageStore(this.factory, this.connectionString, () => writer, types);
+			return new SqlMessageStore(this.factory, this.connectionString, writer, types);
 		}
 
 		public PersistenceFactory(string connectionName, int duplicateWindow, int maxJournalBatchSize)

@@ -15,35 +15,35 @@ namespace Hydrospanner.Persistence.SqlPersistence
 	public class when_initializing_the_store
 	{
 		It should_throw_if_the_factory_is_null = () =>
-			Catch.Exception(() => new SqlMessageStore(null, connectionString, writerFactory, types)).ShouldBeOfType<ArgumentNullException>();
+			Catch.Exception(() => new SqlMessageStore(null, connectionString, writer, types)).ShouldBeOfType<ArgumentNullException>();
 
 		It should_throw_if_the_connection_string_is_null_or_empty = () =>
 		{
-			Catch.Exception(() => new SqlMessageStore(factory, null, writerFactory, types)).ShouldBeOfType<ArgumentNullException>();
-			Catch.Exception(() => new SqlMessageStore(factory, string.Empty, writerFactory, types)).ShouldBeOfType<ArgumentNullException>();
-			Catch.Exception(() => new SqlMessageStore(factory, "  \t\n", writerFactory, types)).ShouldBeOfType<ArgumentNullException>();
+			Catch.Exception(() => new SqlMessageStore(factory, null, writer, types)).ShouldBeOfType<ArgumentNullException>();
+			Catch.Exception(() => new SqlMessageStore(factory, string.Empty, writer, types)).ShouldBeOfType<ArgumentNullException>();
+			Catch.Exception(() => new SqlMessageStore(factory, "  \t\n", writer, types)).ShouldBeOfType<ArgumentNullException>();
 		};
 
 		It should_throw_if_the_writer_factory_is_null = () =>
 			Catch.Exception(() => new SqlMessageStore(factory, connectionString, null, types)).ShouldBeOfType<ArgumentNullException>();
 
 		It should_throw_if_the_type_registrar_is_null = () =>
-			Catch.Exception(() => new SqlMessageStore(factory, connectionString, writerFactory, null)).ShouldBeOfType<ArgumentNullException>();
+			Catch.Exception(() => new SqlMessageStore(factory, connectionString, writer, null)).ShouldBeOfType<ArgumentNullException>();
 
 		It should_NOT_throw_if_all_values_are_acceptable = () =>
-			Catch.Exception(() => new SqlMessageStore(factory, connectionString, writerFactory, types)).ShouldBeNull();
+			Catch.Exception(() => new SqlMessageStore(factory, connectionString, writer, types)).ShouldBeNull();
 
 		Establish context = () =>
 		{
 			factory = DbProviderFactories.GetFactory("System.Data.SqlClient");
 			connectionString = "My Connection String";
-			writerFactory = () => null;
+			writer = Substitute.For<SqlMessageStoreWriter>();
 			types = new JournalMessageTypeRegistrar(new string[0]);
 		};
 
 		static DbProviderFactory factory;
 		static string connectionString;
-		static Func<SqlMessageStoreWriter> writerFactory;
+		static SqlMessageStoreWriter writer;
 		static JournalMessageTypeRegistrar types;
 	}
 
@@ -94,7 +94,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 				writer.Received(2).Write(items);
 
 			It should_cleanup_before_the_retry = () =>
-				writer.Received(2).Dispose();
+				writer.Received(1).Cleanup();
 
 			static bool thrown;
 			static List<JournalItem> items;
@@ -112,9 +112,6 @@ namespace Hydrospanner.Persistence.SqlPersistence
 			It should_persist_the_items = () =>
 				writer.Received(1).Write(items);
 
-			It should_cleanup = () =>
-				writer.Received(1).Dispose();
-
 			static List<JournalItem> items;
 		}
 
@@ -124,7 +121,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 			connectionString = "My Connection String";
 			writer = Substitute.For<SqlMessageStoreWriter>();
 			types = new JournalMessageTypeRegistrar(new string[0]);
-			store = new SqlMessageStore(factory, connectionString, () => writer, types);
+			store = new SqlMessageStore(factory, connectionString, writer, types);
 		};
 
 		static SqlMessageStore store;

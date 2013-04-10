@@ -28,28 +28,22 @@
 		{
 			try
 			{
-				this.Save(items);
+				this.writer.Write(items);
 				return true;
 			}
 			catch
 			{
+				this.writer.Cleanup();
 				Timeout.Sleep();
 			}
 
 			return false;
 		}
 
-		void Save(IList<JournalItem> items)
-		{
-			// TOD: the writer isn't actually disposed, we should use a try/finally instead.
-			using (var writer = this.writerFactory())
-				writer.Write(items);
-		}
-
 		public SqlMessageStore(
 			DbProviderFactory factory,
 			string connectionString, 
-			Func<SqlMessageStoreWriter> writerFactory, 
+			SqlMessageStoreWriter writer, 
 			JournalMessageTypeRegistrar types)
 		{
 			if (factory == null)
@@ -58,22 +52,22 @@
 			if (string.IsNullOrWhiteSpace(connectionString))
 				throw new ArgumentNullException("connectionString");
 
-			if (writerFactory == null)
-				throw new ArgumentNullException("writerFactory");
+			if (writer == null)
+				throw new ArgumentNullException("writer");
 
 			if (types == null)
 				throw new ArgumentNullException("types");
 
 			this.factory = factory;
 			this.connectionString = connectionString;
-			this.writerFactory = writerFactory;
+			this.writer = writer;
 			this.types = types;
 		}
 
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(3);
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
-		private readonly Func<SqlMessageStoreWriter> writerFactory;
+		private readonly SqlMessageStoreWriter writer;
 		private readonly JournalMessageTypeRegistrar types;
 	}
 }

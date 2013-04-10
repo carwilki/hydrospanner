@@ -135,26 +135,24 @@ namespace Hydrospanner.Persistence.SqlPersistence
 			};
 		}
 
-		public class when_there_is_a_problem_when_writing_a_batch
+		public class when_cleaning_up
 		{
 			Establish context = () =>
 			{
-				for (var i = 0; i < MaxSliceSize * 3; i++)
-					items.Add(Next());
-
-				session.BeginTransaction().Returns(x => { throw new DivideByZeroException(); });
+				session = Substitute.For<SqlBulkInsertSession>();
+				types = new JournalMessageTypeRegistrar(new string[0]);
+				builder = Substitute.For<SqlBulkInsertCommandBuilder>();
+				writer = new SqlMessageStoreWriter(session, builder, types, MaxSliceSize);
 			};
 
 			Because of = () =>
-				exception = Catch.Exception(() => writer.Write(items));
+				writer.Cleanup();
 
-			It should_dispose_of_the_resourses = () =>
-				session.Received().Cleanup();
+			It should_cleanup_the_insert_session = () =>
+				session.Received(1).Cleanup();
 
-			It should_rethrow_the_exception = () =>
-				exception.ShouldBeOfType<DivideByZeroException>();
-
-			static Exception exception;
+			It should_cleanup_the_command_builder = () =>
+				builder.Received(1).Cleanup();
 		}
 
 		Establish context = () =>

@@ -11,7 +11,7 @@
 			this.statement.Clear();
 		}
 
-		public void Include(JournalItem item)
+		public virtual void Include(JournalItem item)
 		{
 			this.AddSerializedData(item);
 			var metadataId = this.AddMetadata(item);
