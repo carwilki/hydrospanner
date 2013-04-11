@@ -6,6 +6,7 @@
 	using Phases.Journal;
 	using RabbitMQ.Client;
 	using RabbitMQ.Client.Events;
+	using RabbitMQ.Client.Exceptions;
 
 	public class RabbitChannel : IMessageSender, IMessageReceiver
 	{
@@ -56,9 +57,18 @@
 			{
 				currentChannel.BasicPublish(exchange, string.Empty, meta, message.SerializedBody);
 			}
+			catch (AlreadyClosedException e)
+			{
+				var reason = e.ShutdownReason;
+				if (reason != null && reason.Initiator == ShutdownInitiator.Peer && reason.ReplyCode == 404)
+					Log.Fatal("Exchange '{0}' does not exist.".FormatWith(exchange), e); // CONFIG: use throttling to log4net xml config
+
+				Wait.Sleep();
+				this.Close();
+				return false;
+			}
 			catch
 			{
-				Log.FatalFormat("Exchange '{0}' is missing--cannot proceed until created.", exchange);
 				this.Close();
 				return false;
 			}
@@ -219,6 +229,7 @@
 		private const string ContentType = "application/vnd.hydrospanner-msg+json";
 		private const string ContentEncoding = "utf8";
 		private static readonly ILog Log = LogManager.GetLogger(typeof(RabbitChannel));
+		private static readonly TimeSpan Wait = TimeSpan.FromSeconds(3);
 		private readonly RabbitConnector connector;
 		private readonly Func<IModel, RabbitSubscription> factory;
 		private readonly short nodeId;

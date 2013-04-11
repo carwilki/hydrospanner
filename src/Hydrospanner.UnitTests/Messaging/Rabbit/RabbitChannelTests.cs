@@ -13,6 +13,7 @@ namespace Hydrospanner.Messaging.Rabbit
 	using Phases.Journal;
 	using RabbitMQ.Client;
 	using RabbitMQ.Client.Events;
+	using RabbitMQ.Client.Exceptions;
 	using RabbitMQ.Client.Framing.v0_9_1;
 
 	[Subject(typeof(RabbitChannel))]
@@ -296,6 +297,44 @@ namespace Hydrospanner.Messaging.Rabbit
 
 			It should_indicate_failure_to_the_caller = () =>
 				result.ShouldBeFalse();
+		}
+
+		public class when_sending_a_message_where_the_exchange_does_not_exist
+		{
+			Establish context = () =>
+			{
+				var args = new ShutdownEventArgs(ShutdownInitiator.Peer, 404, "Exchange missing");
+
+				actualChannel
+					.When(x => x.BasicPublish(Arg.Any<string>(), string.Empty, Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
+					.Do(x => { throw new AlreadyClosedException(args); });
+
+				actualChannel
+					.When(x => x.Dispose())
+					.Do(x => { throw new Exception(); });
+
+				ThreadExtensions.Freeze(x => slept = x);
+			};
+
+			Cleanup after = () =>
+				ThreadExtensions.Unfreeze();
+
+			Because of = () =>
+				result = channel.Send(messageToSend);
+
+			It should_SAFELY_dispose_the_underlying_channel = () =>
+				actualChannel.Received(1).Dispose();
+
+			It should_NOT_throw_an_exception = () =>
+				thrown.ShouldBeNull();
+
+			It should_indicate_failure_to_the_caller = () =>
+				result.ShouldBeFalse();
+
+			It should_sleep_for_a_few_seconds = () =>
+				slept.ShouldEqual(TimeSpan.FromSeconds(3));
+
+			static TimeSpan slept;
 		}
 
 		public class when_sending_a_message_after_a_previously_failed_attempt
