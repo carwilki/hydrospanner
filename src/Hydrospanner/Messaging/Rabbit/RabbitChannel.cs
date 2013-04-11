@@ -34,7 +34,7 @@
 			// FUTURE: TTL and DeliveryMode could be in an application-defined dictionary that is available for lookup here
 			// based upon message type.  Default to Persistent, no TTL if an entry is not found.
 			var meta = currentChannel.CreateBasicProperties();
-			meta.AppId = this.appId;
+			meta.AppId = this.normalizedNodeId;
 			meta.DeliveryMode = Persistent;
 			meta.Type = message.SerializedType;
 			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
@@ -101,7 +101,7 @@
 				return MessageDelivery.Empty;
 
 			var meta = message.BasicProperties;
-			if (meta.AppId == this.appId)
+			if (meta.AppId == this.normalizedNodeId)
 				return MessageDelivery.Empty; // the message originated at this node, don't re-consume it; FUTURE: how does this affect timeout messages?
 
 			var id = meta.MessageId.ToMessageId();
@@ -186,7 +186,7 @@
 			this.connector = connector;
 			this.nodeId = nodeId;
 			this.factory = factory;
-			this.appId = nodeId.ToString(CultureInfo.InvariantCulture);
+			this.normalizedNodeId = nodeId.ToString(CultureInfo.InvariantCulture);
 		}
 
 		public void Dispose()
@@ -210,7 +210,7 @@
 		private readonly RabbitConnector connector;
 		private readonly Func<IModel, RabbitSubscription> factory;
 		private readonly short nodeId;
-		private readonly string appId;
+		private readonly string normalizedNodeId;
 		private IModel channel;
 		private RabbitSubscription subscription;
 		private bool disposed;
