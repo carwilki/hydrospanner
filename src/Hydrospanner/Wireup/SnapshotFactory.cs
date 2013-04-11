@@ -7,15 +7,10 @@
 
 	public class SnapshotFactory
 	{
-		public int SnapshotGeneration
-		{
-			get { return this.snapshotGeneration; }
-		}
-
 		public virtual SystemSnapshotStreamReader CreateSystemSnapshotStreamReader(long journaledSequence)
 		{
 			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), this.systemSnapshotPath);
-			return loader.Load(journaledSequence, this.snapshotGeneration);
+			return loader.Load(journaledSequence);
 		}
 		public virtual ISnapshotRecorder CreateSystemSnapshotRecorder()
 		{
@@ -26,13 +21,10 @@
 			return new PublicSnapshotRecorder(this.settings);
 		}
 
-		public SnapshotFactory(int snapshotGeneration, string systemSnapshotPath, string publicSnapshotConnectionName)
+		public SnapshotFactory(string systemSnapshotPath, string publicSnapshotConnectionName)
 		{
 			if (string.IsNullOrWhiteSpace(systemSnapshotPath))
 				throw new ArgumentNullException("systemSnapshotPath");
-
-			if (snapshotGeneration < 0)
-				throw new ArgumentOutOfRangeException("snapshotGeneration");
 
 			if (string.IsNullOrWhiteSpace(publicSnapshotConnectionName))
 				throw new ArgumentNullException("publicSnapshotConnectionName");
@@ -44,7 +36,6 @@
 			if (string.IsNullOrWhiteSpace(this.settings.ProviderName) || string.IsNullOrWhiteSpace(this.settings.ConnectionString))
 				throw new ConfigurationErrorsException("Connection named '{0}' missing provider info or connection string info.".FormatWith(publicSnapshotConnectionName));
 
-			this.snapshotGeneration = snapshotGeneration;
 			this.systemSnapshotPath = systemSnapshotPath;
 		}
 		protected SnapshotFactory()
@@ -52,7 +43,6 @@
 		}
 
 		private readonly ConnectionStringSettings settings;
-		private readonly int snapshotGeneration;
 		private readonly string systemSnapshotPath;
 	}
 }

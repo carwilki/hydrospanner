@@ -21,11 +21,11 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			Establish context = () =>
 				directory
-					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierGeneration.ToString(CultureInfo.InvariantCulture))), SearchOption.TopDirectoryOnly)
-					.Returns(new[] { "hi", "not-a-snapshot", "blah-blah-blah", "bad_generation-42-hash" });
+					.GetFiles(Path, Arg.Any<string>(), SearchOption.TopDirectoryOnly)
+					.Returns(new[] { "hi", "not-a-snapshot", "blah-blah-blah" });
 
 			Because of = () =>
-				reader = loader.Load(long.MaxValue, int.MaxValue);
+				reader = loader.Load(long.MaxValue);
 
 			It should_return_a_blank_snapshot = () =>
 				reader.Count.ShouldEqual(0);
@@ -37,108 +37,51 @@ namespace Hydrospanner.Phases.Snapshot
 			{
 				file.OpenRead(Arg.Any<string>()).Returns(new MemoryStream(new byte[] { 0, 0, 0, 0 }));
 				directory
-					.GetFiles(Path, Arg.Is<string>(x => x.StartsWith(EarlierGeneration.ToString(CultureInfo.InvariantCulture))), SearchOption.TopDirectoryOnly)
-					.Returns(new[] { Path + EarlierGeneration + "-" + MessageSequence + "-bad_hash" });
+					.GetFiles(Path, Arg.Any<string>(), SearchOption.TopDirectoryOnly)
+					.Returns(new[] { Path + MessageSequence + "-bad_hash" });
 			};
 
 			Because of = () =>
-				reader = loader.Load(long.MaxValue, int.MaxValue);
+				reader = loader.Load(long.MaxValue);
 
 			It should_return_a_blank_snapshot = () =>
 				reader.Count.ShouldEqual(0);
 		}
 
-		public class and_there_is_at_least_one_viable_snapshot
+		public class when_loading_a_snapshot_based_on_message_sequence
 		{
-			Establish context = () =>
-			{
-				var earlierPath = Path + EarlierGeneration + "-" + MessageSequence + "-" + hash;
-				var laterPath = Path + LaterGeneration + "-" + MessageSequence + "-" + hash;
-
-				directory
-					.GetFiles(Path, "*", SearchOption.TopDirectoryOnly)
-					.Returns(new[] { earlierPath, laterPath });
-
-				file.OpenRead(earlierPath).Returns(new MemoryStream(contents));
-				file.OpenRead(laterPath).Returns(new MemoryStream(contents));
-			};
-
-			Because of = () =>
-				reader = loader.Load(long.MaxValue, int.MaxValue);
-
-			It should_load_the_snapshot_with_the_highest_generation = () =>
-			{
-				reader.Generation.ShouldEqual(LaterGeneration);
-				reader.Read().First().Value.ShouldBeLike(FirstRecord);
-			};
-		}
-
-		public class when_loading_snapshots_using_parameterized_constraints
-		{
-			public class when_loading_a_snapshot_based_on_message_sequence
-			{
-				Establish context = () =>
-				{
-					var reallyEarlyPath = Path + EarlierGeneration + "-" + ReallyEarlySnapshotSequence + "-" + hash;
-					var earlierPath = Path + EarlierGeneration + "-" + EarlySnapshotSequence + "-" + hash;
-					var laterPath = Path + EarlierGeneration + "-" + LaterSnapshotSequence + "-" + hash;
-
-					directory
-						.GetFiles(Path, "*", SearchOption.TopDirectoryOnly)
-						.Returns(new[] { laterPath, reallyEarlyPath, earlierPath });
-
-					file.OpenRead(reallyEarlyPath).Returns(new MemoryStream(contents));
-					file.OpenRead(earlierPath).Returns(new MemoryStream(contents));
-					file.OpenRead(laterPath).Returns(new MemoryStream(contents));
-				};
-
-				Because of = () =>
-					reader = loader.Load(StoredMessageSequence, int.MaxValue);
-
-				It should_load_the_snapshot_whose_message_sequence_is_closest_to_but_higher_than_the_provided_sequence = () =>
-				{
-					reader.MessageSequence.ShouldEqual(EarlySnapshotSequence);
-					reader.Read().First().Value.ShouldBeLike(FirstRecord);
-				};
-
-				const long ReallyEarlySnapshotSequence = StoredMessageSequence - 1;
-				const long EarlySnapshotSequence = StoredMessageSequence;
-				const long LaterSnapshotSequence = StoredMessageSequence + 1;
-			}
-
-			public class when_loading_a_snapshot_based_on_snapshot_generation
-			{
-				Establish context = () =>
-				{
-					var earlierPath = Path + EarlierGeneration + "-" + StoredMessageSequence + "-" + hash;
-					var laterPath = Path + LaterGeneration + "-" + StoredMessageSequence + "-" + hash;
-
-					directory
-						.GetFiles(Path, "*", SearchOption.TopDirectoryOnly)
-						.Returns(new[] { earlierPath, laterPath });
-
-					file.OpenRead(laterPath).Returns(x => { throw new DivideByZeroException("This code should NOT be executed!!"); });
-					file.OpenRead(earlierPath).Returns(new MemoryStream(contents));
-				};
-
-				Because of = () =>
-					reader = loader.Load(long.MaxValue, EarlierGeneration);
-
-				It should_load_the_latest_snapshot_at_or_below_the_provided_generation = () =>
-				{
-					reader.Generation.ShouldEqual(EarlierGeneration);
-					reader.Read().First().Value.ShouldBeLike(FirstRecord);
-				};
-			}
-
 			Establish context = () =>
 			{
 				file = Substitute.For<FileBase>();
 				directory = Substitute.For<DirectoryBase>();
 				loader = new SystemSnapshotLoader(directory, file, Path);
+
+				var reallyEarlyPath = Path + ReallyEarlySnapshotSequence + "-" + hash;
+				var earlierPath = Path + EarlySnapshotSequence + "-" + hash;
+				var laterPath = Path + LaterSnapshotSequence + "-" + hash;
+
+				directory
+					.GetFiles(Path, "*", SearchOption.TopDirectoryOnly)
+					.Returns(new[] { laterPath, reallyEarlyPath, earlierPath });
+
+				file.OpenRead(reallyEarlyPath).Returns(new MemoryStream(contents));
+				file.OpenRead(earlierPath).Returns(new MemoryStream(contents));
+				file.OpenRead(laterPath).Returns(new MemoryStream(contents));
+			};
+
+			Because of = () =>
+				reader = loader.Load(StoredMessageSequence);
+
+			It should_load_the_snapshot_whose_message_sequence_is_closest_to_but_higher_than_the_provided_sequence = () =>
+			{
+				reader.MessageSequence.ShouldEqual(EarlySnapshotSequence);
+				reader.Read().First().Value.ShouldBeLike(FirstRecord);
 			};
 
 			const int StoredMessageSequence = 42;
+			const long ReallyEarlySnapshotSequence = StoredMessageSequence - 1;
+			const long EarlySnapshotSequence = StoredMessageSequence;
+			const long LaterSnapshotSequence = StoredMessageSequence + 1;
 		}
 
 		Establish context = () =>
@@ -161,8 +104,6 @@ namespace Hydrospanner.Phases.Snapshot
 		};
 
 		const string Path = "./path/to/snapshots/";
-		const int EarlierGeneration = 1;
-		const int LaterGeneration = 2;
 		const int MessageSequence = 42;
 		static readonly byte[] FirstRecord = BitConverter.GetBytes(42);
 		static SystemSnapshotLoader loader;

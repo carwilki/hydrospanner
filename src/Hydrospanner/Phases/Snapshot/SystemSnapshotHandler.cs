@@ -43,20 +43,18 @@
 
 		private void FinishRecording(SnapshotItem data)
 		{
-			this.recorder.FinishRecording(this.currentGeneration, data.CurrentSequence);
+			this.recorder.FinishRecording(data.CurrentSequence);
 			this.recording = false;
 			Log.InfoFormat("Recording finished for system snapshot at message sequence {0}.", data.CurrentSequence);
 		}
 
-		public SystemSnapshotHandler(ISnapshotRecorder recorder, int currentGeneration)
+		public SystemSnapshotHandler(ISnapshotRecorder recorder)
 		{
 			this.recorder = recorder;
-			this.currentGeneration = currentGeneration;
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(SystemSnapshotHandler));
 		private readonly ISnapshotRecorder recorder;
-		private readonly int currentGeneration;
 		private bool recording;
 	}
 }

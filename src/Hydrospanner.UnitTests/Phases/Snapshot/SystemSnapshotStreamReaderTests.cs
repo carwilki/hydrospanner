@@ -18,7 +18,7 @@ namespace Hydrospanner.Phases.Snapshot
 		public class and_the_hash_does_not_match_the_contents_of_the_snapshot
 		{
 			Because of = () =>
-				reader = SystemSnapshotStreamReader.Open(0, 1, " \t bogus hash \n ", stream);
+				reader = SystemSnapshotStreamReader.Open(0, " \t bogus hash \n ", stream);
 
 			It should_reset_the_stream_position_to_zero = () =>
 				stream.Position.ShouldEqual(0);
@@ -30,7 +30,7 @@ namespace Hydrospanner.Phases.Snapshot
 		public class and_the_hash_matches
 		{
 			Because of = () =>
-				reader = SystemSnapshotStreamReader.Open(MessageSequence, 1, correctHash, stream);
+				reader = SystemSnapshotStreamReader.Open(MessageSequence, correctHash, stream);
 
 			It should_read_the_first_four_bytes_to_determine_the_number_of_items_in_the_snapshot = () =>
 			{
@@ -79,7 +79,7 @@ namespace Hydrospanner.Phases.Snapshot
 			stream = new MemoryStream(contents.ToArray());
 			var hasher = new SHA1Managed();
 			var hash = new SoapHexBinary(hasher.ComputeHash(contents.ToArray())).ToString();
-			reader = SystemSnapshotStreamReader.Open(42, 1, hash, stream);
+			reader = SystemSnapshotStreamReader.Open(42, hash, stream);
 		};
 
 		Because of = () =>
@@ -113,7 +113,7 @@ namespace Hydrospanner.Phases.Snapshot
 			using (var hasher = new SHA1Managed())
 				correctHash = new SoapHexBinary(hasher.ComputeHash(Contents)).ToString();
 
-			reader = SystemSnapshotStreamReader.Open(0, 1, correctHash, stream);
+			reader = SystemSnapshotStreamReader.Open(0, correctHash, stream);
 		};
 
 		Because of = () =>

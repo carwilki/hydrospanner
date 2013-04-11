@@ -22,7 +22,7 @@
 			this.catalog[item.Key] = item;
 		}
 
-		public void FinishRecording(int generation = 0, long sequence = 0)
+		public void FinishRecording(long sequence = 0)
 		{
 			if (!this.catalog.Any())
 				return;

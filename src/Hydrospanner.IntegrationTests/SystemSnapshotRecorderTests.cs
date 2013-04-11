@@ -19,7 +19,7 @@ namespace Hydrospanner.IntegrationTests
 			serializer = new JsonSerializer();
 			recorder = new SystemSnapshotRecorder(new FileWrapper(), workingDirectory);
 			expectedRecords = Enumerable.Range(1, 10)
-				.Select(x => new KeyValuePair<string, byte[]>(typeof(int).AssemblyQualifiedName, serializer.Serialize(x)))
+				.Select(x => new KeyValuePair<string, byte[]>(default(int).ResolvableTypeName(), serializer.Serialize(x)))
 				.ToList();
 		};
 
@@ -29,16 +29,15 @@ namespace Hydrospanner.IntegrationTests
 			for (var i = 1; i <= 10; i++)
 				recorder.Record(Generate(i, i, 10 - i));
 
-			recorder.FinishRecording(42, 10);
+			recorder.FinishRecording(10);
 		};
 
 		It should_create_a_snapshot_file_with_the_appropriate_values = () =>
 		{
 			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), workingDirectory);
-			using (var reader = loader.Load(10, 42))
+			using (var reader = loader.Load(10))
 			{
 				reader.Count.ShouldEqual(10);
-				reader.Generation.ShouldEqual(42);
 				reader.MessageSequence.ShouldEqual(10);
 				var records = reader.Read().ToList();
 				for (var i = 0; i < records.Count; i++)

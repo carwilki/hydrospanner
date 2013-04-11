@@ -6,22 +6,21 @@
 
 	public class SystemSnapshotLoader
 	{
-		public virtual SystemSnapshotStreamReader Load(long maxSequence, int currentGeneration)
+		public virtual SystemSnapshotStreamReader Load(long maxSequence)
 		{
-			return this.directory.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly)
-				.Select(ParsedSystemSnapshotFilename.Parse)
-				.Where(x => x != null && x.Sequence <= maxSequence && x.Generation <= currentGeneration)
-				.OrderByDescending(x => x.Generation)
-				.ThenByDescending(x => x.Sequence)
-				.Select(this.OpenOrDefault)
-				.FirstOrDefault(x => x != null && x.Count > 0) ?? new SystemSnapshotStreamReader();
+			var files = this.directory.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly).ToList();
+			var snapshots = files.Select(ParsedSystemSnapshotFilename.Parse).ToList();
+			var viableSnapshots = snapshots.Where(x => x != null && x.Sequence <= maxSequence).ToList();
+			var openSnapshots = viableSnapshots.OrderByDescending(x => x.Sequence).Select(this.OpenOrDefault).ToList();
+			var first = openSnapshots.FirstOrDefault(x => x != null && x.Count > 0);
+			return first ?? new SystemSnapshotStreamReader();
 		}
 
 		private SystemSnapshotStreamReader OpenOrDefault(ParsedSystemSnapshotFilename snapshot)
 		{
 			var fileStream = new BufferedStream(this.file.OpenRead(snapshot.FullPath), BufferSize);
 
-			return SystemSnapshotStreamReader.Open(snapshot.Sequence, snapshot.Generation, snapshot.Hash, fileStream);
+			return SystemSnapshotStreamReader.Open(snapshot.Sequence, snapshot.Hash, fileStream);
 		}
 
 		public SystemSnapshotLoader(DirectoryBase directory, FileBase file, string path)

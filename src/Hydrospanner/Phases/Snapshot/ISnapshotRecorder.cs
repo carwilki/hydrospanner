@@ -4,6 +4,6 @@
 	{
 		void StartRecording(int expectedItems);
 		void Record(SnapshotItem item);
-		void FinishRecording(int generation = 0, long sequence = 0);
+		void FinishRecording(long sequence = 0);
 	}
 }

@@ -46,7 +46,7 @@
 
 			var disruptor = CreateDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 8);
 			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(CreateSerializer()))
-			    .Then(new SystemSnapshotHandler(systemRecorder, this.snapshots.SnapshotGeneration), new PublicSnapshotHandler(publicRecorder));
+			    .Then(new SystemSnapshotHandler(systemRecorder), new PublicSnapshotHandler(publicRecorder));
 
 			this.snapshotRing = new RingBufferBase<SnapshotItem>(disruptor.RingBuffer);
 			return new DisruptorBase<SnapshotItem>(disruptor);

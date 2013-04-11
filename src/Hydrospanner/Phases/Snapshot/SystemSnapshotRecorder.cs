@@ -29,7 +29,7 @@
 				if (this.currentSnapshot == null)
 					return;
 
-				var typeName = item.Memento.GetType().AssemblyQualifiedName ?? string.Empty;
+				var typeName = item.Memento.ResolvableTypeName() ?? string.Empty;
 				this.currentSnapshot.Write(typeName.Length);
 				this.currentSnapshot.Write(typeName.ToByteArray());
 
@@ -38,7 +38,7 @@
 			});
 		}
 
-		public void FinishRecording(int generation = 0, long sequence = 0)
+		public void FinishRecording(long sequence = 0)
 		{
 			Attempt(() =>
 			{
@@ -46,14 +46,14 @@
 					return;
 
 				this.CloseSnapshot();
-				this.FingerprintSnapshot(generation, sequence);
+				this.FingerprintSnapshot(sequence);
 			});
 		}
 
-		private void FingerprintSnapshot(int generation = 0, long sequence = 0)
+		private void FingerprintSnapshot(long sequence = 0)
 		{
 			var hash = this.GenerateFingerprint();
-			var destination = Path.Combine(this.location, SnapshotFilenameTemplate.FormatWith(generation, sequence, hash));
+			var destination = Path.Combine(this.location, SnapshotFilenameTemplate.FormatWith(sequence, hash));
 			this.file.Move(this.pathToCurrentSnapshot, destination);
 		}
 
@@ -92,7 +92,7 @@
 			this.pathToCurrentSnapshot = Path.Combine(this.location, TemporaryFilename);
 		}
 
-		const string SnapshotFilenameTemplate = "{0}-{1}-{2}";
+		const string SnapshotFilenameTemplate = "{0}-{1}";
 		const string TemporaryFilename = "current_snapshot";
 		const int SnapshotBufferSize = 1024 * 32;
 		private readonly FileBase file;

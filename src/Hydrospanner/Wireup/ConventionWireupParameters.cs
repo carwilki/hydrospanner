@@ -36,7 +36,6 @@
 		public virtual string PublicSnapshotConnectionName { get { return RetrieveConnectionName("hydrospanner-public-snapshots"); } }
 		public virtual int DuplicateWindow { get { return RetrieveNumericAppSetting("hydrospanner-duplicate-window", 1024 * 1024); } }
 		public virtual int JournalBatchSize { get { return RetrieveNumericAppSetting("hydrospanner-journal-batch-size", 1024); } }
-		public virtual int SnapshotGeneration { get { return RetrieveNumericAppSetting("hydrospanner-system-snapshot-generation"); } }
 		public virtual string SnapshotLocation { get { return RetrieveAppSetting("hydrospanner-system-snapshot-location"); } }
 		public virtual int SystemSnapshotFrequency { get { return RetrieveNumericAppSetting("hydrospanner-system-snapshot-frequency", 50000); } }
 
