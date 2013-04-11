@@ -24,6 +24,7 @@ CREATE TABLE checkpoints (
 
 INSERT INTO checkpoints SELECT 0;
 
+# note that the documents table CAN and probably should go in a completely separate database
 CREATE TABLE IF NOT EXISTS documents (
 	`identifier` VARCHAR(256) NOT NULL,
 	`message_sequence` BIGINT NOT NULL,
