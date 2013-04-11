@@ -1,6 +1,6 @@
-create database if not exists `hydrospanner`; # Substitute department name here...
+create database if not exists `<MESSAGES-DATABASE-NAME-HERE>`; # Substitute department name here...
 
-use `hydrospanner`;
+use `<MESSAGES-DATABASE-NAME-HERE>`;
 
 CREATE TABLE metadata (
 	metadata_id smallint NOT NULL,
@@ -24,16 +24,6 @@ CREATE TABLE checkpoints (
 
 INSERT INTO checkpoints SELECT 0;
 
-# note that the documents table CAN and probably should go in a completely separate database
-CREATE TABLE IF NOT EXISTS documents (
-	`identifier` VARCHAR(256) NOT NULL,
-	`message_sequence` BIGINT NOT NULL,
-	`document_hash` INT UNSIGNED NOT NULL,
-	`document` MEDIUMBLOB NULL,
-	PRIMARY KEY (`identifier`),
-	UNIQUE INDEX `identifier_UNIQUE` (`identifier` ASC) 
-) DEFAULT CHARACTER SET = latin1;
-
 CREATE FUNCTION toguid($guid binary(16)) RETURNS char(36) CHARSET utf8
     RETURN CONCAT(
         LOWER(HEX(SUBSTRING($guid,4,1))), LOWER(HEX(SUBSTRING($guid,3,1))),
@@ -54,10 +44,6 @@ CREATE FUNCTION tobin($guid char(36)) RETURNS binary(16)
         UNHEX(SUBSTRING($guid, 15, 2)),
         UNHEX(SUBSTRING($guid, 20, 4)),
         UNHEX(SUBSTRING($guid, 25, 12)));
-
-CREATE VIEW `documents_view` AS
-SELECT identifier, CAST(document as char(65535)), message_sequence, document_hash
-  FROM documents;
 
 CREATE VIEW `messages_view` AS
 SELECT M.sequence, T.type_name, toguid(M.foreign_id), CAST(M.payload as CHAR(65535)), CAST(M.headers as CHAR(65535))
