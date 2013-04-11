@@ -11,7 +11,14 @@
 	{
 		public virtual void Restore(BootstrapInfo info, IDisruptor<JournalItem> journalRing, IRepository repository)
 		{
-			ValidateInput(info, journalRing, repository);
+			if (info == null)
+				throw new ArgumentNullException("info");
+			
+			if (journalRing == null) 
+				throw new ArgumentNullException("journalRing");
+			
+			if (repository == null) 
+				throw new ArgumentNullException("repository");
 
 			this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(
 				repository, info, this.snapshotFrequency, () => this.mutex.Set());
@@ -21,63 +28,53 @@
 
 			using (this.transformRing)
 			{
-				this.RestoreFrom(info, journalRing);
+				this.Restore(info, journalRing);
 				this.mutex.WaitOne();
 			}
 		}
-
-		private static void ValidateInput(BootstrapInfo info, IDisruptor<JournalItem> journalRing, IRepository repository)
+		private void Restore(BootstrapInfo info, IDisruptor<JournalItem> journalRing)
 		{
-			if (info == null)
-				throw new ArgumentNullException("info");
-			
-			if (journalRing == null) 
-				throw new ArgumentNullException("journalRing");
-			
-			if (repository == null) 
-				throw new ArgumentNullException("repository");
-		}
+			var startingSequence = Math.Min(info.DispatchSequence + 1, info.SnapshotSequence + 1);
+			Log.InfoFormat("Starting from sequence {0}, will dispatch and will replay messages (this could take some time...).", startingSequence);
 
-		private void RestoreFrom(BootstrapInfo info, IDisruptor<JournalItem> journalRing)
-		{
-			var transformed = 0;
-
-			var loadPoint = LogOperations(info);
-
-			foreach (var message in this.store.Load(loadPoint))
+			var replayed = false;
+			foreach (var message in this.store.Load(startingSequence))
 			{
-				// TODO: append && message.ForeignId == Guid.Empty to this if condition
-				if (message.Sequence > info.DispatchSequence)
-				{
-					var next = journalRing.RingBuffer.Next();
-					var claimed = journalRing.RingBuffer[next];
-					claimed.AsBootstrappedDispatchMessage(message.Sequence, message.SerializedBody, message.SerializedType, message.SerializedHeaders);
-					journalRing.RingBuffer.Publish(next);
-				}
-
-				if (message.Sequence > info.SnapshotSequence)
-				{
-					transformed++;
-					var next = this.transformRing.RingBuffer.Next();
-					var claimed = this.transformRing.RingBuffer[next];
-					claimed.AsJournaledMessage(message.Sequence, message.SerializedBody, message.SerializedType, message.SerializedHeaders);
-					this.transformRing.RingBuffer.Publish(next);
-				}
+				replayed = this.Replay(info, message) || replayed;
+				Dispatch(info, journalRing, message);
 			}
 
-			if (transformed == 0)
+			if (!replayed)
 				this.mutex.Set();
 		}
-
-		static long LogOperations(BootstrapInfo info)
+		private bool Replay(BootstrapInfo info, JournaledMessage message)
 		{
-			var loadPoint = Math.Min(info.DispatchSequence + 1, info.SnapshotSequence + 1);
+			if (message.Sequence <= info.SnapshotSequence)
+				return false;
 
-			Log.InfoFormat(
-			    "Starting from sequence {0}, will dispatch and will replay messages (this could take some time...).",
-			    loadPoint);
+			var next = this.transformRing.RingBuffer.Next();
+			var claimed = this.transformRing.RingBuffer[next];
+			claimed.AsJournaledMessage(message.Sequence,
+				message.SerializedBody,
+				message.SerializedType,
+				message.SerializedHeaders);
+			this.transformRing.RingBuffer.Publish(next);
+			return true;
+		}
+		private static void Dispatch(BootstrapInfo info, IDisruptor<JournalItem> journalRing, JournaledMessage message)
+		{
+			if (message.Sequence <= info.DispatchSequence)
+				return;
 
-			return loadPoint;
+			// TODO: if message.ForeignId == Guid.Empty return;
+
+			var next = journalRing.RingBuffer.Next();
+			var claimed = journalRing.RingBuffer[next];
+			claimed.AsBootstrappedDispatchMessage(message.Sequence,
+				message.SerializedBody,
+				message.SerializedType,
+				message.SerializedHeaders);
+			journalRing.RingBuffer.Publish(next);
 		}
 
 		public MessageBootstrapper(IMessageStore store, DisruptorFactory disruptors, int snapshotFrequency)
