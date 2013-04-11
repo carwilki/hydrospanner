@@ -29,6 +29,10 @@
 			if (currentChannel == null)
 				return false;
 
+			return this.Send(message, currentChannel);
+		}
+		private bool Send(JournalItem message, IModel currentChannel)
+		{
 			// FUTURE: Any correlation ID could potentially be stored in the message headers and then extracted.
 			// Also, on the receiving side we could do the same thing in reverse.
 
@@ -53,6 +57,7 @@
 			}
 			catch
 			{
+				// TODO: log.fatal if exchange doesn't exist
 				this.Close();
 				return false;
 			}
