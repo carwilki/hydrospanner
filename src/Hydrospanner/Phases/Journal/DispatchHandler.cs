@@ -31,17 +31,18 @@
 
 			Log.InfoFormat("Dispatching {0} items.", this.buffer.Count);
 			for (var i = 0; i < this.buffer.Count; i++)
-				if (!this.sender.Send(this.buffer[i]))
-				{
-					Log.WarnFormat(
-						"Failed to dispatch message sequence {0} of type {1}.", 
-						this.buffer[i].MessageSequence, 
-						this.buffer[i].SerializedType);
-
+				if (!this.Dispatch(this.buffer[i]))
 					return false;
-				}
 			
 			return this.sender.Commit();
+		}
+		private bool Dispatch(JournalItem item)
+		{
+			if (this.sender.Send(item))
+				return true;
+
+			Log.WarnFormat("Failed to dispatch message sequence {0} of type {1}.", item.MessageSequence, item.SerializedType);
+			return false;
 		}
 
 		public DispatchHandler(IMessageSender sender)
