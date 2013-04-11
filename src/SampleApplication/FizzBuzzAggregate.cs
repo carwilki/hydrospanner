@@ -19,41 +19,36 @@
 		public bool IsComplete { get { return this.Value == 15; } }
 		public List<object> Messages { get; private set; }
 
-		private void Append(object message, bool append)
-		{
-			if (append)
-				this.Messages.Add(message);
-		}
-
 		public void Increment(int value)
 		{
 			if (value % 3 == 0 && value % 5 == 0)
-				this.Apply(new FizzBuzzEvent { StreamId = this.streamId, Value = value }, true);
+				this.Append(this.Apply, new FizzBuzzEvent { StreamId = this.streamId, Value = value });
 			else if (value % 5 == 0)
-				this.Apply(new BuzzEvent { StreamId = this.streamId, Value = value }, true);
+				this.Append(this.Apply, new BuzzEvent { StreamId = this.streamId, Value = value });
 			else if (value % 3 == 0)
-				this.Apply(new FizzEvent { StreamId = this.streamId, Value = value }, true);
+				this.Append(this.Apply, new FizzEvent { StreamId = this.streamId, Value = value });
 			else
-				this.Apply(new CountEvent { StreamId = this.streamId, Value = value }, true);
+				this.Append(this.Apply, new CountEvent { StreamId = this.streamId, Value = value });
 		}
-		public void Apply(FizzBuzzEvent message, bool append = false)
+		private void Append<T>(Action<T> callback, T message)
 		{
-			this.Append(message, append);
+			this.Messages.Add(message);
+			callback(message);
+		}
+		public void Apply(FizzBuzzEvent message)
+		{
 			this.Value = message.Value;
 		}
-		public void Apply(BuzzEvent message, bool append = false)
+		public void Apply(BuzzEvent message)
 		{
-			this.Append(message, append);
 			this.Value = message.Value;
 		}
-		public void Apply(FizzEvent message, bool append = false)
+		public void Apply(FizzEvent message)
 		{
-			this.Append(message, append);
 			this.Value = message.Value;
 		}
-		public void Apply(CountEvent message, bool append = false)
+		public void Apply(CountEvent message)
 		{
-			this.Append(message, append);
 			this.Value = message.Value;
 		}
 
