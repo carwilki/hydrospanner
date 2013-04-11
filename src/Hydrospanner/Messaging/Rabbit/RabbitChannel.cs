@@ -5,6 +5,7 @@
 	using Phases.Journal;
 	using RabbitMQ.Client;
 	using RabbitMQ.Client.Events;
+	using log4net;
 
 	public class RabbitChannel : IMessageSender, IMessageReceiver
 	{
@@ -57,7 +58,7 @@
 			}
 			catch
 			{
-				// TODO: log.fatal if exchange doesn't exist
+				Log.FatalFormat("Exchange '{0}' is missing--cannot proceed until created.", exchange);
 				this.Close();
 				return false;
 			}
@@ -217,6 +218,7 @@
 		private const byte Persistent = 2;
 		private const string ContentType = "application/vnd.hydrospanner-msg+json";
 		private const string ContentEncoding = "utf8";
+		private static readonly ILog Log = LogManager.GetLogger(typeof(RabbitChannel));
 		private readonly RabbitConnector connector;
 		private readonly Func<IModel, RabbitSubscription> factory;
 		private readonly short nodeId;
