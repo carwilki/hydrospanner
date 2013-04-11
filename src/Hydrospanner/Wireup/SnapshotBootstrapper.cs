@@ -2,10 +2,10 @@
 {
 	using System;
 	using System.Threading;
+	using log4net;
 	using Persistence;
 	using Phases.Bootstrap;
 	using Phases.Snapshot;
-	using log4net;
 
 	public class SnapshotBootstrapper
 	{

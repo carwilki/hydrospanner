@@ -7,7 +7,7 @@
 	{
 		private static void Main()
 		{
-			using (new Wireup(new ConventionWireupParameters()).Start())
+			using (Wireup.Start())
 			{
 				Console.Write(@"<ENTER> to quit: ");
 				Console.ReadLine();

@@ -2,10 +2,10 @@
 {
 	using System;
 	using System.Threading;
+	using log4net;
 	using Persistence;
 	using Phases.Journal;
 	using Phases.Transformation;
-	using log4net;
 
 	public class MessageBootstrapper
 	{

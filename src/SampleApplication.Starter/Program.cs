@@ -71,18 +71,18 @@
 
 		static Tuple<int, int> DetermineBoundsOfMessageGeneration()
 		{
-			const string defaultStreams = "1000";
-			const string defaultCommands = "20";
+			const string DefaultStream = "1000";
+			const string DefaultCommands = "20";
 
-			Console.Write("How many streams: ({0}) ", defaultStreams);
+			Console.Write("How many streams: ({0}) ", DefaultStream);
 			var streams = Console.ReadLine();
 			if (string.IsNullOrWhiteSpace(streams) || int.Parse(streams) < 1)
-				streams = defaultStreams;
+				streams = DefaultStream;
 
-			Console.Write("Max commands per stream: ({0}) ", defaultCommands);
+			Console.Write("Max commands per stream: ({0}) ", DefaultCommands);
 			var commands = Console.ReadLine();
 			if (string.IsNullOrWhiteSpace(commands) || int.Parse(commands) < 1)
-				commands = defaultCommands;
+				commands = DefaultCommands;
 
 			Console.WriteLine("\n\nSending up to {0} commands for {1} streams...", commands, streams);
 

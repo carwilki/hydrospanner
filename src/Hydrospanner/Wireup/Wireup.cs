@@ -2,12 +2,32 @@
 {
 	using System;
 	using System.Reflection;
-	using Persistence;
 	using log4net;
+	using Persistence;
 
 	public class Wireup
 	{
-		public Wireup(ConventionWireupParameters conventionWireup)
+		public static IDisposable Start()
+		{
+			return Start(new ConventionWireupParameters());
+		}
+		public static IDisposable Start(ConventionWireupParameters configuration)
+		{
+			var wireup = new Wireup(configuration);
+
+			try
+			{
+				wireup.bootstrapper.Start(wireup.info);
+				return wireup.bootstrapper;
+			}
+			catch
+			{
+				wireup.bootstrapper.Dispose();
+				throw;
+			}
+		}
+
+		private Wireup(ConventionWireupParameters conventionWireup)
 		{
 			Log.Info("Preparing to bootstrap the system.");
 
@@ -26,20 +46,6 @@
 			var messageBootstrapper = new MessageBootstrapper(messageStore, disruptorFactory, conventionWireup.SystemSnapshotFrequency);
 
 			this.bootstrapper = new Bootstrapper(repository, disruptorFactory, snapshotBootstrapper, messageBootstrapper, messagingFactory);
-		}
-
-		public IDisposable Start()
-		{
-			try
-			{
-				this.bootstrapper.Start(this.info);
-				return this.bootstrapper;
-			}
-			catch (Exception)
-			{
-				this.bootstrapper.Dispose();
-				throw;
-			}
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Bootstrapper));
