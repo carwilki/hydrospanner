@@ -44,7 +44,7 @@
 			if (reader.Read())
 			{
 				journaled = reader.GetInt64(0);
-				dispatched = reader.GetInt64(0);
+				dispatched = reader.GetInt64(1); // TODO: get this under test (found a bug where this was GetInt64(0))
 			}
 
 			if (reader.NextResult())
