@@ -16,7 +16,7 @@
 		public bool IsPublicSnapshot { get { return true; } }
 		public IEnumerable<object> GatherMessages()
 		{
-			yield break;
+			return NoMessages;
 		}
 		public object GetMemento()
 		{
@@ -85,6 +85,7 @@
 			return string.Format(HydratableKeys.ProjectionKey, streamId);
 		}
 
+		private static readonly object[] NoMessages = new object[0];
 		private readonly FizzBuzzProjection document;
 	}
 }

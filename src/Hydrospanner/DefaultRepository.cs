@@ -15,13 +15,17 @@
 
 		public IEnumerable<IHydratable> Load(object message, Dictionary<string, string> headers)
 		{
+			this.loaded.Clear();
+
 			foreach (var info in this.routes.Lookup(message, headers))
 			{
 				if (this.graveyard.Contains(info.Key))
 					continue;
 
-				yield return this.catalog.ValueOrDefault(info.Key) ?? (this.catalog[info.Key] = info.Create());
+				this.loaded.Add(this.catalog.ValueOrDefault(info.Key) ?? (this.catalog[info.Key] = info.Create()));
 			}
+
+			return this.loaded;
 		}
 
 		public void Delete(IHydratable hydratable)
@@ -47,6 +51,7 @@
 		}
 
 		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>();
+		private readonly List<IHydratable> loaded = new List<IHydratable>();
 		private readonly IRoutingTable routes;
 		private HydratableGraveyard graveyard = new HydratableGraveyard();
 	}
