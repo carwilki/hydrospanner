@@ -29,6 +29,9 @@
 		}
 		public static IDictionary CopyTo(this IDictionary<string, string> source, IDictionary target)
 		{
+			if (source == null)
+				return target ?? new Hashtable();
+
 			target = target ?? new Hashtable(source.Count);
 			foreach (var item in source)
 				target[item.Key] = item.Value;

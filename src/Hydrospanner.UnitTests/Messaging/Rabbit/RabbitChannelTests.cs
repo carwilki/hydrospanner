@@ -260,6 +260,18 @@ namespace Hydrospanner.Messaging.Rabbit
 				thrown.ShouldBeNull();
 		}
 
+		public class when_sending_a_message_with_null_headers
+		{
+			Establish context = () =>
+				messageToSend.Headers = null;
+
+			Because of = () =>
+				result = channel.Send(messageToSend);
+
+			It should_assign_an_empty_hashtable_to_the_outbound_headers = () =>
+				properties.Headers.ShouldBeEmpty();
+		}
+
 		public class when_sending_a_message_throws_an_exception
 		{
 			Establish context = () =>
