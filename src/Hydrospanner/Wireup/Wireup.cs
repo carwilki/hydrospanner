@@ -1,32 +1,40 @@
 ﻿namespace Hydrospanner.Wireup
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Reflection;
 	using log4net;
 	using Persistence;
 
 	public class Wireup : IDisposable
 	{
-		public static Wireup Initialize()
+		public static Wireup Initialize(params Assembly[] assembliesToSan)
 		{
-			return Initialize(new ConventionWireupParameters());
+			return Initialize(new ConventionWireupParameters(), assembliesToSan);
 		}
-		public static Wireup Initialize(ConventionWireupParameters configuration)
+		public static Wireup Initialize(ConventionWireupParameters configuration, params Assembly[] assembliesToScan)
 		{
-			return new Wireup(configuration);
+			if (configuration == null)
+				throw new ArgumentNullException("configuration");
+
+			var scan = new List<Assembly>(assembliesToScan);
+			if (scan.Count == 0)
+				scan.Add(Assembly.GetCallingAssembly());
+
+			return new Wireup(configuration, scan);
 		}
 
-		public void Start()
+		public void Execute()
 		{
 			this.bootstrapper.Start(this.info);
 		}
 
-		private Wireup(ConventionWireupParameters conventionWireup)
+		private Wireup(ConventionWireupParameters conventionWireup, IEnumerable<Assembly> assemblies)
 		{
 			Log.Info("Preparing to bootstrap the system.");
 
 			// TODO: it may not be the entry assembly that needs to be scanned; that may have to come as a part of the wireup
-			var repository = new DefaultRepository(new ConventionRoutingTable(Assembly.GetEntryAssembly()));
+			var repository = new DefaultRepository(new ConventionRoutingTable(assemblies));
 			var messagingFactory = new MessagingFactory(conventionWireup.NodeId, conventionWireup.BrokerAddress, conventionWireup.SourceQueueName);
 			var persistenceFactory = new PersistenceFactory(conventionWireup.JournalConnectionName, conventionWireup.DuplicateWindow, conventionWireup.JournalBatchSize);
 			var persistenceBootstrapper = new PersistenceBootstrapper(persistenceFactory);

@@ -35,7 +35,10 @@
 		public ConventionRoutingTable()
 		{
 		}
-		public ConventionRoutingTable(params Assembly[] assemblies) : this(assemblies.SelectMany(x => x.GetTypes()))
+		public ConventionRoutingTable(IEnumerable<Assembly> assemblies) : this(assemblies.SelectMany(x => x.GetTypes()))
+		{
+		}
+		public ConventionRoutingTable(params Assembly[] assemblies) : this((IEnumerable<Assembly>)assemblies)
 		{
 		}
 		public ConventionRoutingTable(params Type[] types) : this((IEnumerable<Type>)types)
