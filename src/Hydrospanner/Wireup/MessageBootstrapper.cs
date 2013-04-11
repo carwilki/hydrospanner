@@ -64,9 +64,10 @@
 		private static void Dispatch(BootstrapInfo info, IDisruptor<JournalItem> journalRing, JournaledMessage message)
 		{
 			if (message.Sequence <= info.DispatchSequence)
-				return;
+				return; // already dispatched
 
-			// TODO: if message.ForeignId == Guid.Empty return;
+			if (message.ForeignId != Guid.Empty)
+				return; // only re-dispatch messages which originated here
 
 			var next = journalRing.RingBuffer.Next();
 			var claimed = journalRing.RingBuffer[next];

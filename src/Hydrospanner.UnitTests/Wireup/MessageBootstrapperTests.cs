@@ -98,8 +98,9 @@ namespace Hydrospanner.Wireup
 				{
 					info.DispatchSequence = 41;
 					info.SnapshotSequence = int.MaxValue;
-					message = new JournaledMessage { Sequence = 42 };
-					store.Load(info.DispatchSequence + 1).Returns(new List<JournaledMessage> { message });
+					var local = new JournaledMessage { Sequence = 42 };
+					var foreign = new JournaledMessage { Sequence = 43, ForeignId = Guid.NewGuid() };
+					store.Load(info.DispatchSequence + 1).Returns(new List<JournaledMessage> { local, foreign });
 				};
 
 				Because of = () =>
@@ -109,7 +110,8 @@ namespace Hydrospanner.Wireup
 					journal.Ring.AllItems.Single()
 						.ShouldBeLike(new JournalItem { MessageSequence = 42, ItemActions = JournalItemAction.Dispatch });
 
-				static JournaledMessage message;
+				It should_NOT_send_any_foreign_messages_to_be_redispatched = () =>
+					journal.Ring.AllItems.Count.ShouldEqual(1);
 			}
 
 			public class when_there_are_messages_that_require_additional_transformations
