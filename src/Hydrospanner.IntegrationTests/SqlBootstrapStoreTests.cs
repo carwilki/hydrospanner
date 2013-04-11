@@ -36,7 +36,7 @@ namespace Hydrospanner.IntegrationTests
 				using (var command = connection.CreateCommand())
 				{
 					command.CommandText = @"
-						INSERT INTO checkpoints SELECT 6 ON DUPLICATE KEY UPDATE dispatch = 6;
+						INSERT INTO checkpoints SELECT 5 ON DUPLICATE KEY UPDATE dispatch = 5;
 						INSERT INTO metadata SELECT 0, 'asdf' ON DUPLICATE KEY UPDATE metadata_id = 10, type_name = 'asdf';
 						INSERT INTO metadata SELECT 1, 'qwer' ON DUPLICATE KEY UPDATE metadata_id = 11, type_name = 'qwer';
 						INSERT INTO messages SELECT 1, 1, tobin('11111111-1111-1111-1111-111111111111'), 'a', 'a';
@@ -60,7 +60,7 @@ namespace Hydrospanner.IntegrationTests
 					Guid.Parse("44444444-4444-4444-4444-444444444444"),
 					Guid.Parse("55555555-5555-5555-5555-555555555555")
 				};
-				result.ShouldBeLike(new BootstrapInfo(6, 6, types, foreignIds));
+				result.ShouldBeLike(new BootstrapInfo(6, 5, types, foreignIds));
 			};
 		}
 
