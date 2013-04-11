@@ -182,7 +182,8 @@ namespace Hydrospanner.IntegrationTests
 						Sequence = 2,
 						SerializedBody = serializer.Serialize(43),
 						SerializedHeaders = null,
-						SerializedType = 0.ResolvableTypeName()
+						SerializedType = 0.ResolvableTypeName(),
+						ForeignId = foreignId
 					},
 					new JournaledMessage
 					{
@@ -221,7 +222,8 @@ namespace Hydrospanner.IntegrationTests
 						Sequence = 2,
 						SerializedBody = serializer.Serialize(43),
 						SerializedHeaders = null,
-						SerializedType = 0.ResolvableTypeName()
+						SerializedType = 0.ResolvableTypeName(),
+						ForeignId = foreignId
 					},
 					new JournaledMessage
 					{
@@ -257,7 +259,7 @@ namespace Hydrospanner.IntegrationTests
 			first.Serialize(serializer);
 
 			second = new JournalItem();
-			second.AsForeignMessage(2, serializer.Serialize(43), 43, null, Guid.NewGuid(), () => { });
+			second.AsForeignMessage(2, serializer.Serialize(43), 43, null, foreignId, () => { });
 			second.Serialize(serializer);
 
 			third = new JournalItem();
@@ -277,6 +279,7 @@ namespace Hydrospanner.IntegrationTests
 		static JournalItem fourth;
 		static JsonSerializer serializer;
 		static SqlMessageStore store;
+		static readonly Guid foreignId = Guid.NewGuid();
 	}
 }
 
