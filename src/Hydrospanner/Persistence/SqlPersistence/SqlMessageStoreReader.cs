@@ -48,7 +48,7 @@
 			{
 				Sequence = this.currentSequence,
 				SerializedType = this.registeredTypes[this.reader.GetInt16(0)],
-				ForeignId = new Guid((byte[])this.reader[1]),
+				ForeignId = (this.reader[1] as byte[]).ToGuid(),
 				SerializedBody = this.reader[2] as byte[],
 				SerializedHeaders = this.reader[3] as byte[],
 			};

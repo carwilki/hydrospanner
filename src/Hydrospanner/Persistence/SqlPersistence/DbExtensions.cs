@@ -41,5 +41,10 @@
 			parameter.Value = value ?? DBNull.Value;
 			command.Parameters.Add(parameter);
 		}
+
+		public static Guid ToGuid(this byte[] value)
+		{
+			return value == null || value.Length == 0 ? Guid.Empty : new Guid(value);
+		}
 	}
 }
