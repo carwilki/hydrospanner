@@ -5,26 +5,20 @@
 	using log4net;
 	using Persistence;
 
-	public class Wireup
+	public class Wireup : IDisposable
 	{
-		public static IDisposable Start()
+		public static Wireup Initialize()
 		{
-			return Start(new ConventionWireupParameters());
+			return Initialize(new ConventionWireupParameters());
 		}
-		public static IDisposable Start(ConventionWireupParameters configuration)
+		public static Wireup Initialize(ConventionWireupParameters configuration)
 		{
-			var wireup = new Wireup(configuration);
+			return new Wireup(configuration);
+		}
 
-			try
-			{
-				wireup.bootstrapper.Start(wireup.info);
-				return wireup.bootstrapper;
-			}
-			catch
-			{
-				wireup.bootstrapper.Dispose();
-				throw;
-			}
+		public void Start()
+		{
+			this.bootstrapper.Start(this.info);
 		}
 
 		private Wireup(ConventionWireupParameters conventionWireup)
@@ -49,8 +43,23 @@
 			this.bootstrapper = new Bootstrapper(repository, disruptorFactory, snapshotBootstrapper, messageBootstrapper, messagingFactory);
 		}
 
+		public void Dispose()
+		{
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing || this.disposed)
+				return;
+
+			this.disposed = true;
+			this.bootstrapper.Dispose();
+		}
+
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Bootstrapper));
 		private readonly Bootstrapper bootstrapper;
 		private readonly BootstrapInfo info;
+		private bool disposed;
 	}
 }

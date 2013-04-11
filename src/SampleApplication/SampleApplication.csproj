@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{AAAEB656-3DDE-4DF1-B393-C2A19BDA7CC1}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SampleApplication</RootNamespace>
     <AssemblyName>SampleApplication</AssemblyName>
@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <EdgeRunner>EdgeRunner.exe</EdgeRunner>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -39,6 +40,9 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\Hydrospanner.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
@@ -49,13 +53,13 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="EdgeRunner.cs" />
     <Compile Include="FizzBuzzAggregate.cs" />
     <Compile Include="FizzBuzzAggregateHydrator.cs" />
     <Compile Include="FizzBuzzProjection.cs" />
     <Compile Include="FizzBuzzProjectionHydrator.cs" />
     <Compile Include="HydratableKeys.cs" />
     <Compile Include="Messages.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -90,11 +94,13 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+  <PropertyGroup Label="EdgeRunner">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(TargetDir)$(EdgeRunner)</StartProgram>
+    <StartArguments>$(TargetFileName)</StartArguments>
+  </PropertyGroup>
+  <Target Name="AfterBuild" Label="EdgeRunner">
+    <Copy SourceFiles="$(SolutionDir)packages\EdgeRunner.1.0.5\tools\net40\EdgeRunner32.exe" DestinationFolder="$(TargetDir)" />
+    <Copy SourceFiles="$(SolutionDir)packages\EdgeRunner.1.0.5\tools\net40\EdgeRunner.exe" DestinationFolder="$(TargetDir)" />
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
