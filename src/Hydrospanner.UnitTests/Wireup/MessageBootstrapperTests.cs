@@ -65,6 +65,35 @@ namespace Hydrospanner.Wireup
 
 		public class during_message_restoration
 		{
+			public class when_there_are_messages_that_require_additional_transformations
+			{
+				Establish context = () =>
+				{
+					itemCount = 1;
+					info.SnapshotSequence = 41;
+					info.DispatchSequence = int.MaxValue;
+					message = new JournaledMessage { Sequence = 42 };
+					store.Load(info.SnapshotSequence + 1).Returns(new List<JournaledMessage> { message });
+				};
+
+				Because of = () =>
+					bootstrapper.Restore(info, journal, repository);
+
+				It should_create_a_transformation_disruptor = () =>
+					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, SnapshotFrequency, Arg.Any<Action>());
+
+				It should_start_the_transformation_disruptor = () =>
+					transformation.Started.ShouldBeTrue();
+
+				It should_publish_the_messages_to_the_newly_created_disruptor = () =>
+					transformation.Ring.AllItems.Single().ShouldBeLike(new TransformationItem { MessageSequence = 42 });
+
+				It should_shutdown_the_transformation_disruptor_after_everything_is_processed = () =>
+					transformation.Disposed.ShouldBeTrue();
+
+				static JournaledMessage message;
+			}
+
 			public class when_the_application_is_completely_caught_up_with_dispatching_and_transformations
 			{
 				Establish context = () =>
@@ -112,35 +141,6 @@ namespace Hydrospanner.Wireup
 
 				It should_NOT_send_any_foreign_messages_to_be_redispatched = () =>
 					journal.Ring.AllItems.Count.ShouldEqual(1);
-			}
-
-			public class when_there_are_messages_that_require_additional_transformations
-			{
-				Establish context = () =>
-				{
-					itemCount = 1;
-					info.SnapshotSequence = 41;
-					info.DispatchSequence = int.MaxValue;
-					message = new JournaledMessage { Sequence = 42 };
-					store.Load(info.SnapshotSequence + 1).Returns(new List<JournaledMessage> { message });
-				};
-
-				Because of = () =>
-					bootstrapper.Restore(info, journal, repository);
-
-				It should_create_a_transformation_disruptor = () =>
-					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, SnapshotFrequency, Arg.Any<Action>());
-
-				It should_start_the_transformation_disruptor = () =>
-					transformation.Started.ShouldBeTrue();
-
-				It should_publish_the_messages_to_the_newly_created_disruptor = () =>
-					transformation.Ring.AllItems.Single().ShouldBeLike(new TransformationItem { MessageSequence = 42 });
-
-				It should_shutdown_the_transformation_disruptor_after_everything_is_processed = () =>
-					transformation.Disposed.ShouldBeTrue();
-
-				static JournaledMessage message;
 			}
 
 			public class when_there_are_messages_that_need_to_be_dispatched_and_that_require_additional_transformations
