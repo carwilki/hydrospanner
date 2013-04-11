@@ -36,8 +36,14 @@
 				live = true;
 			}
 
+			this.buffer.Clear(); // TODO: get this under test (for when we bail out during replay scenarios according to TODO condition below)
+
 			Log.DebugFormat("Transforming hydratables that subscribe to type {0}.", data.SerializedType);
 			this.buffer.AddRange(this.transformer.Handle(data.Body, data.Headers, data.MessageSequence));
+
+			// TODO: bug: if we're replaying and haven't caught the live stream, DON'T gather any messages from the aggregate
+			// instead, we should return live (which will be false)
+			// during replay, each message will be a TransformationItem and replay SHOULD NOT produce any additional messages
 
 			for (var i = 0; i < this.buffer.Count; i++)
 			{
