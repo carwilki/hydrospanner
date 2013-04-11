@@ -38,6 +38,7 @@
 		}
 		private bool Dispatch(JournalItem item)
 		{
+			// TODO: catch ObjectDisposedException and return true to shut down disruptor.
 			if (this.sender.Send(item))
 				return true;
 
