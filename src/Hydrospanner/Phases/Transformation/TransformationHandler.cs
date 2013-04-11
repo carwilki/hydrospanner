@@ -71,6 +71,7 @@
 				this.currentSequnce += this.buffer.Count + IncomingMessage;
 				this.snapshot.Track(this.currentSequnce);
 			}
+
 			this.buffer.Clear();
 		}
 

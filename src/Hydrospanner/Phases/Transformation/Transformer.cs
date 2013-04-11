@@ -66,6 +66,6 @@
 		private readonly List<object> gathered = new List<object>();
 		private readonly IRingBuffer<SnapshotItem> snapshotRing;
 		private readonly IRepository repository;
-		private long journaledSequence;
+		private readonly long journaledSequence;
 	}
 }
