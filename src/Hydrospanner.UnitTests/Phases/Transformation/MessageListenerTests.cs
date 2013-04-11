@@ -106,7 +106,10 @@ namespace Hydrospanner.Phases.Transformation
 			}
 
 			Because of = () =>
+			{
 				listener.Start();
+				Thread.Sleep(50);
+			};
 
 			It should_push_the_message_to_the_ring_buffer = () =>
 				harness.AllItems.Count.ShouldBeGreaterThan(0);

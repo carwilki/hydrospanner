@@ -60,12 +60,12 @@ namespace Hydrospanner.IntegrationTests
 				var serializer = new JsonSerializer();
 
 				var first = new JournalItem();
-				first.AsForeignMessage(0, new byte[] { 1 }, "hi", new Dictionary<string, string>(), ForeignId, () => { });
+				first.AsForeignMessage(0, new byte[] { 1 }, "hi", new Dictionary<string, string> { { "key", "value" } }, ForeignId, () => { });
 				first.Serialize(serializer);
 				items.Add(first);
 	
 				var second = new JournalItem();
-				second.AsTransformationResultMessage(1, "hi", new Dictionary<string, string>());
+				second.AsTransformationResultMessage(1, "hi", new Dictionary<string, string> { { "key", "value" } });
 				second.Serialize(serializer);
 				items.Add(second);
 			};
@@ -85,13 +85,13 @@ namespace Hydrospanner.IntegrationTests
 						var id = reader.GetValue(2);
 						id.ShouldBeLike(ForeignId.ToByteArray());
 						reader.GetValue(3).ShouldBeLike(new byte[] { 1 });
-						reader.GetValue(4).ShouldBeLike(Encoding.UTF8.GetBytes("{}"));
+						reader.GetValue(4).ShouldBeLike(Encoding.UTF8.GetBytes("{\"key\":\"value\"}"));
 						reader.Read().ShouldBeTrue();
 						reader.GetInt64(0).ShouldEqual(1L);
 						reader.GetInt16(1).ShouldEqual((short)1);
 						reader.GetValue(2).ShouldEqual(DBNull.Value);
 						reader.GetValue(3).ShouldBeLike(Encoding.UTF8.GetBytes("\"hi\""));
-						reader.GetValue(4).ShouldBeLike(Encoding.UTF8.GetBytes("{}"));
+						reader.GetValue(4).ShouldBeLike(Encoding.UTF8.GetBytes("{\"key\":\"value\"}"));
 						reader.Read().ShouldBeFalse();
 					}
 				}
