@@ -76,7 +76,7 @@
 			if (this.ItemActions.HasFlag(JournalItemAction.Dispatch) && this.Headers == null)
 				this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
 
-			if (this.SerializedHeaders == null)
+			if (this.SerializedHeaders == null && this.Headers != null && this.Headers.Count > 0)
 				this.SerializedHeaders = serializer.Serialize(this.Headers);
 		}
 	}

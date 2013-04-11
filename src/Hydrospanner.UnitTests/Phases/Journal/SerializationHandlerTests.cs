@@ -84,6 +84,26 @@ namespace Hydrospanner.Phases.Journal
 			static ISerializer serializer;
 		}
 
+		public class when_the_headers_are_an_empty_collection
+		{
+			Establish context = () =>
+			{
+				serializer = Substitute.For<ISerializer>();
+				var headers = new Dictionary<string, string>();
+
+				handler = new SerializationHandler(serializer);
+				item.AsTransformationResultMessage(0, new object(), headers);
+			};
+
+			It should_leave_the_collection_blank = () =>
+				item.SerializedHeaders.ShouldBeNull();
+
+			It should_not_attempt_to_serialize_the_empty_header_collection = () =>
+				serializer.Received(0).Serialize(Arg.Any<Dictionary<string, string>>());
+
+			static ISerializer serializer;
+		}
+
 		Establish context = () =>
 		{
 			handler = new SerializationHandler(new JsonSerializer());
