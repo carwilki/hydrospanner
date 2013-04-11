@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Journal
 {
+	using System;
 	using System.Collections.Generic;
 	using Disruptor;
 	using log4net;
@@ -15,14 +16,24 @@
 				this.buffer.Add(data);
 			}
 
-			if (!endOfBatch)
-				return;
-
-			while (true)
-				if (this.Dispatch())
-					break;
-
-			this.buffer.Clear();
+			if (endOfBatch)
+				this.TryDispatch();
+		}
+		private void TryDispatch()
+		{
+			try
+			{
+				while (true)
+					if (this.Dispatch())
+						break;
+			}
+			catch (ObjectDisposedException)
+			{
+			}
+			finally
+			{
+				this.buffer.Clear();
+			}
 		}
 		public bool Dispatch()
 		{

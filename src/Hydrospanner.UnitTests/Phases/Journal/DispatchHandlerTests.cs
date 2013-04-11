@@ -3,6 +3,7 @@
 
 namespace Hydrospanner.Phases.Journal
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Linq;
 	using Machine.Specifications;
@@ -187,6 +188,33 @@ namespace Hydrospanner.Phases.Journal
 				sender.Received(1).Commit();
 
 			static List<JournalItem> items;
+		}
+
+		public class when_sending_a_batch_throws_an_ObjectDisposedException
+		{
+			Establish context = () =>
+			{
+				items = new List<JournalItem>(new[] { CreateDispatchItem(), CreateDispatchItem() });
+				sender.Send(Arg.Any<JournalItem>()).Returns(x => { throw new ObjectDisposedException("object"); });
+			};
+
+			Because of = () =>
+			{
+				handler.OnNext(items[0], 0, false);
+				thrown = Catch.Exception(() => handler.OnNext(items[1], 1, true));
+			};
+
+			It should_stop_dispatching_messages = () =>
+				sender.Received(1).Send(Arg.Any<JournalItem>());
+
+			It should_suppress_the_exception = () =>
+				thrown.ShouldBeNull();
+
+			It should_not_attempt_to_commit_the_transaction = () =>
+				sender.Received(0).Commit();
+
+			static List<JournalItem> items;
+			static Exception thrown;
 		}
 
 		static JournalItem CreateDispatchItem()
