@@ -33,7 +33,6 @@
 		{
 			Log.Info("Preparing to bootstrap the system.");
 
-			// TODO: it may not be the entry assembly that needs to be scanned; that may have to come as a part of the wireup
 			var repository = new DefaultRepository(new ConventionRoutingTable(assemblies));
 			var messagingFactory = new MessagingFactory(conventionWireup.NodeId, conventionWireup.BrokerAddress, conventionWireup.SourceQueueName);
 			var persistenceFactory = new PersistenceFactory(conventionWireup.JournalConnectionName, conventionWireup.DuplicateWindow, conventionWireup.JournalBatchSize);
