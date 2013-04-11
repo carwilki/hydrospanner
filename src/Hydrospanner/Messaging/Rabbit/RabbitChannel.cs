@@ -31,15 +31,19 @@
 
 			// FUTURE: Any correlation ID could potentially be stored in the message headers and then extracted.
 			// Also, on the receiving side we could do the same thing in reverse.
+
 			// FUTURE: TTL and DeliveryMode could be in an application-defined dictionary that is available for lookup here
 			// based upon message type.  Default to Persistent, no TTL if an entry is not found.
+
+			// FUTURE: ContentType and ContentEncoding will be dynamic based upon serialization, e.g. +json, +msgpack, +pb, etc.
 			var meta = currentChannel.CreateBasicProperties();
 			meta.AppId = this.normalizedNodeId;
 			meta.DeliveryMode = Persistent;
 			meta.Type = message.SerializedType;
 			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
 			meta.MessageId = message.MessageSequence.ToMessageId(this.nodeId);
-			meta.ContentType = ContentType; // TODO: +json, +pb, etc. also ContentEncoding
+			meta.ContentType = ContentType;
+			meta.ContentEncoding = ContentEncoding;
 			meta.Headers = message.Headers.CopyTo(meta.Headers);
 			var exchange = message.SerializedType.NormalizeType();
 
@@ -206,7 +210,8 @@
 		}
 
 		private const byte Persistent = 2;
-		private const string ContentType = "application/vnd.nmb.hydrospanner-msg";
+		private const string ContentType = "application/vnd.hydrospanner-msg+json";
+		private const string ContentEncoding = "utf8";
 		private readonly RabbitConnector connector;
 		private readonly Func<IModel, RabbitSubscription> factory;
 		private readonly short nodeId;

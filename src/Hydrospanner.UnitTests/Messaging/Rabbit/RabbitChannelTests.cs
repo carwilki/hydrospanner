@@ -158,6 +158,9 @@ namespace Hydrospanner.Messaging.Rabbit
 			It should_indicate_the_content_type = () =>
 				properties.ContentType.ShouldEqual(ContentType);
 
+			It should_indicate_the_content_encoding = () =>
+				properties.ContentEncoding.ShouldEqual(ContentEncoding);
+
 			It should_indicate_the_application_id = () =>
 				properties.AppId.ShouldEqual(NodeId.ToString(CultureInfo.InvariantCulture));
 
@@ -789,7 +792,8 @@ namespace Hydrospanner.Messaging.Rabbit
 
 		const short PersistMessage = 2;
 		const short NodeId = 42;
-		const string ContentType = "application/vnd.nmb.hydrospanner-msg";
+		const string ContentType = "application/vnd.hydrospanner-msg+json";
+		const string ContentEncoding = "utf8";
 		static readonly TimeSpan Timeout = TimeSpan.FromSeconds(1234);
 		static bool result;
 		static IModel actualChannel;
