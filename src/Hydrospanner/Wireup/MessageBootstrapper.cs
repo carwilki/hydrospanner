@@ -42,7 +42,12 @@
 			{
 				replayed = this.Replay(info, message) || replayed;
 				Dispatch(info, journalRing, message);
+
+				if (message.Sequence % 100000 == 0)
+					Log.InfoFormat("Replayed message sequence {0}", message.Sequence);
 			}
+
+			Log.Info("Message replay complete.");
 
 			if (!replayed)
 				this.mutex.Set();
