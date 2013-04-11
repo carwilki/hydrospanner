@@ -2,10 +2,10 @@
 {
 	using System;
 	using System.Globalization;
+	using log4net;
 	using Phases.Journal;
 	using RabbitMQ.Client;
 	using RabbitMQ.Client.Events;
-	using log4net;
 
 	public class RabbitChannel : IMessageSender, IMessageReceiver
 	{
