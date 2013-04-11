@@ -17,46 +17,50 @@
 		public bool IsPublicSnapshot { get { return false; } }
 		public IEnumerable<object> GatherMessages()
 		{
-			while (this.gathered.Count > 0)
-				yield return this.gathered.Dequeue();
+			var messages = this.aggregate.Messages;
+			for (var i = 0; i < messages.Count; i++)
+				yield return messages[i];
+
+			messages.Clear();
 		}
 		public object GetMemento()
 		{
-			return new KeyValuePair<Guid, int>(this.streamId, this.aggregate.Value);
+			return new FizzBuzzAggregateMemento
+			{
+				StreamId = this.streamId,
+				Value = this.aggregate.Value,
+			};
 		}
 
 		public void Hydrate(CountCommand message, Dictionary<string, string> headers, bool live)
 		{
-			if (live)
-				this.gathered.Enqueue(this.aggregate.Increment(message.Value));
+			// invocation of a method *must* result in the aggregate transforming itself internally, otherwise
+			// aggregate invariant would be violated because the apply from the messages would happen much later
 
-			this.aggregate.Apply(message.Value);
+			if (live)
+				this.aggregate.Increment(message.Value);
 		}
 		public void Hydrate(CountEvent message, Dictionary<string, string> headers, bool live)
 		{
-			if (!live)
-				this.aggregate.Apply(message.Value);
+			this.aggregate.Apply(message);
 		}
 		public void Hydrate(FizzEvent message, Dictionary<string, string> headers, bool live)
 		{
-			if (!live)
-				this.aggregate.Apply(message.Value);
+			this.aggregate.Apply(message);
 		}
 		public void Hydrate(BuzzEvent message, Dictionary<string, string> headers, bool live)
 		{
-			if (!live)
-				this.aggregate.Apply(message.Value);
+			this.aggregate.Apply(message);
 		}
 		public void Hydrate(FizzBuzzEvent message, Dictionary<string, string> headers, bool live)
 		{
-			if (!live)
-				this.aggregate.Apply(message.Value);
+			this.aggregate.Apply(message);
 		}
 
-		public FizzBuzzAggregateHydrator(KeyValuePair<Guid, int> memento)
+		public FizzBuzzAggregateHydrator(FizzBuzzAggregateMemento memento)
 		{
-			this.streamId = memento.Key;
-			this.aggregate = new FizzBuzzAggregate(memento.Value);
+			this.streamId = memento.StreamId;
+			this.aggregate = new FizzBuzzAggregate(memento.StreamId, memento.Value);
 		}
 		public FizzBuzzAggregateHydrator(Guid streamId)
 		{
@@ -64,7 +68,7 @@
 			this.aggregate = new FizzBuzzAggregate(streamId);
 		}
 
-		public static FizzBuzzAggregateHydrator Restore(KeyValuePair<Guid, int> memento)
+		public static FizzBuzzAggregateHydrator Restore(FizzBuzzAggregateMemento memento)
 		{
 			return new FizzBuzzAggregateHydrator(memento);
 		}
@@ -96,7 +100,12 @@
 		}
 
 		private readonly FizzBuzzAggregate aggregate;
-		private readonly Queue<object> gathered = new Queue<object>();
 		private readonly Guid streamId;
+	}
+
+	public class FizzBuzzAggregateMemento
+	{
+		public Guid StreamId { get; set; }
+		public int Value { get; set; }
 	}
 }
