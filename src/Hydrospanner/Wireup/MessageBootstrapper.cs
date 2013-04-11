@@ -46,6 +46,7 @@
 
 			foreach (var message in this.store.Load(loadPoint))
 			{
+				// TODO: append && message.ForeignId == Guid.Empty to this if condition
 				if (message.Sequence > info.DispatchSequence)
 				{
 					var next = journalRing.RingBuffer.Next();
