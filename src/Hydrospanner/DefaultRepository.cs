@@ -36,8 +36,13 @@
 
 		public void Restore(object memento)
 		{
-			if (memento is string[])
-				this.graveyard = new HydratableGraveyard(memento);
+			var graveyardMemento = memento as GraveyardMemento;
+			if (graveyardMemento != null)
+			{
+				var keys = graveyardMemento.Keys;
+				for (int i = 0; i < keys.Length; i++)
+					this.graveyard.Bury(keys[i]);
+			}
 			else
 			{
 				var hydratable = this.routes.Restore(memento);
@@ -53,6 +58,6 @@
 		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>();
 		private readonly List<IHydratable> loaded = new List<IHydratable>();
 		private readonly IRoutingTable routes;
-		private HydratableGraveyard graveyard = new HydratableGraveyard();
+		private HydratableGraveyard graveyard = new HydratableGraveyard();  // TODO: the graveyard needs to be able to hold 100K+ items
 	}
 }

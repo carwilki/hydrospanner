@@ -75,14 +75,14 @@ namespace Hydrospanner
 	[Subject(typeof(HydratableGraveyard))]
 	public class when_retreiving_the_graveyard_memento
 	{
-		It should_capture_the_keys_in_an_ordered_array = () =>
+		It should_capture_the_keys_in_special_object = () =>
 		{
 			var graveyard = new HydratableGraveyard();
 			graveyard.Bury("1");
 			graveyard.Bury("2");
 			graveyard.Bury("3");
 			var memento = graveyard.GetMemento();
-			memento.ShouldBeLike(new[] { "1", "2", "3" });
+			memento.ShouldBeLike(new GraveyardMemento(new[] { "1", "2", "3" }));
 		};
 	}
 
@@ -90,7 +90,7 @@ namespace Hydrospanner
 	public class when_restoring_the_graveyard_state_from_a_memento
 	{
 		Establish context = () =>
-			memento = new[] { "1", "2", "3", "4" };
+			memento = new GraveyardMemento(new[] { "1", "2", "3", "4" });
 
 		Because of = () =>
 			graveyard = new HydratableGraveyard(memento, 5);
@@ -120,7 +120,7 @@ namespace Hydrospanner
 		}
 		
 		static HydratableGraveyard graveyard;
-		static string[] memento;
+		static GraveyardMemento memento;
 	}
 }
 

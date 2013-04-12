@@ -15,22 +15,20 @@
 			this.graveyard.Add(key);
 			this.window.Enqueue(key);
 		}
-
 		public bool Contains(string key)
 		{
 			return !string.IsNullOrEmpty(key) && this.graveyard.Contains(key);
 		}
-
-		public string[] GetMemento()
+		public GraveyardMemento GetMemento()
 		{
-			return this.window.ToArray();
+			return new GraveyardMemento(this.window.ToArray());
 		}
 
-		public HydratableGraveyard(object graveyard = null, int capacity = 1024)
+		public HydratableGraveyard(GraveyardMemento graveyard = null, int capacity = 1024)
 		{
 			this.capacity = capacity;
-			var input = graveyard as string[];
-			this.graveyard = new HashSet<string>(input ?? new string[0]);
+			var keys = graveyard == null ? new string[0] : graveyard.Keys;
+			this.graveyard = new HashSet<string>(keys);
 			this.window = new Queue<string>(this.graveyard);
 		}
 

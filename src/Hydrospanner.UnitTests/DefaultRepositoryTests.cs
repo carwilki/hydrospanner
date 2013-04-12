@@ -72,8 +72,8 @@ namespace Hydrospanner
 			};
 
 			It should_include_the_graveyard_first_in_the_snapshot = () =>
-				snapshot.First().ShouldBeLike(new[] { Tombstone });
-
+				snapshot.First().ShouldBeLike(new GraveyardMemento(new[] { Tombstone }));
+			
 			It should_include_the_rest_of_the_hydratables_after_the_graveyard_in_the_snapshot = () =>
 				snapshot.Last().ShouldEqual(Document);
 
