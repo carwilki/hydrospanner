@@ -24,7 +24,7 @@
 			return new GraveyardMemento(this.window.ToArray());
 		}
 
-		public HydratableGraveyard(GraveyardMemento graveyard = null, int capacity = 1024)
+		public HydratableGraveyard(GraveyardMemento graveyard = null, int capacity = 1024 * 1024)
 		{
 			this.capacity = capacity;
 			var keys = graveyard == null ? new string[0] : graveyard.Keys;

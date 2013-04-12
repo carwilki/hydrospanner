@@ -36,18 +36,24 @@
 
 		public void Restore(object memento)
 		{
-			var graveyardMemento = memento as GraveyardMemento;
-			if (graveyardMemento != null)
-			{
-				var keys = graveyardMemento.Keys;
-				for (int i = 0; i < keys.Length; i++)
-					this.graveyard.Bury(keys[i]);
-			}
-			else
-			{
-				var hydratable = this.routes.Restore(memento);
+			if (!this.graveyardRestored && this.RestoreGraveyard(memento as GraveyardMemento))
+				return;
+
+			var hydratable = this.routes.Restore(memento);
+			if (hydratable != null)
 				this.catalog[hydratable.Key] = hydratable;
-			}
+		}
+		private bool RestoreGraveyard(GraveyardMemento memento)
+		{
+			if (memento == null)
+				return false;
+
+			var keys = memento.Keys;
+			for (var i = 0; i < keys.Length; i++)
+				this.graveyard.Bury(keys[i]);
+
+			this.graveyardRestored = true;
+			return true;
 		}
 
 		public DefaultRepository(IRoutingTable routes)
@@ -57,7 +63,8 @@
 
 		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>();
 		private readonly List<IHydratable> loaded = new List<IHydratable>();
+		private readonly HydratableGraveyard graveyard = new HydratableGraveyard();
 		private readonly IRoutingTable routes;
-		private HydratableGraveyard graveyard = new HydratableGraveyard();  // TODO: the graveyard needs to be able to hold 100K+ items
+		private bool graveyardRestored;
 	}
 }
