@@ -90,9 +90,6 @@
 			DateFormatHandling = DateFormatHandling.IsoDateFormat,
 			DateParseHandling = DateParseHandling.DateTime,
 			Converters = { new StringEnumConverter() },
-#if DEBUG
-			Formatting = Formatting.Indented
-#endif
 		};
 		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>(1024);
 	}
