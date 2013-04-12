@@ -15,7 +15,7 @@
 	{
 		public virtual IDisruptor<BootstrapItem> CreateBootstrapDisruptor(IRepository repository, int countdown, Action complete)
 		{
-			var disruptor = CreateDisruptor<BootstrapItem>(new YieldingWaitStrategy(), 1024);
+			var disruptor = CreateDisruptor<BootstrapItem>(new YieldingWaitStrategy(), 1024 * 64);
 			disruptor
 				.HandleEventsWith(new Phases.Bootstrap.SerializationHandler(CreateSerializer()))
 				.Then(new MementoHandler(repository))
@@ -30,7 +30,7 @@
 			var messageSender = this.messaging.CreateMessageSender();
 			var checkpointStore = this.persistence.CreateDispatchCheckpointStore();
 
-			var disruptor = CreateDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 128);
+			var disruptor = CreateDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 256);
 			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(new JsonSerializer()))
 			    .Then(new JournalHandler(messageStore))
 			    .Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
@@ -44,7 +44,7 @@
 			var systemRecorder = this.snapshots.CreateSystemSnapshotRecorder();
 			var publicRecorder = this.snapshots.CreatePublicSnapshotRecorder();
 
-			var disruptor = CreateDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 8);
+			var disruptor = CreateDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 16);
 			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(CreateSerializer()))
 			    .Then(new SystemSnapshotHandler(systemRecorder), new PublicSnapshotHandler(publicRecorder));
 
@@ -66,7 +66,7 @@
 			if (countdown == 0)
 				return null;
 
-			var disruptor = CreateDisruptor<TransformationItem>(new YieldingWaitStrategy(), 1024 * 128);
+			var disruptor = CreateDisruptor<TransformationItem>(new YieldingWaitStrategy(), 1024 * 256);
 			disruptor.HandleEventsWith(this.serializationHandler)
 			    .Then(this.transformationHandler)
 			    .Then(new CountdownHandler(countdown, complete));
@@ -75,7 +75,7 @@
 		}
 		public virtual IDisruptor<TransformationItem> CreateTransformationDisruptor()
 		{
-			var disruptor = CreateDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 128);
+			var disruptor = CreateDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
 			disruptor.HandleEventsWith(this.serializationHandler).Then(this.transformationHandler);
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}

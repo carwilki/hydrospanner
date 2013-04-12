@@ -85,7 +85,7 @@
 			Log.Info("Shutting down snapshot disruptor.");
 			this.snapshotDisruptor = this.snapshotDisruptor.TryDispose();
 
-			Log.Info("Shutting down snapshot disruptor.");
+			Log.Info("Shutting down journal disruptor.");
 			this.journalDisruptor = this.journalDisruptor.TryDispose();
 			
 			this.started = false;
