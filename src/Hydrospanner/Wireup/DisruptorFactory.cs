@@ -66,10 +66,13 @@
 			if (countdown == 0)
 				return null;
 
-			var disruptor = CreateDisruptor<TransformationItem>(new YieldingWaitStrategy(), 1024 * 256);
-			disruptor.HandleEventsWith(this.serializationHandler)
-			    .Then(this.transformationHandler)
-			    .Then(new CountdownHandler(countdown, complete));
+			var deserializer1 = new DeserializationHandler(CreateSerializer(), 2, 0);
+			var deserializer2 = new DeserializationHandler(CreateSerializer(), 2, 1);
+
+			var disruptor = CreateDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 1024);
+			disruptor.HandleEventsWith(deserializer1, deserializer2)
+				.Then(this.transformationHandler)
+				.Then(new CountdownHandler(countdown, complete));
 
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
