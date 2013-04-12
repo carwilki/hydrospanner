@@ -15,30 +15,29 @@
 				return;
 
 			Log.Info("Loading mementos from latest snapshot.");
-
 			info = this.snapshots.RestoreSnapshots(info, this.repository);
 
+			Log.Info("Starting snapshot disruptor.");
 			this.snapshotDisruptor = this.disruptors.CreateSnapshotDisruptor();
 			this.snapshotDisruptor.Start();
 
+			Log.Info("Starting journal disruptor.");
 			this.journalDisruptor = this.disruptors.CreateJournalDisruptor(info);
 			this.journalDisruptor.Start();
 
-			Log.Info("Loading messages from checkpoints.");
-
+			Log.Info("Restoring messages from journal.");
 			this.messages.Restore(info, this.journalDisruptor, this.repository);
 			
+			Log.Info("Starting primary transformation disruptor.");
 			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor();
 			this.transformationDisruptor.Start();
 
-			this.listener = this.messaging.CreateMessageListener(this.transformationDisruptor.RingBuffer);
-			
 			Log.Info("Attempting to start message listener.");
+			this.listener = this.messaging.CreateMessageListener(this.transformationDisruptor.RingBuffer);
 			this.listener.Start();
 
+			Log.Info("Bootstrap process complete; listening for incoming messages.");
 			this.started = true;
-
-			Log.Info("Bootstrap process complete.");
 		}
 
 		public Bootstrapper(
@@ -70,12 +69,23 @@
 		{
 			if (!disposing || !this.started)
 				return;
-			
+
+			Log.Info("Shutting down message listener.");
 			this.listener = this.listener.TryDispose();
+
+			Log.Info("Waiting a few seconds for all work to clear out of disruptors.");
 			TimeSpan.FromSeconds(3).Sleep();
+
+			Log.Info("Shutting down transformation disruptor.");
 			this.transformationDisruptor = this.transformationDisruptor.TryDispose();
+
+			Log.Info("Waiting a few hundred milliseconds for journaling and snapshotting to complete.");
 			TimeSpan.FromMilliseconds(500).Sleep();
+
+			Log.Info("Shutting down snapshot disruptor.");
 			this.snapshotDisruptor = this.snapshotDisruptor.TryDispose();
+
+			Log.Info("Shutting down snapshot disruptor.");
 			this.journalDisruptor = this.journalDisruptor.TryDispose();
 			
 			this.started = false;

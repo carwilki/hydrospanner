@@ -30,7 +30,7 @@
 			var messageSender = this.messaging.CreateMessageSender();
 			var checkpointStore = this.persistence.CreateDispatchCheckpointStore();
 
-			var disruptor = CreateDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 64);
+			var disruptor = CreateDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 128);
 			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(new JsonSerializer()))
 			    .Then(new JournalHandler(messageStore))
 			    .Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))

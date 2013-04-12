@@ -5,8 +5,8 @@
 	using System.Collections.Generic;
 	using System.Data;
 	using System.Data.Common;
-	using Wireup;
 	using log4net;
+	using Wireup;
 
 	public sealed class SqlMessageStoreReader : IEnumerable<JournaledMessage>, IEnumerator<JournaledMessage>
 	{

@@ -35,7 +35,7 @@
 		private void Restore(BootstrapInfo info, IDisruptor<JournalItem> journalRing)
 		{
 			var startingSequence = Math.Min(info.DispatchSequence + 1, info.SnapshotSequence + 1);
-			Log.InfoFormat("Starting from sequence {0}, will dispatch and will replay messages (this could take some time...).", startingSequence);
+			Log.InfoFormat("Restoring from sequence {0}, will dispatch and will replay messages (this could take some time...).", startingSequence);
 
 			var replayed = false;
 			foreach (var message in this.store.Load(startingSequence))
@@ -47,8 +47,7 @@
 					Log.InfoFormat("Pushed message sequence {0} for replay", message.Sequence);
 			}
 
-			Log.Info("Message replay complete.");
-
+			Log.Info("All journaled messages restored into transformation disruptor; awaiting transformation completion.");
 			if (!replayed)
 				this.mutex.Set();
 		}
