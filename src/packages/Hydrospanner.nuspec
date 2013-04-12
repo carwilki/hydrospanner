@@ -15,7 +15,7 @@
     </dependencies>	
   </metadata>
   <files>
-    <file src="..\merged\*" target="lib\net40" />
+    <file src="..\..\publish\bin\*" target="lib\net40" />
     <file src="..\Hydrospanner\**\*.cs" target="src" />
   </files>
 </package>
