@@ -7,6 +7,7 @@ _ReSharper.*
 *.ReSharper*
 *.Cache
 *.cache
+*.nupkg
 ~$*
 default*.js
 packages
