@@ -35,15 +35,13 @@
 
 		static void SendTheMessages(IModel channel)
 		{
-			var random = new Random();
-
 			var properties = channel.CreateBasicProperties();
 			properties.SetPersistent(false);
 			properties.Headers = new Hashtable();
 			
 			var count = DetermineBoundsOfMessageGeneration();
 
-			for (var i = 0; i < count.Item1 + 1; i++)
+			for (var i = 0; i < count.Item1; i++)
 			{
 				var streamId = Guid.NewGuid();
 				for (var x = 0; x < count.Item2; x++)
