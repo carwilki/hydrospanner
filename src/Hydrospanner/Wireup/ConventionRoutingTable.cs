@@ -89,7 +89,7 @@
 			if (this.mementos.ContainsKey(mementoType))
 				throw new InvalidOperationException("Memento of type '{0}' cannot be registered multiple times.".FormatWith(mementoType));
 
-			Log.InfoFormat(
+			Log.DebugFormat(
 				"Registering memento restoration method '{0}.{1}({2} memento)' with the ConventionRoutingTable.", 
 				(method.DeclaringType ?? typeof(IHydratable)).Name, 
 				method.Name, 
@@ -114,7 +114,7 @@
 			if (parameters[1].ParameterType != typeof(Dictionary<string, string>))
 				return;
 
-			Log.InfoFormat(
+			Log.DebugFormat(
 				"Registering lookup method ({0}.{1}({2} message, ...) with the ConventionRoutingTable.", 
 				(method.DeclaringType ?? typeof(IHydratable)).Name,
 				method.Name,

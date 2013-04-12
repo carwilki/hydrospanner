@@ -6,6 +6,7 @@
 	using System.Data;
 	using System.Data.Common;
 	using Wireup;
+	using log4net;
 
 	public sealed class SqlMessageStoreReader : IEnumerable<JournaledMessage>, IEnumerator<JournaledMessage>
 	{
@@ -22,8 +23,10 @@
 
 					return this.TryRead();
 				}
-				catch
+				catch (Exception e)
 				{
+					Log.Warn("Unable to stream from message store.", e);
+
 					this.Dispose();
 					Timeout.Sleep();
 				}
@@ -104,6 +107,7 @@
 		}
 
 		private const string LoadFromSequence = @"SELECT metadata_id, foreign_id, payload, headers FROM messages WHERE sequence >= {0};";
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SqlMessageStoreReader));
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(3);
 		private readonly Dictionary<short, string> registeredTypes = new Dictionary<short, string>(1024);
 		private readonly DbProviderFactory factory;

@@ -14,7 +14,6 @@
 			this.types.MarkPendingAsRegistered();
 			this.Cleanup();
 		}
-
 		private void SaveInSlices(IList<JournalItem> items)
 		{
 			var slices = this.CountSlices(items);
@@ -25,14 +24,12 @@
 				this.session.ExecuteCurrentCommand(commandText);
 			}
 		}
-
 		private int CountSlices(ICollection<JournalItem> items)
 		{
 			int remainder;
 			var slices = Math.DivRem(items.Count, this.maxSliceSize, out remainder);
 			return slices + Math.Sign(remainder);
 		}
-
 		private string BuildCommand(IList<JournalItem> items, int sliceIndex)
 		{
 			var start = sliceIndex * this.maxSliceSize;
@@ -46,7 +43,6 @@
 
 			return this.builder.Build();
 		}
-
 		public virtual void Cleanup()
 		{
 			this.builder.Cleanup();
@@ -76,7 +72,6 @@
 			this.types = types;
 			this.maxSliceSize = maxSliceSize;
 		}
-
 		protected SqlMessageStoreWriter()
 		{
 		}

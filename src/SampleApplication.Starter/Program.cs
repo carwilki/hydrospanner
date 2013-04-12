@@ -46,7 +46,7 @@
 			for (var i = 0; i < count.Item1 + 1; i++)
 			{
 				var streamId = Guid.NewGuid();
-				for (var x = 0; x < random.Next(1, count.Item2); x++)
+				for (var x = 0; x < count.Item2; x++)
 					SendMessage(channel, streamId, x + 1, properties);
 			}
 		}

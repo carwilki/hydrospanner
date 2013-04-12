@@ -23,8 +23,7 @@
 				if (this.TrySave(items)) 
 					break;
 		}
-
-		bool TrySave(IList<JournalItem> items)
+		private bool TrySave(IList<JournalItem> items)
 		{
 			try
 			{
