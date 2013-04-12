@@ -190,6 +190,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			Establish context = () =>
 			{
 				channel.Send(messageToSend);
+				messageToSend.Headers = messageToSend.Headers ?? new Dictionary<string, string>();
 				messageToSend.Headers["test-header"] = "test-value";
 			};
 
