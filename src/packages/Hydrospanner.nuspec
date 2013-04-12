@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Hydrospanner</id>
+    <version>1.0.0</version>
+    <title>Hydrospanner</title>
+    <authors>SmartyStreets</authors>
+    <owners>SmartyStreets</owners>
+    <projectUrl>https://github.com/smartystreets/hydrospanner</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Application framework</description>
+    <language>en-US</language>
+    <dependencies>
+      <dependency id="log4net" version="[1.2.11]" />
+    </dependencies>	
+  </metadata>
+  <files>
+    <file src="..\merged\*" target="lib\net40" />
+    <file src="..\Hydrospanner\**\*.cs" target="src" />
+  </files>
+</package>
