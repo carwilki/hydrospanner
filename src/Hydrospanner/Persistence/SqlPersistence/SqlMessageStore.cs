@@ -4,6 +4,7 @@
 	using System.Collections.Generic;
 	using System.Data.Common;
 	using System.Linq;
+	using log4net;
 	using Phases.Journal;
 	using Wireup;
 
@@ -30,8 +31,9 @@
 				this.writer.Write(items);
 				return true;
 			}
-			catch
+			catch (Exception e)
 			{
+				Log.Warn("Unable to persist messages to durable storage.", e);
 				this.writer.Cleanup();
 				Timeout.Sleep();
 			}
@@ -63,6 +65,7 @@
 			this.types = types;
 		}
 
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SqlMessageStore));
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(3);
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
