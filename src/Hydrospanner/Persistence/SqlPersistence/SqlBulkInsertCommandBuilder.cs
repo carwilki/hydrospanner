@@ -41,10 +41,10 @@
 		private string DetermineInsertStatement(JournalItem item)
 		{
 			if (!item.ItemActions.HasFlag(JournalItemAction.Acknowledge))
-				return InsertLocalMessage;
+				return this.index == 0 ? InsertFirstLocalMessage : InsertNextLocalMessage;
 
 			this.session.IncludeParameter("@f{0}".FormatWith(this.index), item.ForeignId.ToByteArray());
-			return InsertForeignMessage;
+			return this.index == 0 ? InsertFirstForeignMessage : InsertNextForeignMessage;
 		}
 
 		public virtual string Build()
@@ -68,8 +68,10 @@
 		}
 
 		private const string InsertType = "INSERT INTO metadata SELECT {0}, @t{0};\n";
-		private const string InsertLocalMessage = "INSERT INTO messages SELECT {0}, {1}, NULL, @p{2}, @h{2};\n";
-		private const string InsertForeignMessage = "INSERT INTO messages SELECT {0}, {1}, @f{2}, @p{2}, @h{2};\n";
+		private const string InsertFirstLocalMessage = "INSERT INTO messages VALUES ({0},{1},NULL,@p{2},@h{2})";
+		private const string InsertFirstForeignMessage = "INSERT INTO messages VALUES({0},{1},@f{2},@p{2},@h{2})";
+		public const string InsertNextLocalMessage = ",({0},{1},NULL,@p{2},@h{2})";
+		public const string InsertNextForeignMessage = ",({0},{1},@f{2},@p{2},@h{2})";
 		private readonly StringBuilder statement = new StringBuilder();
 		private readonly JournalMessageTypeRegistrar types;
 		private readonly SqlBulkInsertSession session;
