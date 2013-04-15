@@ -89,9 +89,8 @@ namespace Hydrospanner.Persistence.SqlPersistence
 			{
 				commandText.Trim().Replace("\n", string.Empty).ShouldEqual(
 					"INSERT INTO metadata SELECT 1, @t1;" +
-					"INSERT INTO messages SELECT 41, 1, NULL, @p0, @h0;" +
 					"INSERT INTO metadata SELECT 2, @t2;" +
-					"INSERT INTO messages SELECT 42, 2, @f1, @p1, @h1;");
+					"INSERT INTO messages VALUES (41,1,NULL,@p0,@h0),(42,2,@f1,@p1,@h1);");
 				
 				parameterNames.ShouldBeLike(new[] { "@p0", "@h0", "@t1", "@p1", "@h1", "@t2", "@f1" });
 				

@@ -8,7 +8,8 @@
 		public virtual void NewBatch()
 		{
 			this.index = 0;
-			this.statement.Clear();
+			this.metadataStatement.Clear();
+			this.messagesStatement.Clear();
 		}
 
 		public virtual void Include(JournalItem item)
@@ -16,7 +17,7 @@
 			this.AddSerializedData(item);
 			var metadataId = this.AddMetadata(item);
 			var insert = this.DetermineInsertStatement(item);
-			this.statement.AppendFormat(insert, item.MessageSequence, metadataId, this.index);
+			this.messagesStatement.AppendFormat(insert, item.MessageSequence, metadataId, this.index);
 			this.index++;
 		}
 		private void AddSerializedData(JournalItem item)
@@ -31,7 +32,7 @@
 			{
 				metadataId = this.types.Register(item.SerializedType);
 				this.session.IncludeParameter("@t{0}".FormatWith(metadataId), item.SerializedType);
-				this.statement.AppendFormat(InsertType, metadataId);
+				this.metadataStatement.AppendFormat(InsertType, metadataId);
 			}
 			else
 				metadataId = this.types.GetIdentifier(item.SerializedType);
@@ -49,12 +50,13 @@
 
 		public virtual string Build()
 		{
-			return this.statement.ToString();
+			return string.Format("{0}{1};", this.metadataStatement, this.messagesStatement);
 		}
 
 		public virtual void Cleanup()
 		{
-			this.statement.Clear();
+			this.metadataStatement.Clear();
+			this.messagesStatement.Clear();
 			this.types.DropPendingTypes();
 		}
 
@@ -67,12 +69,13 @@
 		{
 		}
 
-		private const string InsertType = "INSERT INTO metadata SELECT {0}, @t{0};\n";
+		private const string InsertType = "INSERT INTO metadata SELECT {0}, @t{0};";
 		private const string InsertFirstLocalMessage = "INSERT INTO messages VALUES ({0},{1},NULL,@p{2},@h{2})";
 		private const string InsertFirstForeignMessage = "INSERT INTO messages VALUES({0},{1},@f{2},@p{2},@h{2})";
-		public const string InsertNextLocalMessage = ",({0},{1},NULL,@p{2},@h{2})";
-		public const string InsertNextForeignMessage = ",({0},{1},@f{2},@p{2},@h{2})";
-		private readonly StringBuilder statement = new StringBuilder();
+		private const string InsertNextLocalMessage = ",({0},{1},NULL,@p{2},@h{2})";
+		private const string InsertNextForeignMessage = ",({0},{1},@f{2},@p{2},@h{2})";
+		private readonly StringBuilder metadataStatement = new StringBuilder();
+		private readonly StringBuilder messagesStatement = new StringBuilder();
 		private readonly JournalMessageTypeRegistrar types;
 		private readonly SqlBulkInsertSession session;
 		private int index;
