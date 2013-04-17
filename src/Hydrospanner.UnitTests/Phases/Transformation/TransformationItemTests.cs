@@ -17,7 +17,7 @@ namespace Hydrospanner.Phases.Transformation
 			type = "Type";
 			headers = new Dictionary<string, string>();
 			foreignId = Guid.NewGuid();
-			ack = Console.WriteLine;
+			ack = x => { };
 		};
 
 		Because of = () =>
@@ -43,7 +43,7 @@ namespace Hydrospanner.Phases.Transformation
 		static string type;
 		static Dictionary<string, string> headers;
 		static Guid foreignId;
-		static Action ack;
+		static Action<bool> ack;
 	}
 
 	public class when_initializing_a_local_message

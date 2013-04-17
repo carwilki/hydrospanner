@@ -46,8 +46,12 @@
 			var size = this.buffer.Count + IncomingMessage;
 			var batch = this.journalRing.Next(size);
 
+			Action confirm = null;
+			if (data.Acknowledgment != null)
+				confirm = () => data.Acknowledgment(true);
+
 			this.journalRing[batch.Start].AsForeignMessage(
-				this.currentSequnce + 1, data.SerializedBody, data.Body, data.Headers, data.ForeignId, data.Acknowledgment);
+				this.currentSequnce + 1, data.SerializedBody, data.Body, data.Headers, data.ForeignId, confirm);
 
 			for (var i = 1; i < size; i++)
 				this.journalRing[i + batch.Start].AsTransformationResultMessage(this.currentSequnce + 1 + i, this.buffer[i - IncomingMessage], BlankHeaders);

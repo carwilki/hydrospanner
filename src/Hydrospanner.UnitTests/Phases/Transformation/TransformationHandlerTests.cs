@@ -191,7 +191,7 @@ namespace Hydrospanner.Phases.Transformation
 					item.MessageSequence.ShouldEqual(JournaledSequence + 1);
 			}
 
-			public class when_the_message_yeilds_a_resulting_messages
+			public class when_the_message_yields_one_or_more_resulting_messages
 			{
 				Establish context = () =>
 				{

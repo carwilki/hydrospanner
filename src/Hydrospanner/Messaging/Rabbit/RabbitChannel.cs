@@ -128,7 +128,7 @@
 			var headers = meta.Headers.Copy();
 			var tag = message.DeliveryTag;
 
-			return new MessageDelivery(id, message.Body, meta.Type, headers, () =>
+			return new MessageDelivery(id, message.Body, meta.Type, headers, success =>
 			{
 				if (this.disposed || !currentChannel.IsOpen)
 					return;

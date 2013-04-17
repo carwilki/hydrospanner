@@ -15,9 +15,9 @@
 		public Dictionary<string, string> Headers { get; set; }
 
 		public Guid ForeignId { get; set; }
-		public Action Acknowledgment { get; set; }
+		public Action<bool> Acknowledgment { get; set; }
 
-		public void AsForeignMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action ack)
+		public void AsForeignMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action<bool> ack)
 		{
 			this.Clear();
 			this.SerializedBody = body;
