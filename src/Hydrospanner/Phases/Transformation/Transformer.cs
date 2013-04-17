@@ -10,23 +10,15 @@
 		{
 			this.gathered.Clear();
 
-			this.Transform(message, headers, sequence);
-
-			return this.gathered;
-		}
-
-		private void Transform(object message, Dictionary<string, string> headers, long sequence)
-		{
 			var live = sequence > this.journaledSequence;
-
 			foreach (var hydratable in this.repository.Load(message, headers))
 			{
 				hydratable.Hydrate(message, headers, live);
-
 				this.GatherState(live, sequence, hydratable);
 			}
-		}
 
+			return this.gathered;
+		}
 		private void GatherState(bool live, long messageSequence, IHydratable hydratable)
 		{
 			if (live)
@@ -38,7 +30,6 @@
 			if (hydratable.IsComplete)
 				this.repository.Delete(hydratable);
 		}
-
 		private void TakeSnapshot(IHydratable hydratable, long messageSequence)
 		{
 			var next = this.snapshotRing.Next();

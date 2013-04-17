@@ -17,7 +17,6 @@
 
 			this.Increment(data);
 		}
-
 		private bool Transform(TransformationItem data)
 		{
 			var live = false;
@@ -40,7 +39,6 @@
 
 			return live;
 		}
-
 		private void PublishToJournalPhase(TransformationItem data)
 		{
 			Log.DebugFormat("Publishing {0} items to the Journal Disruptor.", this.buffer.Count + IncomingMessage);
@@ -56,7 +54,6 @@
 
 			this.journalRing.Publish(batch);
 		}
-
 		private void Increment(TransformationItem data)
 		{
 			if (data.MessageSequence > this.currentSequnce)
