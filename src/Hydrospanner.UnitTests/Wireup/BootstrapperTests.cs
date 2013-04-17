@@ -164,7 +164,7 @@ namespace Hydrospanner.Wireup
 			snapshots.RestoreSnapshots(info, repository).Returns(info2);
 			disruptors.CreateJournalDisruptor(info2).Returns(journalDisruptor);
 			disruptors.CreateSnapshotDisruptor().Returns(snapshotDisruptor);
-			disruptors.CreateTransformationDisruptor().Returns(transformationDisruptor);
+			disruptors.CreateTransformationDisruptor(repository, info2).Returns(transformationDisruptor);
 
 			transformationDisruptor.RingBuffer.Returns(transformationRingBuffer);
 			messaging.CreateMessageListener(transformationRingBuffer).Returns(listener);
@@ -182,7 +182,7 @@ namespace Hydrospanner.Wireup
 			
 			messages.Restore(info2, journalDisruptor, repository);
 			
-			disruptors.CreateTransformationDisruptor();
+			disruptors.CreateTransformationDisruptor(repository, info2);
 			transformationDisruptor.Start();
 
 			messaging.CreateMessageListener(transformationRingBuffer);

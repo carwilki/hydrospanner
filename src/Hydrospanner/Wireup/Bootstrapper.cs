@@ -29,7 +29,7 @@
 			this.messages.Restore(info, this.journalDisruptor, this.repository);
 			
 			Log.Info("Starting primary transformation disruptor.");
-			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor();
+			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor(this.repository, info);
 			this.transformationDisruptor.Start();
 
 			Log.Info("Attempting to start message listener.");

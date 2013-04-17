@@ -52,34 +52,41 @@
 			return new DisruptorBase<SnapshotItem>(disruptor);
 		}
 
-		public virtual IDisruptor<TransformationItem> CreateStartupTransformationDisruptor(
-			IRepository repository, BootstrapInfo info, int snapshotFrequency, Action complete)
+		public virtual IDisruptor<TransformationItem> CreateStartupTransformationDisruptor(IRepository repository, BootstrapInfo info, Action complete)
 		{
-			var duplicateHandler = new NullDuplicateHandler();
-			var transformer = new Transformer(repository, this.snapshotRing, info.JournaledSequence);
-			var systemSnapshotTracker = new SystemSnapshotTracker(
-				info.JournaledSequence, snapshotFrequency, this.snapshotRing, repository);
-			this.transformationHandler = new TransformationHandler(
-				info.JournaledSequence, this.journalRing, duplicateHandler, transformer, systemSnapshotTracker);
-
 			var countdown = info.JournaledSequence - info.SnapshotSequence;
 			if (countdown == 0)
 				return null;
 
-			var deserializer1 = new DeserializationHandler(CreateSerializer(), 2, 0);
-			var deserializer2 = new DeserializationHandler(CreateSerializer(), 2, 1);
+			var deserializationHandler1 = new DeserializationHandler(CreateSerializer(), 2, 0);
+			var deserializationHandler2 = new DeserializationHandler(CreateSerializer(), 2, 1);
+			var transformationHandler = this.CreateTransformationHandler(
+				repository, info.JournaledSequence, new NullDuplicateHandler(), new NullSystemSnapshotTracker());
 
 			var disruptor = CreateDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 1024);
-			disruptor.HandleEventsWith(deserializer1, deserializer2)
-				.Then(this.transformationHandler)
+			disruptor.HandleEventsWith(deserializationHandler1, deserializationHandler2)
+				.Then(transformationHandler)
 				.Then(new CountdownHandler(countdown, complete));
 
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
-		public virtual IDisruptor<TransformationItem> CreateTransformationDisruptor()
+		private TransformationHandler CreateTransformationHandler(
+			IRepository repository, long sequence, IDuplicateHandler duplicates, ISystemSnapshotTracker tracker)
 		{
+			var transformer = new Transformer(repository, this.snapshotRing, sequence);
+			return new TransformationHandler(sequence, this.journalRing, duplicates, transformer, tracker);
+		}
+		public virtual IDisruptor<TransformationItem> CreateTransformationDisruptor(IRepository repository, BootstrapInfo info)
+		{
+			var serializationHandler = new DeserializationHandler(CreateSerializer());
+
+			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
+			var duplicateStore = new DuplicateStore(this.duplicateWindow);
+			var duplicateHandler = new DuplicateHandler(duplicateStore, this.journalRing);
+
+			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, duplicateHandler, systemSnapshotTracker);
 			var disruptor = CreateDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
-			disruptor.HandleEventsWith(this.serializationHandler).Then(this.transformationHandler);
+			disruptor.HandleEventsWith(serializationHandler).Then(transformationHandler);
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
 
@@ -92,22 +99,39 @@
 			return new Disruptor<T>(() => new T(), new SingleThreadedClaimStrategy(size), wait, TaskScheduler.Default);
 		}
 
-		public DisruptorFactory(MessagingFactory messaging, PersistenceFactory persistence, SnapshotFactory snapshots)
+		public DisruptorFactory(MessagingFactory messaging, PersistenceFactory persistence, SnapshotFactory snapshots, int duplicateWindow, int snapshotFrequency)
 		{
+			if (messaging == null)
+				throw new ArgumentNullException("messaging");
+
+			if (persistence == null)
+				throw new ArgumentNullException("persistence");
+
+			if (snapshots == null)
+				throw new ArgumentNullException("snapshots");
+
+			if (duplicateWindow <= 0)
+				throw new ArgumentOutOfRangeException("duplicateWindow");
+
+			if (snapshotFrequency <= 0)
+				throw new ArgumentOutOfRangeException("snapshotFrequency");
+
 			this.messaging = messaging;
 			this.snapshots = snapshots;
 			this.persistence = persistence;
+			this.duplicateWindow = duplicateWindow;
+			this.snapshotFrequency = snapshotFrequency;
 		}
 		protected DisruptorFactory()
 		{
 		}
 
-		private readonly DeserializationHandler serializationHandler = new DeserializationHandler(CreateSerializer());
 		private readonly SnapshotFactory snapshots;
 		private readonly MessagingFactory messaging;
 		private readonly PersistenceFactory persistence;
+		private readonly int duplicateWindow;
+		readonly int snapshotFrequency;
 
-		private TransformationHandler transformationHandler;
 		private IRingBuffer<JournalItem> journalRing;
 		private IRingBuffer<SnapshotItem> snapshotRing;
 	}

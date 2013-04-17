@@ -21,7 +21,7 @@
 				throw new ArgumentNullException("repository");
 
 			this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(
-				repository, info, this.snapshotFrequency, () => this.mutex.Set());
+				repository, info, () => this.mutex.Set());
 
 			if (this.transformRing != null)
 				this.transformRing.Start();
@@ -82,7 +82,7 @@
 			journalRing.RingBuffer.Publish(next);
 		}
 
-		public MessageBootstrapper(IMessageStore store, DisruptorFactory disruptors, int snapshotFrequency)
+		public MessageBootstrapper(IMessageStore store, DisruptorFactory disruptors)
 		{
 			if (store == null) 
 				throw new ArgumentNullException("store");
@@ -90,14 +90,9 @@
 			if (disruptors == null) 
 				throw new ArgumentNullException("disruptors");
 
-			if (snapshotFrequency < 1)
-				throw new ArgumentOutOfRangeException("snapshotFrequency");
-
 			this.store = store;
 			this.disruptors = disruptors;
-			this.snapshotFrequency = snapshotFrequency;
 		}
-
 		protected MessageBootstrapper()
 		{
 		}
@@ -106,7 +101,6 @@
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
 		private readonly IMessageStore store;
 		private readonly DisruptorFactory disruptors;
-		private readonly int snapshotFrequency;
 		private IDisruptor<TransformationItem> transformRing;
 	}
 }

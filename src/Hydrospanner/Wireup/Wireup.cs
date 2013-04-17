@@ -43,9 +43,9 @@
 			this.info = persistenceBootstrapper.Restore();
 			var messageStore = persistenceFactory.CreateMessageStore(this.info.SerializedTypes);
 			var snapshotFactory = new SnapshotFactory(conventionWireup.SnapshotLocation, conventionWireup.PublicSnapshotConnectionName);
-			var disruptorFactory = new DisruptorFactory(messagingFactory, persistenceFactory, snapshotFactory);
+			var disruptorFactory = new DisruptorFactory(messagingFactory, persistenceFactory, snapshotFactory, conventionWireup.DuplicateWindow, conventionWireup.SystemSnapshotFrequency);
 			var snapshotBootstrapper = new SnapshotBootstrapper(snapshotFactory, disruptorFactory);
-			var messageBootstrapper = new MessageBootstrapper(messageStore, disruptorFactory, conventionWireup.SystemSnapshotFrequency);
+			var messageBootstrapper = new MessageBootstrapper(messageStore, disruptorFactory);
 
 			this.bootstrapper = new Bootstrapper(repository, disruptorFactory, snapshotBootstrapper, messageBootstrapper, messagingFactory);
 		}

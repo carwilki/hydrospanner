@@ -55,4 +55,11 @@
 		private readonly IRepository repository;
 		private long nextSnapshotSequence;
 	}
+
+	public sealed class NullSystemSnapshotTracker : ISystemSnapshotTracker
+	{
+		public void Track(long sequence)
+		{
+		}
+	}
 }
