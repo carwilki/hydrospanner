@@ -19,51 +19,27 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			It should_throw_if_the_sequence_is_out_of_range = () =>
 			{
-				Try(() => new TransformationHandler(-1, journal, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
-				Try(() => new TransformationHandler(long.MinValue, journal, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Try(() => new TransformationHandler(-1, journal, transformer, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Try(() => new TransformationHandler(long.MinValue, journal, transformer, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
 			};
 
 			It should_throw_if_the_journal_is_null = () =>
 			{
-				Try(() => new TransformationHandler(0, null, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();
-				Try(() => new TransformationHandler(1, null, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();
-				Try(() => new TransformationHandler(int.MaxValue, null, duplicates, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new TransformationHandler(0, null, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new TransformationHandler(1, null, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new TransformationHandler(int.MaxValue, null, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();
 			};
 
-			It should_throw_if_the_duplicates_is_null = () =>
-				Try(() => new TransformationHandler(1, journal, null, transformer, snapshot)).ShouldBeOfType<ArgumentNullException>();
-
 			It should_throw_if_the_transformer_is_null = () =>
-				Try(() => new TransformationHandler(1, journal, duplicates, null, snapshot)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new TransformationHandler(1, journal, null, snapshot)).ShouldBeOfType<ArgumentNullException>();
 
 			It should_throw_if_the_snapshot_is_null = () =>
-				Try(() => new TransformationHandler(1, journal, duplicates, transformer, null)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new TransformationHandler(1, journal, transformer, null)).ShouldBeOfType<ArgumentNullException>();
 
 			static Exception Try(Action action)
 			{
 				return Catch.Exception(action);
 			}
-		}
-
-		public class when_the_message_is_a_duplicate
-		{
-			Establish context = () =>
-			{
-				duplicates.Forward(item).Returns(true);
-				handler = new TransformationHandler(2, journal, duplicates, transformer, snapshot);
-			};
-
-			Because of = () =>
-				handler.OnNext(item, 0, false);
-
-			It should_NOT_use_the_message_for_transformation = () =>
-				transformer.DidNotReceive().Handle(item, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>());
-
-			It should_NOT_increment_the_snapshot = () =>
-				snapshot.DidNotReceive().Track(Arg.Any<long>());
-
-			It should_NOT_publish_the_message_to_the_journal_ring = () =>
-				journal.AllItems.ShouldBeEmpty();
 		}
 
 		public class when_the_message_is_handled_during_replay
@@ -76,7 +52,7 @@ namespace Hydrospanner.Phases.Transformation
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 					item.MessageSequence = ReplayMessageSequence;
 					item.Deserialize(new JsonSerializer());
-					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
 				Because of = () =>
@@ -102,7 +78,7 @@ namespace Hydrospanner.Phases.Transformation
 					transformer.Handle(item.Body, item.Headers, ReplayMessageSequence).Returns(new object[] { "hello", "world" });
 					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence).Returns(new object[0]);
 					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
 				Because of = () =>
@@ -128,7 +104,7 @@ namespace Hydrospanner.Phases.Transformation
 					transformer.Handle(item.Body, item.Headers, ReplayMessageSequence).Returns(new object[] { "hello" });
 					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence + 1).Returns(new object[] { "world" });
 					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence + 1).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
 				Because of = () =>
@@ -162,7 +138,7 @@ namespace Hydrospanner.Phases.Transformation
 					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence).Returns(new object[0]);
 					transformer.Handle(item2.Body, item2.Headers, ReplayMessageSequence).Returns(new object[0]);
 					
-					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 					handler.OnNext(item, 1, false);
 				};
 
@@ -191,7 +167,7 @@ namespace Hydrospanner.Phases.Transformation
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
 					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
 				Because of = () =>
@@ -224,7 +200,7 @@ namespace Hydrospanner.Phases.Transformation
 					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[] { "hello", "world" });
 					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence).Returns(new object[0]);
 					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
 				Because of = () =>
@@ -276,7 +252,7 @@ namespace Hydrospanner.Phases.Transformation
 					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[] { "hello" });
 					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1).Returns(new object[] { "world" });
 					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
 				Because of = () =>
@@ -334,7 +310,7 @@ namespace Hydrospanner.Phases.Transformation
 					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1).Returns(new object[] { "world" });
 					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 2).Returns(new object[0]);
 					transformer.Handle(item2.Body, item.Headers, LiveMessageSequence + 3).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 					handler.OnNext(item, 1, false);
 				};
 
@@ -402,7 +378,7 @@ namespace Hydrospanner.Phases.Transformation
 				liveItem.AsForeignMessage(Encoding.UTF8.GetBytes("2"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 				item.Deserialize(new JsonSerializer());
 
-				handler = new TransformationHandler(JournaledSequence, journal, duplicates, transformer, snapshot);
+				handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				handler.OnNext(item, 234234, false);
 			};
 
@@ -422,7 +398,6 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			item = new TransformationItem();
 			journal = new RingBufferHarness<JournalItem>();
-			duplicates = Substitute.For<IDuplicateHandler>();
 			transformer = Substitute.For<ITransformer>();
 			snapshot = Substitute.For<ISystemSnapshotTracker>();
 		};
@@ -433,7 +408,6 @@ namespace Hydrospanner.Phases.Transformation
 		static TransformationItem item;
 		static TransformationHandler handler;
 		static RingBufferHarness<JournalItem> journal;
-		static IDuplicateHandler duplicates;
 		static ITransformer transformer;
 		static ISystemSnapshotTracker snapshot;
 	}

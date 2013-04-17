@@ -61,7 +61,6 @@
     <Compile Include="Phases\Transformation\ITransformer.cs" />
     <Compile Include="Phases\Transformation\SystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\Transformer.cs" />
-    <Compile Include="Phases\Transformation\DuplicateHandler.cs" />
     <Compile Include="RingBufferBase.cs" />
     <Compile Include="Wireup\ConventionRoutingTable.cs" />
     <Compile Include="Wireup\ConventionWireupParameters.cs" />

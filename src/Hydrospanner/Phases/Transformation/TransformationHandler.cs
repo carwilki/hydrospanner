@@ -10,16 +10,8 @@
 	{
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
-			if (this.duplicates.Forward(data))
-				return;
-
-			this.Handle(data);
-		}
-
-		private void Handle(TransformationItem data)
-		{
 			var liveMessage = this.Transform(data);
-			
+
 			if (liveMessage)
 				this.PublishToJournalPhase(data);
 
@@ -79,7 +71,6 @@
 		public TransformationHandler(
 			long journaledSequence, 
 			IRingBuffer<JournalItem> journalRing,
-			IDuplicateHandler duplicates,
 			ITransformer transformer,
 			ISystemSnapshotTracker snapshot)
 		{
@@ -89,9 +80,6 @@
 			if (journalRing == null)
 				throw new ArgumentNullException("journalRing");
 
-			if (duplicates == null)
-				throw new ArgumentNullException("duplicates");
-
 			if (transformer == null)
 				throw new ArgumentNullException("transformer");
 
@@ -100,7 +88,6 @@
 
 			this.currentSequnce = journaledSequence;
 			this.journalRing = journalRing;
-			this.duplicates = duplicates;
 			this.transformer = transformer;
 			this.snapshot = snapshot;
 		}
@@ -109,7 +96,6 @@
 		private static readonly ILog Log = LogManager.GetLogger(typeof(TransformationHandler));
 		private static readonly Dictionary<string, string> BlankHeaders = new Dictionary<string, string>(); 
 		private readonly IRingBuffer<JournalItem> journalRing;
-		private readonly IDuplicateHandler duplicates;
 		private readonly ITransformer transformer;
 		private readonly ISystemSnapshotTracker snapshot;
 		private readonly List<object> buffer = new List<object>();
