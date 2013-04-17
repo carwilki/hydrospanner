@@ -34,7 +34,7 @@
 		public virtual string SourceQueueName { get { return RetrieveAppSetting("hydrospanner-source-queue"); } }
 		public virtual string JournalConnectionName { get { return RetrieveConnectionName("hydrospanner-journal"); } }
 		public virtual string PublicSnapshotConnectionName { get { return RetrieveConnectionName("hydrospanner-public-snapshots"); } }
-		public virtual int DuplicateWindow { get { return RetrieveNumericAppSetting("hydrospanner-duplicate-window", 1024 * 1024); } }
+		public virtual int DuplicateWindow { get { return RetrieveNumericAppSetting("hydrospanner-duplicate-window", 1024 * 128); } }
 		public virtual int JournalBatchSize { get { return RetrieveNumericAppSetting("hydrospanner-journal-batch-size", 1024); } }
 		public virtual string SnapshotLocation { get { return RetrieveAppSetting("hydrospanner-system-snapshot-location"); } }
 		public virtual int SystemSnapshotFrequency { get { return RetrieveNumericAppSetting("hydrospanner-system-snapshot-frequency", 50000); } }
@@ -60,13 +60,13 @@
 
 		private static int RetrieveNumericAppSetting(string name, int defaultValue = -1)
 		{
-			var value = RetrieveAppSetting(name);
+			var value = Settings[name];
 
 			int parsed;
 			if (int.TryParse(value, out parsed) && parsed > 0)
 				return parsed;
 
-			if (defaultValue <= 0 || parsed <= 0)
+			if (defaultValue <= 0 || (parsed <= 0 && !string.IsNullOrWhiteSpace(value)))
 				throw new ArgumentException(
 					string.Format("Please supply a value for the app setting '{0}' that can be parsed as a 4-byte integer.", name));
 
