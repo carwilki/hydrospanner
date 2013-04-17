@@ -32,9 +32,13 @@
 		}
 		private void TakeSnapshot(IHydratable hydratable, long messageSequence)
 		{
+			var memento = hydratable.GetMemento();
+			var cloner = memento as ICloneable;
+			memento = (cloner == null ? memento : cloner.Clone()) ?? memento;
+
 			var next = this.snapshotRing.Next();
 			var claimed = this.snapshotRing[next];
-			claimed.AsPublicSnapshot(hydratable.Key, hydratable.GetMemento(), messageSequence);
+			claimed.AsPublicSnapshot(hydratable.Key, memento, messageSequence);
 			this.snapshotRing.Publish(next);
 		}
 

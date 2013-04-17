@@ -93,6 +93,35 @@ namespace Hydrospanner.Phases.Transformation
 				});
 		}
 
+		public class when_the_hydratable_can_be_snapshot_and_return_a_cloneable_object
+		{
+			Establish context = () =>
+			{
+				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key, new Cloner(cloned));
+				repository.Load(Incoming, Headers).Returns(new[] { hydratable });
+			};
+
+			Because of = () =>
+				transformer.Handle(Incoming, Headers, ReplayMessage);
+
+			It should_push_the_clone_to_the_snapshot_ring_buffer = () =>
+				snapshotRing.AllItems.Single().Memento.ShouldEqual(cloned);
+
+			private class Cloner : ICloneable
+			{
+				public object Clone()
+				{
+					return this.cloned;
+				}
+				public Cloner(object cloned)
+				{
+					this.cloned = cloned;
+				}
+				private readonly object cloned;
+			}
+			static readonly object cloned = new object();
+		}
+
 		public class when_the_hydratable_becomes_complete_as_a_result_of_transformation
 		{
 			Establish context = () =>
@@ -207,9 +236,9 @@ namespace Hydrospanner.Phases.Transformation
 			yield return new SomethingHappenedEvent { Value = message };
 		}
 
-		public object GetMemento()
+		public virtual object GetMemento()
 		{
-			return new SomethingHappenedProjection { Value = this.EventsReceived.Last() };
+			return this.memento ?? new SomethingHappenedProjection { Value = this.EventsReceived.Last() };
 		}
 
 		public void Hydrate(SomethingHappenedEvent message, Dictionary<string, string> headers, bool live)
@@ -220,16 +249,18 @@ namespace Hydrospanner.Phases.Transformation
 				this.IsComplete = true;
 		}
 
-		public TestHydratable(bool isPublicSnapshot, bool becomesComplete, string key)
+		public TestHydratable(bool isPublicSnapshot, bool becomesComplete, string key, object memento = null)
 		{
 			this.isPublicSnapshot = isPublicSnapshot;
 			this.becomesComplete = becomesComplete;
 			this.key = key;
+			this.memento = memento;
 		}
 		
 		private readonly bool isPublicSnapshot;
 		private readonly bool becomesComplete;
 		private readonly string key;
+		private readonly object memento;
 	}
 }
 
