@@ -55,12 +55,12 @@
 		public virtual IDisruptor<TransformationItem> CreateStartupTransformationDisruptor(
 			IRepository repository, BootstrapInfo info, int snapshotFrequency, Action complete)
 		{
-			this.duplicateHandler = new DuplicateHandler(new DuplicateStore(), this.journalRing);
+			var duplicateHandler = new NullDuplicateHandler();
 			var transformer = new Transformer(repository, this.snapshotRing, info.JournaledSequence);
 			var systemSnapshotTracker = new SystemSnapshotTracker(
 				info.JournaledSequence, snapshotFrequency, this.snapshotRing, repository);
 			this.transformationHandler = new TransformationHandler(
-				info.JournaledSequence, this.journalRing, this.duplicateHandler, transformer, systemSnapshotTracker);
+				info.JournaledSequence, this.journalRing, duplicateHandler, transformer, systemSnapshotTracker);
 
 			var countdown = info.JournaledSequence - info.SnapshotSequence;
 			if (countdown == 0)
@@ -108,7 +108,6 @@
 		private readonly PersistenceFactory persistence;
 
 		private TransformationHandler transformationHandler;
-		private DuplicateHandler duplicateHandler;
 		private IRingBuffer<JournalItem> journalRing;
 		private IRingBuffer<SnapshotItem> snapshotRing;
 	}

@@ -38,4 +38,12 @@
 		readonly DuplicateStore store;
 		readonly IRingBuffer<JournalItem> ring;
 	}
+
+	public sealed class NullDuplicateHandler : IDuplicateHandler
+	{
+		public bool Forward(TransformationItem item)
+		{
+			return false;
+		}
+	}
 }

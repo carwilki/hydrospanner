@@ -114,7 +114,7 @@ namespace Hydrospanner.Phases.Transformation
 		Establish context = () =>
 		{
 			item = new TransformationItem();
-			store = new DuplicateStore();
+			store = new DuplicateStore(1024);
 		};
 
 		static bool forwarded;

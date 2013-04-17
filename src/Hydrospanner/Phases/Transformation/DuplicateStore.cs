@@ -22,7 +22,7 @@
 			return false;
 		}
 
-		public DuplicateStore(int capacity = 1024)
+		public DuplicateStore(int capacity)
 		{
 			this.capacity = capacity;
 			this.entries = new HashSet<Guid>(new Guid[capacity]);
