@@ -734,12 +734,21 @@ namespace Hydrospanner.Messaging.Rabbit
 					delivery.Populated.ShouldBeFalse();
 			}
 
-			public class when_invoking_the_delivery_acknowledgment_callback
+			public class when_successfully_acknowledging_delivery
 			{
 				It should_acknowledge_the_delivery_tag_to_the_underlying_channel = () =>
 				{
 					delivery.Acknowledge(true);
 					actualChannel.Received(1).BasicAck(rabbitMessage.DeliveryTag, true);
+				};
+			}
+
+			public class when_rejecting_a_delivery
+			{
+				It should_reject_the_delivery_tag_to_the_underlying_channel = () =>
+				{
+					delivery.Acknowledge(false);
+					actualChannel.Received(1).BasicReject(rabbitMessage.DeliveryTag, false);
 				};
 			}
 

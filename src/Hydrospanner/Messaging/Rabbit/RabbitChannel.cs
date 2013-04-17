@@ -135,7 +135,10 @@
 
 				try
 				{
-					currentChannel.BasicAck(tag, true);
+					if (success)
+						currentChannel.BasicAck(tag, AcknowledgeMultiple);
+					else
+						currentChannel.BasicReject(tag, MarkAsDeadLetter); // TODO: this is *not* thread safe...
 				}
 				catch
 				{
@@ -228,6 +231,8 @@
 		private const byte Persistent = 2;
 		private const string ContentType = "application/vnd.hydrospanner-msg+json";
 		private const string ContentEncoding = "utf8";
+		private const bool AcknowledgeMultiple = true;
+		private const bool MarkAsDeadLetter = false; // false = make it a dead letter
 		private static readonly ILog Log = LogManager.GetLogger(typeof(RabbitChannel));
 		private static readonly TimeSpan Wait = TimeSpan.FromSeconds(3);
 		private readonly RabbitConnector connector;
