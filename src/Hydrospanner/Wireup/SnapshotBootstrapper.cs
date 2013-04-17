@@ -9,7 +9,7 @@
 
 	public class SnapshotBootstrapper
 	{
-		public virtual BootstrapInfo RestoreSnapshots(BootstrapInfo info, IRepository repository)
+		public virtual BootstrapInfo RestoreSnapshots(IRepository repository, BootstrapInfo info)
 		{
 			if (info == null)
 				throw new ArgumentNullException("info");

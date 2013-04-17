@@ -29,7 +29,7 @@ namespace Hydrospanner.Wireup
 		public class when_no_bootstrap_info_is_provided
 		{
 			Because of = () =>
-				Try(() => bootstrapper.RestoreSnapshots(null, repository));
+				Try(() => bootstrapper.RestoreSnapshots(repository, null));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
@@ -38,7 +38,7 @@ namespace Hydrospanner.Wireup
 		public class when_no_repository_is_provided
 		{
 			Because of = () =>
-				Try(() => bootstrapper.RestoreSnapshots(providedInfo, null));
+				Try(() => bootstrapper.RestoreSnapshots(null, providedInfo));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
@@ -74,7 +74,7 @@ namespace Hydrospanner.Wireup
 			}
 
 			Because of = () =>
-				returnedInfo = bootstrapper.RestoreSnapshots(providedInfo, repository);
+				returnedInfo = bootstrapper.RestoreSnapshots(repository, providedInfo);
 
 			It should_load_from_the_journaled_sequence = () =>
 				snapshots.Received(1).CreateSystemSnapshotStreamReader(providedInfo.JournaledSequence);
@@ -121,7 +121,7 @@ namespace Hydrospanner.Wireup
 			};
 
 			Because of = () =>
-				returnedInfo = bootstrapper.RestoreSnapshots(providedInfo, repository);
+				returnedInfo = bootstrapper.RestoreSnapshots(repository, providedInfo);
 
 			It should_not_create_a_disruptor = () =>
 				disruptors.ReceivedCalls().Count().ShouldEqual(0);
@@ -143,7 +143,7 @@ namespace Hydrospanner.Wireup
 				providedInfo = new BootstrapInfo(0, 0, new string[7], new Guid[24]);
 
 			Because of = () =>
-				returnedInfo = bootstrapper.RestoreSnapshots(providedInfo, repository);
+				returnedInfo = bootstrapper.RestoreSnapshots(repository, providedInfo);
 
 			It should_not_load_any_snapshots = () =>
 				snapshots.ReceivedCalls().Count().ShouldEqual(0);
@@ -166,7 +166,7 @@ namespace Hydrospanner.Wireup
 			};
 
 			Because of = () =>
-				returnedInfo = bootstrapper.RestoreSnapshots(providedInfo, repository);
+				returnedInfo = bootstrapper.RestoreSnapshots(repository, providedInfo);
 
 			It should_not_load_any_snapshots = () =>
 				reader.Received(0).Read();

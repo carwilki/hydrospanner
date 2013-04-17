@@ -161,7 +161,7 @@ namespace Hydrospanner.Wireup
 		static void SetupStuff()
 		{
 			ThreadExtensions.Freeze(x => naps.Add(x));
-			snapshots.RestoreSnapshots(info, repository).Returns(info2);
+			snapshots.RestoreSnapshots(repository, info).Returns(info2);
 			disruptors.CreateJournalDisruptor(info2).Returns(journalDisruptor);
 			disruptors.CreateSnapshotDisruptor().Returns(snapshotDisruptor);
 			disruptors.CreateTransformationDisruptor(repository, info2).Returns(transformationDisruptor);
@@ -172,7 +172,7 @@ namespace Hydrospanner.Wireup
 
 		static void ExpectedStartCalls()
 		{
-			snapshots.RestoreSnapshots(info, repository);
+			snapshots.RestoreSnapshots(repository, info);
 
 			disruptors.CreateSnapshotDisruptor();
 			snapshotDisruptor.Start();

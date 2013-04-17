@@ -15,7 +15,7 @@
 				return;
 
 			Log.Info("Loading mementos from latest snapshot.");
-			info = this.snapshots.RestoreSnapshots(info, this.repository);
+			info = this.snapshots.RestoreSnapshots(this.repository, info);
 
 			Log.Info("Starting snapshot disruptor.");
 			this.snapshotDisruptor = this.disruptors.CreateSnapshotDisruptor();

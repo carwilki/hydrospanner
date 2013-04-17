@@ -60,8 +60,7 @@
 
 			var deserializationHandler1 = new DeserializationHandler(CreateSerializer(), 2, 0);
 			var deserializationHandler2 = new DeserializationHandler(CreateSerializer(), 2, 1);
-			var transformationHandler = this.CreateTransformationHandler(
-				repository, info.JournaledSequence, new NullSystemSnapshotTracker());
+			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence);
 
 			var disruptor = CreateDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 1024);
 			disruptor.HandleEventsWith(deserializationHandler1, deserializationHandler2)
@@ -70,11 +69,10 @@
 
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
-		private TransformationHandler CreateTransformationHandler(
-			IRepository repository, long sequence, ISystemSnapshotTracker tracker)
+		private TransformationHandler CreateTransformationHandler(IRepository repository, long sequence, ISystemSnapshotTracker tracker = null)
 		{
 			var transformer = new Transformer(repository, this.snapshotRing, sequence);
-			return new TransformationHandler(sequence, this.journalRing, transformer, tracker);
+			return new TransformationHandler(sequence, this.journalRing, transformer, tracker ?? new NullSystemSnapshotTracker());
 		}
 		public virtual IDisruptor<TransformationItem> CreateTransformationDisruptor(IRepository repository, BootstrapInfo info)
 		{
