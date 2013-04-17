@@ -31,15 +31,17 @@
 		public DuplicateStore(int capacity, IEnumerable<Guid> identifiers)
 		{
 			this.capacity = capacity;
+			this.cache = new Queue<Guid>(capacity);
 			this.entries = new HashSet<Guid>(new Guid[capacity]);
+			this.entries.Clear();
 
 			identifiers = identifiers ?? new Guid[0];
 			foreach (var identifier in identifiers)
 				this.Add(identifier);
 		}
 
-		private readonly Queue<Guid> cache = new Queue<Guid>();
-		private readonly HashSet<Guid> entries; 
+		private readonly HashSet<Guid> entries;
+		private readonly Queue<Guid> cache;
 		readonly int capacity;
 	}
 }
