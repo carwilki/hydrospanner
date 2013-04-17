@@ -4,7 +4,21 @@
 namespace Hydrospanner.Phases.Transformation
 {
 	using System;
+	using System.Linq;
 	using Machine.Specifications;
+
+	[Subject(typeof(DuplicateStore))]
+	public class when_prepopulating_the_store
+	{
+		Because of = () =>
+			store = new DuplicateStore(1024, contains);
+
+		It should_contain_the_keys_provided = () =>
+			contains.ToList().ForEach(x => store.Contains(x).ShouldBeTrue());
+
+		static readonly Guid[] contains = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+		static DuplicateStore store;
+	}
 
 	[Subject(typeof(DuplicateStore))]
 	public class when_tracking_duplicates

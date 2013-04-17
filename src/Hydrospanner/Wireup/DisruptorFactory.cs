@@ -81,7 +81,7 @@
 			var serializationHandler = new DeserializationHandler(CreateSerializer());
 
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
-			var duplicateStore = new DuplicateStore(this.duplicateWindow);
+			var duplicateStore = new DuplicateStore(this.duplicateWindow, info.DuplicateIdentifiers);
 			var duplicateHandler = new DuplicateHandler(duplicateStore, this.journalRing);
 
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, duplicateHandler, systemSnapshotTracker);
