@@ -11,7 +11,7 @@
 		{
 			return new MessageListener(
 				() => new RabbitChannel(this.connector, this.nodeId, x => new RabbitSubscription(x, this.sourceQueue)),
-				ring);
+				ring, new DuplicateStore(1024)); // TODO
 		}
 		public virtual IMessageSender CreateMessageSender()
 		{

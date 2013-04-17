@@ -16,7 +16,7 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_no_receiver_is_provided
 		{
 			Because of = () =>
-				Try(() => new MessageListener(null, harness));
+				Try(() => new MessageListener(null, harness, new DuplicateStore(1024)));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
@@ -25,7 +25,16 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_no_ring_buffer_is_provided
 		{
 			Because of = () =>
-				Try(() => new MessageListener(() => receiver, null));
+				Try(() => new MessageListener(() => receiver, null, duplicates));
+
+			It should_throw_an_exception = () =>
+				thrown.ShouldBeOfType<ArgumentNullException>();
+		}
+
+		public class when_duplicate_store_is_provided
+		{
+			Because of = () =>
+				Try(() => new MessageListener(() => receiver, harness, null));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
@@ -123,6 +132,35 @@ namespace Hydrospanner.Phases.Transformation
 			static int counter;
 		}
 
+		public class when_a_duplicate_message_arrives
+		{
+			Establish context = () =>
+				receiver.Receive(Arg.Do<TimeSpan>(x => UponReceive())).Returns(Delivery);
+
+			static void UponReceive()
+			{
+				if (++counter >= MaxReceives)
+					listener.Dispose();
+			}
+
+			Because of = () =>
+			{
+				listener.Start();
+				Thread.Sleep(50);
+			};
+
+			It should_NOT_push_the_message_to_the_ring_buffer = () =>
+				harness.AllItems.Count.ShouldEqual(1);
+
+			It should_attempt_to_receive_another_message_from_the_underlying_messaging_handler_until_disposed = () =>
+				receiver.Received(MaxReceives).Receive(Arg.Any<TimeSpan>());
+
+			const int MaxReceives = 2;
+			static readonly MessageDelivery Delivery = new MessageDelivery(
+				Guid.NewGuid(), new byte[] { 0, 1, 2, 3 }, "some-type", new Dictionary<string, string>(), null);
+			static int counter;
+		}
+
 		public class when_the_listener_is_disposed_after_starting
 		{
 			Establish context = () =>
@@ -183,7 +221,8 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			receiver = Substitute.For<IMessageReceiver>();
 			harness = new RingBufferHarness<TransformationItem>();
-			listener = new MessageListener(() => receiver, harness);
+			duplicates = new DuplicateStore(1024);
+			listener = new MessageListener(() => receiver, harness, duplicates);
 		};
 
 		Cleanup after = () =>
@@ -195,6 +234,7 @@ namespace Hydrospanner.Phases.Transformation
 		static IMessageReceiver receiver;
 		static RingBufferHarness<TransformationItem> harness;
 		static MessageListener listener;
+		static DuplicateStore duplicates;
 		static Exception thrown;
 	}
 }

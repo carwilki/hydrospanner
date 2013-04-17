@@ -29,6 +29,9 @@
 			if (!delivery.Populated)
 				return;
 
+			if (this.duplicates.Contains(delivery.MessageId))
+				return;
+
 			Log.DebugFormat(
 				"New message ({0}) of type '{1}' arrived, publishing to transformation disruptor.",
 				delivery.MessageId, 
@@ -45,7 +48,7 @@
 			this.ring.Publish(next);
 		}
 
-		public MessageListener(Func<IMessageReceiver> receiverFactory, IRingBuffer<TransformationItem> ring)
+		public MessageListener(Func<IMessageReceiver> receiverFactory, IRingBuffer<TransformationItem> ring, DuplicateStore duplicates)
 		{
 			if (receiverFactory == null)
 				throw new ArgumentNullException("receiverFactory");
@@ -53,8 +56,12 @@
 			if (ring == null)
 				throw new ArgumentNullException("ring");
 
+			if (duplicates == null)
+				throw new ArgumentNullException("duplicates");
+
 			this.receiverFactory = receiverFactory;
 			this.ring = ring;
+			this.duplicates = duplicates;
 		}
 		protected MessageListener()
 		{
@@ -78,6 +85,7 @@
 		private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(2);
 		private readonly Func<IMessageReceiver> receiverFactory;
 		private readonly IRingBuffer<TransformationItem> ring;
+		private readonly DuplicateStore duplicates;
 		private bool started;
 		private bool disposed;
 	}
