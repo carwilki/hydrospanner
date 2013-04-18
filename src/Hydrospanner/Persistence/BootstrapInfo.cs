@@ -5,7 +5,6 @@
 
 	public class BootstrapInfo
 	{
-		public bool Populated { get; set; }
 		public long JournaledSequence { get; set; }
 		public long DispatchSequence { get; set; }
 		public long SnapshotSequence { get; set; }
@@ -26,7 +25,6 @@
 		}
 		private BootstrapInfo(long journal, long dispatch, long snapshot, IEnumerable<string> types, ICollection<Guid> identifiers) : this()
 		{
-			this.Populated = true;
 			this.JournaledSequence = journal;
 			this.DispatchSequence = dispatch;
 			this.SnapshotSequence = snapshot;

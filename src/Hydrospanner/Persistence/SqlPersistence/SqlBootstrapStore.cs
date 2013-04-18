@@ -13,9 +13,7 @@
 			{
 				try
 				{
-					var loaded = this.TryLoad();
-					if (loaded.Populated)
-						return loaded;
+					return this.TryLoad();
 				}
 				catch
 				{
@@ -33,9 +31,6 @@
 		}
 		private BootstrapInfo Parse(IDataReader reader)
 		{
-			if (reader == null)
-				return new BootstrapInfo();
-
 			long journaled = 0, dispatched = 0;
 			var types = new List<string>();
 			var identifiers = new List<Guid>(this.duplicateWindow);
