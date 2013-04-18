@@ -10,8 +10,8 @@
 	{
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
-			if (data.Body == null)
-				return; // message couldn't be deserialized
+			if (this.Skip(data))
+				return;
 
 			var liveMessage = this.Transform(data);
 
@@ -19,6 +19,17 @@
 				this.PublishToJournalPhase(data);
 
 			this.Increment(data);
+		}
+		private bool Skip(TransformationItem data)
+		{
+			if (this.skip)
+				return true;
+
+			var body = data.Body != null; // null body == serialization failure
+			if (data.MessageSequence == 0 && !body)
+				return true;
+
+			return this.skip = data.MessageSequence > 0 && !body;
 		}
 		private bool Transform(TransformationItem data)
 		{
@@ -104,5 +115,6 @@
 		private readonly ISystemSnapshotTracker snapshot;
 		private readonly List<object> buffer = new List<object>();
 		private long currentSequnce;
+		private bool skip;
 	}
 }

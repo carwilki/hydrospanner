@@ -33,7 +33,7 @@
 					reader.Count, 
 					reader.MessageSequence);
 
-				using (var disruptor = this.disruptorFactory.CreateBootstrapDisruptor(repository, reader.Count, () => this.mutex.Set()))
+				using (var disruptor = this.disruptorFactory.CreateBootstrapDisruptor(repository, reader.Count, success => this.mutex.Set()))
 				{
 					Publish(reader, disruptor.Start());
 					this.mutex.WaitOne();

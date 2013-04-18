@@ -42,7 +42,7 @@ namespace Hydrospanner.Phases.Transformation
 			}
 		}
 
-		public class when_a_message_with_no_body_arrives
+		public class when_a_live_message_with_no_body_arrives
 		{
 			Establish context = () =>
 				handler = new TransformationHandler(0, journal, transformer, snapshot);
@@ -52,6 +52,31 @@ namespace Hydrospanner.Phases.Transformation
 
 			It should_skip_that_message = () =>
 				transformer.Received(0).Handle(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>());
+		}
+
+		public class when_a_journaled_message_with_no_body_arrives
+		{
+			Establish context = () =>
+				handler = new TransformationHandler(0, journal, transformer, snapshot);
+
+			Because of = () =>
+			{
+				handler.OnNext(serializationFailure, 1, false);
+				handler.OnNext(subsequenceItem, 2, false);
+			};
+
+			It should_skip_all_messages_thereafter = () =>
+				transformer.Received(0).Handle(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>());
+
+			static readonly TransformationItem serializationFailure = new TransformationItem
+			{
+				MessageSequence = 1,
+			};
+			static readonly TransformationItem subsequenceItem = new TransformationItem
+			{
+				MessageSequence = 2,
+				Body = new object()
+			};
 		}
 
 		public class when_the_message_is_handled_during_replay

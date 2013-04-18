@@ -8,6 +8,9 @@
 	{
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{
+			if (data.Memento == null)
+				return;
+
 			Log.DebugFormat("Restoring memento of type {0}.", data.SerializedType);
 
 			this.repository.Restore(data.Memento);

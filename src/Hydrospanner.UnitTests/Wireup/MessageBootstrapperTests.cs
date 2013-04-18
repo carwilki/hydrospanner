@@ -67,7 +67,7 @@ namespace Hydrospanner.Wireup
 						.CreateStartupTransformationDisruptor(
 							repository, 
 							Arg.Is<BootstrapInfo>(x => x.JournaledSequence - x.SnapshotSequence == 0), 
-							Arg.Do<Action>(x => completeCallback = x))
+							Arg.Do<Action<bool>>(x => completeCallback = x))
 						.Returns(default(DisruptorHarness<TransformationItem>));
 				};
 
@@ -130,7 +130,7 @@ namespace Hydrospanner.Wireup
 					});
 
 				It should_create_a_transformation_disruptor = () =>
-					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action>());
+					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action<bool>>());
 
 				It should_shutdown_the_transformation_disruptor_after_everything_is_processed = () =>
 					transformation.Disposed.ShouldBeTrue();
@@ -161,7 +161,7 @@ namespace Hydrospanner.Wireup
 					bootstrapper.Restore(info, journal, repository);
 
 				It should_create_a_transformation_disruptor = () =>
-					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action>());
+					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action<bool>>());
 
 				It should_start_the_transformation_disruptor = () =>
 					transformation.Started.ShouldBeTrue();
@@ -185,7 +185,7 @@ namespace Hydrospanner.Wireup
 
 			repository = Substitute.For<IRepository>();
 			transformation = new DisruptorHarness<TransformationItem>(CompleteCallback);
-			factory.CreateStartupTransformationDisruptor(repository, info, Arg.Do<Action>(x => completeCallback = x))
+			factory.CreateStartupTransformationDisruptor(repository, info, Arg.Do<Action<bool>>(x => completeCallback = x))
 				.Returns(transformation);
 			journal = new DisruptorHarness<JournalItem>();
 		};
@@ -204,12 +204,12 @@ namespace Hydrospanner.Wireup
 		static void CompleteCallback()
 		{
 			if (++count == itemCount)
-				completeCallback();
+				completeCallback(true);
 		}
 
 		static int count;
 		static int itemCount;
-		static Action completeCallback;
+		static Action<bool> completeCallback;
 		static BootstrapInfo info;
 		static DisruptorFactory factory;
 		static IMessageStore store;

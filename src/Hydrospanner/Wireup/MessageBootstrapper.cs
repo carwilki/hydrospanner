@@ -21,7 +21,7 @@
 				throw new ArgumentNullException("repository");
 
 			this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(
-				repository, info, () => this.mutex.Set());
+				repository, info, success => this.mutex.Set());
 
 			if (this.transformRing != null)
 				this.transformRing.Start();

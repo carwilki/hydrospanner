@@ -65,12 +65,12 @@ namespace Hydrospanner.Wireup
 				reader.MessageSequence.Returns(providedInfo.JournaledSequence - 1);
 
 				snapshots.CreateSystemSnapshotStreamReader(providedInfo.JournaledSequence).Returns(reader);
-				disruptors.CreateBootstrapDisruptor(repository, ItemCount, Arg.Do<Action>(x => completeCallback = x)).Returns(disruptor);
+				disruptors.CreateBootstrapDisruptor(repository, ItemCount, Arg.Do<Action<bool>>(x => completeCallback = x)).Returns(disruptor);
 			};
 			static void CompleteCallback()
 			{
 				if (++count == ItemCount)
-					completeCallback();
+					completeCallback(true);
 			}
 
 			Because of = () =>
@@ -80,7 +80,7 @@ namespace Hydrospanner.Wireup
 				snapshots.Received(1).CreateSystemSnapshotStreamReader(providedInfo.JournaledSequence);
 
 			It should_create_a_disruptor = () =>
-				disruptors.Received(1).CreateBootstrapDisruptor(repository, ItemCount, Arg.Any<Action>());
+				disruptors.Received(1).CreateBootstrapDisruptor(repository, ItemCount, Arg.Any<Action<bool>>());
 
 			It should_start_the_disruptor = () =>
 				disruptor.Started.ShouldBeTrue();
@@ -106,7 +106,7 @@ namespace Hydrospanner.Wireup
 			static SystemSnapshotStreamReader reader;
 			static DisruptorHarness<BootstrapItem> disruptor;
 			static int count;
-			static Action completeCallback;
+			static Action<bool> completeCallback;
 		}
 
 		public class when_latest_snapshot_does_not_contain_any_items

@@ -10,25 +10,26 @@
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{
 			Log.DebugFormat("Countdown at {0}, receiving bootstrap item.", this.countdown);
-
+			this.failed = this.failed || (data != null && data.Memento == null);
 			if (--this.countdown == 0)
 			{
 				Log.InfoFormat("Successfully restored {0} mementos from snapshot", this.items);
-				this.callback();
+				this.callback(!this.failed);
 			}
 		}
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
 			Log.DebugFormat("Countdown at {0}, receiving transformation item.", this.countdown);
 
+			this.failed = this.failed || (data != null && data.Body == null);
 			if (--this.countdown == 0)
 			{
 				Log.InfoFormat("Successfully replayed {0} messages from journal.", this.items);
-				this.callback();
+				this.callback(!this.failed);
 			}
 		}
 
-		public CountdownHandler(long countdown, Action callback)
+		public CountdownHandler(long countdown, Action<bool> callback)
 		{
 			if (countdown <= 0)
 				throw new ArgumentOutOfRangeException("countdown");
@@ -42,8 +43,9 @@
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(CountdownHandler));
-		private readonly Action callback;
+		private readonly Action<bool> callback;
 		private readonly long items;
 		private long countdown;
+		private bool failed;
 	}
 }

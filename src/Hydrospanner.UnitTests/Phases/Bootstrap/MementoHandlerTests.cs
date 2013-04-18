@@ -33,6 +33,24 @@ namespace Hydrospanner.Phases.Bootstrap
 		static IRepository repository;
 		static MementoHandler handler;
 	}
+
+	public class when_a_null_memento_is_encountered
+	{
+		Establish context = () =>
+		{
+			repository = Substitute.For<IRepository>();
+			handler = new MementoHandler(repository);
+		};
+
+		Because of = () =>
+			handler.OnNext(new BootstrapItem(), 0, false);
+
+		It should_not_pass_the_memento_to_the_repository = () =>
+			repository.Received(0).Restore(null);
+
+		static IRepository repository;
+		static MementoHandler handler;
+	}
 }
 
 // ReSharper restore InconsistentNaming

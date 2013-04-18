@@ -13,7 +13,7 @@
 
 	public class DisruptorFactory
 	{
-		public virtual IDisruptor<BootstrapItem> CreateBootstrapDisruptor(IRepository repository, int countdown, Action complete)
+		public virtual IDisruptor<BootstrapItem> CreateBootstrapDisruptor(IRepository repository, int countdown, Action<bool> complete)
 		{
 			var disruptor = CreateDisruptor<BootstrapItem>(new YieldingWaitStrategy(), 1024 * 64);
 			disruptor
@@ -52,7 +52,7 @@
 			return new DisruptorBase<SnapshotItem>(disruptor);
 		}
 
-		public virtual IDisruptor<TransformationItem> CreateStartupTransformationDisruptor(IRepository repository, BootstrapInfo info, Action complete)
+		public virtual IDisruptor<TransformationItem> CreateStartupTransformationDisruptor(IRepository repository, BootstrapInfo info, Action<bool> complete)
 		{
 			var countdown = info.JournaledSequence - info.SnapshotSequence;
 			if (countdown == 0)
