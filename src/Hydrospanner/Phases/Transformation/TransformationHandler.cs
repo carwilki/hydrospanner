@@ -10,6 +10,9 @@
 	{
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
+			if (data.Body == null)
+				return; // message couldn't be deserialized
+
 			var liveMessage = this.Transform(data);
 
 			if (liveMessage)

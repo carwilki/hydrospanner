@@ -42,6 +42,18 @@ namespace Hydrospanner.Phases.Transformation
 			}
 		}
 
+		public class when_a_message_with_no_body_arrives
+		{
+			Establish context = () =>
+				handler = new TransformationHandler(0, journal, transformer, snapshot);
+
+			Because of = () =>
+				handler.OnNext(new TransformationItem(), 1, false);
+
+			It should_skip_that_message = () =>
+				transformer.Received(0).Handle(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>());
+		}
+
 		public class when_the_message_is_handled_during_replay
 		{
 			public class when_the_message_yields_NO_resulting_messages
