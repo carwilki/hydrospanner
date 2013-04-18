@@ -388,7 +388,7 @@ namespace Hydrospanner.Phases.Transformation
 
 				liveItem = new TransformationItem();
 				liveItem.AsForeignMessage(Encoding.UTF8.GetBytes("2"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
-				item.Deserialize(new JsonSerializer());
+				liveItem.Deserialize(new JsonSerializer());
 
 				handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				handler.OnNext(item, 234234, false);
