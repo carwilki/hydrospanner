@@ -32,7 +32,7 @@
 		private BootstrapInfo Parse(IDataReader reader)
 		{
 			long journaled = 0, dispatched = 0;
-			var types = new List<string>();
+			var types = new List<string>(1024);
 			var identifiers = new List<Guid>(this.duplicateWindow);
 
 			if (reader.Read())

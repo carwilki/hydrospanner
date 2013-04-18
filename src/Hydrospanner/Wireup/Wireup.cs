@@ -40,6 +40,9 @@
 
 			Log.Info("Connecting to message store.");
 			this.info = persistenceBootstrapper.Restore();
+			if (this.info == null)
+				return; // TODO: log fatal
+
 			var duplicates = new DuplicateStore(conventionWireup.DuplicateWindow, this.info.DuplicateIdentifiers);
 			var messagingFactory = new MessagingFactory(conventionWireup.NodeId, conventionWireup.BrokerAddress, conventionWireup.SourceQueueName, duplicates);
 

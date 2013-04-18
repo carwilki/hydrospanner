@@ -33,13 +33,18 @@
 					reader.Count, 
 					reader.MessageSequence);
 
-				using (var disruptor = this.disruptorFactory.CreateBootstrapDisruptor(repository, reader.Count, success => this.mutex.Set()))
+				using (var disruptor = this.disruptorFactory.CreateBootstrapDisruptor(repository, reader.Count, this.OnComplete))
 				{
 					Publish(reader, disruptor.Start());
 					this.mutex.WaitOne();
-					return info.AddSnapshotSequence(reader.MessageSequence);
+					return this.success ? info.AddSnapshotSequence(reader.MessageSequence) : null;
 				}	
 			}
+		}
+		private void OnComplete(bool result)
+		{
+			this.success = result;
+			this.mutex.Set();
 		}
 		private static void Publish(SystemSnapshotStreamReader reader, IRingBuffer<BootstrapItem> ring)
 		{
@@ -71,5 +76,6 @@
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
 		private readonly SnapshotFactory snapshotFactory;
 		private readonly DisruptorFactory disruptorFactory;
+		private bool success;
 	}
 }

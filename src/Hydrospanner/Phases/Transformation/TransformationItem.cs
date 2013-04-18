@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 	using System.Runtime.Serialization;
+	using log4net;
 	using Serialization;
 
 	public sealed class TransformationItem
@@ -66,15 +67,21 @@
 				if (this.Headers == null)
 					this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
 			}
-			catch (SerializationException)
+			catch (SerializationException e)
 			{
-				if (this.Acknowledgment == null)
-					throw;
-
 				this.Body = null;
 				this.Headers = null;
-				this.Acknowledgment(false);
+
+				if (this.Acknowledgment != null)
+				{
+					Log.Warn("Unable to deserialize item of type '{0}'".FormatWith(this.SerializedType), e);
+					this.Acknowledgment(false);
+				}
+				else
+					Log.Fatal("Unable to deserialize item of type '{0}'".FormatWith(this.SerializedType), e);
 			}
 		}
+
+		private static readonly ILog Log = LogManager.GetLogger(typeof(TransformationItem));
 	}
 }

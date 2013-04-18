@@ -109,6 +109,48 @@ namespace Hydrospanner.Wireup
 			static Action<bool> completeCallback;
 		}
 
+		public class when_streaming_the_snapshots_is_unsuccessful
+		{
+			Establish context = () =>
+			{
+				count = 0;
+				completeCallback = null;
+
+				reader = Substitute.For<SystemSnapshotStreamReader>();
+				reader.Read().Returns(new[]
+				{
+					new KeyValuePair<string, byte[]>("1", new byte[] { 1 }), 
+					new KeyValuePair<string, byte[]>("2", new byte[] { 2 }), 
+					new KeyValuePair<string, byte[]>("3", new byte[] { 3 })
+				});
+
+				disruptor = new DisruptorHarness<BootstrapItem>(CompleteCallback);
+
+				reader.Count.Returns(ItemCount);
+				reader.MessageSequence.Returns(providedInfo.JournaledSequence - 1);
+
+				snapshots.CreateSystemSnapshotStreamReader(providedInfo.JournaledSequence).Returns(reader);
+				disruptors.CreateBootstrapDisruptor(repository, ItemCount, Arg.Do<Action<bool>>(x => completeCallback = x)).Returns(disruptor);
+			};
+			static void CompleteCallback()
+			{
+				if (++count == ItemCount)
+					completeCallback(false);
+			}
+
+			Because of = () =>
+				returnedInfo = bootstrapper.RestoreSnapshots(repository, providedInfo);
+
+			It should_return_a_null_bootstrap_info_object = () =>
+				returnedInfo.ShouldBeNull();
+
+			const int ItemCount = 3;
+			static SystemSnapshotStreamReader reader;
+			static DisruptorHarness<BootstrapItem> disruptor;
+			static int count;
+			static Action<bool> completeCallback;
+		}
+
 		public class when_latest_snapshot_does_not_contain_any_items
 		{
 			Establish context = () =>
