@@ -9,13 +9,15 @@
 
 	public class Bootstrapper : IDisposable
 	{
-		public void Start(BootstrapInfo info)
+		public bool Start(BootstrapInfo info)
 		{
 			if (this.started)
-				return;
+				return true;
 
 			Log.Info("Loading mementos from latest snapshot.");
 			info = this.snapshots.RestoreSnapshots(this.repository, info);
+			if (info == null)
+				return false;
 
 			Log.Info("Starting snapshot disruptor.");
 			this.snapshotDisruptor = this.disruptors.CreateSnapshotDisruptor();
@@ -26,7 +28,9 @@
 			this.journalDisruptor.Start();
 
 			Log.Info("Restoring messages from journal.");
-			this.messages.Restore(info, this.journalDisruptor, this.repository);
+			var restored = this.messages.Restore(info, this.journalDisruptor, this.repository);
+			if (!restored)
+				return false;
 			
 			Log.Info("Starting primary transformation disruptor.");
 			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor(this.repository, info);
@@ -37,7 +41,7 @@
 			this.listener.Start();
 
 			Log.Info("Bootstrap process complete; listening for incoming messages.");
-			this.started = true;
+			return this.started = true;
 		}
 
 		public Bootstrapper(

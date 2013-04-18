@@ -9,7 +9,7 @@
 
 	public class MessageBootstrapper
 	{
-		public virtual void Restore(BootstrapInfo info, IDisruptor<JournalItem> journalRing, IRepository repository)
+		public virtual bool Restore(BootstrapInfo info, IDisruptor<JournalItem> journalRing, IRepository repository)
 		{
 			if (info == null)
 				throw new ArgumentNullException("info");
@@ -20,9 +20,7 @@
 			if (repository == null) 
 				throw new ArgumentNullException("repository");
 
-			this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(
-				repository, info, success => this.mutex.Set());
-
+			this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(repository, info, this.OnComplete);
 			if (this.transformRing != null)
 				this.transformRing.Start();
 
@@ -30,7 +28,13 @@
 			{
 				this.Restore(info, journalRing);
 				this.mutex.WaitOne();
+				return this.success;
 			}
+		}
+		private void OnComplete(bool result)
+		{
+			this.success = result;
+			this.mutex.Set();
 		}
 		private void Restore(BootstrapInfo info, IDisruptor<JournalItem> journalRing)
 		{
@@ -49,7 +53,7 @@
 
 			Log.Info("All journaled messages restored into transformation disruptor; awaiting transformation completion.");
 			if (!replayed)
-				this.mutex.Set();
+				this.OnComplete(true);
 		}
 		private bool Replay(BootstrapInfo info, JournaledMessage message)
 		{
@@ -102,5 +106,6 @@
 		private readonly IMessageStore store;
 		private readonly DisruptorFactory disruptors;
 		private IDisruptor<TransformationItem> transformRing;
+		private bool success;
 	}
 }

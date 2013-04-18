@@ -72,7 +72,7 @@ namespace Hydrospanner.Wireup
 				};
 
 				Because of = () =>
-					bootstrapper.Restore(info, journal, repository);
+					result = bootstrapper.Restore(info, journal, repository);
 
 				It should_NOT_publish_any_items_to_the_journal_ring_to_be_dispatched = () =>
 					journal.Ring.AllItems.ShouldBeEmpty();
@@ -82,6 +82,9 @@ namespace Hydrospanner.Wireup
 
 				It should_NOT_attempt_to_start_the_transformation_ring = () =>
 					transformation.Started.ShouldBeFalse();
+
+				It should_return_success = () =>
+					result.ShouldEqual(true);
 			}
 
 			public class when_there_are_messages_that_need_to_be_dispatched
@@ -96,7 +99,7 @@ namespace Hydrospanner.Wireup
 				};
 
 				Because of = () =>
-					bootstrapper.Restore(info, journal, repository);
+					result = bootstrapper.Restore(info, journal, repository);
 
 				It should_send_each_to_the_journal_ring_to_be_dispatched = () =>
 					journal.Ring.AllItems.Single()
@@ -104,6 +107,9 @@ namespace Hydrospanner.Wireup
 
 				It should_NOT_send_any_foreign_messages_to_be_redispatched = () =>
 					journal.Ring.AllItems.Count.ShouldEqual(1);
+
+				It should_return_success = () =>
+					result.ShouldEqual(true);
 			}
 
 			public class when_there_are_messages_that_need_to_be_dispatched_and_that_require_additional_transformations
@@ -120,7 +126,7 @@ namespace Hydrospanner.Wireup
 				};
 
 				Because of = () =>
-					bootstrapper.Restore(info, journal, repository);
+					result = bootstrapper.Restore(info, journal, repository);
 
 				It should_send_each_message_that_should_be_dispatched_to_the_journal_ring_to_be_dispatched = () =>
 					journal.Ring.AllItems.ShouldBeLike(new[] 
@@ -158,7 +164,7 @@ namespace Hydrospanner.Wireup
 				};
 
 				Because of = () =>
-					bootstrapper.Restore(info, journal, repository);
+					result = bootstrapper.Restore(info, journal, repository);
 
 				It should_create_a_transformation_disruptor = () =>
 					factory.Received(1).CreateStartupTransformationDisruptor(repository, info, Arg.Any<Action<bool>>());
@@ -172,12 +178,37 @@ namespace Hydrospanner.Wireup
 				It should_shutdown_the_transformation_disruptor_after_everything_is_processed = () =>
 					transformation.Disposed.ShouldBeTrue();
 
+				It should_return_success = () =>
+					result.ShouldEqual(true);
+
+				static JournaledMessage message;
+			}
+
+			public class when_message_transformation_fails
+			{
+				Establish context = () =>
+				{
+					resultToReturn = false;
+					itemCount = 1;
+					info.SnapshotSequence = 41;
+					info.DispatchSequence = int.MaxValue;
+					message = new JournaledMessage { Sequence = 42 };
+					store.Load(info.SnapshotSequence + 1).Returns(new List<JournaledMessage> { message });
+				};
+
+				Because of = () =>
+					result = bootstrapper.Restore(info, journal, repository);
+
+				It should_return_failure = () =>
+					result.ShouldEqual(false);
+
 				static JournaledMessage message;
 			}
 		}
 
 		Establish context = () =>
 		{
+			resultToReturn = true;
 			info = new BootstrapInfo();
 			store = Substitute.For<IMessageStore>();
 			factory = Substitute.For<DisruptorFactory>();
@@ -199,16 +230,19 @@ namespace Hydrospanner.Wireup
 			repository = null;
 			transformation = null;
 			journal = null;
+			result = null;
 		};
 
 		static void CompleteCallback()
 		{
 			if (++count == itemCount)
-				completeCallback(true);
+				completeCallback(resultToReturn);
 		}
 
+		static bool resultToReturn;
 		static int count;
 		static int itemCount;
+		static object result;
 		static Action<bool> completeCallback;
 		static BootstrapInfo info;
 		static DisruptorFactory factory;
@@ -216,7 +250,7 @@ namespace Hydrospanner.Wireup
 		static MessageBootstrapper bootstrapper;
 		static IRepository repository;
 		static DisruptorHarness<TransformationItem> transformation;
-		static DisruptorHarness<JournalItem> journal; 
+		static DisruptorHarness<JournalItem> journal;
 	}
 }
 

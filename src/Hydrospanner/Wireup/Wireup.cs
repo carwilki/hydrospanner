@@ -27,7 +27,10 @@
 
 		public void Execute()
 		{
-			this.bootstrapper.Start(this.info);
+			if (this.bootstrapper.Start(this.info))
+				return;
+
+			Log.Fatal("Unable to start the hydrospanner, one or more serialization errors occurred during the bootstrap process.");
 		}
 
 		private Wireup(ConventionWireupParameters conventionWireup, IEnumerable<Assembly> assemblies)
@@ -40,9 +43,6 @@
 
 			Log.Info("Connecting to message store.");
 			this.info = persistenceBootstrapper.Restore();
-			if (this.info == null)
-				return; // TODO: log fatal
-
 			var duplicates = new DuplicateStore(conventionWireup.DuplicateWindow, this.info.DuplicateIdentifiers);
 			var messagingFactory = new MessagingFactory(conventionWireup.NodeId, conventionWireup.BrokerAddress, conventionWireup.SourceQueueName, duplicates);
 

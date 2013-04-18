@@ -4,6 +4,7 @@
 namespace Hydrospanner.Phases.Bootstrap
 {
 	using System;
+	using System.Runtime.Serialization;
 	using Machine.Specifications;
 	using NSubstitute;
 	using Serialization;
@@ -40,6 +41,38 @@ namespace Hydrospanner.Phases.Bootstrap
 		static BootstrapItem item;
 		static ISerializer serializer;
 		static SerializationHandler handler;
+	}
+	
+	public class when_deserializing_an_item_fails
+	{
+		Establish context = () =>
+		{
+			item = new BootstrapItem
+			{
+				SerializedMemento = new byte[] { 0, 1, 2, 3 },
+				SerializedType = "some serialized type",
+				Memento = new object() // ensure this gets nullified
+			};
+
+			serializer = Substitute.For<ISerializer>();
+			serializer.Deserialize(item.SerializedMemento, item.SerializedType).Returns(x => { throw new SerializationException(); });
+
+			handler = new SerializationHandler(serializer);
+		};
+
+		Because of = () =>
+			thrown = Catch.Exception(() => handler.OnNext(item, 0, false));
+
+		It should_NOT_throw_an_exception = () =>
+			thrown.ShouldBeNull();
+
+		It should_nullify_the_body_of_the_item = () =>
+			item.Memento.ShouldBeNull();
+
+		static BootstrapItem item;
+		static ISerializer serializer;
+		static SerializationHandler handler;
+		static Exception thrown;
 	}
 }
 

@@ -74,6 +74,56 @@ namespace Hydrospanner.Wireup
 				Received.InOrder(ExpectedStartCalls);
 		}
 
+		public class when_bootstrapping_system_snapshots_fails
+		{
+			Establish context = () =>
+				snapshots.RestoreSnapshots(repository, info).Returns((BootstrapInfo)null);
+
+			Because of = () =>
+				bootstrapper.Start(info);
+
+			It should_proceed_as_normal = () =>
+				Received.InOrder(SnapshotFailed);
+
+			It should_NOT_invoke_the_later_bootstrap_steps = () =>
+			{
+				disruptors.Received(0).CreateSnapshotDisruptor();
+				snapshotDisruptor.Received(0).Start();
+
+				disruptors.Received(0).CreateJournalDisruptor(info2);
+				journalDisruptor.Received(0).Start();
+
+				messages.Received(0).Restore(info2, journalDisruptor, repository);
+
+				disruptors.Received(0).CreateTransformationDisruptor(repository, info2);
+				transformationDisruptor.Received(0).Start();
+
+				messaging.Received(0).CreateMessageListener(transformationRingBuffer);
+				listener.Received(0).Start();
+			};
+		}
+
+		public class when_restoring_journaled_messages_fails
+		{
+			Establish context = () =>
+				messages.Restore(info2, journalDisruptor, repository).Returns(false);
+
+			Because of = () =>
+				bootstrapper.Start(info);
+
+			It should_proceed_as_normal = () =>
+				Received.InOrder(MessagesFailed);
+
+			It should_NOT_invoke_the_later_bootstrap_steps = () =>
+			{
+				disruptors.Received(0).CreateTransformationDisruptor(repository, info2);
+				transformationDisruptor.Received(0).Start();
+
+				messaging.Received(0).CreateMessageListener(transformationRingBuffer);
+				listener.Received(0).Start();
+			};
+		}
+
 		public class when_disposing_the_bootstrapper_before_it_is_started
 		{
 			Establish context = () =>
@@ -165,6 +215,7 @@ namespace Hydrospanner.Wireup
 			disruptors.CreateJournalDisruptor(info2).Returns(journalDisruptor);
 			disruptors.CreateSnapshotDisruptor().Returns(snapshotDisruptor);
 			disruptors.CreateTransformationDisruptor(repository, info2).Returns(transformationDisruptor);
+			messages.Restore(info2, journalDisruptor, repository).Returns(true);
 
 			transformationDisruptor.RingBuffer.Returns(transformationRingBuffer);
 			messaging.CreateMessageListener(transformationRingBuffer).Returns(listener);
@@ -187,6 +238,22 @@ namespace Hydrospanner.Wireup
 
 			messaging.CreateMessageListener(transformationRingBuffer);
 			listener.Start();
+		}
+		static void SnapshotFailed()
+		{
+			snapshots.RestoreSnapshots(repository, info);
+		}
+		static void MessagesFailed()
+		{
+			snapshots.RestoreSnapshots(repository, info);
+
+			disruptors.CreateSnapshotDisruptor();
+			snapshotDisruptor.Start();
+
+			disruptors.CreateJournalDisruptor(info2);
+			journalDisruptor.Start();
+
+			messages.Restore(info2, journalDisruptor, repository);
 		}
 
 		static void ExpectedDisposal()
