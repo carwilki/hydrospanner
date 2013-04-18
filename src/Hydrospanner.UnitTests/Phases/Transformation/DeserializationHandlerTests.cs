@@ -53,6 +53,28 @@ namespace Hydrospanner.Phases.Transformation
 				item.Headers.ShouldBeLike(Headers);
 		}
 
+		public class when_a_foreign_message_throws_a_serialization_exception
+		{
+			Establish context = () =>
+				item.AsForeignMessage(body, Headers.GetType().AssemblyQualifiedName, headers, Guid.Empty, success => received = success);
+
+			It should_provide_false_to_the_callback = () =>
+				((bool)received).ShouldBeFalse();
+
+			It should_NOT_throw_an_exception = () =>
+				thrown.ShouldBeNull();
+
+			It should_clear_the_message_body = () =>
+				item.Body.ShouldBeNull();
+
+			It should_clear_the_message_headers = () =>
+				item.Headers.ShouldBeNull();
+			
+			static readonly Dictionary<string, string> headers = new Dictionary<string, string>(); 
+			static readonly byte[] body = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
+			static object received;
+		}
+
 		Establish context = () =>
 		{
 			handler = new DeserializationHandler(new JsonSerializer());
@@ -60,7 +82,10 @@ namespace Hydrospanner.Phases.Transformation
 		};
 
 		Because of = () =>
-			handler.OnNext(item, 0, false);
+			thrown = Catch.Exception(() => handler.OnNext(item, 0, false));
+
+		Cleanup afer = () =>
+			thrown = null;
 
 		const string Key = "greeting";
 		const string Value = "hi";
@@ -68,6 +93,7 @@ namespace Hydrospanner.Phases.Transformation
 		static readonly Dictionary<string, string> Headers = new Dictionary<string, string> { { Key, Value } };
 		static DeserializationHandler handler;
 		static TransformationItem item;
+		static Exception thrown;
 	}
 }
 

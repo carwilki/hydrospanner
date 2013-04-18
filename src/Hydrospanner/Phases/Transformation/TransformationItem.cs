@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Runtime.Serialization;
 	using Serialization;
 
 	public sealed class TransformationItem
@@ -57,11 +58,23 @@
 
 		public void Deserialize(ISerializer serializer)
 		{
-			if (this.Body == null)
-				this.Body = serializer.Deserialize(this.SerializedBody, this.SerializedType);
+			try
+			{
+				if (this.Body == null)
+					this.Body = serializer.Deserialize(this.SerializedBody, this.SerializedType);
 
-			if (this.Headers == null)
-				this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
+				if (this.Headers == null)
+					this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
+			}
+			catch (SerializationException)
+			{
+				if (this.Acknowledgment == null)
+					throw;
+
+				this.Body = null;
+				this.Headers = null;
+				this.Acknowledgment(false);
+			}
 		}
 	}
 }
