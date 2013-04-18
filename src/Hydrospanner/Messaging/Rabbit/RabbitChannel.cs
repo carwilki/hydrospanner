@@ -135,10 +135,7 @@
 
 				try
 				{
-					if (success)
-						currentChannel.BasicAck(tag, AcknowledgeMultiple);
-					else
-						currentChannel.BasicReject(tag, MarkAsDeadLetter); // TODO: this is *not* thread safe...
+					AcknowledgeMessage(currentChannel, success, tag);
 				}
 				catch
 				{
@@ -147,6 +144,30 @@
 // ReSharper restore RedundantJumpStatement
 				}
 			});
+		}
+		private static void AcknowledgeMessage(IModel currentChannel, bool success, ulong tag)
+		{
+			// Threading notes:
+			// According to the RabbitMQ Client PDF documentation for .NET, a single channel is not thread safe and access to it
+			// must be serialized, but this typically manifest during RPC operations such as declaring a queue or
+			// for *committing* a transaction or publishing a message large message.  For non-blocking operations (such as ack/reject)
+			// it performs it's own synchronization.  In fact, a review of the client source code reveals a library absolutely
+			// filled with lock() statements to perform it's own serialization of operations.  I ran several intensive tests to assert the
+			// behavior below.  I created a console app that ran a single receiving and multiple publishing threads.  I was
+			// able to run millions of messages through without any threading issues whatsoever.  It was only by introducing
+			// channel.TxSelect() (along with channel.TxCommit) that I started to receive the "Pipelining of requests forbidden" message.
+			// In this console app, the published messages on the sending threads were tiny and only occupied a single RabbitMQ TCP frame which
+			// is almost certainly the reason for not having pipelining issues.  Similarly, the ack/reject instructions occupy
+			// a single TCP frame and are "non-blocking" operations according to RabbitMQ's definition of blocking.  This means
+			// that even though a transaction commit is only a single frame, it's a blocking operation which causes an exception to be thrown
+			// because multiple threads are trying to commit the transaction and it's getting multiple send operations before receiving
+			// confirmation of the committed transaction.  In other words, the code below is entirely thread safe SO LONG AS this channel
+			// remains a non-transactional channel.  I also asserted that confirming multiple messages while individually rejecting individual
+			// messages here and there worked as expected.
+			if (success)
+				currentChannel.BasicAck(tag, AcknowledgeMultiple);
+			else
+				currentChannel.BasicReject(tag, MarkAsDeadLetter);
 		}
 
 		private IModel OpenChannel(bool receive)
