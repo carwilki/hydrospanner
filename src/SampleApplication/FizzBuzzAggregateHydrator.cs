@@ -35,26 +35,30 @@
 		public void Hydrate(CountCommand message, Dictionary<string, string> headers, bool live)
 		{
 			// invocation of a method *must* result in the aggregate transforming itself internally, otherwise
-			// aggregate invariant would be violated because the apply from the messages would happen much later
+			// aggregate invariants would be violated because the apply from the messages would happen much later
 
 			if (live)
 				this.aggregate.Increment(message.Value);
 		}
 		public void Hydrate(CountEvent message, Dictionary<string, string> headers, bool live)
 		{
-			this.aggregate.Apply(message);
+			if (!live)
+				this.aggregate.Apply(message);
 		}
 		public void Hydrate(FizzEvent message, Dictionary<string, string> headers, bool live)
 		{
-			this.aggregate.Apply(message);
+			if (!live)
+				this.aggregate.Apply(message);
 		}
 		public void Hydrate(BuzzEvent message, Dictionary<string, string> headers, bool live)
 		{
-			this.aggregate.Apply(message);
+			if (!live) 
+				this.aggregate.Apply(message);
 		}
 		public void Hydrate(FizzBuzzEvent message, Dictionary<string, string> headers, bool live)
 		{
-			this.aggregate.Apply(message);
+			if (!live) 
+				this.aggregate.Apply(message);
 		}
 
 		public FizzBuzzAggregateHydrator(FizzBuzzAggregateMemento memento)
