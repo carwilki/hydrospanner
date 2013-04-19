@@ -15,7 +15,7 @@
 	{
 		public virtual IDisruptor<BootstrapItem> CreateBootstrapDisruptor(IRepository repository, int countdown, Action<bool> complete)
 		{
-			var disruptor = CreateDisruptor<BootstrapItem>(new YieldingWaitStrategy(), 1024 * 64);
+			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new YieldingWaitStrategy(), 1024 * 64);
 			disruptor
 				.HandleEventsWith(new Phases.Bootstrap.SerializationHandler(CreateSerializer()))
 				.Then(new MementoHandler(repository))
@@ -30,7 +30,7 @@
 			var messageSender = this.messaging.CreateMessageSender();
 			var checkpointStore = this.persistence.CreateDispatchCheckpointStore();
 
-			var disruptor = CreateDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 256);
+			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 256);
 			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(new JsonSerializer()))
 			    .Then(new JournalHandler(messageStore))
 			    .Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
@@ -44,7 +44,7 @@
 			var systemRecorder = this.snapshots.CreateSystemSnapshotRecorder();
 			var publicRecorder = this.snapshots.CreatePublicSnapshotRecorder();
 
-			var disruptor = CreateDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 16);
+			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 16);
 			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(CreateSerializer()))
 			    .Then(new SystemSnapshotHandler(systemRecorder), new PublicSnapshotHandler(publicRecorder));
 
@@ -62,7 +62,7 @@
 			var deserializationHandler2 = new DeserializationHandler(CreateSerializer(), 2, 1);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence);
 
-			var disruptor = CreateDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 1024);
+			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 1024);
 			disruptor.HandleEventsWith(deserializationHandler1, deserializationHandler2)
 				.Then(transformationHandler)
 				.Then(new CountdownHandler(countdown, complete));
@@ -79,7 +79,7 @@
 			var serializationHandler = new DeserializationHandler(CreateSerializer());
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker);
-			var disruptor = CreateDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
+			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
 			disruptor.HandleEventsWith(serializationHandler).Then(transformationHandler);
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
@@ -88,12 +88,16 @@
 		{
 			return new JsonSerializer();
 		}
-		private static Disruptor<T> CreateDisruptor<T>(IWaitStrategy wait, int size) where T : class, new()
+		private static Disruptor<T> CreateSingleThreadedDisruptor<T>(IWaitStrategy wait, int size) where T : class, new()
 		{
 			return new Disruptor<T>(() => new T(), new SingleThreadedClaimStrategy(size), wait, TaskScheduler.Default);
 		}
+		private static Disruptor<T> CreateMultithreadedDisruptor<T>(IWaitStrategy wait, int size) where T : class, new()
+		{
+			return new Disruptor<T>(() => new T(), new MultiThreadedLowContentionClaimStrategy(size), wait, TaskScheduler.Default);
+		}
 
-		public DisruptorFactory(MessagingFactory messaging, PersistenceFactory persistence, SnapshotFactory snapshots, int duplicateWindow, int snapshotFrequency)
+		public DisruptorFactory(MessagingFactory messaging, PersistenceFactory persistence, SnapshotFactory snapshots, int snapshotFrequency)
 		{
 			if (messaging == null)
 				throw new ArgumentNullException("messaging");
@@ -104,16 +108,12 @@
 			if (snapshots == null)
 				throw new ArgumentNullException("snapshots");
 
-			if (duplicateWindow <= 0)
-				throw new ArgumentOutOfRangeException("duplicateWindow");
-
 			if (snapshotFrequency <= 0)
 				throw new ArgumentOutOfRangeException("snapshotFrequency");
 
 			this.messaging = messaging;
 			this.snapshots = snapshots;
 			this.persistence = persistence;
-			this.duplicateWindow = duplicateWindow;
 			this.snapshotFrequency = snapshotFrequency;
 		}
 		protected DisruptorFactory()
@@ -123,7 +123,6 @@
 		private readonly SnapshotFactory snapshots;
 		private readonly MessagingFactory messaging;
 		private readonly PersistenceFactory persistence;
-		private readonly int duplicateWindow;
 		readonly int snapshotFrequency;
 
 		private IRingBuffer<JournalItem> journalRing;
