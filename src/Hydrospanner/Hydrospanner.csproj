@@ -64,6 +64,7 @@
     <Compile Include="RingBufferBase.cs" />
     <Compile Include="Timeout\CurrentTimeMessage.cs" />
     <Compile Include="Timeout\SystemClock.cs" />
+    <Compile Include="Timeout\TimeoutAggregate.cs" />
     <Compile Include="Timeout\TimeoutElapsedEvent.cs" />
     <Compile Include="Timeout\TimeoutEntry.cs" />
     <Compile Include="Timeout\TimeoutHydratable.cs" />
