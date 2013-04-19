@@ -5,7 +5,7 @@
 
 	public class TimeoutAggregate
 	{
-		public List<object> Messages { get; private set; } 
+		public List<object> PendingMessages { get; private set; } 
 
 		public void Handle(CurrentTimeMessage message)
 		{
@@ -18,11 +18,13 @@
 					this.Append(this.Apply, new TimeoutElapsedEvent(value.Key, item.Key, value.Value));
 			}
 		}
+
 		private void Append<T>(Action<T> callback, T message)
 		{
-			this.Messages.Add(message);
+			this.PendingMessages.Add(message);
 			callback(message);
 		}
+
 		public void Apply(TimeoutRequestedEvent message)
 		{
 			List<KeyValuePair<string, int>> items;
@@ -55,7 +57,7 @@
 
 		public TimeoutAggregate()
 		{
-			this.Messages = new List<object>();
+			this.PendingMessages = new List<object>();
 		}
 		public TimeoutAggregate(TimeoutMemento memento) : this()
 		{

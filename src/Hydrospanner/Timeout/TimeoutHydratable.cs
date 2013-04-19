@@ -22,8 +22,7 @@
 
 		public void Hydrate(CurrentTimeMessage message, Dictionary<string, string> headers, bool live)
 		{
-			if (live)
-				this.aggregate.Handle(message);
+			this.aggregate.Handle(message);
 		}
 		public void Hydrate(TimeoutRequestedEvent message, Dictionary<string, string> headers, bool live)
 		{
@@ -37,7 +36,7 @@
 		}
 		public IEnumerable<object> GatherMessages()
 		{
-			var messages = this.aggregate.Messages;
+			var messages = this.aggregate.PendingMessages;
 			foreach (var message in messages)
 				yield return message;
 

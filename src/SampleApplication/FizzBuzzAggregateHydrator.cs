@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 	using Hydrospanner;
+	using Hydrospanner.Timeout;
 
 	public class FizzBuzzAggregateHydrator : 
 		IHydratable, 
@@ -17,7 +18,7 @@
 		public bool IsPublicSnapshot { get { return false; } }
 		public IEnumerable<object> GatherMessages()
 		{
-			var messages = this.aggregate.Messages;
+			var messages = this.aggregate.PendingMessages;
 			for (var i = 0; i < messages.Count; i++)
 				yield return messages[i];
 
@@ -96,6 +97,10 @@
 		public static HydrationInfo Lookup(FizzBuzzEvent message, Dictionary<string, string> headers)
 		{
 			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzAggregateHydrator(message.StreamId));
+		}
+		public static HydrationInfo Loookup(TimeoutElapsedEvent message, Dictionary<string, string> headers)
+		{
+			//return new HydrationInfo(message.Key, () => FizzBuzzAggregateHydrator());
 		}
 
 		public static string KeyFactory(Guid streamId)
