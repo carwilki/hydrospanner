@@ -19,6 +19,9 @@
 
 			foreach (var info in this.routes.Lookup(message, headers))
 			{
+				if (string.IsNullOrEmpty(info.Key))
+					continue;
+
 				if (this.graveyard.Contains(info.Key))
 					continue;
 
