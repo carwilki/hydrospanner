@@ -5,11 +5,15 @@
 	using Disruptor;
 	using Journal;
 	using log4net;
+	using Timeout;
 
 	public sealed class TransformationHandler : IEventHandler<TransformationItem>
 	{
 		public void OnNext(TransformationItem data, long sequence, bool endOfBatch)
 		{
+			//if (sequence % 100 == 0)
+				Console.WriteLine(sequence);
+
 			if (this.Skip(data))
 				return;
 
@@ -55,20 +59,25 @@
 		}
 		private void PublishToJournalPhase(TransformationItem data)
 		{
-			Log.DebugFormat("Publishing {0} items to the Journal Disruptor.", this.buffer.Count + IncomingMessage);
+			var offset = data.Body is CurrentTimeMessage ? 0 : IncludeIncomingMessage;
+			Log.DebugFormat("Publishing {0} items to the Journal Disruptor.", this.buffer.Count + offset);
 
-			var size = this.buffer.Count + IncomingMessage;
+			var size = this.buffer.Count + offset;
+			if (size == 0)
+				return;
+
 			var batch = this.journalRing.Next(size);
 
 			Action confirm = null;
 			if (data.Acknowledgment != null)
 				confirm = () => data.Acknowledgment(true);
 
-			this.journalRing[batch.Start].AsForeignMessage(
-				this.currentSequnce + 1, data.SerializedBody, data.Body, data.Headers, data.ForeignId, confirm);
+			if (offset > 0)
+				this.journalRing[batch.Start].AsForeignMessage(
+					this.currentSequnce + 1, data.SerializedBody, data.Body, data.Headers, data.ForeignId, confirm);
 
-			for (var i = 1; i < size; i++)
-				this.journalRing[i + batch.Start].AsTransformationResultMessage(this.currentSequnce + 1 + i, this.buffer[i - IncomingMessage], BlankHeaders);
+			for (var i = offset; i < size; i++)
+				this.journalRing[i + batch.Start].AsTransformationResultMessage(this.currentSequnce + 1 + i, this.buffer[i - offset], BlankHeaders);
 
 			this.journalRing.Publish(batch);
 		}
@@ -76,7 +85,8 @@
 		{
 			if (data.MessageSequence > this.currentSequnce)
 			{
-				this.currentSequnce += this.buffer.Count + IncomingMessage;
+				var offset = data.Body is CurrentTimeMessage ? 0 : IncludeIncomingMessage;
+				this.currentSequnce += this.buffer.Count + offset;
 				this.snapshot.Track(this.currentSequnce);
 			}
 
@@ -107,7 +117,7 @@
 			this.snapshot = snapshot;
 		}
 
-		private const int IncomingMessage = 1;
+		private const int IncludeIncomingMessage = 1;
 		private static readonly ILog Log = LogManager.GetLogger(typeof(TransformationHandler));
 		private static readonly Dictionary<string, string> BlankHeaders = new Dictionary<string, string>(); 
 		private readonly IRingBuffer<JournalItem> journalRing;
