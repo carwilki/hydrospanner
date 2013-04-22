@@ -51,6 +51,7 @@
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DefaultRepository.cs" />
+    <Compile Include="Delivery.cs" />
     <Compile Include="GraveyardMemento.cs" />
     <Compile Include="HydratableGraveyard.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlBulkInsertCommandBuilder.cs" />
