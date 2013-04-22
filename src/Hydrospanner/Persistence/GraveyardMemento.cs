@@ -1,4 +1,4 @@
-﻿namespace Hydrospanner
+﻿namespace Hydrospanner.Persistence
 {
 	public class GraveyardMemento
 	{

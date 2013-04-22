@@ -1,14 +1,14 @@
 ﻿#pragma warning disable 169, 414
 // ReSharper disable InconsistentNaming
 
-namespace Hydrospanner
+namespace Hydrospanner.Persistence
 {
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.Linq;
 	using Machine.Specifications;
 	using NSubstitute;
-	using Wireup;
+	using Hydrospanner.Wireup;
 
 	[Subject(typeof(DefaultRepository))]
 	public class when_working_with_the_default_repository

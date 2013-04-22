@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 169, 414
 // ReSharper disable InconsistentNaming
 
-namespace Hydrospanner
+namespace Hydrospanner.Persistence
 {
 	using Machine.Specifications;
 

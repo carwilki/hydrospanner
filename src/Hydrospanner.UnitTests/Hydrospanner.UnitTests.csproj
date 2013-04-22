@@ -48,11 +48,11 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="DefaultRepositoryTests.cs">
+    <Compile Include="Persistence\DefaultRepositoryTests.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DisruptorHarness.cs" />
-    <Compile Include="HydratableGraveyardTests.cs" />
+    <Compile Include="Persistence\HydratableGraveyardTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
     <Compile Include="Persistence\SqlPersistence\JournalMessageTypeRegistrarTests.cs" />

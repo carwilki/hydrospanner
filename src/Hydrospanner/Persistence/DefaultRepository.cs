@@ -1,7 +1,7 @@
-﻿namespace Hydrospanner
+﻿namespace Hydrospanner.Persistence
 {
 	using System.Collections.Generic;
-	using Wireup;
+	using Hydrospanner.Wireup;
 
 	public class DefaultRepository : IRepository
 	{
