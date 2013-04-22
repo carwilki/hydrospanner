@@ -49,7 +49,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				result = transformer.Handle(liveDelivery).ToList();
+				result = transformer.Handle(Incoming, Headers, LiveMessageSequence, true).ToList();
 
 			It should_transform_the_hydratable_with_the_incoming_message_and_return_the_resulting_messages = () =>
 				result.Single().ShouldBeLike(Incoming);
@@ -64,7 +64,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				result = transformer.Handle(replayDelivery).ToList();
+				result = transformer.Handle(Incoming, Headers, ReplayMessage, false).ToList();
 
 			It should_NOT_gather_and_return_any_messages = () =>
 				result.ShouldBeEmpty();
@@ -79,7 +79,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				transformer.Handle(replayDelivery);
+				transformer.Handle(Incoming, Headers, ReplayMessage, false);
 
 			It should_take_a_snapshot = () =>
 				snapshotRing.AllItems.Single().ShouldBeLike(new SnapshotItem
@@ -102,7 +102,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				transformer.Handle(replayDelivery);
+				transformer.Handle(Incoming, Headers, ReplayMessage, false);
 
 			It should_push_the_clone_to_the_snapshot_ring_buffer = () =>
 				snapshotRing.AllItems.Single().Memento.ShouldEqual(cloned);
@@ -131,7 +131,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				transformer.Handle(liveDelivery);
+				transformer.Handle(Incoming, Headers, LiveMessageSequence, true);
 
 			It should_take_a_snapshot = () =>
 				snapshotRing.AllItems.Single().ShouldBeLike(new SnapshotItem
@@ -157,11 +157,12 @@ namespace Hydrospanner.Phases.Transformation
 				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
 				repository.Load(liveDelivery).Returns(new[] { hydratable });
 				repository.Load(subsequentDelivery).Returns(new[] { hydratable });
-				transformer.Handle(liveDelivery);
+
+				transformer.Handle(Incoming, Headers, LiveMessageSequence, true);
 			};
 
 			Because of = () =>
-				transformer.Handle(subsequentDelivery);
+				transformer.Handle(subsequentIncoming, Headers, LiveMessageSequence + 1, true);
 
 			It should_keep_track_of_the_message_sequence_on_the_snapshot = () =>
 				snapshotRing.AllItems.ShouldBeLike(new[]
