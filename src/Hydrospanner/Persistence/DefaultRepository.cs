@@ -1,7 +1,7 @@
 ﻿namespace Hydrospanner.Persistence
 {
 	using System.Collections.Generic;
-	using Hydrospanner.Wireup;
+	using Wireup;
 
 	public class DefaultRepository : IRepository
 	{
@@ -10,7 +10,11 @@
 			yield return this.graveyard.GetMemento();
 
 			foreach (var hydratable in this.catalog.Values)
-				yield return hydratable.GetMemento();
+			{
+				var memento = hydratable.GetMemento();
+				if (memento != null)
+					yield return memento;
+			}
 		}
 
 		public IEnumerable<IHydratable<T>> Load<T>(Delivery<T> delivery)
@@ -30,6 +34,7 @@
 
 		public void Delete(IHydratable hydratable)
 		{
+			// TODO: remove timeouts
 			this.graveyard.Bury(hydratable.Key);
 			this.catalog.Remove(hydratable.Key);
 		}
