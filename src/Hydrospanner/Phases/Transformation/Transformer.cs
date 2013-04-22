@@ -17,11 +17,10 @@
 		{
 			this.gathered.Clear();
 
-			var live = delivery.Sequence > this.journaledSequence;
 			foreach (var hydratable in this.repository.Load(delivery))
 			{
 				hydratable.Hydrate(delivery);
-				this.GatherState(live, delivery.Sequence, hydratable as IHydratable);
+				this.GatherState(delivery.Live, delivery.Sequence, hydratable as IHydratable);
 			}
 
 			return this.gathered;
@@ -68,7 +67,7 @@
 		// ReSharper restore SuspiciousTypeConversion.Global
 		// ReSharper restore UnusedMember.Local
 
-		public Transformer(IRepository repository, IRingBuffer<SnapshotItem> snapshotRing, long journaledSequence) : this()
+		public Transformer(IRepository repository, IRingBuffer<SnapshotItem> snapshotRing) : this()
 		{
 			if (repository == null)
 				throw new ArgumentNullException("repository");
@@ -76,12 +75,8 @@
 			if (snapshotRing == null)
 				throw new ArgumentNullException("snapshotRing");
 
-			if (journaledSequence < 0)
-				throw new ArgumentOutOfRangeException("journaledSequence");
-
 			this.repository = repository;
 			this.snapshotRing = snapshotRing;
-			this.journaledSequence = journaledSequence;
 		}
 		public Transformer()
 		{
@@ -93,7 +88,6 @@
 		private readonly MethodInfo callbackDelegateMethod;
 		private readonly IRingBuffer<SnapshotItem> snapshotRing;
 		private readonly IRepository repository;
-		private readonly long journaledSequence;
 	}
 
 	internal delegate IEnumerable<object> HandleDelegate(object message, Dictionary<string, string> headers, long sequence, bool live);

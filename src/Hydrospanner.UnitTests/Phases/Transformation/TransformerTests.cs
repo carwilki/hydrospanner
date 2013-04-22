@@ -14,21 +14,15 @@ namespace Hydrospanner.Phases.Transformation
 	public class when_initializing_the_transformer
 	{
 		It should_throw_if_the_repository_is_null = () =>
-			Try(() => new Transformer(null, new RingBufferHarness<SnapshotItem>(), 42)).ShouldBeOfType<ArgumentNullException>();
+			Try(() => new Transformer(null, new RingBufferHarness<SnapshotItem>())).ShouldBeOfType<ArgumentNullException>();
 
 		It should_throw_if_the_ring_is_null = () =>
-			Try(() => new Transformer(Substitute.For<IRepository>(), null, 42)).ShouldBeOfType<ArgumentNullException>();
-
-		It should_throw_if_the_journaled_sequence_is_out_of_range = () =>
-		{
-			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>(), -1)).ShouldBeOfType<ArgumentOutOfRangeException>();
-			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>(), long.MinValue)).ShouldBeOfType<ArgumentOutOfRangeException>();
-		};
+			Try(() => new Transformer(Substitute.For<IRepository>(), null)).ShouldBeOfType<ArgumentNullException>();
 
 		It should_NOT_throw_if_the_parameters_are_appropriate = () =>
 		{
-			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>(), 1)).ShouldBeNull();
-			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>(), long.MaxValue)).ShouldBeNull();
+			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>())).ShouldBeNull();
+			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>())).ShouldBeNull();
 		};
 
 		static Exception Try(Action action)
@@ -195,7 +189,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			repository = Substitute.For<IRepository>();
 			snapshotRing = new RingBufferHarness<SnapshotItem>();
-			transformer = new Transformer(repository, snapshotRing, JournaledSequence);
+			transformer = new Transformer(repository, snapshotRing);
 			replayDelivery = new Delivery<SomethingHappenedEvent>(Incoming, Headers, ReplayMessage, false);
 			liveDelivery = new Delivery<SomethingHappenedEvent>(Incoming, Headers, LiveMessageSequence, true); 
 		};
