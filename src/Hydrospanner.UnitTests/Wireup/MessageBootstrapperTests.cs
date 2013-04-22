@@ -152,6 +152,27 @@ namespace Hydrospanner.Wireup
 				static JournaledMessage message2;
 			}
 
+			public class when_message_transformation_fails
+			{
+				Establish context = () =>
+				{
+					resultToReturn = false;
+					itemCount = 1;
+					info.SnapshotSequence = 41;
+					info.DispatchSequence = int.MaxValue;
+					message = new JournaledMessage { Sequence = 42 };
+					store.Load(info.SnapshotSequence + 1).Returns(new List<JournaledMessage> { message });
+				};
+
+				Because of = () =>
+					result = bootstrapper.Restore(info, journal, repository);
+
+				It should_return_failure = () =>
+					result.ShouldEqual(false);
+
+				static JournaledMessage message;
+			}
+
 			public class when_there_are_messages_that_require_additional_transformations
 			{
 				Establish context = () =>
@@ -183,27 +204,6 @@ namespace Hydrospanner.Wireup
 
 				static JournaledMessage message;
 			}
-
-			public class when_message_transformation_fails
-			{
-				Establish context = () =>
-				{
-					resultToReturn = false;
-					itemCount = 1;
-					info.SnapshotSequence = 41;
-					info.DispatchSequence = int.MaxValue;
-					message = new JournaledMessage { Sequence = 42 };
-					store.Load(info.SnapshotSequence + 1).Returns(new List<JournaledMessage> { message });
-				};
-
-				Because of = () =>
-					result = bootstrapper.Restore(info, journal, repository);
-
-				It should_return_failure = () =>
-					result.ShouldEqual(false);
-
-				static JournaledMessage message;
-			}
 		}
 
 		Establish context = () =>
@@ -231,6 +231,10 @@ namespace Hydrospanner.Wireup
 			transformation = null;
 			journal = null;
 			result = null;
+			completeCallback = null;
+			itemCount = 0;
+			count = 0;
+			resultToReturn = false;
 		};
 
 		static void CompleteCallback()

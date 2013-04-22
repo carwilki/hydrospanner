@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
 	using Hydrospanner;
 
 	public class FizzBuzzProjectionHydrator :
@@ -14,10 +15,7 @@
 		public string Key { get { return KeyFactory(this.document.StreamId); } }
 		public bool IsComplete { get { return false; } }
 		public bool IsPublicSnapshot { get { return true; } }
-		public IEnumerable<object> GatherMessages()
-		{
-			return NoMessages;
-		}
+		public ICollection<object> PendingMessages { get; private set; } 
 		public object GetMemento()
 		{
 			return this.document;
@@ -46,11 +44,13 @@
 
 		public FizzBuzzProjectionHydrator(FizzBuzzProjection memento)
 		{
+			this.PendingMessages = NoMessages;
 			if (memento != null)
 				this.document = memento;
 		}
 		public FizzBuzzProjectionHydrator(Guid streamId)
 		{
+			this.PendingMessages = NoMessages;
 			this.document = new FizzBuzzProjection
 			{
 				StreamId = streamId,

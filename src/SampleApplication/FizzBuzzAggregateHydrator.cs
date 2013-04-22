@@ -16,14 +16,7 @@
 		public string Key { get { return KeyFactory(this.streamId); } }
 		public bool IsComplete { get { return this.aggregate.IsComplete; } }
 		public bool IsPublicSnapshot { get { return false; } }
-		public IEnumerable<object> GatherMessages()
-		{
-			var messages = this.aggregate.PendingMessages;
-			for (var i = 0; i < messages.Count; i++)
-				yield return messages[i];
-
-			messages.Clear();
-		}
+		public ICollection<object> PendingMessages { get; private set; }
 		public object GetMemento()
 		{
 			return new FizzBuzzAggregateMemento
@@ -66,11 +59,13 @@
 		{
 			this.streamId = memento.StreamId;
 			this.aggregate = new FizzBuzzAggregate(memento.StreamId, memento.Value);
+			this.PendingMessages = new List<object>();
 		}
 		public FizzBuzzAggregateHydrator(Guid streamId)
 		{
 			this.streamId = streamId;
 			this.aggregate = new FizzBuzzAggregate(streamId);
+			this.PendingMessages = new List<object>();
 		}
 
 		public static FizzBuzzAggregateHydrator Restore(FizzBuzzAggregateMemento memento)
@@ -100,6 +95,7 @@
 		}
 		public static HydrationInfo Loookup(TimeoutElapsedEvent message, Dictionary<string, string> headers)
 		{
+			throw new NotImplementedException();
 			//return new HydrationInfo(message.Key, () => FizzBuzzAggregateHydrator());
 		}
 

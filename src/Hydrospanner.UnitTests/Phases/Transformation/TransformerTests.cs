@@ -223,18 +223,11 @@ namespace Hydrospanner.Phases.Transformation
 	public class TestHydratable : IHydratable, IHydratable<SomethingHappenedEvent>
 	{
 		public readonly List<string> EventsReceived = new List<string>();
-		public readonly List<string> EventsPublished = new List<string>();
 
 		public string Key { get { return this.key; } }
 		public bool IsComplete { get; private set; }
 		public bool IsPublicSnapshot { get { return this.isPublicSnapshot; } }
-
-		public IEnumerable<object> GatherMessages()
-		{
-			var message = this.EventsReceived.Last();
-			this.EventsPublished.Add(message);
-			yield return new SomethingHappenedEvent { Value = message };
-		}
+		public ICollection<object> PendingMessages { get; private set; }
 
 		public virtual object GetMemento()
 		{
@@ -244,6 +237,7 @@ namespace Hydrospanner.Phases.Transformation
 		public void Hydrate(SomethingHappenedEvent message, Dictionary<string, string> headers, bool live)
 		{
 			this.EventsReceived.Add(message.Value);
+			this.PendingMessages.Add(message);
 
 			if (this.becomesComplete)
 				this.IsComplete = true;
@@ -255,6 +249,7 @@ namespace Hydrospanner.Phases.Transformation
 			this.becomesComplete = becomesComplete;
 			this.key = key;
 			this.memento = memento;
+			this.PendingMessages = new List<object>();
 		}
 		
 		private readonly bool isPublicSnapshot;

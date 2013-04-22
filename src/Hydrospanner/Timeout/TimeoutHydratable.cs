@@ -20,6 +20,8 @@
 			get { return false; }
 		}
 
+		public ICollection<object> PendingMessages { get; private set; }
+
 		public void Hydrate(CurrentTimeMessage message, Dictionary<string, string> headers, bool live)
 		{
 			this.aggregate.Handle(message);
@@ -33,14 +35,6 @@
 		{
 			if (live)
 				this.aggregate.Apply(message);
-		}
-		public IEnumerable<object> GatherMessages()
-		{
-			var messages = this.aggregate.PendingMessages;
-			foreach (var message in messages)
-				yield return message;
-
-			messages.Clear();
 		}
 
 		public object GetMemento()
@@ -68,10 +62,12 @@
 		public TimeoutHydratable()
 		{
 			this.aggregate = new TimeoutAggregate();
+			this.PendingMessages = this.aggregate.PendingMessages;
 		}
 		public TimeoutHydratable(TimeoutMemento memento)
 		{
 			this.aggregate = new TimeoutAggregate(memento);
+			this.PendingMessages = this.aggregate.PendingMessages;
 		}
 
 		private const string HydratableKey = "/internal/timeout";

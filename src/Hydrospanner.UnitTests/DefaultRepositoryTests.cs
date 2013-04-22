@@ -8,6 +8,7 @@ namespace Hydrospanner
 	using System.Linq;
 	using Machine.Specifications;
 	using NSubstitute;
+	using Phases.Transformation;
 	using Wireup;
 
 	[Subject(typeof(DefaultRepository))]
@@ -121,10 +122,7 @@ namespace Hydrospanner
 
 		public bool IsPublicSnapshot { get { return false; } }
 
-		public IEnumerable<object> GatherMessages()
-		{
-			yield break;
-		}
+		public ICollection<object> PendingMessages { get; private set; } 
 
 		public void Hydrate(int message, Dictionary<string, string> headers, bool live)
 		{
@@ -134,6 +132,7 @@ namespace Hydrospanner
 
 		public MyHydratable(string key)
 		{
+			this.PendingMessages = new List<object>();
 			this.key = key;
 		}
 

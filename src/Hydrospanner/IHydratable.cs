@@ -7,7 +7,7 @@
 		string Key { get; }
 		bool IsComplete { get; }
 		bool IsPublicSnapshot { get; }
-		IEnumerable<object> GatherMessages();
+		ICollection<object> PendingMessages { get; } 
 		object GetMemento();
 	}
 

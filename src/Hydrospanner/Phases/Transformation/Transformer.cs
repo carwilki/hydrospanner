@@ -22,7 +22,10 @@
 		private void GatherState(bool live, long messageSequence, IHydratable hydratable)
 		{
 			if (live)
-				this.gathered.AddRange(hydratable.GatherMessages());
+			{
+				this.gathered.AddRange(hydratable.PendingMessages);
+				hydratable.PendingMessages.Clear();
+			}
 				
 			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
 				this.TakeSnapshot(hydratable, messageSequence);

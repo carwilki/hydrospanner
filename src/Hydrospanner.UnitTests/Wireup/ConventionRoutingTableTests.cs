@@ -7,6 +7,7 @@ namespace Hydrospanner.Wireup
 	using System.Collections.Generic;
 	using System.Linq;
 	using Machine.Specifications;
+	using Phases.Transformation;
 
 	[Subject(typeof(ConventionRoutingTable))]
 	public class when_routing_by_convention
@@ -149,10 +150,7 @@ namespace Hydrospanner.Wireup
 			public string Key { get; private set; }
 			public bool IsComplete { get; private set; }
 			public bool IsPublicSnapshot { get; private set; }
-			public IEnumerable<object> GatherMessages()
-			{
-				throw new NotImplementedException();
-			}
+			public ICollection<object> PendingMessages { get; private set; } 
 			public object GetMemento()
 			{
 				throw new NotImplementedException();

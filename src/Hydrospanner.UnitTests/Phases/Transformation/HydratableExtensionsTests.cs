@@ -44,7 +44,7 @@ namespace Hydrospanner.Phases.Transformation
 
 			It should_route_according_to_message_type = () =>
 			{
-				hydratable.messages.Single().ShouldEqual(42);
+				hydratable.PendingMessages.Single().ShouldEqual(42);
 				hydratable.metadata.Single().ShouldBeLike(new Dictionary<string, string> { { "Hello", "World" } });
 				hydratable.status.Single().ShouldBeTrue();
 			};
@@ -59,11 +59,7 @@ namespace Hydrospanner.Phases.Transformation
 		public string Key { get { return this.key; } }
 		public bool IsComplete { get { return false; } }
 		public bool IsPublicSnapshot { get { return false; } }
-		public IEnumerable<object> GatherMessages()
-		{
-			yield break;
-		}
-
+		public ICollection<object> PendingMessages { get; private set; }
 		public object GetMemento()
 		{
 			return null;
@@ -72,7 +68,7 @@ namespace Hydrospanner.Phases.Transformation
 		public void Hydrate(int message, Dictionary<string, string> headers, bool live)
 		{
 			this.CurrentState = message;
-			this.messages.Add(message);
+			this.PendingMessages.Add(message);
 			this.metadata.Add(headers);
 			this.status.Add(live);
 		}
@@ -80,10 +76,10 @@ namespace Hydrospanner.Phases.Transformation
 		public ApplicationHydratable(string key)
 		{
 			this.key = key;
+			this.PendingMessages = new List<object>();
 		}
 
 		readonly string key;
-		public List<int> messages = new List<int>();
 		public List<Dictionary<string, string>> metadata = new List<Dictionary<string, string>>();
 		public List<bool> status = new List<bool>();
 	}
