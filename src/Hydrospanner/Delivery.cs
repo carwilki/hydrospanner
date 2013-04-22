@@ -24,7 +24,7 @@
 		public Delivery(T message, Dictionary<string, string> headers, long sequence, bool live) : this()
 		{
 			this.message = message;
-			this.headers = headers ?? new Dictionary<string, string>();
+			this.headers = headers;
 			this.sequence = sequence;
 			this.live = live;
 		}

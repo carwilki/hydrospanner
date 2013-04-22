@@ -49,7 +49,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				result = transformer.Handle(Incoming, Headers, LiveMessageSequence).ToList();
+				result = transformer.Handle(liveDelivery).ToList();
 
 			It should_transform_the_hydratable_with_the_incoming_message_and_return_the_resulting_messages = () =>
 				result.Single().ShouldBeLike(Incoming);
@@ -64,7 +64,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				result = transformer.Handle(Incoming, Headers, ReplayMessage).ToList();
+				result = transformer.Handle(replayDelivery).ToList();
 
 			It should_NOT_gather_and_return_any_messages = () =>
 				result.ShouldBeEmpty();
@@ -79,7 +79,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				transformer.Handle(Incoming, Headers, ReplayMessage);
+				transformer.Handle(replayDelivery);
 
 			It should_take_a_snapshot = () =>
 				snapshotRing.AllItems.Single().ShouldBeLike(new SnapshotItem
@@ -102,7 +102,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				transformer.Handle(Incoming, Headers, ReplayMessage);
+				transformer.Handle(replayDelivery);
 
 			It should_push_the_clone_to_the_snapshot_ring_buffer = () =>
 				snapshotRing.AllItems.Single().Memento.ShouldEqual(cloned);
@@ -111,13 +111,13 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				public object Clone()
 				{
-					return this.cloned;
+					return this.cloned1;
 				}
 				public Cloner(object cloned)
 				{
-					this.cloned = cloned;
+					this.cloned1 = cloned;
 				}
-				private readonly object cloned;
+				private readonly object cloned1;
 			}
 			static readonly object cloned = new object();
 		}
@@ -131,7 +131,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			Because of = () =>
-				transformer.Handle(Incoming, Headers, LiveMessageSequence);
+				transformer.Handle(liveDelivery);
 
 			It should_take_a_snapshot = () =>
 				snapshotRing.AllItems.Single().ShouldBeLike(new SnapshotItem
@@ -153,14 +153,15 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				subsequentIncoming = new SomethingHappenedEvent { Value = "Goodbye, World!" };
+				subsequentDelivery = new Delivery<SomethingHappenedEvent>(subsequentIncoming, Headers, LiveMessageSequence + 1, true);
 				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
 				repository.Load(Incoming, Headers).Returns(new[] { hydratable });
 				repository.Load(subsequentIncoming, Headers).Returns(new[] { hydratable });
-				transformer.Handle(Incoming, Headers, LiveMessageSequence);
+				transformer.Handle(liveDelivery);
 			};
 
 			Because of = () =>
-				transformer.Handle(subsequentIncoming, Headers, LiveMessageSequence + 1);
+				transformer.Handle(subsequentDelivery);
 
 			It should_keep_track_of_the_message_sequence_on_the_snapshot = () =>
 				snapshotRing.AllItems.ShouldBeLike(new[]
@@ -186,6 +187,7 @@ namespace Hydrospanner.Phases.Transformation
 				});
 
 			static SomethingHappenedEvent subsequentIncoming;
+			static Delivery<SomethingHappenedEvent> subsequentDelivery;
 		}
 
 		Establish context = () =>
@@ -193,6 +195,8 @@ namespace Hydrospanner.Phases.Transformation
 			repository = Substitute.For<IRepository>();
 			snapshotRing = new RingBufferHarness<SnapshotItem>();
 			transformer = new Transformer(repository, snapshotRing, JournaledSequence);
+			replayDelivery = new Delivery<SomethingHappenedEvent>(Incoming, Headers, ReplayMessage, false);
+			liveDelivery = new Delivery<SomethingHappenedEvent>(Incoming, Headers, LiveMessageSequence, true); 
 		};
 
 		const long JournaledSequence = 42;
@@ -203,6 +207,8 @@ namespace Hydrospanner.Phases.Transformation
 		const string Key = "Key";
 		static readonly Dictionary<string, string> Headers = null;
 		static readonly SomethingHappenedEvent Incoming = new SomethingHappenedEvent { Value = "Hello, World!" };
+		static Delivery<SomethingHappenedEvent> replayDelivery;
+		static Delivery<SomethingHappenedEvent> liveDelivery;
 		static TestHydratable hydratable;
 		static List<object> result; 
 		static Transformer transformer;

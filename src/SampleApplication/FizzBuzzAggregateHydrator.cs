@@ -96,7 +96,6 @@
 		public static HydrationInfo Loookup(TimeoutElapsedEvent message, Dictionary<string, string> headers)
 		{
 			throw new NotImplementedException();
-			//return new HydrationInfo(message.Key, () => FizzBuzzAggregateHydrator());
 		}
 
 		public static string KeyFactory(Guid streamId)

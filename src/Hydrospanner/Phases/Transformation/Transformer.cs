@@ -6,15 +6,15 @@
 
 	public sealed class Transformer : ITransformer
 	{
-		public IEnumerable<object> Handle(object message, Dictionary<string, string> headers, long sequence)
+		public IEnumerable<object> Handle<T>(Delivery<T> delivery)
 		{
 			this.gathered.Clear();
 
-			var live = sequence > this.journaledSequence;
-			foreach (var hydratable in this.repository.Load(message, headers))
+			var live = delivery.Sequence > this.journaledSequence;
+			foreach (var hydratable in this.repository.Load(delivery.Message, delivery.Headers))
 			{
-				hydratable.Hydrate(message, headers, live);
-				this.GatherState(live, sequence, hydratable);
+				hydratable.Hydrate(delivery.Message, delivery.Headers, live);
+				this.GatherState(live, delivery.Sequence, hydratable);
 			}
 
 			return this.gathered;
