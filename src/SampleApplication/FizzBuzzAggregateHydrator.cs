@@ -3,7 +3,6 @@
 	using System;
 	using System.Collections.Generic;
 	using Hydrospanner;
-	using Hydrospanner.Timeout;
 
 	public class FizzBuzzAggregateHydrator : 
 		IHydratable, 
@@ -73,29 +72,25 @@
 			return new FizzBuzzAggregateHydrator(memento);
 		}
 
-		public static HydrationInfo Lookup(CountCommand message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<CountCommand> delivery)
 		{
-			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzAggregateHydrator(message.StreamId));
+			return new HydrationInfo(KeyFactory(delivery.Message.StreamId), () => new FizzBuzzAggregateHydrator(delivery.Message.StreamId));
 		}
-		public static HydrationInfo Lookup(CountEvent message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<CountEvent> delivery)
 		{
-			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzAggregateHydrator(message.StreamId));
+			return new HydrationInfo(KeyFactory(delivery.Message.StreamId), () => new FizzBuzzAggregateHydrator(delivery.Message.StreamId));
 		}
-		public static HydrationInfo Lookup(FizzEvent message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<FizzEvent> delivery)
 		{
-			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzAggregateHydrator(message.StreamId));
+			return new HydrationInfo(KeyFactory(delivery.Message.StreamId), () => new FizzBuzzAggregateHydrator(delivery.Message.StreamId));
 		}
-		public static HydrationInfo Lookup(BuzzEvent message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<BuzzEvent> delivery)
 		{
-			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzAggregateHydrator(message.StreamId));
+			return new HydrationInfo(KeyFactory(delivery.Message.StreamId), () => new FizzBuzzAggregateHydrator(delivery.Message.StreamId));
 		}
-		public static HydrationInfo Lookup(FizzBuzzEvent message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<FizzBuzzEvent> delivery)
 		{
-			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzAggregateHydrator(message.StreamId));
-		}
-		public static HydrationInfo Loookup(TimeoutElapsedEvent message, Dictionary<string, string> headers)
-		{
-			throw new NotImplementedException();
+			return new HydrationInfo(KeyFactory(delivery.Message.StreamId), () => new FizzBuzzAggregateHydrator(delivery.Message.StreamId));
 		}
 
 		public static string KeyFactory(Guid streamId)

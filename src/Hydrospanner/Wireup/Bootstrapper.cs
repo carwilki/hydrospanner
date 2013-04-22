@@ -6,7 +6,6 @@
 	using Phases.Journal;
 	using Phases.Snapshot;
 	using Phases.Transformation;
-	using Timeout;
 
 	public class Bootstrapper : IDisposable
 	{
@@ -38,8 +37,8 @@
 			this.transformationDisruptor.Start();
 
 			Log.Info("Attempting to start message listener.");
-			this.clock = new SystemClock(this.transformationDisruptor.RingBuffer);
-			this.clock.Start();
+			////this.clock = new SystemClock(this.transformationDisruptor.RingBuffer);
+			////this.clock.Start();
 			this.listener = this.messaging.CreateMessageListener(this.transformationDisruptor.RingBuffer);
 			this.listener.Start();
 
@@ -79,7 +78,7 @@
 
 			Log.Info("Shutting down message listener.");
 			this.listener = this.listener.TryDispose();
-			this.clock = this.clock.TryDispose();
+			//// this.clock = this.clock.TryDispose();
 
 			Log.Info("Waiting a few seconds for all work to clear out of disruptors.");
 			TimeSpan.FromSeconds(3).Sleep();
@@ -109,7 +108,7 @@
 		private IDisruptor<SnapshotItem> snapshotDisruptor;
 		private IDisruptor<TransformationItem> transformationDisruptor;
 		private MessageListener listener;
-		private SystemClock clock;
+		////private SystemClock clock;
 		private bool started;
 	}
 }

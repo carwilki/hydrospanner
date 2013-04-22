@@ -13,10 +13,8 @@
 				yield return hydratable.GetMemento();
 		}
 
-		public IEnumerable<IHydratable> Load<T>(Delivery<T> delivery)
+		public IEnumerable<IHydratable<T>> Load<T>(Delivery<T> delivery)
 		{
-			this.loaded.Clear();
-
 			foreach (var info in this.routes.Lookup(delivery))
 			{
 				if (string.IsNullOrEmpty(info.Key))
@@ -25,10 +23,9 @@
 				if (this.graveyard.Contains(info.Key))
 					continue;
 
-				this.loaded.Add(this.catalog.ValueOrDefault(info.Key) ?? (this.catalog[info.Key] = info.Create()));
+				var hydratable = this.catalog.ValueOrDefault(info.Key) ?? (this.catalog[info.Key] = info.Create());
+				yield return hydratable as IHydratable<T>; 
 			}
-
-			return this.loaded;
 		}
 
 		public void Delete(IHydratable hydratable)
@@ -65,7 +62,6 @@
 		}
 
 		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>();
-		private readonly List<IHydratable> loaded = new List<IHydratable>();
 		private readonly HydratableGraveyard graveyard = new HydratableGraveyard();
 		private readonly IRoutingTable routes;
 		private bool graveyardRestored;

@@ -13,8 +13,8 @@
 			var live = delivery.Sequence > this.journaledSequence;
 			foreach (var hydratable in this.repository.Load(delivery))
 			{
-				hydratable.Hydrate(delivery.Message, delivery.Headers, live);
-				this.GatherState(live, delivery.Sequence, hydratable);
+				hydratable.Hydrate(delivery);
+				this.GatherState(live, delivery.Sequence, hydratable as IHydratable);
 			}
 
 			return this.gathered;

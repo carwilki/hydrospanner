@@ -8,7 +8,6 @@ namespace Hydrospanner
 	using System.Linq;
 	using Machine.Specifications;
 	using NSubstitute;
-	using Phases.Transformation;
 	using Wireup;
 
 	[Subject(typeof(DefaultRepository))]
@@ -19,7 +18,7 @@ namespace Hydrospanner
 			public class when_the_hydratables_for_a_given_message_have_NOT_been_created
 			{
 				Because of = () =>
-					loadResult = repository.Load(delivery).ToList();
+					loadResult = repository.Load(delivery).Cast<IHydratable>().ToList();
 
 				It should_add_them_to_the_repository_for_future_retreival = () =>
 					repository.Load(delivery).Single().ShouldEqual(Document);
@@ -32,12 +31,12 @@ namespace Hydrospanner
 			{
 				Establish context = () =>
 				{
-					var created = repository.Load(delivery).First();
+					var created = repository.Load(delivery).Cast<IHydratable>().First();
 					repository.Delete(created);
 				};
 
 				Because of = () =>
-					loadResult = repository.Load(delivery);
+					loadResult = repository.Load(delivery).Cast<IHydratable>().ToList();
 
 				It should_NOT_load_the_hydratable = () =>
 					loadResult.ShouldBeEmpty();
@@ -128,7 +127,7 @@ namespace Hydrospanner
 
 		public ICollection<object> PendingMessages { get; private set; } 
 
-		public void Hydrate(int message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<int> delivery)
 		{
 		}
 

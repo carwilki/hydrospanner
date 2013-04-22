@@ -5,7 +5,6 @@
 	using Disruptor;
 	using Journal;
 	using log4net;
-	using Timeout;
 
 	public sealed class TransformationHandler : IEventHandler<TransformationItem>
 	{
@@ -58,7 +57,8 @@
 		}
 		private void PublishToJournalPhase()
 		{
-			var offset = this.item.Body is CurrentTimeMessage ? 0 : IncludeIncomingMessage;
+			////var offset = this.item.Body is CurrentTimeMessage ? 0 : IncludeIncomingMessage;
+			var offset = IncludeIncomingMessage;
 			Log.DebugFormat("Publishing {0} items to the Journal Disruptor.", this.buffer.Count + offset);
 
 			var size = this.buffer.Count + offset;
@@ -84,7 +84,8 @@
 		{
 			if (this.item.MessageSequence > this.currentSequnce)
 			{
-				var offset = this.item.Body is CurrentTimeMessage ? 0 : IncludeIncomingMessage;
+				var offset = IncludeIncomingMessage;
+				//// var offset = this.item.Body is CurrentTimeMessage ? 0 : IncludeIncomingMessage;
 				this.currentSequnce += this.buffer.Count + offset;
 				this.snapshot.Track(this.currentSequnce);
 			}

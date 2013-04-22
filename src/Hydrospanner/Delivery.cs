@@ -21,7 +21,7 @@
 			get { return this.live; }
 		}
 
-		public Delivery(T message, Dictionary<string, string> headers, long sequence, bool live) : this()
+		public Delivery(T message, Dictionary<string, string> headers, long sequence, bool live)
 		{
 			this.message = message;
 			this.headers = headers;

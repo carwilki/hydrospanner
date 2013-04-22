@@ -17,7 +17,7 @@
 				return this.routes;
 
 			foreach (var item in delegates)
-				this.routes.Add(item(delivery.Message, delivery.Headers));
+				this.routes.Add(item(delivery));
 
 			return this.routes;
 		}
@@ -101,15 +101,15 @@
 				return;
 
 			var parameters = method.GetParameters();
-			if (parameters.Length != 2)
+			if (parameters.Length != 1)
 				return;
 
 			var messageType = parameters[0].ParameterType;
 			if (messageType == typeof(object))
 				return;
 
-			if (parameters[1].ParameterType != typeof(Dictionary<string, string>))
-				return;
+			//if (parameters[1].ParameterType != typeof(Dictionary<string, string>))
+			//	return;
 
 			Log.DebugFormat(
 				"Registering lookup method ({0}.{1}({2} message, ...) with the ConventionRoutingTable.", 
@@ -132,7 +132,7 @@
 			if (!this.lookups.TryGetValue(typeof(T), out delegates))
 				this.lookups[typeof(T)] = delegates = new List<LookupDelegate>();
 
-			delegates.Add((message, headers) => callback((T)message, headers));
+			delegates.Add(x => callback((Delivery<T>)x));
 		}
 // ReSharper restore UnusedMember.Local
 
@@ -146,8 +146,8 @@
 		private readonly List<HydrationInfo> routes = new List<HydrationInfo>(16);
 	}
 
-	internal delegate HydrationInfo LookupDelegate(object message, Dictionary<string, string> headers);
-	internal delegate HydrationInfo LookupDelegate<T>(T message, Dictionary<string, string> headers);
+	internal delegate HydrationInfo LookupDelegate(object delivery);
+	internal delegate HydrationInfo LookupDelegate<T>(Delivery<T> delivery);
 	internal delegate IHydratable MementoDelegate(object memento);
 	internal delegate IHydratable MementoDelegate<T>(T memento);
 }

@@ -240,10 +240,10 @@ namespace Hydrospanner.Phases.Transformation
 			return this.memento ?? new SomethingHappenedProjection { Value = this.EventsReceived.Last() };
 		}
 
-		public void Hydrate(SomethingHappenedEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<SomethingHappenedEvent> delivery)
 		{
-			this.EventsReceived.Add(message.Value);
-			this.PendingMessages.Add(message);
+			this.EventsReceived.Add(delivery.Message.Value);
+			this.PendingMessages.Add(delivery.Message);
 
 			if (this.becomesComplete)
 				this.IsComplete = true;

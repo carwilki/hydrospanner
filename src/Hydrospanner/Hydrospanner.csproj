@@ -63,14 +63,6 @@
     <Compile Include="Phases\Transformation\SystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\Transformer.cs" />
     <Compile Include="RingBufferBase.cs" />
-    <Compile Include="Timeout\CurrentTimeMessage.cs" />
-    <Compile Include="Timeout\SystemClock.cs" />
-    <Compile Include="Timeout\TimeoutAggregate.cs" />
-    <Compile Include="Timeout\TimeoutElapsedEvent.cs" />
-    <Compile Include="Timeout\TimeoutEntry.cs" />
-    <Compile Include="Timeout\TimeoutHydratable.cs" />
-    <Compile Include="Timeout\TimeoutMemento.cs" />
-    <Compile Include="Timeout\TimeoutRequestedEvent.cs" />
     <Compile Include="Wireup\ConventionRoutingTable.cs" />
     <Compile Include="Wireup\ConventionWireupParameters.cs" />
     <Compile Include="Wireup\DisruptorFactory.cs" />
@@ -124,7 +116,6 @@
     <Compile Include="IHydratable.cs" />
     <Compile Include="Phases\Journal\JournalItem.cs" />
     <Compile Include="Phases\Transformation\DuplicateStore.cs" />
-    <Compile Include="Phases\Transformation\HydratableExtensions.cs" />
     <Compile Include="Phases\Transformation\MessageListener.cs" />
     <Compile Include="Phases\Transformation\TransformationHandler.cs" />
     <Compile Include="DisruptorBase.cs" />

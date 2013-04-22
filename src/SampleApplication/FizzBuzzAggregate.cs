@@ -2,7 +2,6 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using Hydrospanner.Timeout;
 
 	public class FizzBuzzAggregate
 	{
@@ -23,7 +22,6 @@
 		public void Increment(int value)
 		{
 			var key = string.Empty; // TODO: where does this come from?
-			this.Append(null, new TimeoutRequestedEvent(key, DateTime.UtcNow.AddDays(3), 0));
 
 			if (value % 3 == 0 && value % 5 == 0)
 				this.Append(this.Apply, new FizzBuzzEvent { StreamId = this.streamId, Value = value });
