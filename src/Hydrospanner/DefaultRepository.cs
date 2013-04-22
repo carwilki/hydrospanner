@@ -13,11 +13,11 @@
 				yield return hydratable.GetMemento();
 		}
 
-		public IEnumerable<IHydratable> Load(object message, Dictionary<string, string> headers)
+		public IEnumerable<IHydratable> Load<T>(Delivery<T> delivery)
 		{
 			this.loaded.Clear();
 
-			foreach (var info in this.routes.Lookup(message, headers))
+			foreach (var info in this.routes.Lookup(delivery))
 			{
 				if (string.IsNullOrEmpty(info.Key))
 					continue;

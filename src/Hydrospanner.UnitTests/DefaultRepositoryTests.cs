@@ -19,10 +19,10 @@ namespace Hydrospanner
 			public class when_the_hydratables_for_a_given_message_have_NOT_been_created
 			{
 				Because of = () =>
-					loadResult = repository.Load(Message, Headers).ToList();
+					loadResult = repository.Load(delivery).ToList();
 
 				It should_add_them_to_the_repository_for_future_retreival = () =>
-					repository.Load(42, Headers).Single().ShouldEqual(Document);
+					repository.Load(delivery).Single().ShouldEqual(Document);
 
 				It should_return_the_newly_created_hydratables = () =>
 					loadResult.Single().ShouldEqual(Document);
@@ -32,18 +32,18 @@ namespace Hydrospanner
 			{
 				Establish context = () =>
 				{
-					var created = repository.Load(Message, Headers).First();
+					var created = repository.Load(delivery).First();
 					repository.Delete(created);
 				};
 
 				Because of = () =>
-					loadResult = repository.Load(Message, Headers);
+					loadResult = repository.Load(delivery);
 
 				It should_NOT_load_the_hydratable = () =>
 					loadResult.ShouldBeEmpty();
 
 				It should_NOT_create_a_new_hydratable = () =>
-					repository.Load(Message, Headers).ShouldBeEmpty();
+					repository.Load(delivery).ShouldBeEmpty();
 			}
 		}
 
@@ -51,13 +51,14 @@ namespace Hydrospanner
 		{
 			Establish context = () =>
 			{
+				tombstoneDelivery = new Delivery<string>(Tombstone, Headers, 1, true);
 				tombstoned = new MyHydratable(Tombstone);
 				tombstoneInfo = new HydrationInfo(Tombstone, () => tombstoned);
-				routes.Lookup(Tombstone, Headers).Returns(new[] { tombstoneInfo });
+				routes.Lookup(tombstoneDelivery).Returns(new[] { tombstoneInfo });
 				routes.Restore(Document).Returns(Document);
 
-				repository.Load(Message, Headers).ToList();
-				repository.Load(Tombstone, Headers).ToList();
+				repository.Load(delivery).ToList();
+				repository.Load(tombstoneDelivery).ToList();
 				repository.Delete(tombstoned);
 			};
 			
@@ -85,7 +86,8 @@ namespace Hydrospanner
 			static HydrationInfo tombstoneInfo;
 			static MyHydratable tombstoned;
 			static List<object> snapshot;
-			static List<object> snapshotOfRestoredRepository; 
+			static List<object> snapshotOfRestoredRepository;
+			static Delivery<string> tombstoneDelivery;
 		}
 
 		Establish context = () =>
@@ -93,8 +95,9 @@ namespace Hydrospanner
 			routes = Substitute.For<IRoutingTable>();
 			repository = new DefaultRepository(routes);
 			myHydrationInfo = new HydrationInfo(Key, () => Document);
+			delivery = new Delivery<int>(Message, Headers, 1, true);
 
-			routes.Lookup(Message, Headers).Returns(new[] { myHydrationInfo });
+			routes.Lookup(delivery).Returns(new[] { myHydrationInfo });
 		};
 
 		const int Message = 42;
@@ -102,6 +105,7 @@ namespace Hydrospanner
 		static readonly MyHydratable Document = new MyHydratable(Key);
 		static readonly Dictionary<string, string> Headers = new Dictionary<string, string>();
 		static HydrationInfo myHydrationInfo;
+		static Delivery<int> delivery; 
 		static IEnumerable<IHydratable> loadResult;
 		static DefaultRepository repository;
 		static IRoutingTable routes;

@@ -5,7 +5,7 @@
 	public interface IRepository
 	{
 		IEnumerable<object> GetMementos();
-		IEnumerable<IHydratable> Load(object message, Dictionary<string, string> headers);
+		IEnumerable<IHydratable> Load<T>(Delivery<T> delivery);
 		void Delete(IHydratable hydratable);
 		void Restore(object memento);
 	}

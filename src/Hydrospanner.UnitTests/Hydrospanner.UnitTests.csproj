@@ -48,7 +48,9 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="DefaultRepositoryTests.cs" />
+    <Compile Include="DefaultRepositoryTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DisruptorHarness.cs" />
     <Compile Include="HydratableGraveyardTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
@@ -60,7 +62,6 @@
     <Compile Include="Phases\Transformation\SystemSnapshotTrackerTests.cs" />
     <Compile Include="Phases\Transformation\TransformerTests.cs" />
     <Compile Include="RingBufferHarness.cs" />
-    <Compile Include="Wireup\ConventionRoutingTableTests.cs" />
     <Compile Include="Wireup\MessageBootstrapperTests.cs" />
     <Compile Include="Wireup\SnapshotBootstrapperTests.cs" />
     <Compile Include="Wireup\PersistenceBootstrapperTests.cs" />

@@ -152,7 +152,7 @@ namespace Hydrospanner.Wireup
 				static JournaledMessage message2;
 			}
 
-			public class when_message_transformation_fails
+			public class when_there_are_messages_that_require_additional_transformations
 			{
 				Establish context = () =>
 				{
@@ -173,7 +173,7 @@ namespace Hydrospanner.Wireup
 				static JournaledMessage message;
 			}
 
-			public class when_there_are_messages_that_require_additional_transformations
+			public class when_message_transformation_fails
 			{
 				Establish context = () =>
 				{

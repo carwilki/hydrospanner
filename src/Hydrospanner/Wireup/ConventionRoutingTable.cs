@@ -8,19 +8,16 @@
 
 	public class ConventionRoutingTable : IRoutingTable
 	{
-		public IEnumerable<HydrationInfo> Lookup(object message, Dictionary<string, string> headers)
+		public IEnumerable<HydrationInfo> Lookup<T>(Delivery<T> delivery)
 		{
-			if (message == null)
-				return null;
-
 			this.routes.Clear();
 
 			List<LookupDelegate> delegates;
-			if (!this.lookups.TryGetValue(message.GetType(), out delegates))
+			if (!this.lookups.TryGetValue(typeof(T), out delegates))
 				return this.routes;
 
 			foreach (var item in delegates)
-				this.routes.Add(item(message, headers));
+				this.routes.Add(item(delivery.Message, delivery.Headers));
 
 			return this.routes;
 		}

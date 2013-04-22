@@ -45,7 +45,7 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				hydratable = new TestHydratable(!IsPublicSnapshot, !BecomesComplete, Key);
-				repository.Load(Incoming, Headers).Returns(new[] { hydratable });
+				repository.Load(liveDelivery).Returns(new[] { hydratable });
 			};
 
 			Because of = () =>
@@ -60,7 +60,7 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				hydratable = new TestHydratable(!IsPublicSnapshot, !BecomesComplete, Key);
-				repository.Load(Incoming, Headers).Returns(new[] { hydratable });
+				repository.Load(replayDelivery).Returns(new[] { hydratable });
 			};
 
 			Because of = () =>
@@ -75,7 +75,7 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
-				repository.Load(Incoming, Headers).Returns(new[] { hydratable });
+				repository.Load(replayDelivery).Returns(new[] { hydratable });
 			};
 
 			Because of = () =>
@@ -98,7 +98,7 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key, new Cloner(cloned));
-				repository.Load(Incoming, Headers).Returns(new[] { hydratable });
+				repository.Load(replayDelivery).Returns(new[] { hydratable });
 			};
 
 			Because of = () =>
@@ -127,7 +127,7 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				hydratable = new TestHydratable(!IsPublicSnapshot, BecomesComplete, Key);
-				repository.Load(Incoming, Headers).Returns(new[] { hydratable });
+				repository.Load(liveDelivery).Returns(new[] { hydratable });
 			};
 
 			Because of = () =>
@@ -155,8 +155,8 @@ namespace Hydrospanner.Phases.Transformation
 				subsequentIncoming = new SomethingHappenedEvent { Value = "Goodbye, World!" };
 				subsequentDelivery = new Delivery<SomethingHappenedEvent>(subsequentIncoming, Headers, LiveMessageSequence + 1, true);
 				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
-				repository.Load(Incoming, Headers).Returns(new[] { hydratable });
-				repository.Load(subsequentIncoming, Headers).Returns(new[] { hydratable });
+				repository.Load(liveDelivery).Returns(new[] { hydratable });
+				repository.Load(subsequentDelivery).Returns(new[] { hydratable });
 				transformer.Handle(liveDelivery);
 			};
 

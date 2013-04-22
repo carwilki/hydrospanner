@@ -11,7 +11,7 @@
 			this.gathered.Clear();
 
 			var live = delivery.Sequence > this.journaledSequence;
-			foreach (var hydratable in this.repository.Load(delivery.Message, delivery.Headers))
+			foreach (var hydratable in this.repository.Load(delivery))
 			{
 				hydratable.Hydrate(delivery.Message, delivery.Headers, live);
 				this.GatherState(live, delivery.Sequence, hydratable);
