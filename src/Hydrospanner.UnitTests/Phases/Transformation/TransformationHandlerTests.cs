@@ -51,7 +51,7 @@ namespace Hydrospanner.Phases.Transformation
 				handler.OnNext(new TransformationItem(), 1, false);
 
 			It should_skip_that_message = () =>
-				transformer.Received(0).Handle(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>());
+				transformer.Received(0).Handle(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), true);
 		}
 
 		public class when_a_journaled_message_with_no_body_arrives
@@ -66,7 +66,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			It should_skip_all_messages_thereafter = () =>
-				transformer.Received(0).Handle(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>());
+				transformer.Received(0).Handle(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), true);
 
 			static readonly TransformationItem serializationFailure = new TransformationItem
 			{
@@ -85,10 +85,16 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				Establish context = () =>
 				{
-					transformer.Handle(item.Body, item.Headers, ReplayMessageSequence).Returns(new object[0]);
-					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
-					item.MessageSequence = ReplayMessageSequence;
-					item.Deserialize(new JsonSerializer());
+					item = new TransformationItem
+					{
+						Body = 1,
+						SerializedBody = Encoding.UTF8.GetBytes("1"),
+						SerializedType = default(int).ResolvableTypeName(),
+						Headers = new Dictionary<string, string>(),
+						SerializedHeaders = Encoding.UTF8.GetBytes("{}"),
+						MessageSequence = ReplayMessageSequence
+					};
+					transformer.Handle(item.Body, item.Headers, ReplayMessageSequence, false).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
@@ -102,19 +108,33 @@ namespace Hydrospanner.Phases.Transformation
 					snapshot.DidNotReceive().Track(Arg.Any<long>());
 
 				It should_NOT_assign_the_message_sequence_on_the_incoming_message = () =>
-					item.MessageSequence.ShouldEqual(JournaledSequence);
+					item.MessageSequence.ShouldEqual(ReplayMessageSequence);
 			}
 			
-			public class when_the_message_yeilds_a_resulting_messages
+			public class when_the_message_yields_a_resulting_messages
 			{
 				Establish context = () =>
 				{
-					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
-					item.MessageSequence = JournaledSequence - 1;
-					item.Deserialize(new JsonSerializer());
-					transformer.Handle(item.Body, item.Headers, ReplayMessageSequence).Returns(new object[] { "hello", "world" });
-					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence).Returns(new object[0]);
-					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence).Returns(new object[0]);
+					item = new TransformationItem
+					{
+						Body = 1,
+						SerializedBody = Encoding.UTF8.GetBytes("1"),
+						SerializedType = default(int).ResolvableTypeName(),
+						Headers = new Dictionary<string, string>(),
+						SerializedHeaders = Encoding.UTF8.GetBytes("{}"),
+						MessageSequence = JournaledSequence - 1
+					};
+
+					transformer
+						.Handle(item.Body, item.Headers, JournaledSequence - 1, false)
+						.Returns(new object[] { "hello", "world" });
+					transformer
+						.Handle("hello", Arg.Any<Dictionary<string, string>>(), JournaledSequence, false)
+						.Returns(new object[0]);
+					transformer
+						.Handle("world", Arg.Any<Dictionary<string, string>>(), JournaledSequence + 1, false)
+						.Returns(new object[0]);
+					
 					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
@@ -124,23 +144,40 @@ namespace Hydrospanner.Phases.Transformation
 				It should_NOT_publish_the_incoming_message_or_the_resulting_messages = () =>
 					journal.AllItems.ShouldBeEmpty();
 
-				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
+				It should_increment_the_snapshot = () =>
 					snapshot.DidNotReceive().Track(Arg.Any<long>());
 
 				It should_NOT_reassign_the_sequence_number_of_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
+
+				It should_have_handled_the_correct_messages = () =>
+					transformer.ReceivedWithAnyArgs(3).Handle(null, null, 0, false);
 			}
 
 			public class when_the_yielded_messages_yield_more_messages
 			{
 				Establish context = () =>
 				{
-					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
-					item.MessageSequence = JournaledSequence - 1;
-					item.Deserialize(new JsonSerializer());
-					transformer.Handle(item.Body, item.Headers, ReplayMessageSequence).Returns(new object[] { "hello" });
-					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence + 1).Returns(new object[] { "world" });
-					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence + 1).Returns(new object[0]);
+					item = new TransformationItem
+					{
+						Body = 1,
+						SerializedBody = Encoding.UTF8.GetBytes("1"),
+						SerializedType = default(int).ResolvableTypeName(),
+						Headers = new Dictionary<string, string>(),
+						SerializedHeaders = Encoding.UTF8.GetBytes("{}"),
+						MessageSequence = JournaledSequence - 10
+					};
+					
+					transformer
+						.Handle(item.Body, item.Headers, JournaledSequence - 10, false)
+						.Returns(new object[] { "hello" });
+					transformer
+						.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence - 9, false)
+						.Returns(new object[] { "world" });
+					transformer
+						.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence - 8, false)
+						.Returns(new object[0]);
+
 					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
@@ -154,26 +191,44 @@ namespace Hydrospanner.Phases.Transformation
 					snapshot.DidNotReceive().Track(Arg.Any<long>());
 
 				It should_NOT_reassign_the_message_sequence_of_the_incoming_message = () =>
-					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
+					item.MessageSequence.ShouldEqual(JournaledSequence - 10);
+
+				It should_have_handled_the_correct_messages = () =>
+				{
+					// sanity check
+					transformer.Received(1).Handle(item.Body, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					transformer.Received(1).Handle("hello", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					transformer.Received(1).Handle("world", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+				};
 			}
 
 			public class when_a_subsequent_message_is_received
 			{
 				Establish context = () =>
 				{
-					var serializer = new JsonSerializer();
-					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
-					item.MessageSequence = JournaledSequence - 2;
-					item.Deserialize(serializer);
-					item2 = new TransformationItem();
-					item2.AsForeignMessage(Encoding.UTF8.GetBytes("2"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
-					item2.MessageSequence = JournaledSequence - 1;
-					item2.Deserialize(serializer);
+					item = new TransformationItem
+					{
+						Body = 1,
+						SerializedBody = Encoding.UTF8.GetBytes("1"),
+						Headers = new Dictionary<string, string>(),
+						SerializedHeaders = Encoding.UTF8.GetBytes("{}"),
+						SerializedType = default(int).ResolvableTypeName(),
+						MessageSequence = JournaledSequence - 5
+					};
+					item2 = new TransformationItem
+					{
+						Body = 2,
+						SerializedBody = Encoding.UTF8.GetBytes("1"),
+						Headers = new Dictionary<string, string>(),
+						SerializedHeaders = Encoding.UTF8.GetBytes("{}"),
+						SerializedType = default(int).ResolvableTypeName(),
+						MessageSequence = JournaledSequence - 2
+					};
 
-					transformer.Handle(item.Body, item.Headers, ReplayMessageSequence).Returns(new object[] { "hello" });
-					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence).Returns(new object[] { "world" });
-					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence).Returns(new object[0]);
-					transformer.Handle(item2.Body, item2.Headers, ReplayMessageSequence).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, JournaledSequence - 5, false).Returns(new object[] { "hello" });
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), JournaledSequence - 4, false).Returns(new object[] { "world" });
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), JournaledSequence - 3, false).Returns(new object[0]);
+					transformer.Handle(item2.Body, item2.Headers, ReplayMessageSequence - 2, false).Returns(new object[0]);
 					
 					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 					handler.OnNext(item, 1, false);
@@ -187,8 +242,17 @@ namespace Hydrospanner.Phases.Transformation
 
 				It should_NOT_reassign_the_message_sequences_for_the_incoming_messages = () =>
 				{
-					item.MessageSequence.ShouldEqual(JournaledSequence - 2);
-					item2.MessageSequence.ShouldEqual(JournaledSequence - 1);
+					item.MessageSequence.ShouldEqual(JournaledSequence - 5);
+					item2.MessageSequence.ShouldEqual(JournaledSequence - 2);
+				};
+
+				It should_have_handled_the_correct_messages = () =>
+				{
+					// sanity check
+					transformer.Received(1).Handle(item.Body, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					transformer.Received(1).Handle("hello", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					transformer.Received(1).Handle("world", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					transformer.Received(1).Handle(item2.Body, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
 				};
 
 				static TransformationItem item2;
@@ -203,7 +267,7 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
-					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
@@ -234,9 +298,9 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
-					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[] { "hello", "world" });
-					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence).Returns(new object[0]);
-					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[] { "hello", "world" });
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence, true).Returns(new object[0]);
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence, true).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
@@ -286,9 +350,9 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
-					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[] { "hello" });
-					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1).Returns(new object[] { "world" });
-					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[] { "hello" });
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1, true).Returns(new object[] { "world" });
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1, true).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 				};
 
@@ -343,10 +407,10 @@ namespace Hydrospanner.Phases.Transformation
 					item2.AsForeignMessage(Encoding.UTF8.GetBytes("2"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 					item2.Deserialize(serializer);
 
-					transformer.Handle(item.Body, item.Headers, LiveMessageSequence).Returns(new object[] { "hello" });
-					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1).Returns(new object[] { "world" });
-					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 2).Returns(new object[0]);
-					transformer.Handle(item2.Body, item.Headers, LiveMessageSequence + 3).Returns(new object[0]);
+					transformer.Handle(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[] { "hello" });
+					transformer.Handle("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1, true).Returns(new object[] { "world" });
+					transformer.Handle("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 2, true).Returns(new object[0]);
+					transformer.Handle(item2.Body, item.Headers, LiveMessageSequence + 3, true).Returns(new object[0]);
 					handler = new TransformationHandler(JournaledSequence, journal, transformer, snapshot);
 					handler.OnNext(item, 1, false);
 				};
@@ -406,7 +470,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				transformer.Handle(item.Body, item.Headers, ReplayMessageSequence).Returns(new object[0]);
+				transformer.Handle(item.Body, item.Headers, ReplayMessageSequence, true).Returns(new object[0]);
 				item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 				item.MessageSequence = ReplayMessageSequence;
 				item.Deserialize(new JsonSerializer());

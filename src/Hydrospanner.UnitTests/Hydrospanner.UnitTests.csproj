@@ -60,6 +60,9 @@
     <Compile Include="Persistence\SqlPersistence\SqlMessageStoreWriterTests.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItemTests.cs" />
     <Compile Include="Phases\Transformation\SystemSnapshotTrackerTests.cs" />
+    <Compile Include="Phases\Transformation\TransformationHandlerTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Phases\Transformation\TransformerTests.cs" />
     <Compile Include="RingBufferHarness.cs" />
     <Compile Include="Wireup\ConventionRoutingTableTests.cs">
