@@ -63,6 +63,30 @@
     <Compile Include="Phases\Transformation\SystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\Transformer.cs" />
     <Compile Include="RingBufferBase.cs" />
+    <Compile Include="Timeout\CurrentTimeMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Timeout\SystemClock.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Timeout\TimeoutAggregate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Timeout\TimeoutElapsedEvent.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Timeout\TimeoutEntry.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Timeout\TimeoutHydratable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Timeout\TimeoutMemento.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Timeout\TimeoutRequestedEvent.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Wireup\ConventionRoutingTable.cs" />
     <Compile Include="Wireup\ConventionWireupParameters.cs" />
     <Compile Include="Wireup\DisruptorFactory.cs" />

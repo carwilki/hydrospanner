@@ -8,19 +8,17 @@
 	{
 		[DataMember(Name = "key")] public string Key { get; set; }
 		[DataMember(Name = "timeout")] public DateTime Timeout { get; set; }
-		[DataMember(Name = "state")] public int State { get; set; }
 
 		public TimeoutEntry()
 		{
 		}
-		public TimeoutEntry(TimeoutRequestedEvent message) : this(message.Key, message.Timeout, message.State)
+		public TimeoutEntry(TimeoutRequestedEvent message) : this(message.Key, message.Timeout)
 		{
 		}
-		public TimeoutEntry(string key, DateTime timeout, int state)
+		public TimeoutEntry(string key, DateTime timeout)
 		{
 			this.Key = key;
 			this.Timeout = timeout;
-			this.State = state;
 		}
 	}
 }

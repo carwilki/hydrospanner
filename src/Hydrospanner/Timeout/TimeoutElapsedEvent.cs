@@ -6,13 +6,13 @@
 	{
 		public string Key { get; private set; }
 		public DateTime Timeout { get; private set; }
-		public int State { get; private set; }
+		public DateTime UtcNow { get; private set; }
 
-		public TimeoutElapsedEvent(string key, DateTime timeout, int state)
+		public TimeoutElapsedEvent(string key, DateTime timeout, DateTime utcNow)
 		{
 			this.Key = key;
 			this.Timeout = timeout;
-			this.State = state;
+			this.UtcNow = utcNow;
 		}
 	}
 }

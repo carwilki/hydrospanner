@@ -6,13 +6,11 @@
 	{
 		public string Key { get; private set; }
 		public DateTime Timeout { get; private set; }
-		public int State { get; private set; }
 
-		public TimeoutRequestedEvent(string key, DateTime timeout, int state)
+		public TimeoutRequestedEvent(string key, DateTime timeout)
 		{
 			this.Key = key;
 			this.Timeout = timeout;
-			this.State = state;
 		}
 	}
 }

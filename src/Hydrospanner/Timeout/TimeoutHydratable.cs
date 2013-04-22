@@ -22,19 +22,19 @@
 
 		public ICollection<object> PendingMessages { get; private set; }
 
-		public void Hydrate(CurrentTimeMessage message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<CurrentTimeMessage> delivery)
 		{
-			this.aggregate.Handle(message);
+			this.aggregate.Handle(delivery.Message);
 		}
-		public void Hydrate(TimeoutRequestedEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<TimeoutRequestedEvent> delivery)
 		{
-			if (!live)
-				this.aggregate.Apply(message);
+			if (!delivery.Live)
+				this.aggregate.Apply(delivery.Message);
 		}
-		public void Hydrate(TimeoutElapsedEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<TimeoutElapsedEvent> delivery)
 		{
-			if (live)
-				this.aggregate.Apply(message);
+			if (delivery.Live)
+				this.aggregate.Apply(delivery.Message);
 		}
 
 		public object GetMemento()
@@ -46,15 +46,15 @@
 			return new TimeoutHydratable(memento);
 		}
 
-		public static HydrationInfo Lookup(CurrentTimeMessage message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<CurrentTimeMessage> delivery)
 		{
 			return new HydrationInfo(HydratableKey, () => new TimeoutHydratable());
 		}
-		public static HydrationInfo Lookup(TimeoutRequestedEvent message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<TimeoutRequestedEvent> delivery)
 		{
 			return new HydrationInfo(HydratableKey, () => new TimeoutHydratable());
 		}
-		public static HydrationInfo Lookup(TimeoutElapsedEvent message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<TimeoutElapsedEvent> delivery)
 		{
 			return new HydrationInfo(HydratableKey, () => new TimeoutHydratable());
 		}
