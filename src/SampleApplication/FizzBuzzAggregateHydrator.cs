@@ -25,33 +25,33 @@
 			};
 		}
 
-		public void Hydrate(CountCommand message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<CountCommand> delivery)
 		{
 			// invocation of a method *must* result in the aggregate transforming itself internally, otherwise
 			// aggregate invariants would be violated because the apply from the messages would happen much later
 
-			if (live)
-				this.aggregate.Increment(message.Value);
+			if (delivery.Live)
+				this.aggregate.Increment(delivery.Message.Value);
 		}
-		public void Hydrate(CountEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<CountEvent> delivery)
 		{
-			if (!live)
-				this.aggregate.Apply(message);
+			if (!delivery.Live)
+				this.aggregate.Apply(delivery.Message);
 		}
-		public void Hydrate(FizzEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<FizzEvent> delivery)
 		{
-			if (!live)
-				this.aggregate.Apply(message);
+			if (!delivery.Live)
+				this.aggregate.Apply(delivery.Message);
 		}
-		public void Hydrate(BuzzEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<BuzzEvent> delivery)
 		{
-			if (!live) 
-				this.aggregate.Apply(message);
+			if (!delivery.Live) 
+				this.aggregate.Apply(delivery.Message);
 		}
-		public void Hydrate(FizzBuzzEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<FizzBuzzEvent> delivery)
 		{
-			if (!live) 
-				this.aggregate.Apply(message);
+			if (!delivery.Live) 
+				this.aggregate.Apply(delivery.Message);
 		}
 
 		public FizzBuzzAggregateHydrator(FizzBuzzAggregateMemento memento)

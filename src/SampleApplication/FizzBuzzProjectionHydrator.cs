@@ -2,7 +2,6 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Collections.ObjectModel;
 	using Hydrospanner;
 
 	public class FizzBuzzProjectionHydrator :
@@ -21,25 +20,25 @@
 			return this.document;
 		}
 
-		public void Hydrate(CountEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<CountEvent> delivery)
 		{
 			this.document.Message = string.Empty;
-			this.document.Value = message.Value;
+			this.document.Value = delivery.Message.Value;
 		}
-		public void Hydrate(FizzEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<FizzEvent> delivery)
 		{
 			this.document.Message = "Fizz";
-			this.document.Value = message.Value;
+			this.document.Value = delivery.Message.Value;
 		}
-		public void Hydrate(BuzzEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<BuzzEvent> delivery)
 		{
 			this.document.Message = "Buzz";
-			this.document.Value = message.Value;
+			this.document.Value = delivery.Message.Value;
 		}
-		public void Hydrate(FizzBuzzEvent message, Dictionary<string, string> headers, bool live)
+		public void Hydrate(Delivery<FizzBuzzEvent> delivery)
 		{
 			this.document.Message = "FizzBuzz";
-			this.document.Value = message.Value;
+			this.document.Value = delivery.Message.Value;
 		}
 
 		public FizzBuzzProjectionHydrator(FizzBuzzProjection memento)
