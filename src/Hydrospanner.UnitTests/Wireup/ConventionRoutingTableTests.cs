@@ -8,7 +8,6 @@ namespace Hydrospanner.Wireup
 	using System.Linq;
 	using Machine.Specifications;
 
-	[Ignore("Fix reflection")]
 	[Subject(typeof(ConventionRoutingTable))]
 	public class when_routing_by_convention
 	{
@@ -68,7 +67,7 @@ namespace Hydrospanner.Wireup
 		public class when_providing_a_null_message
 		{
 			It should_return_null = () =>
-				new ConventionRoutingTable().Lookup(new Delivery<object>()).ShouldBeNull();
+				new ConventionRoutingTable().Lookup(new Delivery<object>()).ShouldBeEmpty();
 		}
 		public class when_no_underlying_hydratables_handle_a_given_message
 		{

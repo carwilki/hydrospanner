@@ -62,7 +62,9 @@
     <Compile Include="Phases\Transformation\SystemSnapshotTrackerTests.cs" />
     <Compile Include="Phases\Transformation\TransformerTests.cs" />
     <Compile Include="RingBufferHarness.cs" />
-    <Compile Include="Wireup\ConventionRoutingTableTests.cs" />
+    <Compile Include="Wireup\ConventionRoutingTableTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Wireup\MessageBootstrapperTests.cs" />
     <Compile Include="Wireup\SnapshotBootstrapperTests.cs" />
     <Compile Include="Wireup\PersistenceBootstrapperTests.cs" />
