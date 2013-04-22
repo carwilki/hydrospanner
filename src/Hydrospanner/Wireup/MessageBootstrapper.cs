@@ -7,7 +7,7 @@
 	using Phases.Journal;
 	using Phases.Transformation;
 
-	public class MessageBootstrapper
+	internal class MessageBootstrapper
 	{
 		public virtual bool Restore(BootstrapInfo info, IDisruptor<JournalItem> journalRing, IRepository repository)
 		{

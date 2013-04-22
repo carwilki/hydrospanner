@@ -3,14 +3,14 @@
 	using System;
 	using Disruptor.Dsl;
 	
-	public interface IDisruptor<T> : IDisposable where T : class
+	internal interface IDisruptor<T> : IDisposable where T : class
 	{
 		IRingBuffer<T> RingBuffer { get; }
 		IRingBuffer<T> Start();
 		void Stop();
 	}
 
-	public sealed class DisruptorBase<T> : IDisruptor<T> where T : class
+	internal sealed class DisruptorBase<T> : IDisruptor<T> where T : class
 	{
 		public IRingBuffer<T> RingBuffer
 		{

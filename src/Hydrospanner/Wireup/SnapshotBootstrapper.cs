@@ -7,7 +7,7 @@
 	using Phases.Bootstrap;
 	using Phases.Snapshot;
 
-	public class SnapshotBootstrapper
+	internal class SnapshotBootstrapper
 	{
 		public virtual BootstrapInfo RestoreSnapshots(IRepository repository, BootstrapInfo info)
 		{

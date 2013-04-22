@@ -46,7 +46,7 @@
 			return this.started = true;
 		}
 
-		public Bootstrapper(
+		internal Bootstrapper(
 			IRepository repository,
 			DisruptorFactory disruptors,
 			SnapshotBootstrapper snapshots,

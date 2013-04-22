@@ -8,7 +8,7 @@ namespace Hydrospanner.Persistence
 	using System.Linq;
 	using Machine.Specifications;
 	using NSubstitute;
-	using Hydrospanner.Wireup;
+	using Wireup;
 
 	[Subject(typeof(DefaultRepository))]
 	public class when_working_with_the_default_repository

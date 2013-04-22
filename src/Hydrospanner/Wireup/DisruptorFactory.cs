@@ -11,7 +11,7 @@
 	using Phases.Transformation;
 	using Serialization;
 
-	public class DisruptorFactory
+	internal class DisruptorFactory
 	{
 		public virtual IDisruptor<BootstrapItem> CreateBootstrapDisruptor(IRepository repository, int countdown, Action<bool> complete)
 		{
