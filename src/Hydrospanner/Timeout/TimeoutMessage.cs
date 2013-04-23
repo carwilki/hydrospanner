@@ -5,13 +5,13 @@
 	public sealed class TimeoutMessage
 	{
 		public string Key { get; private set; }
-		public DateTime Timeout { get; private set; }
+		public DateTime Instant { get; private set; }
 		public DateTime UtcNow { get; private set; }
 
-		public TimeoutMessage(string key, DateTime timeout, DateTime utcNow)
+		public TimeoutMessage(string key, DateTime instant, DateTime utcNow)
 		{
 			this.Key = key;
-			this.Timeout = timeout;
+			this.Instant = instant;
 			this.UtcNow = utcNow;
 		}
 	}
