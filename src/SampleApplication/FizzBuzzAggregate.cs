@@ -21,23 +21,22 @@
 
 		public void Increment(int value)
 		{
-			var key = string.Empty; // TODO: where does this come from?
-
 			if (value % 3 == 0 && value % 5 == 0)
-				this.Append(this.Apply, new FizzBuzzEvent { StreamId = this.streamId, Value = value });
+			{
+				this.PendingMessages.Add(new FizzBuzzEvent { StreamId = this.streamId, Value = value });
+			}
 			else if (value % 5 == 0)
-				this.Append(this.Apply, new BuzzEvent { StreamId = this.streamId, Value = value });
+			{
+				this.PendingMessages.Add(new BuzzEvent { StreamId = this.streamId, Value = value });
+			}
 			else if (value % 3 == 0)
-				this.Append(this.Apply, new FizzEvent { StreamId = this.streamId, Value = value });
+			{
+				this.PendingMessages.Add(new FizzEvent { StreamId = this.streamId, Value = value });
+			}
 			else
-				this.Append(this.Apply, new CountEvent { StreamId = this.streamId, Value = value });
-		}
-		private void Append<T>(Action<T> callback, T message)
-		{
-			this.PendingMessages.Add(message);
-
-			if (callback != null)
-				callback(message);
+			{
+				this.PendingMessages.Add(new CountEvent { StreamId = this.streamId, Value = value });
+			}
 		}
 		public void Apply(FizzBuzzEvent message)
 		{
