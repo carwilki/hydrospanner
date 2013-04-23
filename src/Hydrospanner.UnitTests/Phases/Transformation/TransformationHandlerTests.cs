@@ -19,22 +19,22 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			It should_throw_if_the_sequence_is_out_of_range = () =>
 			{
-				Try(() => new TransformationHandler(-1, journal, deliveryHandler1, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
-				Try(() => new TransformationHandler(long.MinValue, journal, deliveryHandler1, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Try(() => new TransformationHandler(-1, journal, deliveryHandler, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
+				Try(() => new TransformationHandler(long.MinValue, journal, deliveryHandler, snapshot)).ShouldBeOfType<ArgumentOutOfRangeException>();
 			};
 
 			It should_throw_if_the_journal_is_null = () =>
 			{
-				Try(() => new TransformationHandler(0, null, deliveryHandler1, snapshot)).ShouldBeOfType<ArgumentNullException>();
-				Try(() => new TransformationHandler(1, null, deliveryHandler1, snapshot)).ShouldBeOfType<ArgumentNullException>();
-				Try(() => new TransformationHandler(int.MaxValue, null, deliveryHandler1, snapshot)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new TransformationHandler(0, null, deliveryHandler, snapshot)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new TransformationHandler(1, null, deliveryHandler, snapshot)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new TransformationHandler(int.MaxValue, null, deliveryHandler, snapshot)).ShouldBeOfType<ArgumentNullException>();
 			};
 
 			It should_throw_if_the_transformer_is_null = () =>
 				Try(() => new TransformationHandler(1, journal, null, snapshot)).ShouldBeOfType<ArgumentNullException>();
 
 			It should_throw_if_the_snapshot_is_null = () =>
-				Try(() => new TransformationHandler(1, journal, deliveryHandler1, null)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new TransformationHandler(1, journal, deliveryHandler, null)).ShouldBeOfType<ArgumentNullException>();
 
 			static Exception Try(Action action)
 			{
@@ -45,19 +45,19 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_a_live_message_with_no_body_arrives
 		{
 			Establish context = () =>
-				handler = new TransformationHandler(0, journal, deliveryHandler1, snapshot);
+				handler = new TransformationHandler(0, journal, deliveryHandler, snapshot);
 
 			Because of = () =>
 				handler.OnNext(new TransformationItem(), 1, false);
 
 			It should_skip_that_message = () =>
-				deliveryHandler1.Received(0).Deliver(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), true);
+				deliveryHandler.Received(0).Deliver(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), true);
 		}
 
 		public class when_a_journaled_message_with_no_body_arrives
 		{
 			Establish context = () =>
-				handler = new TransformationHandler(0, journal, deliveryHandler1, snapshot);
+				handler = new TransformationHandler(0, journal, deliveryHandler, snapshot);
 
 			Because of = () =>
 			{
@@ -66,7 +66,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			It should_skip_all_messages_thereafter = () =>
-				deliveryHandler1.Received(0).Deliver(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), true);
+				deliveryHandler.Received(0).Deliver(Arg.Any<object>(), Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), true);
 
 			static readonly TransformationItem serializationFailure = new TransformationItem
 			{
@@ -94,8 +94,8 @@ namespace Hydrospanner.Phases.Transformation
 						SerializedHeaders = Encoding.UTF8.GetBytes("{}"),
 						MessageSequence = ReplayMessageSequence
 					};
-					deliveryHandler1.Deliver(item.Body, item.Headers, ReplayMessageSequence, false).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+					deliveryHandler.Deliver(item.Body, item.Headers, ReplayMessageSequence, false).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 				};
 
 				Because of = () =>
@@ -125,17 +125,17 @@ namespace Hydrospanner.Phases.Transformation
 						MessageSequence = JournaledSequence - 1
 					};
 
-					deliveryHandler1
+					deliveryHandler
 						.Deliver(item.Body, item.Headers, JournaledSequence - 1, false)
 						.Returns(new object[] { "hello", "world" });
-					deliveryHandler1
+					deliveryHandler
 						.Deliver("hello", Arg.Any<Dictionary<string, string>>(), JournaledSequence, false)
 						.Returns(new object[0]);
-					deliveryHandler1
+					deliveryHandler
 						.Deliver("world", Arg.Any<Dictionary<string, string>>(), JournaledSequence + 1, false)
 						.Returns(new object[0]);
 					
-					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 				};
 
 				Because of = () =>
@@ -151,7 +151,7 @@ namespace Hydrospanner.Phases.Transformation
 					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
 
 				It should_have_handled_the_correct_messages = () =>
-					deliveryHandler1.ReceivedWithAnyArgs(3).Deliver(null, null, 0, false);
+					deliveryHandler.ReceivedWithAnyArgs(3).Deliver(null, null, 0, false);
 			}
 
 			public class when_the_yielded_messages_yield_more_messages
@@ -168,17 +168,17 @@ namespace Hydrospanner.Phases.Transformation
 						MessageSequence = JournaledSequence - 10
 					};
 					
-					deliveryHandler1
+					deliveryHandler
 						.Deliver(item.Body, item.Headers, JournaledSequence - 10, false)
 						.Returns(new object[] { "hello" });
-					deliveryHandler1
+					deliveryHandler
 						.Deliver("hello", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence - 9, false)
 						.Returns(new object[] { "world" });
-					deliveryHandler1
+					deliveryHandler
 						.Deliver("world", Arg.Any<Dictionary<string, string>>(), ReplayMessageSequence - 8, false)
 						.Returns(new object[0]);
 
-					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 				};
 
 				Because of = () =>
@@ -196,9 +196,9 @@ namespace Hydrospanner.Phases.Transformation
 				It should_have_handled_the_correct_messages = () =>
 				{
 					// sanity check
-					deliveryHandler1.Received(1).Deliver(item.Body, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
-					deliveryHandler1.Received(1).Deliver("hello", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
-					deliveryHandler1.Received(1).Deliver("world", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					deliveryHandler.Received(1).Deliver(item.Body, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					deliveryHandler.Received(1).Deliver("hello", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					deliveryHandler.Received(1).Deliver("world", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
 				};
 			}
 
@@ -225,12 +225,12 @@ namespace Hydrospanner.Phases.Transformation
 						MessageSequence = JournaledSequence - 2
 					};
 
-					deliveryHandler1.Deliver(item.Body, item.Headers, JournaledSequence - 5, false).Returns(new object[] { "hello" });
-					deliveryHandler1.Deliver("hello", Arg.Any<Dictionary<string, string>>(), JournaledSequence - 4, false).Returns(new object[] { "world" });
-					deliveryHandler1.Deliver("world", Arg.Any<Dictionary<string, string>>(), JournaledSequence - 3, false).Returns(new object[0]);
-					deliveryHandler1.Deliver(item2.Body, item2.Headers, ReplayMessageSequence - 2, false).Returns(new object[0]);
+					deliveryHandler.Deliver(item.Body, item.Headers, JournaledSequence - 5, false).Returns(new object[] { "hello" });
+					deliveryHandler.Deliver("hello", Arg.Any<Dictionary<string, string>>(), JournaledSequence - 4, false).Returns(new object[] { "world" });
+					deliveryHandler.Deliver("world", Arg.Any<Dictionary<string, string>>(), JournaledSequence - 3, false).Returns(new object[0]);
+					deliveryHandler.Deliver(item2.Body, item2.Headers, ReplayMessageSequence - 2, false).Returns(new object[0]);
 					
-					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 					handler.OnNext(item, 1, false);
 				};
 
@@ -249,10 +249,10 @@ namespace Hydrospanner.Phases.Transformation
 				It should_have_handled_the_correct_messages = () =>
 				{
 					// sanity check
-					deliveryHandler1.Received(1).Deliver(item.Body, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
-					deliveryHandler1.Received(1).Deliver("hello", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
-					deliveryHandler1.Received(1).Deliver("world", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
-					deliveryHandler1.Received(1).Deliver(item2.Body, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					deliveryHandler.Received(1).Deliver(item.Body, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					deliveryHandler.Received(1).Deliver("hello", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					deliveryHandler.Received(1).Deliver("world", Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
+					deliveryHandler.Received(1).Deliver(item2.Body, Arg.Any<Dictionary<string, string>>(), Arg.Any<long>(), Arg.Any<bool>());
 				};
 
 				static TransformationItem item2;
@@ -267,8 +267,8 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
-					deliveryHandler1.Deliver(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+					deliveryHandler.Deliver(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 				};
 
 				Because of = () =>
@@ -298,10 +298,10 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
-					deliveryHandler1.Deliver(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[] { "hello", "world" });
-					deliveryHandler1.Deliver("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence, true).Returns(new object[0]);
-					deliveryHandler1.Deliver("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence, true).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+					deliveryHandler.Deliver(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[] { "hello", "world" });
+					deliveryHandler.Deliver("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence, true).Returns(new object[0]);
+					deliveryHandler.Deliver("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence, true).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 				};
 
 				Because of = () =>
@@ -350,10 +350,10 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 					item.Deserialize(new JsonSerializer());
-					deliveryHandler1.Deliver(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[] { "hello" });
-					deliveryHandler1.Deliver("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1, true).Returns(new object[] { "world" });
-					deliveryHandler1.Deliver("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1, true).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+					deliveryHandler.Deliver(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[] { "hello" });
+					deliveryHandler.Deliver("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1, true).Returns(new object[] { "world" });
+					deliveryHandler.Deliver("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1, true).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 				};
 
 				Because of = () =>
@@ -407,11 +407,11 @@ namespace Hydrospanner.Phases.Transformation
 					item2.AsForeignMessage(Encoding.UTF8.GetBytes("2"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 					item2.Deserialize(serializer);
 
-					deliveryHandler1.Deliver(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[] { "hello" });
-					deliveryHandler1.Deliver("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1, true).Returns(new object[] { "world" });
-					deliveryHandler1.Deliver("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 2, true).Returns(new object[0]);
-					deliveryHandler1.Deliver(item2.Body, item.Headers, LiveMessageSequence + 3, true).Returns(new object[0]);
-					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+					deliveryHandler.Deliver(item.Body, item.Headers, LiveMessageSequence, true).Returns(new object[] { "hello" });
+					deliveryHandler.Deliver("hello", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 1, true).Returns(new object[] { "world" });
+					deliveryHandler.Deliver("world", Arg.Any<Dictionary<string, string>>(), LiveMessageSequence + 2, true).Returns(new object[0]);
+					deliveryHandler.Deliver(item2.Body, item.Headers, LiveMessageSequence + 3, true).Returns(new object[0]);
+					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 					handler.OnNext(item, 1, false);
 				};
 
@@ -470,7 +470,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				deliveryHandler1.Deliver(item.Body, item.Headers, ReplayMessageSequence, true).Returns(new object[0]);
+				deliveryHandler.Deliver(item.Body, item.Headers, ReplayMessageSequence, true).Returns(new object[0]);
 				item.AsForeignMessage(Encoding.UTF8.GetBytes("1"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 				item.MessageSequence = ReplayMessageSequence;
 				item.Deserialize(new JsonSerializer());
@@ -479,7 +479,7 @@ namespace Hydrospanner.Phases.Transformation
 				liveItem.AsForeignMessage(Encoding.UTF8.GetBytes("2"), default(int).ResolvableTypeName(), null, Guid.NewGuid(), null);
 				liveItem.Deserialize(new JsonSerializer());
 
-				handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+				handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 				handler.OnNext(item, 234234, false);
 			};
 
@@ -499,7 +499,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+				handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 				transientItem = new TransformationItem();
 				transientItem.AsTransientMessage(new object());
 			};
@@ -517,7 +517,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			item = new TransformationItem();
 			journal = new RingBufferHarness<JournalItem>();
-			deliveryHandler1 = Substitute.For<IDeliveryHandler>();
+			deliveryHandler = Substitute.For<IDeliveryHandler>();
 			snapshot = Substitute.For<ISystemSnapshotTracker>();
 		};
 
@@ -527,7 +527,7 @@ namespace Hydrospanner.Phases.Transformation
 		static TransformationItem item;
 		static TransformationHandler handler;
 		static RingBufferHarness<JournalItem> journal;
-		static IDeliveryHandler deliveryHandler1;
+		static IDeliveryHandler deliveryHandler;
 		static ISystemSnapshotTracker snapshot;
 	}
 }
