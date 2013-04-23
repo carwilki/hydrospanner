@@ -3,13 +3,15 @@
 	using System;
 	using System.Collections.Generic;
 	using Hydrospanner;
+	using Hydrospanner.Timeout;
 
 	public class FizzBuzzAggregateHydrator : 
 		IHydratable<CountCommand>,
 		IHydratable<CountEvent>,
 		IHydratable<FizzEvent>,
 		IHydratable<BuzzEvent>,
-		IHydratable<FizzBuzzEvent>
+		IHydratable<FizzBuzzEvent>,
+		ITimeoutHydratable
 	{
 		public string Key { get { return KeyFactory(this.streamId); } }
 		public bool IsComplete { get { return this.aggregate.IsComplete; } }
@@ -29,31 +31,32 @@
 
 		public void Hydrate(Delivery<CountCommand> delivery)
 		{
-			// invocation of a method *must* result in the aggregate transforming itself internally, otherwise
-			// aggregate invariants would be violated because the apply from the messages would happen much later
+			this.aggregate.Increment(delivery.Message.Value);
 
-			if (delivery.Live)
-				this.aggregate.Increment(delivery.Message.Value);
+			Console.WriteLine("Requesting Timeout");
+			this.Timeouts.Add(DateTime.UtcNow.AddSeconds(2));
 		}
 		public void Hydrate(Delivery<CountEvent> delivery)
 		{
-			if (!delivery.Live)
-				this.aggregate.Apply(delivery.Message);
+			this.aggregate.Apply(delivery.Message);
 		}
 		public void Hydrate(Delivery<FizzEvent> delivery)
 		{
-			if (!delivery.Live)
-				this.aggregate.Apply(delivery.Message);
+			this.aggregate.Apply(delivery.Message);
 		}
 		public void Hydrate(Delivery<BuzzEvent> delivery)
 		{
-			if (!delivery.Live) 
-				this.aggregate.Apply(delivery.Message);
+			this.aggregate.Apply(delivery.Message);
 		}
 		public void Hydrate(Delivery<FizzBuzzEvent> delivery)
 		{
-			if (!delivery.Live) 
-				this.aggregate.Apply(delivery.Message);
+			this.aggregate.Apply(delivery.Message);
+		}
+
+		public ICollection<DateTime> Timeouts { get; private set; } 
+		public void Hydrate(Delivery<TimeoutMessage> delivery)
+		{
+			Console.WriteLine("Timeout Received: " + delivery.Message.Instant);
 		}
 
 		public FizzBuzzAggregateHydrator(FizzBuzzAggregateMemento memento)
@@ -62,6 +65,7 @@
 			var pending = new List<object>();
 			this.PendingMessages = pending;
 			this.aggregate = new FizzBuzzAggregate(memento.StreamId, memento.Value, pending);
+			this.Timeouts = new List<DateTime>();
 		}
 		public FizzBuzzAggregateHydrator(Guid streamId)
 		{
@@ -69,6 +73,7 @@
 			var pending = new List<object>();
 			this.PendingMessages = pending;
 			this.aggregate = new FizzBuzzAggregate(streamId, pending);
+			this.Timeouts = new List<DateTime>();
 		}
 
 		public static FizzBuzzAggregateHydrator Restore(FizzBuzzAggregateMemento memento)

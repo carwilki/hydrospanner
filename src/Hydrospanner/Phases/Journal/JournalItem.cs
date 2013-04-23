@@ -40,6 +40,9 @@
 			this.Headers = headers;
 			if (body != null)
 				this.SerializedType = body.ResolvableTypeName();
+
+			if (this.Body.GetType().Assembly == this.GetType().Assembly)
+				this.ItemActions = JournalItemAction.Journal; // don't dispatch
 		}
 
 		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, string typeName, byte[] headers)

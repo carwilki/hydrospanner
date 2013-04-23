@@ -77,6 +77,9 @@
 			if (message.ForeignId != Guid.Empty)
 				return; // only re-dispatch messages which originated here
 
+			if (message.SerializedType.StartsWith("Hydrospanner"))
+				return; // TODO: get under test:
+
 			var next = journalRing.RingBuffer.Next();
 			var claimed = journalRing.RingBuffer[next];
 			claimed.AsBootstrappedDispatchMessage(message.Sequence,
