@@ -55,6 +55,12 @@
 
 			return live;
 		}
+		private void AppendToBuffer(IEnumerable<object> messages)
+		{
+			foreach (var message in messages)
+				this.buffer.Add(message);
+		}
+
 		private void PublishToJournalPhase()
 		{
 			var offset = this.item.IsTransient ? 0 : IncludeIncomingMessage;

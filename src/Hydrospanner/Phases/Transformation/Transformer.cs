@@ -24,8 +24,9 @@
 		{
 			if (live)
 			{
-				this.gathered.AddRange(hydratable.PendingMessages);
-				hydratable.PendingMessages.Clear();
+				var messages = hydratable.PendingMessages;
+				this.gathered.AddRange(messages);
+				messages.Clear();
 			}
 				
 			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)

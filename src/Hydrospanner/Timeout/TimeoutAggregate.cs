@@ -32,16 +32,11 @@
 				if (instant.Key > message.UtcNow)
 					break;
 
-				foreach (var hydratableKey in instant.Value.ToArray())
-					this.Append(this.Apply, new TimeoutMessage(hydratableKey, instant.Key, message.UtcNow));
+				foreach (var hydratableKey in instant.Value)
+					this.pending.Add(new TimeoutMessage(hydratableKey, instant.Key, message.UtcNow));
 			}
 		}
-		private void Append<T>(Action<T> callback, T message)
-		{
-			this.pending.Add(message);
-			callback(message);
-		}
-		private void Apply(TimeoutMessage message)
+		public void Apply(TimeoutMessage message)
 		{
 			HashSet<string> keys;
 			if (!this.timeouts.TryGetValue(message.Instant, out keys))

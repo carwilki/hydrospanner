@@ -62,6 +62,7 @@
     <Compile Include="Phases\Transformation\IDeliveryHandler.cs" />
     <Compile Include="Phases\Transformation\ITransformer.cs" />
     <Compile Include="Phases\Transformation\ReflectionDeliveryHandler.cs" />
+    <Compile Include="Phases\Transformation\CommandFilterTransformer.cs" />
     <Compile Include="Phases\Transformation\SystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\Transformer.cs" />
     <Compile Include="RingBufferBase.cs" />
