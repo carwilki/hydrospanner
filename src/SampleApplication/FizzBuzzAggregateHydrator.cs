@@ -56,14 +56,16 @@
 		public FizzBuzzAggregateHydrator(FizzBuzzAggregateMemento memento)
 		{
 			this.streamId = memento.StreamId;
-			this.aggregate = new FizzBuzzAggregate(memento.StreamId, memento.Value);
-			this.PendingMessages = new List<object>();
+			var pending = new List<object>();
+			this.PendingMessages = pending;
+			this.aggregate = new FizzBuzzAggregate(memento.StreamId, memento.Value, pending);
 		}
 		public FizzBuzzAggregateHydrator(Guid streamId)
 		{
 			this.streamId = streamId;
-			this.aggregate = new FizzBuzzAggregate(streamId);
-			this.PendingMessages = new List<object>();
+			var pending = new List<object>();
+			this.PendingMessages = pending;
+			this.aggregate = new FizzBuzzAggregate(streamId, pending);
 		}
 
 		public static FizzBuzzAggregateHydrator Restore(FizzBuzzAggregateMemento memento)

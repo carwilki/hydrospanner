@@ -5,19 +5,18 @@
 
 	public class FizzBuzzAggregate
 	{
-		public FizzBuzzAggregate(Guid streamId, int value) : this(streamId)
+		public FizzBuzzAggregate(Guid streamId, int value, List<object> pendingMessages) : this(streamId, pendingMessages)
 		{
 			this.Value = value;
 		}
-		public FizzBuzzAggregate(Guid streamId)
+		public FizzBuzzAggregate(Guid streamId, List<object> pendingMessages)
 		{
 			this.streamId = streamId;
-			this.PendingMessages = new List<object>();
+			this.pendingMessages = pendingMessages;
 		}
 
 		public int Value { get; private set; }
 		public bool IsComplete { get { return this.Value == 15; } }
-		public List<object> PendingMessages { get; private set; }
 
 		public void Increment(int value)
 		{
@@ -38,7 +37,7 @@
 				this.PendingMessages.Add(new CountEvent { StreamId = this.streamId, Value = value });
 			}
 		}
-		public void Apply(FizzBuzzEvent message)
+		}		public void Apply(FizzBuzzEvent message)
 		{
 			this.Value = message.Value;
 		}
@@ -56,5 +55,6 @@
 		}
 
 		private readonly Guid streamId;
+		private readonly List<object> pendingMessages;
 	}
 }
