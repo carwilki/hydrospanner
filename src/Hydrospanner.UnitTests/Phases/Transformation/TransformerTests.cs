@@ -9,20 +9,21 @@ namespace Hydrospanner.Phases.Transformation
 	using Machine.Specifications;
 	using NSubstitute;
 	using Snapshot;
+	using Timeout;
 
 	[Subject(typeof(Transformer))]
 	public class when_initializing_the_transformer
 	{
 		It should_throw_if_the_repository_is_null = () =>
-			Try(() => new Transformer(null, new RingBufferHarness<SnapshotItem>())).ShouldBeOfType<ArgumentNullException>();
+			Try(() => new Transformer(null, new RingBufferHarness<SnapshotItem>(), Substitute.For<ITimeoutWatcher>())).ShouldBeOfType<ArgumentNullException>();
 
 		It should_throw_if_the_ring_is_null = () =>
-			Try(() => new Transformer(Substitute.For<IRepository>(), null)).ShouldBeOfType<ArgumentNullException>();
+			Try(() => new Transformer(Substitute.For<IRepository>(), null, Substitute.For<ITimeoutWatcher>())).ShouldBeOfType<ArgumentNullException>();
 
 		It should_NOT_throw_if_the_parameters_are_appropriate = () =>
 		{
-			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>())).ShouldBeNull();
-			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>())).ShouldBeNull();
+			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>(), Substitute.For<ITimeoutWatcher>())).ShouldBeNull();
+			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>(), Substitute.For<ITimeoutWatcher>())).ShouldBeNull();
 		};
 
 		static Exception Try(Action action)
@@ -189,7 +190,8 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			repository = Substitute.For<IRepository>();
 			snapshotRing = new RingBufferHarness<SnapshotItem>();
-			transformer = new Transformer(repository, snapshotRing);
+			watcher = Substitute.For<ITimeoutWatcher>();
+			transformer = new Transformer(repository, snapshotRing, watcher);
 			replayDelivery = new Delivery<SomethingHappenedEvent>(Incoming, Headers, ReplayMessage, false);
 			liveDelivery = new Delivery<SomethingHappenedEvent>(Incoming, Headers, LiveMessageSequence, true); 
 		};
@@ -208,6 +210,7 @@ namespace Hydrospanner.Phases.Transformation
 		static List<object> result; 
 		static Transformer transformer;
 		static IRepository repository;
+		static ITimeoutWatcher watcher;
 		static RingBufferHarness<SnapshotItem> snapshotRing;
 	}
 
@@ -221,7 +224,7 @@ namespace Hydrospanner.Phases.Transformation
 		public string Value { get; set; }
 	}
 
-	public class TestHydratable : IHydratable, IHydratable<SomethingHappenedEvent>
+	public class TestHydratable : IHydratable<SomethingHappenedEvent>
 	{
 		public readonly List<string> EventsReceived = new List<string>();
 

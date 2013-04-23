@@ -10,6 +10,7 @@
 	using Phases.Snapshot;
 	using Phases.Transformation;
 	using Serialization;
+	using Timeout;
 
 	internal class DisruptorFactory
 	{
@@ -69,18 +70,25 @@
 
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
-		private TransformationHandler CreateTransformationHandler(IRepository repository, long sequence, ISystemSnapshotTracker tracker = null)
+		private TransformationHandler CreateTransformationHandler(IRepository repository, long sequence, ISystemSnapshotTracker tracker = null, ITimeoutWatcher watcher = null)
 		{
-			var transformer = (ITransformer)new Transformer(repository, this.snapshotRing);
+			watcher = watcher ?? new NullTimeoutWatcher();
+			tracker = tracker ?? new NullSystemSnapshotTracker();
+
+			var transformer = (ITransformer)new Transformer(repository, this.snapshotRing, watcher);
 			transformer = new CommandFilterTransformer(transformer);
 			var handler = new ReflectionDeliveryHandler(transformer);
-			return new TransformationHandler(sequence, this.journalRing, handler, tracker ?? new NullSystemSnapshotTracker());
+			return new TransformationHandler(sequence, this.journalRing, handler, tracker);
 		}
 		public virtual IDisruptor<TransformationItem> CreateTransformationDisruptor(IRepository repository, BootstrapInfo info)
 		{
+			// TODO: initialize the watcher from the repository, i.e.: new Watcher(repository.Items);
+			var timeoutHydratable = new TimeoutHydratable();
+			repository.Add(timeoutHydratable);
+
 			var serializationHandler = new DeserializationHandler(CreateSerializer());
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
-			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker);
+			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker, timeoutHydratable.Watcher);
 			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
 			disruptor.HandleEventsWith(serializationHandler).Then(transformationHandler);
 			return new DisruptorBase<TransformationItem>(disruptor);

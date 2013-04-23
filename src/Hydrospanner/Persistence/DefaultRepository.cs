@@ -10,6 +10,12 @@
 			get { return this.catalog.Values; }
 		}
 
+		public void Add(IHydratable hydratable)
+		{
+			// TODO: get this under test
+			this.catalog[hydratable.Key] = hydratable;
+		}
+
 		public IEnumerable<object> GetMementos()
 		{
 			var graveyardMemento = this.graveyard.GetMemento();

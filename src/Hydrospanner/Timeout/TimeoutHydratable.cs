@@ -25,9 +25,14 @@
 			get { return null; }
 		}
 
+		public ITimeoutWatcher Watcher
+		{
+			get { return this.watcher; }
+		}
+
 		public void Hydrate(Delivery<TimeMessage> delivery)
 		{
-			this.manager.Handle(delivery.Message);
+			this.watcher.Handle(delivery.Message);
 		}
 
 		public static HydrationInfo Lookup(Delivery<TimeMessage> delivery)
@@ -39,13 +44,13 @@
 			return new HydrationInfo(delivery.Message.Key, () => null); // used to route the the hydratable in question
 		}
 
-		private TimeoutHydratable()
+		public TimeoutHydratable()
 		{
-			this.manager = new TimeoutManager(this.messages);
+			this.watcher = new TimeoutWatcher(this.messages);
 		}
 
 		private const string HydratableKey = "/internal/timeout";
 		private readonly List<object> messages = new List<object>(); 
-		private readonly TimeoutManager manager;
+		private readonly TimeoutWatcher watcher;
 	}
 }

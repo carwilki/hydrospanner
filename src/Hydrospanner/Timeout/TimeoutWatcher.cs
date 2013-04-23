@@ -3,17 +3,13 @@
 	using System;
 	using System.Collections.Generic;
 
-	public class TimeoutManager
+	public sealed class TimeoutWatcher : ITimeoutWatcher
 	{
-		public void Add(string key, ICollection<DateTime> instants)
+		public void AddRange(string key, ICollection<DateTime> instants)
 		{
-			if (instants == null || instants.Count == 0)
-				return;
-
-			foreach (var instant in instants)
-				this.Add(key, instant);
-
-			instants.Clear();
+			if (instants != null)
+				foreach (var instant in instants)
+					this.Add(key, instant);
 		}
 		private void Add(string key, DateTime instant)
 		{
@@ -22,6 +18,23 @@
 				this.timeouts[instant] = keys = new HashSet<string>();
 
 			keys.Add(key);
+		}
+
+		public void Remove(string key)
+		{
+			for (var i = this.timeouts.Keys.Count - 1; i >= 0; i--)
+			{
+				var instant = this.timeouts.Keys[i];
+
+				var keys = this.timeouts[instant];
+				if (!keys.Remove(key))
+					continue;
+
+				if (keys.Count > 0)
+					continue;
+
+				this.timeouts.RemoveAt(i);
+			}
 		}
 
 		public void Handle(TimeMessage message)
@@ -39,7 +52,7 @@
 			}
 		}
 
-		public TimeoutManager(List<object> pending)
+		public TimeoutWatcher(List<object> pending)
 		{
 			this.pending = pending;
 		}

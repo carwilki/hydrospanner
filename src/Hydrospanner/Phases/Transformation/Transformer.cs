@@ -11,8 +11,6 @@
 		{
 			this.gathered.Clear();
 
-			// determine if this is the first live message
-
 			foreach (var hydratable in this.repository.Load(delivery))
 			{
 				hydratable.Hydrate(delivery);
@@ -25,29 +23,35 @@
 		{
 			if (live)
 			{
-				var messages = hydratable.PendingMessages;
-				this.gathered.AddRange(messages);
-				messages.Clear();
-
-				var timeout = hydratable as ITimeoutHydratable;
-				if (timeout != null)
-				{
-					var timeouts = timeout.Timeouts;
-					this.manager.AddRange(timeouts);
-					timeouts.Clear();
-				}
+				this.AddMessages(hydratable);
+				this.AddTimeouts(hydratable as ITimeoutHydratable);
 			}
 				
 			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
 				this.TakeSnapshot(hydratable, messageSequence);
 
-			if (hydratable.IsComplete)
-				this.repository.Delete(hydratable); // TODO: remove any timeouts (if ITimeoutHydratable)
+			if (!hydratable.IsComplete)
+				return;
 
-			// if this is the *first* live message
-			// enumerate over every single hydratable in the repository...
-			// for each IAlarmHydratable, get the set of date/time timeouts requested
-			// and add those the timeout hydratable (which is referenced right here)
+			this.repository.Delete(hydratable);
+
+			if (live)
+				this.watcher.Remove(hydratable.Key);
+		}
+		private void AddMessages(IHydratable hydratable)
+		{
+			var messages = hydratable.PendingMessages;
+			this.gathered.AddRange(messages);
+			messages.Clear();
+		}
+		private void AddTimeouts(ITimeoutHydratable hydratable)
+		{
+			if (hydratable == null)
+				return;
+
+			var timeouts = hydratable.Timeouts;
+			this.watcher.AddRange(hydratable.Key, timeouts);
+			timeouts.Clear();
 		}
 		private void TakeSnapshot(IHydratable hydratable, long messageSequence)
 		{
@@ -55,26 +59,31 @@
 			var cloner = memento as ICloneable;
 			memento = (cloner == null ? memento : cloner.Clone()) ?? memento;
 
-			var next = this.snapshotRing.Next();
-			var claimed = this.snapshotRing[next];
+			var next = this.ring.Next();
+			var claimed = this.ring[next];
 			claimed.AsPublicSnapshot(hydratable.Key, memento, messageSequence);
-			this.snapshotRing.Publish(next);
+			this.ring.Publish(next);
 		}
 
-		public Transformer(IRepository repository, IRingBuffer<SnapshotItem> snapshotRing)
+		public Transformer(IRepository repository, IRingBuffer<SnapshotItem> ring, ITimeoutWatcher watcher)
 		{
 			if (repository == null)
 				throw new ArgumentNullException("repository");
 
-			if (snapshotRing == null)
-				throw new ArgumentNullException("snapshotRing");
+			if (ring == null)
+				throw new ArgumentNullException("ring");
+
+			if (watcher == null)
+				throw new ArgumentNullException("watcher");
 
 			this.repository = repository;
-			this.snapshotRing = snapshotRing;
+			this.ring = ring;
+			this.watcher = watcher;
 		}
 
 		private readonly List<object> gathered = new List<object>();
-		private readonly IRingBuffer<SnapshotItem> snapshotRing;
+		private readonly IRingBuffer<SnapshotItem> ring;
 		private readonly IRepository repository;
+		private readonly ITimeoutWatcher watcher;
 	}
 }

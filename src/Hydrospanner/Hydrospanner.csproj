@@ -66,10 +66,12 @@
     <Compile Include="Phases\Transformation\SystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\Transformer.cs" />
     <Compile Include="RingBufferBase.cs" />
+    <Compile Include="Timeout\ITimeoutWatcher.cs" />
+    <Compile Include="Timeout\NullTimeoutWatcher.cs" />
     <Compile Include="Timeout\TimeMessage.cs" />
     <Compile Include="Timeout\ITimeoutHydratable.cs" />
     <Compile Include="Timeout\SystemClock.cs" />
-    <Compile Include="Timeout\TimeoutManager.cs" />
+    <Compile Include="Timeout\TimeoutWatcher.cs" />
     <Compile Include="Timeout\TimeoutHydratable.cs" />
     <Compile Include="Timeout\TimeoutMessage.cs" />
     <Compile Include="Wireup\ConventionRoutingTable.cs" />
