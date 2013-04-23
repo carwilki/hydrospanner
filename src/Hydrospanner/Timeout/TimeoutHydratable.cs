@@ -2,7 +2,7 @@
 {
 	using System.Collections.Generic;
 
-	public sealed class TimeoutHydratable : IHydratable, IHydratable<CurrentTimeMessage>
+	public sealed class TimeoutHydratable : IHydratable, IHydratable<TimeMessage>
 	{
 		public string Key
 		{
@@ -25,12 +25,12 @@
 			return null;
 		}
 
-		public void Hydrate(Delivery<CurrentTimeMessage> delivery)
+		public void Hydrate(Delivery<TimeMessage> delivery)
 		{
 			this.aggregate.Handle(delivery.Message);
 		}
 
-		public static HydrationInfo Lookup(Delivery<CurrentTimeMessage> delivery)
+		public static HydrationInfo Lookup(Delivery<TimeMessage> delivery)
 		{
 			return new HydrationInfo(HydratableKey, () => new TimeoutHydratable());
 		}

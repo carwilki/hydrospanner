@@ -5,7 +5,7 @@
 
 	public class TimeoutAggregate
 	{
-		public void Handle(CurrentTimeMessage message)
+		public void Handle(TimeMessage message)
 		{
 			foreach (var item in this.timeouts)
 			{

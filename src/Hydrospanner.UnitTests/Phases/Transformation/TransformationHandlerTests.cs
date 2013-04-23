@@ -494,6 +494,24 @@ namespace Hydrospanner.Phases.Transformation
 
 			static TransformationItem liveItem;
 		}
+
+		public class when_a_transformation_item_is_purely_transient
+		{
+			Establish context = () =>
+			{
+				handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler1, snapshot);
+				transientItem = new TransformationItem();
+				transientItem.AsTransientMessage(new object());
+			};
+
+			Because of = () =>
+				handler.OnNext(transientItem, 1, true);
+
+			It should_not_be_forwarded_to_the_journal_handler = () =>
+				journal.AllItems.ShouldBeEmpty();
+
+			static TransformationItem transientItem;
+		}
 		
 		Establish context = () =>
 		{

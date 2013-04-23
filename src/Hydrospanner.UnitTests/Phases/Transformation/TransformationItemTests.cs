@@ -36,6 +36,7 @@ namespace Hydrospanner.Phases.Transformation
 			item.MessageSequence.ShouldEqual(0);
 			item.SerializedHeaders.ShouldBeNull();
 			item.Body.ShouldBeNull();
+			item.IsTransient.ShouldBeFalse();
 		};
 
 		static TransformationItem item;
@@ -46,6 +47,7 @@ namespace Hydrospanner.Phases.Transformation
 		static Action<bool> ack;
 	}
 
+	[Subject(typeof(TransformationItem))]
 	public class when_initializing_a_local_message
 	{
 		Establish context = () =>
@@ -73,6 +75,7 @@ namespace Hydrospanner.Phases.Transformation
 			item.SerializedHeaders.ShouldBeNull();
 			item.ForeignId.ShouldEqual(Guid.Empty);
 			item.Acknowledgment.ShouldBeNull();
+			item.IsTransient.ShouldBeFalse();
 		};
 
 		static TransformationItem item;
@@ -81,6 +84,7 @@ namespace Hydrospanner.Phases.Transformation
 		static Dictionary<string, string> headers;
 	}
 
+	[Subject(typeof(TransformationItem))]
 	public class when_initializing_a_journaled_message
 	{
 		Establish context = () =>
@@ -109,6 +113,7 @@ namespace Hydrospanner.Phases.Transformation
 			item.Headers.ShouldBeNull();
 			item.Acknowledgment.ShouldBeNull();
 			item.ForeignId.ShouldEqual(Guid.Empty);
+			item.IsTransient.ShouldBeFalse();
 		};
 
 		static TransformationItem item;
@@ -116,6 +121,40 @@ namespace Hydrospanner.Phases.Transformation
 		static byte[] body;
 		static byte[] headers;
 		static string type;
+	}
+
+	[Subject(typeof(TransformationItem))]
+	public class when_initializing_a_transient_message
+	{
+		Establish context = () =>
+		{
+			item = new TransformationItem();
+			body = new object();
+		};
+
+		Because of = () =>
+			item.AsTransientMessage(body);
+
+		It should_set_the_following_properties_according_to_the_provided_arguments = () =>
+		{
+			item.Body.ShouldEqual(body);
+			item.IsTransient.ShouldBeTrue();
+		};
+
+		It should_set_the_following_properties_to_their_default_values = () =>
+		{
+			item.Headers.ShouldBeNull();
+			item.Acknowledgment.ShouldBeNull();
+			item.ForeignId.ShouldEqual(Guid.Empty);
+			item.Headers.ShouldBeNull();
+			item.MessageSequence.ShouldEqual(0);
+			item.SerializedBody.ShouldBeNull();
+			item.SerializedHeaders.ShouldBeNull();
+			item.SerializedType.ShouldBeNull();
+		};
+
+		static TransformationItem item;
+		static object body;
 	}
 }
 

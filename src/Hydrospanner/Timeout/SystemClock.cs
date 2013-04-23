@@ -1,7 +1,6 @@
 ﻿namespace Hydrospanner.Timeout
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Threading;
 	using Phases.Transformation;
 
@@ -24,7 +23,7 @@
 		{
 			var sequence = this.ring.Next();
 			var item = this.ring[sequence];
-			item.AsLocalMessage(0, new CurrentTimeMessage(SystemTime.UtcNow), EmptyHeaders);
+			item.AsTransientMessage(new TimeMessage(SystemTime.UtcNow));
 			this.ring.Publish(sequence);
 		}
 
@@ -49,7 +48,6 @@
 
 		private const int OncePerSecond = 1000;
 		private const int StartNow = 0;
-		private static readonly Dictionary<string, string> EmptyHeaders = new Dictionary<string, string>();
 		private readonly object sync = new object();
 		private readonly IRingBuffer<TransformationItem> ring;
 		private Timer timer;

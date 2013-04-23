@@ -2,11 +2,11 @@
 {
 	using System;
 
-	public class CurrentTimeMessage
+	public class TimeMessage
 	{
 		public DateTime UtcNow { get; private set; }
  
-		public CurrentTimeMessage(DateTime instant)
+		public TimeMessage(DateTime instant)
 		{
 			this.UtcNow = instant;
 		}

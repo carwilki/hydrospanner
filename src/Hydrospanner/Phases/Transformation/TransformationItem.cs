@@ -19,6 +19,8 @@
 		public Guid ForeignId { get; set; }
 		public Action<bool> Acknowledgment { get; set; }
 
+		public bool IsTransient { get; set; }
+
 		public void AsForeignMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action<bool> ack)
 		{
 			this.Clear();
@@ -28,7 +30,6 @@
 			this.ForeignId = foreignId;
 			this.Acknowledgment = ack;
 		}
-
 		public void AsLocalMessage(long sequence, object body, Dictionary<string, string> headers)
 		{
 			this.Clear();
@@ -37,7 +38,6 @@
 			this.Body = body;
 			this.Headers = headers;
 		}
-
 		public void AsJournaledMessage(long sequence, byte[] body, string type, byte[] headers)
 		{
 			this.Clear();
@@ -46,7 +46,12 @@
 			this.SerializedType = type;
 			this.SerializedHeaders = headers;
 		}
-
+		public void AsTransientMessage(object body)
+		{
+			this.Clear();
+			this.Body = body;
+			this.IsTransient = true;
+		}
 		private void Clear()
 		{
 			this.MessageSequence = 0;
@@ -55,6 +60,7 @@
 			this.SerializedType = null;
 			this.ForeignId = Guid.Empty;
 			this.Acknowledgment = null;
+			this.IsTransient = false;
 		}
 
 		public void Deserialize(ISerializer serializer)
