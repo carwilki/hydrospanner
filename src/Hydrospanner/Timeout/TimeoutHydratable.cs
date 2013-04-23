@@ -2,10 +2,7 @@
 {
 	using System.Collections.Generic;
 
-	public sealed class TimeoutHydratable : IHydratable,
-		IHydratable<CurrentTimeMessage>,
-		IHydratable<TimeoutRequestedEvent>,
-		IHydratable<TimeoutElapsedEvent>
+	public sealed class TimeoutHydratable : IHydratable, IHydratable<CurrentTimeMessage>
 	{
 		public string Key
 		{
@@ -19,58 +16,36 @@
 		{
 			get { return false; }
 		}
-
-		public ICollection<object> PendingMessages { get; private set; }
+		public ICollection<object> PendingMessages
+		{
+			get { return this.messages; }
+		}
+		public object GetMemento()
+		{
+			return null;
+		}
 
 		public void Hydrate(Delivery<CurrentTimeMessage> delivery)
 		{
 			this.aggregate.Handle(delivery.Message);
-		}
-		public void Hydrate(Delivery<TimeoutRequestedEvent> delivery)
-		{
-			if (!delivery.Live)
-				this.aggregate.Apply(delivery.Message);
-		}
-		public void Hydrate(Delivery<TimeoutElapsedEvent> delivery)
-		{
-			if (delivery.Live)
-				this.aggregate.Apply(delivery.Message);
-		}
-
-		public object GetMemento()
-		{
-			return this.aggregate.GetMemento();
-		}
-		public static TimeoutHydratable Restore(TimeoutMemento memento)
-		{
-			return new TimeoutHydratable(memento);
 		}
 
 		public static HydrationInfo Lookup(Delivery<CurrentTimeMessage> delivery)
 		{
 			return new HydrationInfo(HydratableKey, () => new TimeoutHydratable());
 		}
-		public static HydrationInfo Lookup(Delivery<TimeoutRequestedEvent> delivery)
+		public static HydrationInfo Lookup(Delivery<TimeoutMessage> delivery)
 		{
-			return new HydrationInfo(HydratableKey, () => new TimeoutHydratable());
-		}
-		public static HydrationInfo Lookup(Delivery<TimeoutElapsedEvent> delivery)
-		{
-			return new HydrationInfo(HydratableKey, () => new TimeoutHydratable());
+			return new HydrationInfo(delivery.Message.Key, () => null);
 		}
 
-		public TimeoutHydratable()
+		private TimeoutHydratable()
 		{
-			this.aggregate = new TimeoutAggregate();
-			this.PendingMessages = this.aggregate.PendingMessages;
-		}
-		public TimeoutHydratable(TimeoutMemento memento)
-		{
-			this.aggregate = new TimeoutAggregate(memento);
-			this.PendingMessages = this.aggregate.PendingMessages;
+			this.aggregate = new TimeoutAggregate(this.messages);
 		}
 
 		private const string HydratableKey = "/internal/timeout";
+		private readonly List<object> messages = new List<object>(); 
 		private readonly TimeoutAggregate aggregate;
 	}
 }

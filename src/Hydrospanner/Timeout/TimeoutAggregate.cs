@@ -5,8 +5,6 @@
 
 	public class TimeoutAggregate
 	{
-		public List<object> PendingMessages { get; private set; } 
-
 		public void Handle(CurrentTimeMessage message)
 		{
 			foreach (var item in this.timeouts)
@@ -15,26 +13,17 @@
 					break;
 
 				foreach (var value in item.Value)
-					this.Append(this.Apply, new TimeoutElapsedEvent(value, item.Key, message.UtcNow));
+					this.Append(this.Apply, new TimeoutMessage(value, item.Key, message.UtcNow));
 			}
 		}
 
 		private void Append<T>(Action<T> callback, T message)
 		{
-			this.PendingMessages.Add(message);
+			this.pendingMessages.Add(message);
 			callback(message);
 		}
 
-		public void Apply(TimeoutRequestedEvent message)
-		{
-			List<string> items;
-			if (!this.timeouts.TryGetValue(message.Timeout, out items))
-				this.timeouts[message.Timeout] = items = new List<string>();
-
-			this.count++;
-			items.Add(message.Key);
-		}
-		public void Apply(TimeoutElapsedEvent message)
+		public void Apply(TimeoutMessage message)
 		{
 			List<string> items;
 			if (!this.timeouts.TryGetValue(message.Timeout, out items))
@@ -45,36 +34,14 @@
 				this.timeouts.Remove(message.Timeout);
 		}
 
-		public object GetMemento()
+		public TimeoutAggregate(List<object> pendingMessages)
 		{
-			var list = new List<TimeoutEntry>(this.count);
-			foreach (var item in this.timeouts)
-				foreach (var value in item.Value)
-					list.Add(new TimeoutEntry(value, item.Key));
-
-			return new TimeoutMemento { Timeouts = list };
-		}
-
-		public TimeoutAggregate()
-		{
-			this.PendingMessages = new List<object>();
-		}
-		public TimeoutAggregate(TimeoutMemento memento) : this()
-		{
-			this.timeouts = new SortedList<DateTime, List<string>>(memento.Timeouts.Count);
-
-			foreach (var item in memento.Timeouts)
-			{
-				List<string> list;
-				if (!this.timeouts.TryGetValue(item.Timeout, out list))
-					this.timeouts[item.Timeout] = list = new List<string>();
-
-				this.count++;
-				list.Add(item.Key);
-			}
+			this.pendingMessages = pendingMessages;
+			this.timeouts = new SortedList<DateTime, List<string>>();
 		}
 
 		private readonly SortedList<DateTime, List<string>> timeouts;
+		private readonly List<object> pendingMessages; 
 		private int count;
 	}
 }

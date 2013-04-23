@@ -72,19 +72,10 @@
     <Compile Include="Timeout\TimeoutAggregate.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Timeout\TimeoutElapsedEvent.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Timeout\TimeoutEntry.cs">
+    <Compile Include="Timeout\TimeoutMessage.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Timeout\TimeoutHydratable.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Timeout\TimeoutMemento.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Timeout\TimeoutRequestedEvent.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Wireup\ConventionRoutingTable.cs" />

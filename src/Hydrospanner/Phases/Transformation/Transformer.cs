@@ -17,6 +17,8 @@
 		{
 			this.gathered.Clear();
 
+			// determine if this is the first live message
+
 			foreach (var hydratable in this.repository.Load(delivery))
 			{
 				hydratable.Hydrate(delivery);
@@ -38,6 +40,11 @@
 
 			if (hydratable.IsComplete)
 				this.repository.Delete(hydratable);
+
+			// if this is the first live message
+			// enumerate over every single hydratable in the repository...
+			// for each IAlarmHydratable, get the set of datetime timeouts requested
+			// and add those the timeout hydratable (which is referenced right here)
 		}
 		private void TakeSnapshot(IHydratable hydratable, long messageSequence)
 		{

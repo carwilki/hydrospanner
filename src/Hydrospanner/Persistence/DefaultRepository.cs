@@ -12,7 +12,7 @@
 			foreach (var hydratable in this.catalog.Values)
 			{
 				var memento = hydratable.GetMemento();
-				if (memento != null)
+				if (memento != null) // TODO: get under test
 					yield return memento;
 			}
 		}
@@ -27,6 +27,7 @@
 				if (this.graveyard.Contains(info.Key))
 					continue;
 
+				// TODO: info.Create can return null (or perhaps even be null?)
 				var hydratable = this.catalog.ValueOrDefault(info.Key) ?? (this.catalog[info.Key] = info.Create());
 				yield return hydratable as IHydratable<T>; 
 			}
