@@ -71,7 +71,8 @@
 		}
 		private TransformationHandler CreateTransformationHandler(IRepository repository, long sequence, ISystemSnapshotTracker tracker = null)
 		{
-			var transformer = new Transformer(repository, this.snapshotRing);
+			var handler = new Transformer(repository, this.snapshotRing);
+			var transformer = new ReflectionDeliveryHandler(handler);
 			return new TransformationHandler(sequence, this.journalRing, transformer, tracker ?? new NullSystemSnapshotTracker());
 		}
 		public virtual IDisruptor<TransformationItem> CreateTransformationDisruptor(IRepository repository, BootstrapInfo info)

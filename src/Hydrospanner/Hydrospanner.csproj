@@ -59,13 +59,16 @@
     <Compile Include="Persistence\SqlPersistence\SqlBulkInsertSession.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlMessageStoreWriter.cs" />
     <Compile Include="Phases\Transformation\ISystemSnapshotTracker.cs" />
+    <Compile Include="Phases\Transformation\IDeliveryHandler.cs" />
     <Compile Include="Phases\Transformation\ITransformer.cs" />
+    <Compile Include="Phases\Transformation\ReflectionDeliveryHandler.cs" />
     <Compile Include="Phases\Transformation\SystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\Transformer.cs" />
     <Compile Include="RingBufferBase.cs" />
     <Compile Include="Timeout\CurrentTimeMessage.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Timeout\ITimeoutHydratable.cs" />
     <Compile Include="Timeout\SystemClock.cs">
       <SubType>Code</SubType>
     </Compile>

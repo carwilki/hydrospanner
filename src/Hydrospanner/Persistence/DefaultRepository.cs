@@ -1,11 +1,15 @@
 ﻿namespace Hydrospanner.Persistence
 {
-	using System;
 	using System.Collections.Generic;
 	using Wireup;
 
 	public class DefaultRepository : IRepository
 	{
+		public IEnumerable<IHydratable> Items
+		{
+			get { return this.catalog.Values; }
+		}
+
 		public IEnumerable<object> GetMementos()
 		{
 			var graveyardMemento = this.graveyard.GetMemento();
