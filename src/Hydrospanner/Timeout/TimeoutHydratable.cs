@@ -20,9 +20,9 @@
 		{
 			get { return this.messages; }
 		}
-		public object GetMemento()
+		public object Memento
 		{
-			return null;
+			get { return null; }
 		}
 
 		public void Hydrate(Delivery<TimeMessage> delivery)

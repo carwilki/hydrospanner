@@ -75,7 +75,7 @@ namespace Hydrospanner.Persistence
 				tombstoned = new MyHydratable(Tombstone);
 				tombstoneInfo = new HydrationInfo(Tombstone, () => tombstoned);
 				routes.Lookup(tombstoneDelivery).Returns(new[] { tombstoneInfo });
-				routes.Restore(Document).Returns(Document);
+				routes.Restore(MyHydratable.MyMemento).Returns(Document);
 
 				repository.Load(delivery).ToList();
 				repository.Load(tombstoneDelivery).ToList();
@@ -97,7 +97,7 @@ namespace Hydrospanner.Persistence
 				snapshot.First().ShouldBeLike(new GraveyardMemento(new[] { Tombstone }));
 			
 			It should_include_the_rest_of_the_hydratables_after_the_graveyard_in_the_snapshot = () =>
-				snapshot.Last().ShouldEqual(Document);
+				snapshot.Last().ShouldEqual(MyHydratable.MyMemento);
 
 			It should_recreate_the_graveyard_state = () =>
 				snapshotOfRestoredRepository.ShouldBeLike(snapshot);
@@ -151,12 +151,9 @@ namespace Hydrospanner.Persistence
 
 	public class MyHydratable : IHydratable, IHydratable<int>
 	{
+		public const int MyMemento = 4242;
 		public string Key { get { return this.key; } }
-
-		public object GetMemento()
-		{
-			return this;
-		}
+		public object Memento { get { return MyMemento; } }
 
 		#region -- Boilerplate --
 
@@ -184,11 +181,7 @@ namespace Hydrospanner.Persistence
 	public class NullMementoHydratable : IHydratable, IHydratable<Guid>
 	{
 		public string Key { get { return this.key; } }
-
-		public object GetMemento()
-		{
-			return null;
-		}
+		public object Memento { get { return null; } }
 
 		#region -- Boilerplate --
 

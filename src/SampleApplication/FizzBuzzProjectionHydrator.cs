@@ -14,11 +14,8 @@
 		public string Key { get { return KeyFactory(this.document.StreamId); } }
 		public bool IsComplete { get { return false; } }
 		public bool IsPublicSnapshot { get { return true; } }
-		public ICollection<object> PendingMessages { get; private set; } 
-		public object GetMemento()
-		{
-			return this.document;
-		}
+		public object Memento { get { return this.document; } }
+		public ICollection<object> PendingMessages { get; private set; }
 
 		public void Hydrate(Delivery<CountEvent> delivery)
 		{

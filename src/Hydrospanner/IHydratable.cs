@@ -7,8 +7,8 @@
 		string Key { get; }
 		bool IsComplete { get; }
 		bool IsPublicSnapshot { get; }
-		ICollection<object> PendingMessages { get; } 
-		object GetMemento();
+		object Memento { get; }
+		ICollection<object> PendingMessages { get; }
 	}
 
 	public interface IHydratable<T> : IHydratable

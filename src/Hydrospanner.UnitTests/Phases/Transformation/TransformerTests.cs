@@ -229,11 +229,7 @@ namespace Hydrospanner.Phases.Transformation
 		public bool IsComplete { get; private set; }
 		public bool IsPublicSnapshot { get { return this.isPublicSnapshot; } }
 		public ICollection<object> PendingMessages { get; private set; }
-
-		public virtual object GetMemento()
-		{
-			return this.memento ?? new SomethingHappenedProjection { Value = this.EventsReceived.Last() };
-		}
+		public object Memento { get { return this.memento ?? new SomethingHappenedProjection { Value = this.EventsReceived.Last() }; } }
 
 		public void Hydrate(Delivery<SomethingHappenedEvent> delivery)
 		{

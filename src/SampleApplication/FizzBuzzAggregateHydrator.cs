@@ -15,13 +15,16 @@
 		public bool IsComplete { get { return this.aggregate.IsComplete; } }
 		public bool IsPublicSnapshot { get { return false; } }
 		public ICollection<object> PendingMessages { get; private set; }
-		public object GetMemento()
+		public object Memento
 		{
-			return new FizzBuzzAggregateMemento
+			get
 			{
-				StreamId = this.streamId,
-				Value = this.aggregate.Value,
-			};
+				return new FizzBuzzAggregateMemento
+				{
+					StreamId = this.streamId,
+					Value = this.aggregate.Value,
+				};
+			}
 		}
 
 		public void Hydrate(Delivery<CountCommand> delivery)

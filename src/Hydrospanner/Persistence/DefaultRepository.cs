@@ -18,7 +18,7 @@
 
 			foreach (var hydratable in this.catalog.Values)
 			{
-				var memento = hydratable.GetMemento();
+				var memento = hydratable.Memento;
 				if (memento != null)
 					yield return memento;
 			}

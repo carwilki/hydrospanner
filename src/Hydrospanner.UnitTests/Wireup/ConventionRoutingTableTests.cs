@@ -149,11 +149,8 @@ namespace Hydrospanner.Wireup
 			public string Key { get; private set; }
 			public bool IsComplete { get; private set; }
 			public bool IsPublicSnapshot { get; private set; }
-			public ICollection<object> PendingMessages { get; private set; } 
-			public object GetMemento()
-			{
-				throw new NotImplementedException();
-			}
+			public object Memento { get; private set; }
+			public ICollection<object> PendingMessages { get; private set; }
 		}
 		// ReSharper restore UnusedAutoPropertyAccessor.Local
 		// ReSharper restore ClassNeverInstantiated.Local

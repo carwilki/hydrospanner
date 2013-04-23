@@ -42,7 +42,7 @@
 		}
 		private void TakeSnapshot(IHydratable hydratable, long messageSequence)
 		{
-			var memento = hydratable.GetMemento();
+			var memento = hydratable.Memento;
 			var cloner = memento as ICloneable;
 			memento = (cloner == null ? memento : cloner.Clone()) ?? memento;
 
