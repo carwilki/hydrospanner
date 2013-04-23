@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 	using Snapshot;
+	using Timeout;
 
 	public sealed class Transformer : ITransformer
 	{
@@ -27,6 +28,14 @@
 				var messages = hydratable.PendingMessages;
 				this.gathered.AddRange(messages);
 				messages.Clear();
+
+				var timeout = hydratable as ITimeoutHydratable;
+				if (timeout != null)
+				{
+					var timeouts = timeout.Timeouts;
+					this.manager.AddRange(timeouts);
+					timeouts.Clear();
+				}
 			}
 				
 			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)

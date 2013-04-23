@@ -2,9 +2,8 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Linq;
 
-	public class TimeoutAggregate
+	public class TimeoutManager
 	{
 		public void Add(string key, ICollection<DateTime> instants)
 		{
@@ -27,31 +26,20 @@
 
 		public void Handle(TimeMessage message)
 		{
-			foreach (var instant in this.timeouts)
+			for (var i = 0; i < this.timeouts.Keys.Count; i++)
 			{
-				if (instant.Key > message.UtcNow)
-					break;
+				var instant = this.timeouts.Keys[i];
+				if (instant > message.UtcNow)
+					return;
 
-				foreach (var hydratableKey in instant.Value)
-					this.pending.Add(new TimeoutMessage(hydratableKey, instant.Key, message.UtcNow));
+				foreach (var hydratableKey in this.timeouts[instant])
+					this.pending.Add(new TimeoutMessage(hydratableKey, instant, message.UtcNow));
+
+				this.timeouts.RemoveAt(i);
 			}
 		}
-		public void Apply(TimeoutMessage message)
-		{
-			HashSet<string> keys;
-			if (!this.timeouts.TryGetValue(message.Instant, out keys))
-				return;
 
-			if (!keys.Remove(message.Key))
-				return;
-
-			if (keys.Count > 0)
-				return;
-
-			this.timeouts.Remove(message.Instant);
-		}
-
-		public TimeoutAggregate(List<object> pending)
+		public TimeoutManager(List<object> pending)
 		{
 			this.pending = pending;
 		}

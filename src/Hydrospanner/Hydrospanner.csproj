@@ -69,7 +69,7 @@
     <Compile Include="Timeout\TimeMessage.cs" />
     <Compile Include="Timeout\ITimeoutHydratable.cs" />
     <Compile Include="Timeout\SystemClock.cs" />
-    <Compile Include="Timeout\TimeoutAggregate.cs" />
+    <Compile Include="Timeout\TimeoutManager.cs" />
     <Compile Include="Timeout\TimeoutHydratable.cs" />
     <Compile Include="Timeout\TimeoutMessage.cs" />
     <Compile Include="Wireup\ConventionRoutingTable.cs" />
