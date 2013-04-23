@@ -39,7 +39,7 @@
 				this.TakeSnapshot(hydratable, messageSequence);
 
 			if (hydratable.IsComplete)
-				this.repository.Delete(hydratable);
+				this.repository.Delete(hydratable); // TODO: remove any timeouts (if ITimeoutHydratable)
 
 			// if this is the first live message
 			// enumerate over every single hydratable in the repository...

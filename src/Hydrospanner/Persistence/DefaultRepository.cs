@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Persistence
 {
+	using System;
 	using System.Collections.Generic;
 	using Wireup;
 
@@ -7,12 +8,14 @@
 	{
 		public IEnumerable<object> GetMementos()
 		{
-			yield return this.graveyard.GetMemento();
+			var graveyardMemento = this.graveyard.GetMemento();
+			if (graveyardMemento.Keys.Length > 0)
+				yield return graveyardMemento;
 
 			foreach (var hydratable in this.catalog.Values)
 			{
 				var memento = hydratable.GetMemento();
-				if (memento != null) // TODO: get under test
+				if (memento != null)
 					yield return memento;
 			}
 		}
@@ -27,15 +30,23 @@
 				if (this.graveyard.Contains(info.Key))
 					continue;
 
-				// TODO: info.Create can return null (or perhaps even be null?)
-				var hydratable = this.catalog.ValueOrDefault(info.Key) ?? (this.catalog[info.Key] = info.Create());
-				yield return hydratable as IHydratable<T>; 
+				IHydratable hydratable;
+				if (this.catalog.TryGetValue(info.Key, out hydratable))
+					yield return hydratable as IHydratable<T>;
+				else
+				{
+					hydratable = info.Create();
+					if (hydratable == null)
+						continue;
+
+					this.catalog[info.Key] = hydratable;
+					yield return hydratable as IHydratable<T>;
+				}
 			}
 		}
 
 		public void Delete(IHydratable hydratable)
 		{
-			// TODO: remove timeouts
 			this.graveyard.Bury(hydratable.Key);
 			this.catalog.Remove(hydratable.Key);
 		}

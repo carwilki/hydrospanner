@@ -3,6 +3,7 @@
 
 namespace Hydrospanner.Persistence
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.Linq;
@@ -46,6 +47,26 @@ namespace Hydrospanner.Persistence
 			}
 		}
 
+		public class when_the_hydration_info_yields_a_null_hydratable
+		{
+			Establish context = () =>
+			{
+				nullFactoryDelivery = new Delivery<long>(0, Headers, 1, true);
+				nullFactoryInfo = new HydrationInfo(NullFactory, () => null);
+				routes.Lookup(nullFactoryDelivery).Returns(new[] { nullFactoryInfo });
+			};
+
+			Because of = () =>
+				loadResult = repository.Load(nullFactoryDelivery).Cast<IHydratable>().ToList();
+
+			It should_NOT_return_null_hydratables = () =>
+				loadResult.ShouldBeEmpty();
+
+			const string NullFactory = "NullFactory";
+			static Delivery<long> nullFactoryDelivery;
+			static HydrationInfo nullFactoryInfo;
+		}
+
 		public class when_taking_a_snapshot_and_restoring_the_repository_from_the_snapshot
 		{
 			Establish context = () =>
@@ -87,6 +108,24 @@ namespace Hydrospanner.Persistence
 			static List<object> snapshot;
 			static List<object> snapshotOfRestoredRepository;
 			static Delivery<string> tombstoneDelivery;
+		}
+
+		public class when_the_memento_returned_from_the_hydratable_is_null
+		{
+			Establish context = () =>
+			{
+				var info = new HydrationInfo("42", () => new NullMementoHydratable("42"));
+				routes.Lookup(Arg.Any<Delivery<Guid>>()).Returns(new[] { info });
+			};
+
+			It should_add_them_to_the_repository_for_future_retreival = () =>
+			{
+				var loaded = repository.Load(new Delivery<Guid>()).ToList();
+				loaded.Single().ShouldBeOfType<NullMementoHydratable>();
+			};
+
+			It should_not_yield_the_value_back_to_the_caller = () =>
+				repository.GetMementos().ShouldBeEmpty();
 		}
 
 		Establish context = () =>
@@ -136,6 +175,40 @@ namespace Hydrospanner.Persistence
 		public MyHydratable(string key)
 		{
 			this.PendingMessages = new List<object>();
+			this.key = key;
+		}
+
+		readonly string key;
+	}
+
+	public class NullMementoHydratable : IHydratable, IHydratable<Guid>
+	{
+		public string Key { get { return this.key; } }
+
+		public object GetMemento()
+		{
+			return null;
+		}
+
+		#region -- Boilerplate --
+
+		public bool IsComplete { get { return false; } }
+
+		public bool IsPublicSnapshot { get { return false; } }
+
+		public ICollection<object> PendingMessages
+		{
+			get { return null; }
+		}
+
+		public void Hydrate(Delivery<Guid> delivery)
+		{
+		}
+
+		#endregion
+
+		public NullMementoHydratable(string key)
+		{
 			this.key = key;
 		}
 
