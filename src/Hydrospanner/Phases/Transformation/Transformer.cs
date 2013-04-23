@@ -15,7 +15,7 @@
 			foreach (var hydratable in this.repository.Load(delivery))
 			{
 				hydratable.Hydrate(delivery);
-				this.GatherState(delivery.Live, delivery.Sequence, hydratable as IHydratable);
+				this.GatherState(delivery.Live, delivery.Sequence, hydratable);
 			}
 
 			return this.gathered;

@@ -11,7 +11,7 @@
 		object GetMemento();
 	}
 
-	public interface IHydratable<T>
+	public interface IHydratable<T> : IHydratable
 	{
 		void Hydrate(Delivery<T> delivery);
 	}

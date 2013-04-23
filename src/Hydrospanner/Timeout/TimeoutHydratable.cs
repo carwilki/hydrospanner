@@ -29,6 +29,10 @@
 		{
 			this.aggregate.Handle(delivery.Message);
 		}
+		public void Hydrate(Delivery<TimeoutMessage> delivery)
+		{
+			this.aggregate.Apply(delivery.Message);
+		}
 
 		public static HydrationInfo Lookup(Delivery<TimeMessage> delivery)
 		{
@@ -36,8 +40,7 @@
 		}
 		public static HydrationInfo Lookup(Delivery<TimeoutMessage> delivery)
 		{
-			// TODO: it needs to go to the hydratable as well...
-			return new HydrationInfo(delivery.Message.Key, () => null);
+			return new HydrationInfo(HydratableKey, () => new TimeoutHydratable());
 		}
 
 		private TimeoutHydratable()
@@ -48,5 +51,13 @@
 		private const string HydratableKey = "/internal/timeout";
 		private readonly List<object> messages = new List<object>(); 
 		private readonly TimeoutAggregate aggregate;
+	}
+
+	internal static class TimeoutRoutes
+	{
+		public static HydrationInfo Lookup(Delivery<TimeoutMessage> delivery)
+		{
+			return new HydrationInfo(delivery.Message.Key, () => null); // used to route the the hydratable in question
+		}
 	}
 }

@@ -5,12 +5,11 @@
 	using Hydrospanner;
 
 	public class FizzBuzzAggregateHydrator : 
-		IHydratable, 
 		IHydratable<CountCommand>,
 		IHydratable<CountEvent>,
 		IHydratable<FizzEvent>,
 		IHydratable<BuzzEvent>,
-		IHydratable<FizzBuzzEvent>
+		IHydratable<FizzBuzzEvent>,
 	{
 		public string Key { get { return KeyFactory(this.streamId); } }
 		public bool IsComplete { get { return this.aggregate.IsComplete; } }
