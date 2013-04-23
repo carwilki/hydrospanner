@@ -29,7 +29,7 @@
 			foreach (var info in this.routes.Lookup(delivery))
 			{
 				if (string.IsNullOrEmpty(info.Key))
-					continue; // TODO: get this under test
+					continue;
 
 				if (this.graveyard.Contains(info.Key))
 					continue;

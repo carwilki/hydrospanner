@@ -9,6 +9,7 @@ namespace Hydrospanner.Persistence
 	using System.Linq;
 	using Machine.Specifications;
 	using NSubstitute;
+	using Phases.Transformation;
 	using Wireup;
 
 	[Subject(typeof(DefaultRepository))]
@@ -65,6 +66,25 @@ namespace Hydrospanner.Persistence
 			const string NullFactory = "NullFactory";
 			static Delivery<long> nullFactoryDelivery;
 			static HydrationInfo nullFactoryInfo;
+		}
+
+		public class when_the_hydration_info_yields_an_empty_key
+		{
+			Establish context = () =>
+			{
+				emptyKeyDelivery = new Delivery<long>(0, Headers, 1, true);
+				emptyKeyInfo = new HydrationInfo(string.Empty, () => new MyHydratable(string.Empty));
+				routes.Lookup(emptyKeyDelivery).Returns(new[] { emptyKeyInfo });
+			};
+
+			Because of = () =>
+				loadResult = repository.Load(emptyKeyDelivery).Cast<IHydratable>().ToList();
+
+			It should_NOT_return_hydratables_with_empty_keys = () =>
+				loadResult.ShouldBeEmpty();
+
+			static Delivery<long> emptyKeyDelivery;
+			static HydrationInfo emptyKeyInfo;
 		}
 
 		public class when_taking_a_snapshot_and_restoring_the_repository_from_the_snapshot
