@@ -2,7 +2,7 @@
 {
 	using System;
 
-	public sealed class TimeoutMessage
+	public sealed class TimeoutMessage : IInternalMessage
 	{
 		public string Key { get; private set; }
 		public DateTime Instant { get; private set; }

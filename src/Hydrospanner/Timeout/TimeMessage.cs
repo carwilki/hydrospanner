@@ -2,7 +2,7 @@
 {
 	using System;
 
-	public class TimeMessage
+	public class TimeMessage : IInternalMessage
 	{
 		public DateTime UtcNow { get; private set; }
  

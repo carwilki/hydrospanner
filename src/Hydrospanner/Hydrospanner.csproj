@@ -50,6 +50,7 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="IInternalMessage.cs" />
     <Compile Include="Persistence\DefaultRepository.cs" />
     <Compile Include="Delivery.cs" />
     <Compile Include="Persistence\GraveyardMemento.cs" />

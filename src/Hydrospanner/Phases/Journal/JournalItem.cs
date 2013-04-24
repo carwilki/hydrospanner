@@ -39,12 +39,8 @@
 			this.MessageSequence = sequence;
 			this.Body = body;
 			this.Headers = headers;
-			if (body == null)
-				return;
-
-			this.SerializedType = body.ResolvableTypeName();
-			if (this.Body.GetType().Assembly == CurrentAssembly)
-				this.ItemActions = JournalItemAction.Journal; // TODO: don't dispatch
+			if (body != null)
+				this.SerializedType = body.ResolvableTypeName();
 		}
 
 		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, string typeName, byte[] headers)
@@ -84,8 +80,6 @@
 			if (this.SerializedHeaders == null && this.Headers != null && this.Headers.Count > 0)
 				this.SerializedHeaders = serializer.Serialize(this.Headers);
 		}
-
-		private static readonly Assembly CurrentAssembly = typeof(JournalItem).Assembly;
 	}
 
 	[Flags]
