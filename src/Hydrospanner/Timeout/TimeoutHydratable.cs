@@ -39,10 +39,10 @@
 			var key = hydratable.Key;
 			foreach (var instant in instants)
 			{
-				// TODO: round to nearest 1 second
+				var rounded = instant.AddMilliseconds(-instant.Millisecond);
 				HashSet<string> keys;
-				if (!this.timeouts.TryGetValue(instant, out keys))
-					this.timeouts[instant] = keys = new HashSet<string>();
+				if (!this.timeouts.TryGetValue(rounded, out keys))
+					this.timeouts[rounded] = keys = new HashSet<string>();
 
 				keys.Add(key);
 			}

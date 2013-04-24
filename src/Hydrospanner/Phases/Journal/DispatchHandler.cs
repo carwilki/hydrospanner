@@ -12,12 +12,8 @@
 		{
 			if (data.ItemActions.HasFlag(JournalItemAction.Dispatch))
 			{
-				// TODO: get this if statement under test
-				if (!(data.Body is IInternalMessage))
-				{
-					Log.DebugFormat("Received journal item of type {0} for dispatch.", data.SerializedType);
-					this.buffer.Add(data);
-				}
+				Log.DebugFormat("Received journal item of type {0} for dispatch.", data.SerializedType);
+				this.buffer.Add(data);
 			}
 
 			if (endOfBatch)

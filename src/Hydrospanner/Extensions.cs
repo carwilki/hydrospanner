@@ -13,11 +13,11 @@
 	{
 		public static string ResolvableTypeName(this object value)
 		{
-			if (value == null)
-				return null;
-
-			var type = value.GetType();
-			return "{0}, {1}".FormatWith(type.FullName, type.Assembly.GetName().Name);
+			return value == null ? null : value.GetType().ResolvableTypeName();
+		}
+		public static string ResolvableTypeName(this Type type)
+		{
+			return type == null ? null : "{0}, {1}".FormatWith(type.FullName, type.Assembly.GetName().Name);
 		}
 	}
 

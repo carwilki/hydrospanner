@@ -38,8 +38,12 @@
 			this.MessageSequence = sequence;
 			this.Body = body;
 			this.Headers = headers;
-			if (body != null)
-				this.SerializedType = body.ResolvableTypeName();
+			if (body == null)
+				return;
+
+			this.SerializedType = body.ResolvableTypeName();
+			if (this.Body is IInternalMessage)
+				this.ItemActions = JournalItemAction.Journal; // TODO: test
 		}
 
 		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, string typeName, byte[] headers)

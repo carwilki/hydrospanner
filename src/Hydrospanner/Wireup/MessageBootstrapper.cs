@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner.Wireup
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Threading;
 	using log4net;
 	using Persistence;
@@ -45,7 +46,7 @@
 			foreach (var message in this.store.Load(startingSequence))
 			{
 				replayed = this.Replay(info, message) || replayed;
-				Dispatch(info, journalRing, message);
+				this.Dispatch(info, journalRing, message);
 
 				if (message.Sequence % 100000 == 0)
 					Log.InfoFormat("Pushed message sequence {0} for replay", message.Sequence);
@@ -69,13 +70,16 @@
 			this.transformRing.RingBuffer.Publish(next);
 			return true;
 		}
-		private static void Dispatch(BootstrapInfo info, IDisruptor<JournalItem> journalRing, JournaledMessage message)
+		private void Dispatch(BootstrapInfo info, IDisruptor<JournalItem> journalRing, JournaledMessage message)
 		{
 			if (message.Sequence <= info.DispatchSequence)
 				return; // already dispatched
 
 			if (message.ForeignId != Guid.Empty)
 				return; // only re-dispatch messages which originated here
+
+			if (this.internalTypes.Contains(message.SerializedType))
+				return; // TODO: get this under test
 
 			var next = journalRing.RingBuffer.Next();
 			var claimed = journalRing.RingBuffer[next];
@@ -96,12 +100,18 @@
 
 			this.store = store;
 			this.disruptors = disruptors;
+
+			var types = this.GetType().Assembly.GetTypes();
+			foreach (var type in types)
+				if (typeof(IInternalMessage).IsAssignableFrom(type))
+					this.internalTypes.Add(type.ResolvableTypeName());
 		}
 		protected MessageBootstrapper()
 		{
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(MessageBootstrapper));
+		private readonly HashSet<string> internalTypes = new HashSet<string>();
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
 		private readonly IMessageStore store;
 		private readonly DisruptorFactory disruptors;
