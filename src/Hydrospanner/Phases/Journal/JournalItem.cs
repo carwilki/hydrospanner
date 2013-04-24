@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Reflection;
 	using Serialization;
 
 	public sealed class JournalItem
@@ -38,11 +39,12 @@
 			this.MessageSequence = sequence;
 			this.Body = body;
 			this.Headers = headers;
-			if (body != null)
-				this.SerializedType = body.ResolvableTypeName();
+			if (body == null)
+				return;
 
-			if (this.Body.GetType().Assembly == this.GetType().Assembly)
-				this.ItemActions = JournalItemAction.Journal; // don't dispatch
+			this.SerializedType = body.ResolvableTypeName();
+			if (this.Body.GetType().Assembly == CurrentAssembly)
+				this.ItemActions = JournalItemAction.Journal; // TODO: don't dispatch
 		}
 
 		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, string typeName, byte[] headers)
@@ -82,6 +84,8 @@
 			if (this.SerializedHeaders == null && this.Headers != null && this.Headers.Count > 0)
 				this.SerializedHeaders = serializer.Serialize(this.Headers);
 		}
+
+		private static readonly Assembly CurrentAssembly = typeof(JournalItem).Assembly;
 	}
 
 	[Flags]
