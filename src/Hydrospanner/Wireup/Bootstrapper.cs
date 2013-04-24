@@ -38,7 +38,7 @@
 			this.transformationDisruptor.Start();
 
 			Log.Info("Attempting to start message listener.");
-			this.clock = new SystemClock(this.transformationDisruptor.RingBuffer);
+			this.clock = new SystemClock(this.transformationDisruptor.RingBuffer); // TODO: get this under test
 			this.clock.Start();
 			this.listener = this.messaging.CreateMessageListener(this.transformationDisruptor.RingBuffer);
 			this.listener.Start();

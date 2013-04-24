@@ -32,8 +32,6 @@
 		public void Hydrate(Delivery<CountCommand> delivery)
 		{
 			this.aggregate.Increment(delivery.Message.Value);
-
-			Console.WriteLine("Requesting Timeout");
 			this.Timeouts.Add(DateTime.UtcNow.AddSeconds(2));
 		}
 		public void Hydrate(Delivery<CountEvent> delivery)
@@ -56,7 +54,6 @@
 		public ICollection<DateTime> Timeouts { get; private set; } 
 		public void Hydrate(Delivery<TimeoutMessage> delivery)
 		{
-			Console.WriteLine("Timeout Received: " + delivery.Message.Instant);
 		}
 
 		public FizzBuzzAggregateHydrator(FizzBuzzAggregateMemento memento)

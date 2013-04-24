@@ -13,6 +13,8 @@
 		}
 		private void Add(string key, DateTime instant)
 		{
+			// TODO: round to nearest 1 second
+
 			HashSet<string> keys;
 			if (!this.timeouts.TryGetValue(instant, out keys))
 				this.timeouts[instant] = keys = new HashSet<string>();
