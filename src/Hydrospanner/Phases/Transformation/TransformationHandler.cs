@@ -67,9 +67,10 @@
 
 			var batch = this.journalRing.Next(size);
 
+			var ack = this.item.Acknowledgment;
 			Action confirm = null;
-			if (this.item.Acknowledgment != null)
-				confirm = () => this.item.Acknowledgment(true);
+			if (ack != null)
+				confirm = () => ack(true);
 
 			if (offset > 0)
 				this.journalRing[batch.Start].AsForeignMessage(
