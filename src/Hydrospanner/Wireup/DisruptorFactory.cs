@@ -82,13 +82,10 @@
 		}
 		public virtual IDisruptor<TransformationItem> CreateTransformationDisruptor(IRepository repository, BootstrapInfo info)
 		{
-			// TODO: initialize the watcher from the repository, i.e.: new Watcher(repository.Items);
-			var timeoutHydratable = new TimeoutHydratable();
-			repository.Add(timeoutHydratable);
-
+			var watcher = TimeoutHydratable.Load(repository);
 			var serializationHandler = new DeserializationHandler(CreateSerializer());
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
-			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker, timeoutHydratable.Watcher);
+			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker, watcher);
 			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
 			disruptor.HandleEventsWith(serializationHandler).Then(transformationHandler);
 			return new DisruptorBase<TransformationItem>(disruptor);

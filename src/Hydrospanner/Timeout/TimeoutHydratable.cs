@@ -1,8 +1,10 @@
 ﻿namespace Hydrospanner.Timeout
 {
+	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 
-	public sealed class TimeoutHydratable : IHydratable<TimeMessage>
+	public sealed class TimeoutHydratable : IHydratable<TimeMessage>, ITimeoutWatcher
 	{
 		public string Key
 		{
@@ -25,14 +27,58 @@
 			get { return null; }
 		}
 
-		public ITimeoutWatcher Watcher
+		public void Add(ITimeoutHydratable hydratable)
 		{
-			get { return this.watcher; }
-		}
+			if (hydratable == null)
+				return;
 
+			var instants = hydratable.Timeouts;
+			if (instants == null || instants.Count == 0)
+				return;
+
+			var key = hydratable.Key;
+			foreach (var instant in instants)
+			{
+				// TODO: round to nearest 1 second
+				HashSet<string> keys;
+				if (!this.timeouts.TryGetValue(instant, out keys))
+					this.timeouts[instant] = keys = new HashSet<string>();
+
+				keys.Add(key);
+			}
+
+			instants.Clear();
+		}
+		public void Remove(string key)
+		{
+			for (var i = this.timeouts.Keys.Count - 1; i >= 0; i--)
+			{
+				var instant = this.timeouts.Keys[i];
+
+				var keys = this.timeouts[instant];
+				if (!keys.Remove(key))
+					continue;
+
+				if (keys.Count > 0)
+					continue;
+
+				this.timeouts.RemoveAt(i);
+			}
+		}
 		public void Hydrate(Delivery<TimeMessage> delivery)
 		{
-			this.watcher.Handle(delivery.Message);
+			var message = delivery.Message;
+			for (var i = 0; i < this.timeouts.Keys.Count; i++)
+			{
+				var instant = this.timeouts.Keys[i];
+				if (instant > message.UtcNow)
+					return;
+
+				foreach (var hydratableKey in this.timeouts[instant])
+					this.messages.Add(new TimeoutMessage(hydratableKey, instant, message.UtcNow));
+
+				this.timeouts.RemoveAt(i);
+			}
 		}
 
 		public static HydrationInfo Lookup(Delivery<TimeMessage> delivery)
@@ -44,13 +90,23 @@
 			return new HydrationInfo(delivery.Message.Key, () => null); // used to route the the hydratable in question
 		}
 
-		public TimeoutHydratable()
+		public static TimeoutHydratable Load(IRepository repository)
 		{
-			this.watcher = new TimeoutWatcher(this.messages);
+			var message = new TimeMessage(DateTime.MinValue);
+			var delivery = new Delivery<TimeMessage>(message, null, 0, true);
+
+			var watcher = (TimeoutHydratable)repository.Load(delivery).Single();
+			foreach (var hydratable in repository)
+				watcher.Add(hydratable as ITimeoutHydratable);
+
+			return watcher;
+		}
+		private TimeoutHydratable()
+		{
 		}
 
 		private const string HydratableKey = "/internal/timeout";
-		private readonly List<object> messages = new List<object>(); 
-		private readonly TimeoutWatcher watcher;
+		private readonly SortedList<DateTime, HashSet<string>> timeouts = new SortedList<DateTime, HashSet<string>>();
+		private readonly List<object> messages = new List<object>();
 	}
 }

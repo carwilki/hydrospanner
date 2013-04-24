@@ -1,21 +1,11 @@
 ﻿namespace Hydrospanner.Persistence
 {
+	using System.Collections;
 	using System.Collections.Generic;
 	using Wireup;
 
-	public class DefaultRepository : IRepository
+	public class DefaultRepository : IRepository, IEnumerable<IHydratable>
 	{
-		public IEnumerable<IHydratable> Items
-		{
-			get { return this.catalog.Values; }
-		}
-
-		public void Add(IHydratable hydratable)
-		{
-			// TODO: get this under test
-			this.catalog[hydratable.Key] = hydratable;
-		}
-
 		public IEnumerable<object> GetMementos()
 		{
 			var graveyardMemento = this.graveyard.GetMemento();
@@ -81,6 +71,15 @@
 
 			this.graveyardRestored = true;
 			return true;
+		}
+
+		public IEnumerator<IHydratable> GetEnumerator()
+		{
+			return this.catalog.Values.GetEnumerator();
+		}
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return this.GetEnumerator();
 		}
 
 		public DefaultRepository(IRoutingTable routes)
