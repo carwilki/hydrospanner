@@ -24,7 +24,7 @@
 			if (live)
 			{
 				this.AddMessages(hydratable);
-				this.AddTimeouts(hydratable as ITimeoutHydratable);
+				this.watcher.Add(hydratable as ITimeoutHydratable);
 			}
 				
 			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
@@ -43,15 +43,6 @@
 			var messages = hydratable.PendingMessages;
 			this.gathered.AddRange(messages);
 			messages.Clear();
-		}
-		private void AddTimeouts(ITimeoutHydratable hydratable)
-		{
-			if (hydratable == null)
-				return;
-
-			var timeouts = hydratable.Timeouts;
-			this.watcher.AddRange(hydratable.Key, timeouts);
-			timeouts.Clear();
 		}
 		private void TakeSnapshot(IHydratable hydratable, long messageSequence)
 		{

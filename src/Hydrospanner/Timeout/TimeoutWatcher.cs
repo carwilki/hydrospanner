@@ -5,11 +5,20 @@
 
 	public sealed class TimeoutWatcher : ITimeoutWatcher
 	{
-		public void AddRange(string key, ICollection<DateTime> instants)
+		public void Add(ITimeoutHydratable hydratable)
 		{
-			if (instants != null)
-				foreach (var instant in instants)
-					this.Add(key, instant);
+			if (hydratable != null)
+				this.AddRange(hydratable.Key, hydratable.Timeouts);
+		}
+		private void AddRange(string key, ICollection<DateTime> instants)
+		{
+			if (instants == null || instants.Count == 0)
+				return;
+
+			foreach (var instant in instants)
+				this.Add(key, instant);
+
+			instants.Clear();
 		}
 		private void Add(string key, DateTime instant)
 		{
