@@ -68,7 +68,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 				
 				foreign = new JournalItem();
 				foreign.AsForeignMessage(
-					42, Encoding.UTF8.GetBytes("42"), 42, new Dictionary<string, string>(), Guid.NewGuid(), () => { });
+					42, Encoding.UTF8.GetBytes("42"), 42, new Dictionary<string, string>(), Guid.NewGuid(), x => { });
 				
 				items.Add(local);
 				items.Add(foreign);
@@ -168,7 +168,7 @@ namespace Hydrospanner.Persistence.SqlPersistence
 			var item = new JournalItem();
 
 			if (sequence++ % 2 == 0)
-				item.AsForeignMessage(sequence, Body(), sequence, Headers, Guid.NewGuid(), () => { });
+				item.AsForeignMessage(sequence, Body(), sequence, Headers, Guid.NewGuid(), x => { });
 			else
 				item.AsTransformationResultMessage(sequence, sequence, Headers);
 

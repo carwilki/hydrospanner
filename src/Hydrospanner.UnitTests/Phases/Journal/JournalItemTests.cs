@@ -36,7 +36,7 @@ namespace Hydrospanner.Phases.Journal
 		static readonly byte[] serializedBody = new byte[] { 1, 2, 3 };
 		static readonly Dictionary<string, string> headers = new Dictionary<string, string>();
 		static readonly Guid ForeignId = Guid.NewGuid();
-		static readonly Action Acknowledgment = Console.WriteLine;
+		static readonly Action<bool> Acknowledgment = success => { };
 	}
 
 	[Subject(typeof(JournalItem))]
@@ -70,7 +70,7 @@ namespace Hydrospanner.Phases.Journal
 		static readonly byte[] serializedBody = new byte[] { 1, 2, 3 };
 		static readonly Dictionary<string, string> headers = new Dictionary<string, string>();
 		static readonly Guid ForeignId = Guid.NewGuid();
-		static readonly Action Acknowledgment = Console.WriteLine;
+		static readonly Action<bool> Acknowledgment = success => { };
 	}
 
 	[Subject(typeof(JournalItem))]

@@ -20,11 +20,11 @@
 
 			Log.InfoFormat("Executing end-of-batch acknowledgement action (current message sequence: {0}).", data.MessageSequence);
 
-			this.ack();
+			this.ack(true);
 			this.ack = null;
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(AcknowledgmentHandler));
-		private Action ack;
+		private Action<bool> ack;
 	}
 }

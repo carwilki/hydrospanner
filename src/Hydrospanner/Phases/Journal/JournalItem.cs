@@ -2,7 +2,6 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Reflection;
 	using Serialization;
 
 	public sealed class JournalItem
@@ -17,9 +16,9 @@
 
 		public JournalItemAction ItemActions { get; set; }
 		public Guid ForeignId { get; set; }
-		public Action Acknowledgment { get; set; }
+		public Action<bool> Acknowledgment { get; set; }
 
-		public void AsForeignMessage(long sequence, byte[] serializedBody, object body, Dictionary<string, string> headers, Guid foreignId, Action acknowledgment)
+		public void AsForeignMessage(long sequence, byte[] serializedBody, object body, Dictionary<string, string> headers, Guid foreignId, Action<bool> acknowledgment)
 		{
 			this.Clear();
 			this.MessageSequence = sequence;

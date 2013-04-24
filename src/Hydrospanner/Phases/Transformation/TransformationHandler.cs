@@ -55,7 +55,6 @@
 
 			return live;
 		}
-
 		private void PublishToJournalPhase()
 		{
 			var offset = this.item.IsTransient ? 0 : IncludeIncomingMessage;
@@ -67,14 +66,9 @@
 
 			var batch = this.journalRing.Next(size);
 
-			var ack = this.item.Acknowledgment;
-			Action confirm = null;
-			if (ack != null)
-				confirm = () => ack(true);
-
 			if (offset > 0)
 				this.journalRing[batch.Start].AsForeignMessage(
-					this.currentSequnce + 1, this.item.SerializedBody, this.item.Body, this.item.Headers, this.item.ForeignId, confirm);
+					this.currentSequnce + 1, this.item.SerializedBody, this.item.Body, this.item.Headers, this.item.ForeignId, this.item.Acknowledgment);
 
 			for (var i = offset; i < size; i++)
 				this.journalRing[i + batch.Start].AsTransformationResultMessage(this.currentSequnce + 1 + i, this.buffer[i - offset], BlankHeaders);

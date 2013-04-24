@@ -17,6 +17,9 @@ namespace Hydrospanner.Phases.Journal
 
 			It should_invoke_the_acknowledgment_callback_exactly_once = () =>
 				invocations.ShouldEqual(1);
+
+			It should_acknowledge_success = () =>
+				result.ShouldEqual(true);
 		}
 
 		public class when_multiple_acknowledgment_items_are_ready_to_be_acknowledged
@@ -32,6 +35,9 @@ namespace Hydrospanner.Phases.Journal
 
 			It should_invoke_the_acknowledgment_callback_exactly_once = () =>
 				invocations.ShouldEqual(1);
+
+			It should_acknowledge_success = () =>
+				result.ShouldEqual(true);
 		}
 
 		public class when_the_last_item_in_the_set_is_not_an_acknowledgment_item
@@ -50,6 +56,9 @@ namespace Hydrospanner.Phases.Journal
 
 			It should_invoke_the_acknowledgment_callback_exactly_once = () =>
 				invocations.ShouldEqual(1);
+
+			It should_acknowledge_success = () =>
+				result.ShouldEqual(true);
 		}
 
 		public class when_no_acknowledgment_items_are_in_the_batch
@@ -62,6 +71,9 @@ namespace Hydrospanner.Phases.Journal
 
 			It should_NOT_invoke_the_acknowledgment_callback = () =>
 				invocations.ShouldEqual(0);
+
+			It should_not_acknowledge_success = () =>
+				result.ShouldBeNull();
 		}
 
 		public class when_a_subsequent_batch_of_items_does_not_contain_acknowledgment_item
@@ -81,6 +93,7 @@ namespace Hydrospanner.Phases.Journal
 
 		Establish context = () =>
 		{
+			result = null;
 			acknowledged = 0;
 			invocations = 0;
 			handler = new AcknowledgmentHandler();
@@ -93,8 +106,9 @@ namespace Hydrospanner.Phases.Journal
 
 			return new JournalItem
 			{
-				Acknowledgment = () =>
+				Acknowledgment = success =>
 				{
+					result = success;
 					invocations++;
 					acknowledged = sequence;
 				}
@@ -102,6 +116,7 @@ namespace Hydrospanner.Phases.Journal
 		}
 
 		static AcknowledgmentHandler handler;
+		static object result;
 		static int acknowledged;
 		static int invocations;
 	}

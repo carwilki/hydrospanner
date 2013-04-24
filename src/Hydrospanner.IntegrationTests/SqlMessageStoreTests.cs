@@ -60,7 +60,7 @@ namespace Hydrospanner.IntegrationTests
 				var serializer = new JsonSerializer();
 
 				var first = new JournalItem();
-				first.AsForeignMessage(0, new byte[] { 1 }, "hi", new Dictionary<string, string> { { "key", "value" } }, ForeignId, () => { });
+				first.AsForeignMessage(0, new byte[] { 1 }, "hi", new Dictionary<string, string> { { "key", "value" } }, ForeignId, x => { });
 				first.Serialize(serializer);
 				items.Add(first);
 	
@@ -259,7 +259,7 @@ namespace Hydrospanner.IntegrationTests
 			first.Serialize(serializer);
 
 			second = new JournalItem();
-			second.AsForeignMessage(2, serializer.Serialize(43), 43, null, foreignId, () => { });
+			second.AsForeignMessage(2, serializer.Serialize(43), 43, null, foreignId, x => { });
 			second.Serialize(serializer);
 
 			third = new JournalItem();
