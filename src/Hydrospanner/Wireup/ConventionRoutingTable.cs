@@ -43,8 +43,8 @@
 		}
 		public ConventionRoutingTable(IEnumerable<Type> types)
 		{
-			// TODO: get this under test--ensure that timeout, etc. are all registered
-			foreach (var type in this.GetType().Assembly.GetTypes())
+			var currentAssemblyTypes = this.GetType().Assembly.GetTypes(); // TODO: get this under test--ensure that timeout, etc. are all registered
+			foreach (var type in currentAssemblyTypes)
 				this.RegisterType(type);
 
 			foreach (var type in types ?? new Type[0])
