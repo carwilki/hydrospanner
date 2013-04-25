@@ -11,7 +11,7 @@
 		IHydratable<FizzEvent>,
 		IHydratable<BuzzEvent>,
 		IHydratable<FizzBuzzEvent>,
-		ITimeoutHydratable
+		IHydratable<TimeoutReachedEvent>
 	{
 		public string Key { get { return KeyFactory(this.streamId); } }
 		public bool IsComplete { get { return this.aggregate.IsComplete; } }
@@ -32,7 +32,6 @@
 		public void Hydrate(Delivery<CountCommand> delivery)
 		{
 			this.aggregate.Increment(delivery.Message.Value);
-			this.Timeouts.Add(DateTime.UtcNow.AddSeconds(2));
 		}
 		public void Hydrate(Delivery<CountEvent> delivery)
 		{
@@ -50,9 +49,7 @@
 		{
 			this.aggregate.Apply(delivery.Message);
 		}
-
-		public ICollection<DateTime> Timeouts { get; private set; } 
-		public void Hydrate(Delivery<TimeoutMessage> delivery)
+		public void Hydrate(Delivery<TimeoutReachedEvent> delivery)
 		{
 		}
 
@@ -62,7 +59,6 @@
 			var pending = new List<object>();
 			this.PendingMessages = pending;
 			this.aggregate = new FizzBuzzAggregate(memento.StreamId, memento.Value, pending);
-			this.Timeouts = new List<DateTime>();
 		}
 		public FizzBuzzAggregateHydrator(Guid streamId)
 		{
@@ -70,7 +66,6 @@
 			var pending = new List<object>();
 			this.PendingMessages = pending;
 			this.aggregate = new FizzBuzzAggregate(streamId, pending);
-			this.Timeouts = new List<DateTime>();
 		}
 
 		public static FizzBuzzAggregateHydrator Restore(FizzBuzzAggregateMemento memento)

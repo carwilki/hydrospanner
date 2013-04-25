@@ -1,10 +1,9 @@
 ﻿namespace Hydrospanner.Persistence
 {
-	using System.Collections;
 	using System.Collections.Generic;
 	using Wireup;
 
-	public class DefaultRepository : IRepository, IEnumerable<IHydratable>
+	public class DefaultRepository : IRepository
 	{
 		public IEnumerable<object> GetMementos()
 		{
@@ -71,15 +70,6 @@
 
 			this.graveyardRestored = true;
 			return true;
-		}
-
-		public IEnumerator<IHydratable> GetEnumerator()
-		{
-			return this.catalog.Values.GetEnumerator();
-		}
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return this.GetEnumerator();
 		}
 
 		public DefaultRepository(IRoutingTable routes)

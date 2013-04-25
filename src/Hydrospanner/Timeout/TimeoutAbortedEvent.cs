@@ -2,17 +2,15 @@
 {
 	using System;
 
-	public sealed class TimeoutMessage : IInternalMessage
+	public sealed class TimeoutAbortedEvent : IInternalMessage
 	{
 		public string Key { get; private set; }
 		public DateTime Instant { get; private set; }
-		public DateTime UtcNow { get; private set; }
 
-		public TimeoutMessage(string key, DateTime instant, DateTime utcNow)
+		public TimeoutAbortedEvent(string key, DateTime instant)
 		{
 			this.Key = key;
 			this.Instant = instant;
-			this.UtcNow = utcNow;
 		}
 	}
 }

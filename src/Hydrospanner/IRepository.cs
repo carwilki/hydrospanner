@@ -2,7 +2,7 @@
 {
 	using System.Collections.Generic;
 
-	public interface IRepository : IEnumerable<IHydratable>
+	public interface IRepository
 	{
 		IEnumerable<object> GetMementos();
 		IEnumerable<IHydratable<T>> Load<T>(Delivery<T> delivery);

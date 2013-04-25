@@ -22,10 +22,7 @@
 		private void GatherState(bool live, long messageSequence, IHydratable hydratable)
 		{
 			if (live)
-			{
 				this.AddMessages(hydratable);
-				this.watcher.Add(hydratable as ITimeoutHydratable);
-			}
 				
 			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
 				this.TakeSnapshot(hydratable, messageSequence);
@@ -36,12 +33,19 @@
 			this.repository.Delete(hydratable);
 
 			if (live)
-				this.watcher.Remove(hydratable.Key);
+				this.watcher.Abort(hydratable.Key);
 		}
 		private void AddMessages(IHydratable hydratable)
 		{
 			var messages = hydratable.PendingMessages;
-			this.gathered.AddRange(messages);
+			foreach (var message in messages)
+			{
+				if (message is DateTime)
+					this.gathered.Add(new TimeoutRequestedEvent(hydratable.Key, (DateTime)message));
+				else
+					this.gathered.Add(message);
+			}
+
 			if (!messages.IsReadOnly)
 				messages.Clear();
 		}

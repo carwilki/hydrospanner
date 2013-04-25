@@ -23,7 +23,7 @@
 		{
 			var sequence = this.ring.Next();
 			var item = this.ring[sequence];
-			item.AsTransientMessage(new TimeMessage(SystemTime.UtcNow));
+			item.AsTransientMessage(new CurrentTimeMessage(SystemTime.UtcNow));
 			this.ring.Publish(sequence);
 		}
 
