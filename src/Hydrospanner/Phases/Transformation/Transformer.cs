@@ -42,7 +42,8 @@
 		{
 			var messages = hydratable.PendingMessages;
 			this.gathered.AddRange(messages);
-			messages.Clear();
+			if (!messages.IsReadOnly)
+				messages.Clear();
 		}
 		private void TakeSnapshot(IHydratable hydratable, long messageSequence)
 		{

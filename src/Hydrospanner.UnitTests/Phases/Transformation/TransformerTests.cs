@@ -88,6 +88,23 @@ namespace Hydrospanner.Phases.Transformation
 				});
 		}
 
+		public class when_the_hydratable_collection_cannot_be_modified
+		{
+			Establish context = () =>
+			{
+				hydratable = new ReadOnlyMessagesHydratable();
+				repository.Load(liveDelivery).Returns(new[] { hydratable });
+			};
+
+			Because of = () =>
+				thrown = Catch.Exception(() => transformer.Transform(liveDelivery));
+
+			It should_not_attempt_to_clear_the_collection = () =>
+				thrown.ShouldBeNull();
+
+			static Exception thrown;
+		}
+
 		public class when_the_hydratable_can_be_snapshot_and_return_a_cloneable_object
 		{
 			Establish context = () =>
@@ -231,10 +248,10 @@ namespace Hydrospanner.Phases.Transformation
 		public string Key { get { return this.key; } }
 		public bool IsComplete { get; private set; }
 		public bool IsPublicSnapshot { get { return this.isPublicSnapshot; } }
-		public ICollection<object> PendingMessages { get; private set; }
+		public virtual ICollection<object> PendingMessages { get; private set; }
 		public object Memento { get { return this.memento ?? new SomethingHappenedProjection { Value = this.EventsReceived.Last() }; } }
 
-		public void Hydrate(Delivery<SomethingHappenedEvent> delivery)
+		public virtual void Hydrate(Delivery<SomethingHappenedEvent> delivery)
 		{
 			this.EventsReceived.Add(delivery.Message.Value);
 			this.PendingMessages.Add(delivery.Message);
@@ -256,6 +273,21 @@ namespace Hydrospanner.Phases.Transformation
 		private readonly bool becomesComplete;
 		private readonly string key;
 		private readonly object memento;
+	}
+
+	public class ReadOnlyMessagesHydratable : TestHydratable
+	{
+		public ReadOnlyMessagesHydratable() : base(false, false, string.Empty, null)
+		{
+		}
+
+		public override ICollection<object> PendingMessages
+		{
+			get { return new object[] { 0, 1, 2, 3 }; }
+		}
+		public override void Hydrate(Delivery<SomethingHappenedEvent> delivery)
+		{
+		}
 	}
 }
 
