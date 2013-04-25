@@ -72,7 +72,7 @@
 		}
 		private TransformationHandler CreateTransformationHandler(IRepository repository, long sequence, ISystemSnapshotTracker tracker = null, ITimeoutWatcher watcher = null)
 		{
-			watcher = watcher ?? new NullTimeoutWatcher();
+			watcher = watcher ?? new NullTimeoutWatcher(); // HUGE TODO: during re-build, the timeout watcher *does* need to pay attention to this stuff
 			tracker = tracker ?? new NullSystemSnapshotTracker();
 
 			var transformer = (ITransformer)new Transformer(repository, this.snapshotRing, watcher);

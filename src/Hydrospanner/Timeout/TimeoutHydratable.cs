@@ -28,14 +28,15 @@
 		}
 		public object Memento
 		{
-			get { return null; }
+			get { return new TimeoutMemento(); }
 		}
 
-		public void Abort(string key)
+		public void Abort(IHydratable hydratable)
 		{
-			foreach (var timeout in this.timeouts)
-				if (timeout.Value.Contains(key))
-					this.PendingMessages.Add(new TimeoutAbortedEvent(key, timeout.Key));
+			if (hydratable is IHydratable<TimeoutReachedEvent>)
+				foreach (var timeout in this.timeouts)
+					if (timeout.Value.Contains(hydratable.Key))
+						this.PendingMessages.Add(new TimeoutAbortedEvent(hydratable.Key, timeout.Key));
 		}
 
 		public void Hydrate(Delivery<CurrentTimeMessage> delivery)
@@ -125,5 +126,10 @@
 		{
 			return new HydrationInfo(delivery.Message.Key, () => null); // used to route the the hydratable in question
 		}
+	}
+
+	public class TimeoutMemento
+	{
+		// HUGE TODO: THIS IS A BIG FAT TODO--timeouts must be persisted 
 	}
 }

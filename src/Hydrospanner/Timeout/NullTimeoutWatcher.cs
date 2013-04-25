@@ -2,7 +2,7 @@
 {
 	public sealed class NullTimeoutWatcher : ITimeoutWatcher
 	{
-		public void Abort(string key)
+		public void Abort(IHydratable hydratable)
 		{
 		}
 	}

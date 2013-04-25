@@ -33,7 +33,7 @@
 			this.repository.Delete(hydratable);
 
 			if (live)
-				this.watcher.Abort(hydratable.Key); // TODO: test
+				this.watcher.Abort(hydratable); // TODO: test
 		}
 		private void AddMessages(IHydratable hydratable)
 		{
