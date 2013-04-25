@@ -20,7 +20,6 @@
 			this.Key = key;
 			this.Memento = memento;
 		}
-
 		public void AsPartOfSystemSnapshot(long sequence, int remaining, object memento)
 		{
 			this.Clear();
@@ -28,7 +27,10 @@
 			this.CurrentSequence = sequence;
 			this.MementosRemaining = remaining;
 		}
-
+		public void Serialize(ISerializer serializer)
+		{
+			this.Serialized = serializer.Serialize(this.Memento);
+		}
 		private void Clear()
 		{
 			this.IsPublicSnapshot = false;
@@ -36,11 +38,6 @@
 			this.Memento = null;
 			this.Serialized = null;
 			this.CurrentSequence = this.MementosRemaining = 0;
-		}
-
-		public void Serialize(ISerializer serializer)
-		{
-			this.Serialized = serializer.Serialize(this.Memento);
 		}
 	}
 }

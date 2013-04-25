@@ -30,7 +30,6 @@
 			this.Acknowledgment = acknowledgment;
 			this.SerializedType = body.ResolvableTypeName();
 		}
-
 		public void AsTransformationResultMessage(long sequence, object body, Dictionary<string, string> headers)
 		{
 			this.Clear();
@@ -45,7 +44,6 @@
 			if (this.Body is IInternalMessage)
 				this.ItemActions = JournalItemAction.Journal; // TODO: test
 		}
-
 		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, string typeName, byte[] headers)
 		{
 			this.Clear();
@@ -55,19 +53,6 @@
 			this.SerializedType = typeName;
 			this.SerializedHeaders = headers;
 		}
-
-		private void Clear()
-		{
-			this.MessageSequence = 0;
-			this.SerializedBody = this.SerializedHeaders = null;
-			this.SerializedType = null;
-			this.Body = null;
-			this.Headers = null;
-			this.ItemActions = JournalItemAction.None;
-			this.ForeignId = Guid.Empty;
-			this.Acknowledgment = null;
-		}
-
 		public void Serialize(ISerializer serializer)
 		{
 			if (this.SerializedBody == null)
@@ -83,14 +68,16 @@
 			if (this.SerializedHeaders == null && this.Headers != null && this.Headers.Count > 0)
 				this.SerializedHeaders = serializer.Serialize(this.Headers);
 		}
-	}
-
-	[Flags]
-	public enum JournalItemAction
-	{
-		None = 0,
-		Journal = 1,
-		Dispatch = 2,
-		Acknowledge = 4,
+		private void Clear()
+		{
+			this.MessageSequence = 0;
+			this.SerializedBody = this.SerializedHeaders = null;
+			this.SerializedType = null;
+			this.Body = null;
+			this.Headers = null;
+			this.ItemActions = JournalItemAction.None;
+			this.ForeignId = Guid.Empty;
+			this.Acknowledgment = null;
+		}
 	}
 }
