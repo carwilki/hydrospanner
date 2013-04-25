@@ -4,7 +4,7 @@ By [SmartyStreets, LLC](http://smartystreets.com)
 
 
 > "Horizontal boosters. Alluvial dampers? Ow! That's not it, bring me the 
-> Hydrospanner. I don't know how we're going to get out of this one." [_citation needed_]
+> Hydrospanner. I don't know how we're going to get out of this one." -[He who shot first](http://en.wikipedia.org/wiki/Han_shot_first)
 
 
 ## Introduction and Design Philosophy
@@ -84,12 +84,10 @@ Development of the Hydrospanner was facilitated by:
 
 ## How is it used? (Application Hooks via the `IHydratable` interface)
 
-
-There are a few interfaces meant to be implemented by the hosted application by one or more types which, when implemented, usually wrap over aggregates, sagas, or projections:
+We are finally ready to discuss the meaning behind the name of this project.  "Hydrospanner" is a reference to the all-purpose tool of the same name from the Star Wars universe [_citation needed_], which happens to share the first 4 letters with the word "Hydrate". The concept of replaying messages to rebuild the state of an application brings to mind the image of something that is dehydrated being reconstitued, or re-hydrated. "Hydratable" is the word we have used to name the fundamental interfaces that allow your application to interact with this project, implying that their state can be hydrated, or reconstituted. 
 
 1. `IHydratable`
 2. `IHydratable<T>`
-3. `ITimeoutHydratable`
 
 ### `IHydratable`:
 
@@ -127,13 +125,19 @@ Where `<T>` represents the type of the message to be handled. Depending on the p
 - `long Sequence { get; }`: The incrementing id of the message as it will be persisted to durable storage
 - `bool Live { get; }`: Indicates whether or not this message is being replayed from storage to rebuild application state (after a software deployment, `== false`) or whether this message is being handled for the first time (ie, `== true`)
 
+In order for the application to route messages of type `<T>` to the proper `IHydratable<T>` you should also implement the following method:
 
-### `ITimeoutHydratable`
+`public static HydrationInfo Lookup(Delivery<T> delivery)`
 
-`ICollection<DateTime> Timeouts { get; }`
+The return value (`HydrationInfo`) exposes the following properties, which are provided via its constructor:
 
-This special-case interface allows your application to request a 'wake-up' call. Simply add a DateTime to this collection to receive a `TimeoutMessage` at that time. That `TimeoutMessage` message will be delivered to the following method:
+- `Key` - The identifier for this instance of the `IHydratable`. It can be derived from any data attached to the `Delivery<T>`.
+- `Func<IHydratable> Create` - When invoked, this anonymous function returns a brand new instance of this `IHydratable`. This is how the `IHydratable` is created if it does not yet exist when the `Delivery<T>` is received, otherwise the `IHydratable` is retreived by the Hydrospanner using the `Key` provided above.
 
+
+### `IHydratable<TimeoutMessage>`
+
+**TODO: explain about adding a DateTime to the PendingMessages collection as request for a 'wake-up' call.**
 
 `void Hydrate(Delivery<TimeoutMessage> delivery)`
 
@@ -147,13 +151,8 @@ This is where your application is 'woken up' for a particular reason pertinent t
 - `DateTime UtcNow { get; }`: When the message is actually delivered (there can be some delay or anticipation depending on the load of the system).
 
 
-## Sample Application
-
-**TODO**
-
 
 ## Application Configuration
-
 
 The following parameters can be supplied as `<appSettings>`:
 
@@ -168,3 +167,8 @@ The following parameters can be supplied as `<appSettings>`:
 - `hydrospanner-duplicate-window`: The number of most recent message id's to load in order to filter duplicate message receipt (defaults to 1024 * 128)
 
 Alternatively, you may provide an instance of a class that inherits from `ConventionWireupParameters` to an overload of the  `Wireup.Initialize(…)` method.
+
+
+## Show me working example code!
+
+We've included a working [sample application](https://github.com/smartystreets/hydrospanner/tree/master/src/SampleApplication) with the project that we actually use for integration testing. It shows most of the concepts explained in this document. It's basically a [Rube Goldberg](http://en.wikipedia.org/wiki/Rube_Goldberg_machine)-style [fizz-buzz](http://en.wikipedia.org/wiki/Fizz_buzz) counter.
