@@ -33,7 +33,7 @@
 			this.repository.Delete(hydratable);
 
 			if (live)
-				this.watcher.Abort(hydratable.Key);
+				this.watcher.Abort(hydratable.Key); // TODO: test
 		}
 		private void AddMessages(IHydratable hydratable)
 		{
@@ -41,7 +41,7 @@
 			foreach (var message in messages)
 			{
 				if (message is DateTime)
-					this.gathered.Add(new TimeoutRequestedEvent(hydratable.Key, (DateTime)message));
+					this.gathered.Add(new TimeoutRequestedEvent(hydratable.Key, (DateTime)message)); // TODO: test
 				else
 					this.gathered.Add(message);
 			}

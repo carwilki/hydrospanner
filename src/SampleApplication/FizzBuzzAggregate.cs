@@ -21,21 +21,15 @@
 		public void Increment(int value)
 		{
 			if (value % 3 == 0 && value % 5 == 0)
-			{
 				this.pendingMessages.Add(new FizzBuzzEvent { StreamId = this.streamId, Value = value });
-			}
 			else if (value % 5 == 0)
-			{
 				this.pendingMessages.Add(new BuzzEvent { StreamId = this.streamId, Value = value });
-			}
 			else if (value % 3 == 0)
-			{
 				this.pendingMessages.Add(new FizzEvent { StreamId = this.streamId, Value = value });
-			}
 			else
-			{
 				this.pendingMessages.Add(new CountEvent { StreamId = this.streamId, Value = value });
-			}
+
+			this.pendingMessages.Add(DateTime.UtcNow.AddSeconds(1));
 		}
 		public void Apply(FizzBuzzEvent message)
 		{

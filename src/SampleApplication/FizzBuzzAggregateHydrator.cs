@@ -51,6 +51,8 @@
 		}
 		public void Hydrate(Delivery<TimeoutReachedEvent> delivery)
 		{
+			if (delivery.Live)
+				Console.WriteLine("Timeout Reached: " + delivery.Message.Instant);
 		}
 
 		public FizzBuzzAggregateHydrator(FizzBuzzAggregateMemento memento)
