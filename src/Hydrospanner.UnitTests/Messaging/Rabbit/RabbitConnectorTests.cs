@@ -87,7 +87,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				factory.Ssl.Enabled.ShouldBeTrue();
 				factory.Ssl.Version.ShouldEqual(SslProtocols.Tls);
 				factory.Ssl.ServerName.ShouldEqual("domain.com");
-				factory.Ssl.AcceptablePolicyErrors.ShouldEqual(SslPolicyErrors.RemoteCertificateNameMismatch);
+				factory.Ssl.AcceptablePolicyErrors.ShouldEqual(SslPolicyErrors.RemoteCertificateChainErrors);
 				factory.Port.ShouldEqual(7890);
 			};
 		}

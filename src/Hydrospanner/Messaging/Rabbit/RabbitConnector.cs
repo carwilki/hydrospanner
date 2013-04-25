@@ -68,7 +68,7 @@
 			if (SecureConnection != address.Scheme)
 				return;
 
-			var accepted = address.Query.Contains(IgnoreIssuer) ? SslPolicyErrors.RemoteCertificateNameMismatch : SslPolicyErrors.None;
+			var accepted = address.Query.Contains(IgnoreIssuer) ? SslPolicyErrors.RemoteCertificateChainErrors : SslPolicyErrors.None;
 			factory.Ssl = new SslOption(address.Host)
 			{
 				Enabled = true,
