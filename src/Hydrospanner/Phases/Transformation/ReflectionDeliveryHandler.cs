@@ -7,18 +7,25 @@
 	// TODO: get this under test
 	public class ReflectionDeliveryHandler : IDeliveryHandler
 	{
-		public IEnumerable<object> Deliver(object message, Dictionary<string, string> headers, long sequence, bool live, bool local)
+		public IEnumerable<object> Deliver(TransformationItem item, bool live)
 		{
-			var type = message.GetType();
-			var callback = this.callbacks.Add(type, () => this.RegisterCallback(type));
-			return callback(message, headers, sequence, live, local);
+			var callback = this.CreateCallback(item.Body.GetType());
+			return callback(item.Body, item.Headers, item.MessageSequence, true, item.ForeignId == Guid.Empty);
 		}
-
-		private HandleDelegate RegisterCallback(Type messageType)
+		public IEnumerable<object> Deliver(object message, long sequence)
 		{
+			var callback = this.CreateCallback(message.GetType());
+			return callback(message, EmptyHeaders, sequence, true, true);
+		}
+		private HandleDelegate CreateCallback(Type messageType)
+		{
+			HandleDelegate callback;
+			if (this.callbacks.TryGetValue(messageType, out callback))
+				return callback;
+
 			var method = this.callbackDelegateMethod.MakeGenericMethod(messageType);
-			var callback = Delegate.CreateDelegate(typeof(HandleDelegate), this, method);
-			return (HandleDelegate)callback;
+			this.callbacks[messageType] = callback = (HandleDelegate)Delegate.CreateDelegate(typeof(HandleDelegate), this, method);
+			return callback;
 		}
 		// ReSharper disable UnusedMember.Local
 		// ReSharper disable SuspiciousTypeConversion.Global
@@ -39,6 +46,7 @@
 			this.callbackDelegateMethod = this.GetType().GetMethod("RegisterCallbackDelegate", BindingFlags.Instance | BindingFlags.NonPublic);
 		}
 
+		private static readonly Dictionary<string, string> EmptyHeaders = new Dictionary<string, string>(); 
 		private readonly Dictionary<Type, HandleDelegate> callbacks = new Dictionary<Type, HandleDelegate>();
 		private readonly MethodInfo callbackDelegateMethod;
 		private readonly ITransformer handler;

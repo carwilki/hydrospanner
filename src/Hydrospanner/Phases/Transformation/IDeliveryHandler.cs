@@ -4,6 +4,7 @@
 
 	public interface IDeliveryHandler
 	{
-		IEnumerable<object> Deliver(object message, Dictionary<string, string> headers, long sequence, bool live, bool local);
+		IEnumerable<object> Deliver(TransformationItem item, bool live);
+		IEnumerable<object> Deliver(object message, long sequence);
 	}
 }
