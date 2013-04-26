@@ -87,6 +87,10 @@
 			size |= size >> 8;
 			size |= size >> 16;
 			size++;
+
+			if (size == 1)
+				return 2;
+
 			return size > (1024 * 1024) ? (1024 * 1024) : (int)size;
 		}
 		private TransformationHandler CreateTransformationHandler(IRepository repository, long sequence, ISystemSnapshotTracker tracker = null)
