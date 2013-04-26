@@ -10,7 +10,7 @@
 		public IEnumerable<object> Deliver(TransformationItem item, bool live)
 		{
 			var callback = this.CreateCallback(item.Body.GetType());
-			return callback(item.Body, item.Headers, item.MessageSequence, true, item.ForeignId == Guid.Empty);
+			return callback(item.Body, item.Headers, item.MessageSequence, live, item.ForeignId == Guid.Empty);
 		}
 		public IEnumerable<object> Deliver(object message, long sequence)
 		{
