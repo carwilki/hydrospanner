@@ -2,6 +2,7 @@
 {
 	using Disruptor;
 	using Serialization;
+	using log4net;
 
 	public sealed class DeserializationHandler : IEventHandler<TransformationItem>
 	{
@@ -9,6 +10,9 @@
 		{
 			if (this.mod > 1 && sequence % this.mod != this.remainder)
 				return;
+
+			if (sequence == 0)
+				Log.Info("Starting deserialization");
 
 			data.Deserialize(this.serializer);
 		}
@@ -24,6 +28,7 @@
 			this.remainder = (byte)remainder;
 		}
 
+		private static readonly ILog Log = LogManager.GetLogger(typeof(DeserializationHandler));
 		private readonly ISerializer serializer;
 		private readonly byte mod;
 		private readonly byte remainder;
