@@ -149,9 +149,9 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Reference Include="Disruptor, Version=1.1.1.0, Culture=neutral, PublicKeyToken=979700c3ff7272ae, processorArchitecture=MSIL">
+    <Reference Include="Disruptor, Version=1.1.2.0, Culture=neutral, PublicKeyToken=979700c3ff7272ae, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\disruptor-fork.1.1.1\lib\net40\Disruptor.dll</HintPath>
+      <HintPath>..\packages\disruptor-fork.1.1.2\lib\net40\Disruptor.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
