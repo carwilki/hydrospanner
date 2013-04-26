@@ -59,17 +59,35 @@
 			if (countdown == 0)
 				return null;
 
-			var deserializationHandler1 = new DeserializationHandler(CreateSerializer(), 3, 0);
-			var deserializationHandler2 = new DeserializationHandler(CreateSerializer(), 3, 1);
-			var deserializationHandler3 = new DeserializationHandler(CreateSerializer(), 3, 2);
+			var serializerCount = 1;
+			if (countdown > 1024 * 64)
+				serializerCount++;
+			if (countdown > 1024 * 1024)
+				serializerCount++;
+
+			var serializers = new DeserializationHandler[serializerCount];
+			for (var i = 0; i < serializerCount; i++)
+				serializers[i] = new DeserializationHandler(CreateSerializer(), serializerCount, i);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence);
 
-			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 1024);
-			disruptor.HandleEventsWith(deserializationHandler1, deserializationHandler2, deserializationHandler3)
+			var slots = ComputeDisruptorSize(countdown);
+			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), slots);
+			disruptor.HandleEventsWith(serializers)
 				.Then(transformationHandler)
 				.Then(new CountdownHandler(countdown, complete));
 
 			return new DisruptorBase<TransformationItem>(disruptor);
+		}
+		private static int ComputeDisruptorSize(long size)
+		{
+			size--;
+			size |= size >> 1;
+			size |= size >> 2;
+			size |= size >> 4;
+			size |= size >> 8;
+			size |= size >> 16;
+			size++;
+			return size > (1024 * 1024) ? (1024 * 1024) : (int)size;
 		}
 		private TransformationHandler CreateTransformationHandler(IRepository repository, long sequence, ISystemSnapshotTracker tracker = null)
 		{
