@@ -9,7 +9,6 @@ namespace Hydrospanner.Persistence
 	using System.Linq;
 	using Machine.Specifications;
 	using NSubstitute;
-	using Phases.Transformation;
 	using Wireup;
 
 	[Subject(typeof(DefaultRepository))]
@@ -52,7 +51,7 @@ namespace Hydrospanner.Persistence
 		{
 			Establish context = () =>
 			{
-				nullFactoryDelivery = new Delivery<long>(0, Headers, 1, true);
+				nullFactoryDelivery = new Delivery<long>(0, Headers, 1, true, true);
 				nullFactoryInfo = new HydrationInfo(NullFactory, () => null);
 				routes.Lookup(nullFactoryDelivery).Returns(new[] { nullFactoryInfo });
 			};
@@ -72,7 +71,7 @@ namespace Hydrospanner.Persistence
 		{
 			Establish context = () =>
 			{
-				emptyKeyDelivery = new Delivery<long>(0, Headers, 1, true);
+				emptyKeyDelivery = new Delivery<long>(0, Headers, 1, true, true);
 				emptyKeyInfo = new HydrationInfo(string.Empty, () => new MyHydratable(string.Empty));
 				routes.Lookup(emptyKeyDelivery).Returns(new[] { emptyKeyInfo });
 			};
@@ -91,7 +90,7 @@ namespace Hydrospanner.Persistence
 		{
 			Establish context = () =>
 			{
-				tombstoneDelivery = new Delivery<string>(Tombstone, Headers, 1, true);
+				tombstoneDelivery = new Delivery<string>(Tombstone, Headers, 1, true, true);
 				tombstoned = new MyHydratable(Tombstone);
 				tombstoneInfo = new HydrationInfo(Tombstone, () => tombstoned);
 				routes.Lookup(tombstoneDelivery).Returns(new[] { tombstoneInfo });
@@ -153,7 +152,7 @@ namespace Hydrospanner.Persistence
 			routes = Substitute.For<IRoutingTable>();
 			repository = new DefaultRepository(routes);
 			myHydrationInfo = new HydrationInfo(Key, () => Document);
-			delivery = new Delivery<int>(Message, Headers, 1, true);
+			delivery = new Delivery<int>(Message, Headers, 1, true, true);
 
 			routes.Lookup(delivery).Returns(new[] { myHydrationInfo });
 		};
@@ -169,7 +168,7 @@ namespace Hydrospanner.Persistence
 		static IRoutingTable routes;
 	}
 
-	public class MyHydratable : IHydratable, IHydratable<int>
+	public class MyHydratable : IHydratable<int>
 	{
 		public const int MyMemento = 4242;
 		public string Key { get { return this.key; } }
@@ -198,7 +197,7 @@ namespace Hydrospanner.Persistence
 		readonly string key;
 	}
 
-	public class NullMementoHydratable : IHydratable, IHydratable<Guid>
+	public class NullMementoHydratable : IHydratable<Guid>
 	{
 		public string Key { get { return this.key; } }
 		public object Memento { get { return null; } }

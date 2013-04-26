@@ -114,7 +114,7 @@
 		public static TimeoutHydratable Load(IRepository repository)
 		{
 			var message = new CurrentTimeMessage(DateTime.MinValue);
-			var delivery = new Delivery<CurrentTimeMessage>(message, null, 0, false);
+			var delivery = new Delivery<CurrentTimeMessage>(message, null, 0, false, true);
 			return (TimeoutHydratable)repository.Load(delivery).Single();
 		}
 		private TimeoutHydratable()

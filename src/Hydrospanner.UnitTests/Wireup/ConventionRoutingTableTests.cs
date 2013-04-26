@@ -72,7 +72,7 @@ namespace Hydrospanner.Wireup
 		public class when_no_underlying_hydratables_handle_a_given_message
 		{
 			It should_return_an_empty_set = () =>
-				new ConventionRoutingTable().Lookup(new Delivery<TestMessage>(new TestMessage(), null, 1, true)).Count().ShouldEqual(0);
+				new ConventionRoutingTable().Lookup(new Delivery<TestMessage>(new TestMessage(), null, 1, true, true)).Count().ShouldEqual(0);
 		}
 
 		public class when_providing_a_delivery
@@ -84,7 +84,7 @@ namespace Hydrospanner.Wireup
 			};
 
 			Because of = () =>
-				list = table.Lookup(new Delivery<TestMessage>(message, new Dictionary<string, string>(), 1, true)).ToList();
+				list = table.Lookup(new Delivery<TestMessage>(message, new Dictionary<string, string>(), 1, true, true)).ToList();
 
 			It should_return_a_set_of_hydration_info_structs_for_each_registered_hydratable = () =>
 			{

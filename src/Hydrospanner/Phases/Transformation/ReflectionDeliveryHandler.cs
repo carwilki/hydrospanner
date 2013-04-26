@@ -7,11 +7,11 @@
 	// TODO: get this under test
 	public class ReflectionDeliveryHandler : IDeliveryHandler
 	{
-		public IEnumerable<object> Deliver(object message, Dictionary<string, string> headers, long sequence, bool live)
+		public IEnumerable<object> Deliver(object message, Dictionary<string, string> headers, long sequence, bool live, bool local)
 		{
 			var type = message.GetType();
 			var callback = this.callbacks.Add(type, () => this.RegisterCallback(type));
-			return callback(message, headers, sequence, live);
+			return callback(message, headers, sequence, live, local);
 		}
 
 		private HandleDelegate RegisterCallback(Type messageType)
@@ -22,9 +22,9 @@
 		}
 		// ReSharper disable UnusedMember.Local
 		// ReSharper disable SuspiciousTypeConversion.Global
-		private IEnumerable<object> RegisterCallbackDelegate<T>(object message, Dictionary<string, string> headers, long sequence, bool live)
+		private IEnumerable<object> RegisterCallbackDelegate<T>(object message, Dictionary<string, string> headers, long sequence, bool live, bool local)
 		{
-			var delivery = new Delivery<T>((T)message, headers, sequence, live);
+			var delivery = new Delivery<T>((T)message, headers, sequence, live, local);
 			return this.handler.Transform(delivery);
 		}
 		// ReSharper restore SuspiciousTypeConversion.Global
@@ -42,6 +42,6 @@
 		private readonly Dictionary<Type, HandleDelegate> callbacks = new Dictionary<Type, HandleDelegate>();
 		private readonly MethodInfo callbackDelegateMethod;
 		private readonly ITransformer handler;
-		internal delegate IEnumerable<object> HandleDelegate(object message, Dictionary<string, string> headers, long sequence, bool live);
+		private delegate IEnumerable<object> HandleDelegate(object message, Dictionary<string, string> headers, long sequence, bool live, bool local);
 	}
 }

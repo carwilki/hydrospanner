@@ -165,7 +165,7 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				subsequentIncoming = new SomethingHappenedEvent { Value = "Goodbye, World!" };
-				subsequentDelivery = new Delivery<SomethingHappenedEvent>(subsequentIncoming, Headers, LiveMessageSequence + 1, true);
+				subsequentDelivery = new Delivery<SomethingHappenedEvent>(subsequentIncoming, Headers, LiveMessageSequence + 1, true, true);
 				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
 				repository.Load(liveDelivery).Returns(new[] { hydratable });
 				repository.Load(subsequentDelivery).Returns(new[] { hydratable });
@@ -209,8 +209,8 @@ namespace Hydrospanner.Phases.Transformation
 			snapshotRing = new RingBufferHarness<SnapshotItem>();
 			watcher = Substitute.For<ITimeoutWatcher>();
 			transformer = new Transformer(repository, snapshotRing, watcher);
-			replayDelivery = new Delivery<SomethingHappenedEvent>(Incoming, Headers, ReplayMessage, false);
-			liveDelivery = new Delivery<SomethingHappenedEvent>(Incoming, Headers, LiveMessageSequence, true); 
+			replayDelivery = new Delivery<SomethingHappenedEvent>(Incoming, Headers, ReplayMessage, false, true);
+			liveDelivery = new Delivery<SomethingHappenedEvent>(Incoming, Headers, LiveMessageSequence, true, true); 
 		};
 
 		const long JournaledSequence = 42;
