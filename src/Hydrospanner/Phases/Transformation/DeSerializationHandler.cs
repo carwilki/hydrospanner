@@ -1,8 +1,8 @@
 ﻿namespace Hydrospanner.Phases.Transformation
 {
 	using Disruptor;
-	using Serialization;
 	using log4net;
+	using Serialization;
 
 	public sealed class DeserializationHandler : IEventHandler<TransformationItem>
 	{
