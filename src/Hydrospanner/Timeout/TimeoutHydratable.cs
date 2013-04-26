@@ -28,7 +28,7 @@
 		}
 		public object Memento
 		{
-			get { return new TimeoutMemento(); }
+			get { return new TimeoutMemento(this.timeouts); }
 		}
 
 		public void Abort(IHydratable hydratable)
@@ -105,10 +105,16 @@
 			return new HydrationInfo(HydratableKey, () => new TimeoutHydratable());
 		}
 
+		public static TimeoutHydratable Restore(TimeoutMemento memento)
+		{
+			var hydratable = new TimeoutHydratable();
+			memento.CopyTo(hydratable.timeouts);
+			return hydratable;
+		}
 		public static TimeoutHydratable Load(IRepository repository)
 		{
 			var message = new CurrentTimeMessage(DateTime.MinValue);
-			var delivery = new Delivery<CurrentTimeMessage>(message, null, 0, true);
+			var delivery = new Delivery<CurrentTimeMessage>(message, null, 0, false);
 			return (TimeoutHydratable)repository.Load(delivery).Single();
 		}
 		private TimeoutHydratable()
@@ -130,6 +136,35 @@
 
 	public class TimeoutMemento
 	{
-		// HUGE TODO: THIS IS A BIG FAT TODO--timeouts must be persisted 
+		public TimeoutMemento(SortedList<DateTime, HashSet<string>> source)
+		{
+			this.Timeouts = new Dictionary<DateTime, List<string>>(source.Count);
+			foreach (var item in source)
+			{
+				var keys = item.Value;
+				var list = new List<string>(keys.Count);
+				list.AddRange(keys);
+				this.Timeouts[item.Key] = list;
+			}
+		}
+		public TimeoutMemento()
+		{
+			this.Timeouts = new Dictionary<DateTime, List<string>>();
+		}
+
+		public void CopyTo(SortedList<DateTime, HashSet<string>> destination)
+		{
+			foreach (var item in this.Timeouts)
+			{
+				HashSet<string> keys;
+				if (!destination.TryGetValue(item.Key, out keys))
+					destination[item.Key] = keys = new HashSet<string>();
+
+				foreach (var key in item.Value)
+					keys.Add(key);
+			}
+		}
+
+		public Dictionary<DateTime, List<string>> Timeouts { get; private set; }
 	}
 }

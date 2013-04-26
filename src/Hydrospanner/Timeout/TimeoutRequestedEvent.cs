@@ -10,7 +10,7 @@
 		public TimeoutRequestedEvent(string key, DateTime instant)
 		{
 			this.Key = key;
-			this.Instant = instant;
+			this.Instant = instant.AddMilliseconds(-instant.Millisecond); // truncate milliseconds
 		}
 	}
 }
