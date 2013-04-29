@@ -79,7 +79,7 @@
 				return; // only re-dispatch messages which originated here
 
 			if (this.internalTypes.Contains(message.SerializedType))
-				return; // TODO: get this under test
+				return;
 
 			var next = journalRing.RingBuffer.Next();
 			var claimed = journalRing.RingBuffer[next];
@@ -102,9 +102,9 @@
 			this.disruptors = disruptors;
 
 			var types = this.GetType().Assembly.GetTypes();
-			foreach (var type in types)
-				if (typeof(IInternalMessage).IsAssignableFrom(type))
-					this.internalTypes.Add(type.ResolvableTypeName());
+			for (var i = 0; i < types.Length; i++)
+				if (typeof(IInternalMessage).IsAssignableFrom(types[i]))
+					this.internalTypes.Add(types[i].ResolvableTypeName());
 		}
 		protected MessageBootstrapper()
 		{

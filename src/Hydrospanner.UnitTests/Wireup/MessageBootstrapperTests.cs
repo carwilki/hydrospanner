@@ -11,6 +11,7 @@ namespace Hydrospanner.Wireup
 	using Persistence;
 	using Phases.Journal;
 	using Phases.Transformation;
+	using Timeout;
 
 	[Subject(typeof(MessageBootstrapper))]
 	public class when_initializing_the_message_bootstrapper
@@ -201,6 +202,28 @@ namespace Hydrospanner.Wireup
 
 				It should_return_success = () =>
 					result.ShouldEqual(true);
+
+				static JournaledMessage message;
+			}
+
+			public class when_restoring_internal_messages_during
+			{
+				Establish context = () =>
+				{
+					var @internal = new TimeoutRequestedEvent(string.Empty, SystemTime.UtcNow);
+					var type = @internal.ResolvableTypeName();
+
+					message = new JournaledMessage { Sequence = 1, SerializedType = type };
+					store.Load(info.SnapshotSequence + 1).Returns(new List<JournaledMessage> { message });
+
+					itemCount = 1;
+				};
+
+				Because of = () =>
+					result = bootstrapper.Restore(info, journal, repository);
+
+				It not_publish_internal_messages_to_the_journal_ring_for_dispatch = () =>
+					journal.Ring.AllItems.ShouldBeEmpty();
 
 				static JournaledMessage message;
 			}
