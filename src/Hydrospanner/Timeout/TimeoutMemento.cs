@@ -25,6 +25,8 @@
 
 		public void CopyTo(SortedList<DateTime, HashSet<string>> destination)
 		{
+			destination.Clear();
+
 			foreach (var item in this.Timeouts)
 			{
 				HashSet<string> keys;

@@ -28,12 +28,12 @@
 		}
 		public object Memento
 		{
-			get { return this.aggregate.Memento; }
+			get { return this.aggregate.Clone(); }
 		}
 
 		public IHydratable Abort(IHydratable hydratable)
 		{
-			this.aggregate.AbortTimeouts(hydratable);
+			this.aggregate.AbortTimeouts(hydratable.Key);
 			return this;
 		}
 		public object Filter(string key, object message)

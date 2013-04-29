@@ -3,13 +3,8 @@
 	using System;
 	using System.Collections.Generic;
 
-	public class TimeoutAggregate
+	public class TimeoutAggregate : ICloneable
 	{
-		public TimeoutMemento Memento
-		{
-			get { return new TimeoutMemento(this.timeouts); }
-		}
-
 		public void DispatchTimeouts(DateTime now)
 		{
 			var keys = this.timeouts.Keys;
@@ -23,14 +18,11 @@
 					this.pending.Add(new TimeoutReachedEvent(hydratableKey, instant, now));
 			}
 		}
-		public void AbortTimeouts(IHydratable hydratable)
+		public void AbortTimeouts(string key)
 		{
-			if (!(hydratable is IHydratable<TimeoutReachedEvent>))
-				return;
-
 			foreach (var timeout in this.timeouts)
-				if (timeout.Value.Contains(hydratable.Key))
-					this.pending.Add(new TimeoutAbortedEvent(hydratable.Key, timeout.Key));
+				if (timeout.Value.Contains(key))
+					this.pending.Add(new TimeoutAbortedEvent(key, timeout.Key));
 		}
 
 		public void Apply(TimeoutRequestedEvent message)
@@ -60,13 +52,19 @@
 				return;
 
 			keys.Remove(key);
+
 			if (keys.Count == 0)
 				this.timeouts.Remove(instant);
 		}
 
 		public void Restore(TimeoutMemento memento)
 		{
-			memento.CopyTo(this.timeouts);
+			if (memento != null)
+				memento.CopyTo(this.timeouts);
+		}
+		public object Clone()
+		{
+			return new TimeoutMemento(this.timeouts);
 		}
 
 		public TimeoutAggregate(List<object> pending)

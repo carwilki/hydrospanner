@@ -66,6 +66,8 @@
     <Compile Include="Phases\Transformation\TransformerTests.cs" />
     <Compile Include="RingBufferHarness.cs" />
     <Compile Include="Timeout\SystemClockTests.cs" />
+    <Compile Include="Timeout\TimeoutHydratableTests.cs" />
+    <Compile Include="Timeout\TimeoutAggregateTests.cs" />
     <Compile Include="Wireup\ConventionRoutingTableTests.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -108,6 +110,7 @@
     <Reference Include="Machine.Specifications">
       <HintPath>..\packages\Machine.Specifications-Signed.0.5.12\lib\net40\Machine.Specifications.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="NSubstitute, Version=1.6.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NSubstitute.1.6.0.0\lib\NET40\NSubstitute.dll</HintPath>
