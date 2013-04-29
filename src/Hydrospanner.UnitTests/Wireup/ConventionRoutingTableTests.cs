@@ -7,6 +7,7 @@ namespace Hydrospanner.Wireup
 	using System.Collections.Generic;
 	using System.Linq;
 	using Machine.Specifications;
+	using Timeout;
 
 	[Subject(typeof(ConventionRoutingTable))]
 	public class when_routing_by_convention
@@ -96,6 +97,17 @@ namespace Hydrospanner.Wireup
 			static IRoutingTable table;
 			static TestMessage message;
 			static List<HydrationInfo> list;
+		}
+
+		public class when_registering_a_set_of_types
+		{
+			Establish context = () =>
+				table = new ConventionRoutingTable(typeof(TestHydratable), typeof(TestHydratable2));
+
+			It should_also_register_all_internal_types = () =>
+				table.Restore(new TimeoutMemento()).ShouldBeOfType<TimeoutHydratable>();
+
+			static IRoutingTable table;
 		}
 
 		// ReSharper disable UnusedMember.Local

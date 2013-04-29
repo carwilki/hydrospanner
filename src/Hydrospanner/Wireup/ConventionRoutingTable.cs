@@ -26,7 +26,8 @@
 			if (memento == null)
 				return null;
 
-			return this.mementos[memento.GetType()](memento);
+			MementoDelegate callback;
+			return this.mementos.TryGetValue(memento.GetType(), out callback) ? callback(memento) : null;
 		}
 
 		public ConventionRoutingTable()
@@ -43,9 +44,9 @@
 		}
 		public ConventionRoutingTable(IEnumerable<Type> types)
 		{
-			var currentAssemblyTypes = this.GetType().Assembly.GetTypes(); // TODO: get this under test--ensure that timeout, etc. are all registered
-			foreach (var type in currentAssemblyTypes)
-				this.RegisterType(type);
+			var currentAssemblyTypes = this.GetType().Assembly.GetTypes();
+			for (var i = 0; i < currentAssemblyTypes.Length; i++)
+				this.RegisterType(currentAssemblyTypes[i]);
 
 			foreach (var type in types ?? new Type[0])
 				this.RegisterType(type);
