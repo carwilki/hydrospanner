@@ -28,16 +28,12 @@
 		}
 		public object Memento
 		{
-			get { return new TimeoutMemento(this.timeouts); }
+			get { return this.aggregate.Memento; }
 		}
 
 		public IHydratable Abort(IHydratable hydratable)
 		{
-			if (hydratable is IHydratable<TimeoutReachedEvent>)
-				foreach (var timeout in this.timeouts)
-					if (timeout.Value.Contains(hydratable.Key))
-						this.PendingMessages.Add(new TimeoutAbortedEvent(hydratable.Key, timeout.Key));
-
+			this.aggregate.AbortTimeouts(hydratable);
 			return this;
 		}
 		public object Filter(string key, object message)
@@ -50,51 +46,19 @@
 
 		public void Hydrate(Delivery<CurrentTimeMessage> delivery)
 		{
-			var message = delivery.Message;
-			for (var i = 0; i < this.timeouts.Keys.Count; i++)
-			{
-				var instant = this.timeouts.Keys[i];
-				if (instant > message.UtcNow)
-					return;
-
-				foreach (var hydratableKey in this.timeouts[instant])
-					this.messages.Add(new TimeoutReachedEvent(hydratableKey, instant, message.UtcNow));
-
-				this.timeouts.RemoveAt(i);
-			}
+			this.aggregate.DispatchTimeouts(delivery.Message.UtcNow);
 		}
 		public void Hydrate(Delivery<TimeoutRequestedEvent> delivery)
 		{
-			var message = delivery.Message;
-			this.Add(message.Key, message.Instant);
+			this.aggregate.Apply(delivery.Message);
 		}
 		public void Hydrate(Delivery<TimeoutAbortedEvent> delivery)
 		{
-			var message = delivery.Message;
-			this.Remove(message.Key, message.Instant);
+			this.aggregate.Apply(delivery.Message);
 		}
 		public void Hydrate(Delivery<TimeoutReachedEvent> delivery)
 		{
-			var message = delivery.Message;
-			this.Remove(message.Key, message.Instant);
-		}
-		private void Add(string key, DateTime instant)
-		{
-			HashSet<string> keys;
-			if (!this.timeouts.TryGetValue(instant, out keys))
-				this.timeouts[instant] = keys = new HashSet<string>();
-
-			keys.Add(key);
-		}
-		private void Remove(string key, DateTime instant)
-		{
-			HashSet<string> keys;
-			if (!this.timeouts.TryGetValue(instant, out keys))
-				return;
-
-			keys.Remove(key);
-			if (keys.Count == 0)
-				this.timeouts.Remove(instant);
+			this.aggregate.Apply(delivery.Message);
 		}
 
 		public static HydrationInfo Lookup(Delivery<CurrentTimeMessage> delivery)
@@ -117,7 +81,7 @@
 		public static TimeoutHydratable Restore(TimeoutMemento memento)
 		{
 			var hydratable = new TimeoutHydratable();
-			memento.CopyTo(hydratable.timeouts);
+			hydratable.aggregate.Restore(memento);
 			return hydratable;
 		}
 		public static TimeoutHydratable Load(IRepository repository)
@@ -128,11 +92,12 @@
 		}
 		private TimeoutHydratable()
 		{
+			this.aggregate = new TimeoutAggregate(this.messages);
 		}
 
 		private const string HydratableKey = "/internal/timeout";
-		private readonly SortedList<DateTime, HashSet<string>> timeouts = new SortedList<DateTime, HashSet<string>>();
 		private readonly List<object> messages = new List<object>();
+		private readonly TimeoutAggregate aggregate;
 	}
 
 	internal sealed class TimeoutReachedHydratableRoute
@@ -141,39 +106,5 @@
 		{
 			return new HydrationInfo(delivery.Message.Key, () => null); // used to route the the hydratable in question
 		}
-	}
-
-	public class TimeoutMemento
-	{
-		public TimeoutMemento(SortedList<DateTime, HashSet<string>> source)
-		{
-			this.Timeouts = new Dictionary<DateTime, List<string>>(source.Count);
-			foreach (var item in source)
-			{
-				var keys = item.Value;
-				var list = new List<string>(keys.Count);
-				list.AddRange(keys);
-				this.Timeouts[item.Key] = list;
-			}
-		}
-		public TimeoutMemento()
-		{
-			this.Timeouts = new Dictionary<DateTime, List<string>>();
-		}
-
-		public void CopyTo(SortedList<DateTime, HashSet<string>> destination)
-		{
-			foreach (var item in this.Timeouts)
-			{
-				HashSet<string> keys;
-				if (!destination.TryGetValue(item.Key, out keys))
-					destination[item.Key] = keys = new HashSet<string>();
-
-				foreach (var key in item.Value)
-					keys.Add(key);
-			}
-		}
-
-		public Dictionary<DateTime, List<string>> Timeouts { get; private set; }
 	}
 }

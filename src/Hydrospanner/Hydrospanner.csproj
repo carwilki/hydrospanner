@@ -70,6 +70,8 @@
     <Compile Include="RingBufferBase.cs" />
     <Compile Include="Timeout\SystemTimer.cs" />
     <Compile Include="Timeout\TimeoutAbortedEvent.cs" />
+    <Compile Include="Timeout\TimeoutAggregate.cs" />
+    <Compile Include="Timeout\TimeoutMemento.cs" />
     <Compile Include="Timeout\TimeoutRequestedEvent.cs" />
     <Compile Include="Timeout\ITimeoutWatcher.cs" />
     <Compile Include="Timeout\NullTimeoutWatcher.cs" />
