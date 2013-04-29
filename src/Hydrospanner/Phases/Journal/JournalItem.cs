@@ -42,7 +42,7 @@
 
 			this.SerializedType = body.ResolvableTypeName();
 			if (this.Body is IInternalMessage)
-				this.ItemActions = JournalItemAction.Journal; // TODO: test
+				this.ItemActions = JournalItemAction.Journal;
 		}
 		public void AsBootstrappedDispatchMessage(long sequence, byte[] body, string typeName, byte[] headers)
 		{

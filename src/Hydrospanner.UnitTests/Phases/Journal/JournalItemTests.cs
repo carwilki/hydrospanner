@@ -6,6 +6,7 @@ namespace Hydrospanner.Phases.Journal
 	using System;
 	using System.Collections.Generic;
 	using Machine.Specifications;
+	using Timeout;
 
 	[Subject(typeof(JournalItem))]
 	public class when_initializing_a_foreign_message
@@ -133,6 +134,20 @@ namespace Hydrospanner.Phases.Journal
 		const string TypeName = "SerializedType";
 		static readonly byte[] Body = new byte[] { 1, 2, 3 };
 		static readonly byte[] Headers = new byte[] { 4, 5, 6 };
+	}
+
+	public class when_initializing_a_transformation_item_from_an_internal_message
+	{
+		Establish context = () =>
+			item = new JournalItem();
+
+		Because of = () =>
+			item.AsTransformationResultMessage(1, new TimeoutRequestedEvent(string.Empty, SystemTime.UtcNow), new Dictionary<string, string>());
+
+		It should_only_journal_the_message = () =>
+			item.ItemActions.ShouldEqual(JournalItemAction.Journal);
+
+		static JournalItem item;
 	}
 }
 
