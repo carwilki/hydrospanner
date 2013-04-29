@@ -1,7 +1,6 @@
 ﻿namespace Hydrospanner.Timeout
 {
 	using System;
-	using System.Threading;
 	using Phases.Transformation;
 
 	public class SystemClock : IDisposable
@@ -16,7 +15,8 @@
 				if (this.timer != null)
 					return;
 
-				this.timer = new Timer(this.OnTimeout, null, StartNow, OncePerSecond); // once per second
+				this.timer = this.timerBuilder();
+				this.timer.Start(this.OnTimeout);
 			}
 		}
 		private void OnTimeout(object state)
@@ -27,10 +27,12 @@
 			this.ring.Publish(sequence);
 		}
 
-		public SystemClock(IRingBuffer<TransformationItem> ring) : this()
+		public SystemClock(IRingBuffer<TransformationItem> ring, Func<SystemTimer> timerBuilder) : this()
 		{
 			this.ring = ring;
+			this.timerBuilder = timerBuilder;
 		}
+
 		protected SystemClock()
 		{
 		}
@@ -49,11 +51,10 @@
 			this.timer = this.timer.TryDispose();
 		}
 
-		private const int OncePerSecond = 1000;
-		private const int StartNow = 0;
 		private readonly object sync = new object();
 		private readonly IRingBuffer<TransformationItem> ring;
-		private Timer timer;
+		private readonly Func<SystemTimer> timerBuilder;
+		private SystemTimer timer;
 		private bool disposed;
 	}
 }

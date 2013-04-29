@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Wireup
 {
+	using System;
 	using Phases.Transformation;
 	using Timeout;
 
@@ -7,7 +8,7 @@
 	{
 		public virtual SystemClock CreateSystemClock(IRingBuffer<TransformationItem> ring)
 		{
-			return new SystemClock(ring);
+			return new SystemClock(ring, () => new SystemTimer(TimeSpan.FromSeconds(1)));
 		}
 	}
 }
