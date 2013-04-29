@@ -31,12 +31,21 @@
 			get { return new TimeoutMemento(this.timeouts); }
 		}
 
-		public void Abort(IHydratable hydratable)
+		public IHydratable Abort(IHydratable hydratable)
 		{
 			if (hydratable is IHydratable<TimeoutReachedEvent>)
 				foreach (var timeout in this.timeouts)
 					if (timeout.Value.Contains(hydratable.Key))
 						this.PendingMessages.Add(new TimeoutAbortedEvent(hydratable.Key, timeout.Key));
+
+			return this;
+		}
+		public object Filter(string key, object message)
+		{
+			if (message is DateTime)
+				return new TimeoutRequestedEvent(key, (DateTime)message);
+
+			return message;
 		}
 
 		public void Hydrate(Delivery<CurrentTimeMessage> delivery)

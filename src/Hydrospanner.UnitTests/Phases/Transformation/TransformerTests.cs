@@ -41,6 +41,7 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				hydratable = new TestHydratable(!IsPublicSnapshot, !BecomesComplete, Key);
 				repository.Load(liveDelivery).Returns(new[] { hydratable });
+				watcher.Filter(hydratable.Key, Incoming).Returns(Incoming);
 			};
 
 			Because of = () =>
@@ -48,6 +49,9 @@ namespace Hydrospanner.Phases.Transformation
 
 			It should_transform_the_hydratable_with_the_incoming_message_and_return_the_resulting_messages = () =>
 				result.Single().ShouldBeLike(Incoming);
+
+			It should_filter_all_messages_through_the_timeout_watcher_for_potential_transformation = () =>
+				watcher.Received(1);
 		}
 
 		public class when_handling_a_replay_message
@@ -140,10 +144,16 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				hydratable = new TestHydratable(!IsPublicSnapshot, BecomesComplete, Key);
 				repository.Load(liveDelivery).Returns(new[] { hydratable });
+
+				timeoutHydratable = Substitute.For<IHydratable>();
+				timeoutHydratable.PendingMessages.Returns(x => new[] { message });
+
+				watcher.Filter(Arg.Any<string>(), Arg.Any<object>()).Returns(x => x.Args()[1]);
+				watcher.Abort(hydratable).Returns(x => timeoutHydratable);
 			};
 
 			Because of = () =>
-				transformer.Transform(liveDelivery);
+				result = transformer.Transform(liveDelivery).ToList();
 
 			It should_take_a_snapshot = () =>
 				snapshotRing.AllItems.Single().ShouldBeLike(new SnapshotItem
@@ -158,6 +168,12 @@ namespace Hydrospanner.Phases.Transformation
 
 			It should_delete_the_hydratable = () =>
 				repository.Received().Delete(hydratable);
+
+			It should_abort_any_corresponding_timeouts_from_the_watcher = () =>
+				result.Last().ShouldEqual(message);
+
+			static IHydratable timeoutHydratable;
+			static readonly object message = new TimeoutAbortedEvent(string.Empty, SystemTime.UtcNow);
 		}
 
 		public class when_handling_a_subsequent_message_that_corresponds_to_a_public_snapshot

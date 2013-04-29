@@ -2,6 +2,7 @@
 {
 	public interface ITimeoutWatcher
 	{
-		void Abort(IHydratable hydratable);
+		IHydratable Abort(IHydratable hydratable);
+		object Filter(string key, object message);
 	}
 }
