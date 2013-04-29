@@ -6,7 +6,7 @@
 
 	public class SystemClock : IDisposable
 	{
-		public void Start()
+		public virtual void Start()
 		{
 			lock (this.sync)
 			{
@@ -27,9 +27,12 @@
 			this.ring.Publish(sequence);
 		}
 
-		public SystemClock(IRingBuffer<TransformationItem> ring)
+		public SystemClock(IRingBuffer<TransformationItem> ring) : this()
 		{
 			this.ring = ring;
+		}
+		protected SystemClock()
+		{
 		}
 		
 		public void Dispose()

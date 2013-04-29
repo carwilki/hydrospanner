@@ -44,6 +44,7 @@
 			Log.Info("Connecting to message store.");
 			this.info = persistenceBootstrapper.Restore();
 			var duplicates = new DuplicateStore(conventionWireup.DuplicateWindow, this.info.DuplicateIdentifiers);
+			var timeoutFactory = new TimeoutFactory();
 			var messagingFactory = new MessagingFactory(conventionWireup.NodeId, conventionWireup.BrokerAddress, conventionWireup.SourceQueueName, duplicates);
 
 			Log.Info("Loading bootstrap parameters.");
@@ -52,7 +53,7 @@
 			var snapshotBootstrapper = new SnapshotBootstrapper(snapshotFactory, disruptorFactory);
 			var messageBootstrapper = new MessageBootstrapper(messageStore, disruptorFactory);
 
-			this.bootstrapper = new Bootstrapper(repository, disruptorFactory, snapshotBootstrapper, messageBootstrapper, messagingFactory);
+			this.bootstrapper = new Bootstrapper(repository, disruptorFactory, snapshotBootstrapper, messageBootstrapper, timeoutFactory, messagingFactory);
 		}
 
 		public void Dispose()

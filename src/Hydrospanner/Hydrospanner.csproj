@@ -140,6 +140,7 @@
     <Compile Include="Phases\Snapshot\SnapshotItem.cs" />
     <Compile Include="Phases\Transformation\TransformationItem.cs" />
     <Compile Include="SystemTime.cs" />
+    <Compile Include="Wireup\TimeoutFactory.cs" />
     <Compile Include="Wireup\Wireup.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,7 @@ namespace Hydrospanner.Wireup
 	using Phases.Journal;
 	using Phases.Snapshot;
 	using Phases.Transformation;
+	using Timeout;
 
 	[Subject(typeof(Bootstrapper))]
 	public class when_instantiating_the_bootstrapper
@@ -20,25 +21,28 @@ namespace Hydrospanner.Wireup
 		public class with_null_values
 		{
 			It should_throw_if_the_repository_is_null = () =>
-				Try(() => new Bootstrapper(null, disruptors, snapshots, messages, messaging)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new Bootstrapper(null, disruptors, snapshots, messages, timeout, messaging)).ShouldBeOfType<ArgumentNullException>();
 
 			It should_throw_if_the_disruptors_are_null = () =>
-				Try(() => new Bootstrapper(repository, null, snapshots, messages, messaging)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new Bootstrapper(repository, null, snapshots, messages, timeout, messaging)).ShouldBeOfType<ArgumentNullException>();
 
 			It should_throw_if_the_snapshots_are_null = () =>
-				Try(() => new Bootstrapper(repository, disruptors, null, messages, messaging)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new Bootstrapper(repository, disruptors, null, messages, timeout, messaging)).ShouldBeOfType<ArgumentNullException>();
 
 			It should_throw_if_the_messages_are_null = () =>
-				Try(() => new Bootstrapper(repository, disruptors, snapshots, null, messaging)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new Bootstrapper(repository, disruptors, snapshots, null, timeout, messaging)).ShouldBeOfType<ArgumentNullException>();
+
+			It should_throw_if_the_timeout_is_null = () =>
+				Try(() => new Bootstrapper(repository, disruptors, snapshots, messages, null, messaging)).ShouldBeOfType<ArgumentNullException>();
 			
 			It should_throw_if_the_messaging_is_null = () =>
-				Try(() => new Bootstrapper(repository, disruptors, snapshots, messages, null)).ShouldBeOfType<ArgumentNullException>();
+				Try(() => new Bootstrapper(repository, disruptors, snapshots, messages, timeout, null)).ShouldBeOfType<ArgumentNullException>();
 		}
 
 		public class with_valid_values
 		{
 			It should_NOT_throw = () =>
-				Try(() => new Bootstrapper(repository, disruptors, snapshots, messages, messaging)).ShouldBeNull();
+				Try(() => new Bootstrapper(repository, disruptors, snapshots, messages, timeout, messaging)).ShouldBeNull();
 		}
 
 		static Exception Try(Action action)
@@ -52,6 +56,7 @@ namespace Hydrospanner.Wireup
 			disruptors = Substitute.For<DisruptorFactory>();
 			snapshots = Substitute.For<SnapshotBootstrapper>();
 			messages = Substitute.For<MessageBootstrapper>();
+			timeout = Substitute.For<TimeoutFactory>();
 			messaging = Substitute.For<MessagingFactory>();
 		};
 
@@ -59,6 +64,7 @@ namespace Hydrospanner.Wireup
 		static DisruptorFactory disruptors;
 		static SnapshotBootstrapper snapshots;
 		static MessageBootstrapper messages;
+		static TimeoutFactory timeout;
 		static MessagingFactory messaging;
 	}
 
@@ -196,7 +202,9 @@ namespace Hydrospanner.Wireup
 			disruptors = Substitute.For<DisruptorFactory>();
 			snapshots = Substitute.For<SnapshotBootstrapper>();
 			messages = Substitute.For<MessageBootstrapper>();
+			timeout = Substitute.For<TimeoutFactory>();
 			messaging = Substitute.For<MessagingFactory>();
+			systemClock = Substitute.For<SystemClock>();
 
 			journalDisruptor = Substitute.For<IDisruptor<JournalItem>>();
 			snapshotDisruptor = Substitute.For<IDisruptor<SnapshotItem>>();
@@ -204,7 +212,7 @@ namespace Hydrospanner.Wireup
 			transformationRingBuffer = Substitute.For<IRingBuffer<TransformationItem>>();
 			listener = Substitute.For<MessageListener>();
 
-			bootstrapper = new Bootstrapper(repository, disruptors, snapshots, messages, messaging);
+			bootstrapper = new Bootstrapper(repository, disruptors, snapshots, messages, timeout, messaging);
 			naps = new List<TimeSpan>();
 		}
 
@@ -218,6 +226,8 @@ namespace Hydrospanner.Wireup
 			messages.Restore(info2, journalDisruptor, repository).Returns(true);
 
 			transformationDisruptor.RingBuffer.Returns(transformationRingBuffer);
+
+			timeout.CreateSystemClock(transformationRingBuffer).Returns(systemClock);
 			messaging.CreateMessageListener(transformationRingBuffer).Returns(listener);
 		}
 
@@ -235,6 +245,9 @@ namespace Hydrospanner.Wireup
 			
 			disruptors.CreateTransformationDisruptor(repository, info2);
 			transformationDisruptor.Start();
+
+			timeout.CreateSystemClock(transformationRingBuffer);
+			systemClock.Start();
 
 			messaging.CreateMessageListener(transformationRingBuffer);
 			listener.Start();
@@ -259,6 +272,7 @@ namespace Hydrospanner.Wireup
 		static void ExpectedDisposal()
 		{
 			listener.Dispose();
+			systemClock.Dispose();
 			transformationDisruptor.Dispose();
 			snapshotDisruptor.Dispose();
 			journalDisruptor.Dispose();
@@ -271,12 +285,14 @@ namespace Hydrospanner.Wireup
 		static DisruptorFactory disruptors;
 		static SnapshotBootstrapper snapshots;
 		static MessageBootstrapper messages;
+		static TimeoutFactory timeout;
 		static MessagingFactory messaging;
 
 		static IDisruptor<JournalItem> journalDisruptor;
 		static IDisruptor<SnapshotItem> snapshotDisruptor;
 		static IDisruptor<TransformationItem> transformationDisruptor;
 		static IRingBuffer<TransformationItem> transformationRingBuffer;
+		static SystemClock systemClock;
 		static MessageListener listener;
 		static List<TimeSpan> naps;
 	}

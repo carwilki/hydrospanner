@@ -38,7 +38,7 @@
 			this.transformationDisruptor.Start();
 
 			Log.Info("Attempting to start message listener.");
-			this.clock = new SystemClock(this.transformationDisruptor.RingBuffer); // TODO: get this under test
+			this.clock = this.timeout.CreateSystemClock(this.transformationDisruptor.RingBuffer);
 			this.clock.Start();
 			this.listener = this.messaging.CreateMessageListener(this.transformationDisruptor.RingBuffer);
 			this.listener.Start();
@@ -52,18 +52,21 @@
 			DisruptorFactory disruptors,
 			SnapshotBootstrapper snapshots,
 			MessageBootstrapper messages,
+			TimeoutFactory timeout,
 			MessagingFactory messaging)
 		{
 			if (repository == null) throw new ArgumentNullException("repository");
 			if (disruptors == null) throw new ArgumentNullException("disruptors");
 			if (snapshots == null) throw new ArgumentNullException("snapshots");
 			if (messages == null) throw new ArgumentNullException("messages");
+			if (timeout == null) throw new ArgumentNullException("timeout");
 			if (messaging == null) throw new ArgumentNullException("messaging");
 
 			this.repository = repository;
 			this.disruptors = disruptors;
 			this.snapshots = snapshots;
 			this.messages = messages;
+			this.timeout = timeout;
 			this.messaging = messaging;
 		}
 
@@ -104,6 +107,7 @@
 		private readonly DisruptorFactory disruptors;
 		private readonly SnapshotBootstrapper snapshots;
 		private readonly MessageBootstrapper messages;
+		private readonly TimeoutFactory timeout;
 		private readonly MessagingFactory messaging;
 		private IDisruptor<JournalItem> journalDisruptor;
 		private IDisruptor<SnapshotItem> snapshotDisruptor;
