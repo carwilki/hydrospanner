@@ -4,7 +4,6 @@
 	using System.Collections.Generic;
 	using System.Reflection;
 
-	// TODO: get this under test
 	public class ReflectionDeliveryHandler : IDeliveryHandler
 	{
 		public IEnumerable<object> Deliver(TransformationItem item, bool live)

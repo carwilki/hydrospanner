@@ -90,7 +90,7 @@
 			var delivery = new Delivery<CurrentTimeMessage>(message, null, 0, false, true);
 			return (TimeoutHydratable)repository.Load(delivery).Single();
 		}
-		private TimeoutHydratable()
+		internal TimeoutHydratable()
 		{
 			this.aggregate = new TimeoutAggregate(this.messages);
 		}
