@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner.Wireup
 {
 	using System;
+	using System.Linq;
 	using System.Threading.Tasks;
 	using Disruptor;
 	using Disruptor.Dsl;
@@ -16,7 +17,7 @@
 	{
 		public virtual IDisruptor<BootstrapItem> CreateBootstrapDisruptor(IRepository repository, int countdown, Action<bool> complete)
 		{
-			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new YieldingWaitStrategy(), 1024 * 64);
+			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new YieldingWaitStrategy(), 1024 * 4);
 			disruptor
 				.HandleEventsWith(new Phases.Bootstrap.SerializationHandler(CreateSerializer()))
 				.Then(new MementoHandler(repository))
@@ -31,7 +32,7 @@
 			var messageSender = this.messaging.CreateMessageSender();
 			var checkpointStore = this.persistence.CreateDispatchCheckpointStore();
 
-			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 256);
+			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 4);
 			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(new JsonSerializer()))
 			    .Then(new JournalHandler(messageStore))
 			    .Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
@@ -45,7 +46,7 @@
 			var systemRecorder = this.snapshots.CreateSystemSnapshotRecorder();
 			var publicRecorder = this.snapshots.CreatePublicSnapshotRecorder();
 
-			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 16);
+			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 4);
 			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(CreateSerializer()))
 			    .Then(new SystemSnapshotHandler(systemRecorder), new PublicSnapshotHandler(publicRecorder));
 
@@ -72,7 +73,7 @@
 
 			var slots = ComputeDisruptorSize(countdown);
 			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), slots);
-			disruptor.HandleEventsWith(serializers)
+			disruptor.HandleEventsWith(serializers.Cast<IEventHandler<TransformationItem>>().ToArray())
 				.Then(transformationHandler)
 				.Then(new CountdownHandler(countdown, complete));
 
@@ -108,7 +109,7 @@
 			var serializationHandler = new DeserializationHandler(CreateSerializer());
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker);
-			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
+			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 16);
 			disruptor.HandleEventsWith(serializationHandler).Then(transformationHandler);
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
