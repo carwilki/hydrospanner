@@ -11,7 +11,7 @@ if exist "publish" rmdir /s /q "publish"
 mkdir publish\bin
 mkdir publish\pkg
 bin\ILMerge.exe /keyfile:src\Hydrospanner.snk /internalize /wildcards /target:library ^
- /targetplatform:"v4,C:\WINDOWS\Microsoft.NET\Framework\v4.0.30319" ^
+ /targetplatform:"v4,C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0" ^
  /out:"publish\bin\Hydrospanner.dll" ^
  "src/Hydrospanner/bin/Release/Hydrospanner.dll" ^
  "src/Hydrospanner/bin/Release/Atomic.dll" ^
