@@ -55,6 +55,7 @@
     <Compile Include="Delivery.cs" />
     <Compile Include="Persistence\GraveyardMemento.cs" />
     <Compile Include="Persistence\HydratableGraveyard.cs" />
+    <Compile Include="Persistence\NullStore.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlBulkInsertCommandBuilder.cs" />
     <Compile Include="Persistence\SqlPersistence\JournalMessageTypeRegistrar.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlBulkInsertSession.cs" />

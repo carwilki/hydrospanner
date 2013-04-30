@@ -11,14 +11,23 @@
 	{
 		public virtual IDispatchCheckpointStore CreateDispatchCheckpointStore()
 		{
+			if (this.nullStorage)
+				return new NullStore();
+
 			return new SqlCheckpointStore(this.factory, this.connectionString);
 		}
 		public virtual IBootstrapStore CreateBootstrapStore()
 		{
+			if (this.nullStorage)
+				return new NullStore();
+
 			return new SqlBootstrapStore(this.factory, this.connectionString, this.duplicateWindow);
 		}
 		public virtual IMessageStore CreateMessageStore(IEnumerable<string> journaledTypes)
 		{
+			if (this.nullStorage)
+				return new NullStore();
+
 			var types = new JournalMessageTypeRegistrar(journaledTypes);
 			var session = new SqlBulkInsertSession(this.factory, this.connectionString);
 			var builder = new SqlBulkInsertCommandBuilder(types, session);
@@ -38,6 +47,10 @@
 			if (settings == null)
 				throw new ConfigurationErrorsException("No persistence configuration info found for connection named '{0}'.".FormatWith(connectionName));
 
+			this.nullStorage = settings.ConnectionString == "null-storage";
+			if (this.nullStorage)
+				return;
+
 			if (string.IsNullOrWhiteSpace(settings.ProviderName) || string.IsNullOrWhiteSpace(settings.ConnectionString))
 				throw new ConfigurationErrorsException("Connection named '{0}' missing provider info or connection string info.".FormatWith(connectionName));
 
@@ -53,6 +66,7 @@
 		{
 		}
 
+		private readonly bool nullStorage;
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
 		private readonly int duplicateWindow;
