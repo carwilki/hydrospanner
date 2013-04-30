@@ -4,6 +4,7 @@
 	using System.Collections.Generic;
 	using System.Data;
 	using System.Data.Common;
+	using log4net;
 
 	public sealed class SqlBootstrapStore : IBootstrapStore
 	{
@@ -15,8 +16,9 @@
 				{
 					return this.TryLoad();
 				}
-				catch
+				catch (Exception e)
 				{
+					Log.Warn("Unable to connect to message store; retrying in a few seconds.", e);
 					Timeout.Sleep();
 				}	
 			}
@@ -76,6 +78,7 @@
 			SELECT COALESCE(MAX(sequence), 0) AS sequence, MAX(dispatch) AS dispatch FROM checkpoints LEFT OUTER JOIN messages ON 1=1;
 			SELECT type_name FROM metadata ORDER BY metadata_id;
 		    SELECT foreign_id FROM messages WHERE foreign_id IS NOT NULL LIMIT {0};";
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SqlBootstrapStore));
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
