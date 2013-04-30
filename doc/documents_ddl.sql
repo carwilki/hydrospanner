@@ -4,7 +4,7 @@ use `<DOCUMENTS-DATABASE-NAME-HERE>`;
 
 
 CREATE TABLE IF NOT EXISTS documents (
-	`identifier` VARCHAR(256) NOT NULL,
+	`identifier` VARCHAR(1024) NOT NULL,
 	`message_sequence` BIGINT NOT NULL,
 	`document_hash` INT UNSIGNED NOT NULL,
 	`document` MEDIUMBLOB NULL,
@@ -14,5 +14,5 @@ CREATE TABLE IF NOT EXISTS documents (
 
 
 CREATE VIEW `documents_view` AS
-SELECT identifier, CAST(document as char(65535)), message_sequence, document_hash
+SELECT identifier, CAST(document as char(65535)) as document, message_sequence, document_hash
   FROM documents;

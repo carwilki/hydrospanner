@@ -46,6 +46,6 @@ CREATE FUNCTION tobin($guid char(36)) RETURNS binary(16)
         UNHEX(SUBSTRING($guid, 25, 12)));
 
 CREATE VIEW `messages_view` AS
-SELECT M.sequence, T.type_name, toguid(M.foreign_id), CAST(M.payload as CHAR(65535)), CAST(M.headers as CHAR(65535))
+SELECT M.sequence, T.type_name, toguid(M.foreign_id) as foreign_id, CAST(M.payload as CHAR(65535)) as payload, CAST(M.headers as CHAR(65535)) as headers
   FROM messages M
   JOIN metadata T on M.metadata_id = T.metadata_id;
