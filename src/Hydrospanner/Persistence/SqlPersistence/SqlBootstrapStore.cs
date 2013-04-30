@@ -38,10 +38,10 @@
 			var identifiers = new List<Guid>(this.duplicateWindow);
 
 			if (reader.Read())
-			{
 				journaled = reader.GetInt64(0);
-				dispatched = reader.GetInt64(1);
-			}
+
+			if (reader.NextResult() && reader.Read())
+				dispatched = reader.GetInt64(0);
 
 			if (reader.NextResult())
 				while (reader.Read())
@@ -75,9 +75,10 @@
 		}
 
 		private const string SqlStatement = @"
-			SELECT COALESCE(MAX(sequence), 0) AS sequence, MAX(dispatch) AS dispatch FROM checkpoints LEFT OUTER JOIN messages ON 1=1;
+		    SELECT sequence FROM messages ORDER BY sequence DESC LIMIT 1;
+			SELECT MAX(dispatch) FROM checkpoints;
 			SELECT type_name FROM metadata ORDER BY metadata_id;
-		    SELECT foreign_id FROM messages WHERE foreign_id IS NOT NULL LIMIT {0};";
+		    SELECT foreign_id FROM messages WHERE foreign_id IS NOT NULL ORDER BY sequence DESC LIMIT {0};";
 		private static readonly ILog Log = LogManager.GetLogger(typeof(SqlBootstrapStore));
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);
 		private readonly DbProviderFactory factory;
