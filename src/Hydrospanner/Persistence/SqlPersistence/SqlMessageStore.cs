@@ -31,14 +31,48 @@
 				this.writer.Write(items);
 				return true;
 			}
+			catch (DbException e)
+			{
+				if (IsDuplicateViolation(e) && this.IsDuplicateMessage(items.Last()))
+					return true; // TODO: get this under test
+
+				this.Sleep(e);
+			}
 			catch (Exception e)
 			{
-				Log.Warn("Unable to persist messages to durable storage.", e);
-				this.writer.Cleanup();
-				Timeout.Sleep();
+				this.Sleep(e);
 			}
 
 			return false;
+		}
+		private static bool IsDuplicateViolation(Exception exception)
+		{
+			var property = exception.GetType().GetProperty("Number");
+			return 1062 == (int)property.GetValue(exception, null);
+		}
+		private bool IsDuplicateMessage(JournalItem last)
+		{
+			try
+			{
+				// TODO: if more than one message comes back, we're in trouble and we need to shutdown.
+				var stored = this.Load(last.MessageSequence - 1).SingleOrDefault();
+				if (stored == null)
+					return false;
+
+				return stored.Sequence == last.MessageSequence
+					&& stored.SerializedType == last.SerializedType
+					&& stored.SerializedBody.SequenceEqual(stored.SerializedBody);
+			}
+			catch
+			{
+				return false;
+			}
+		}
+		private void Sleep(Exception e)
+		{
+			Log.Warn("Unable to persist messages to durable storage.", e);
+			this.writer.Cleanup();
+			Timeout.Sleep();
 		}
 
 		public SqlMessageStore(
