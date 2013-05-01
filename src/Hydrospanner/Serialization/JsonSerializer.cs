@@ -115,23 +115,18 @@
 
 			this.builder.Clear();
 
+			var hasUpper = false;
 			var len = value.Length;
-			var canUnderscore = false;
 			for (var i = 0; i < len; i++)
 			{
 				var letter = value[i];
-				var upper = char.IsUpper(letter);
-
-				canUnderscore = canUnderscore || !upper;
-
-				if (upper)
+				if (char.IsUpper(letter))
 				{
-					if (i > 0 && canUnderscore)
-						this.builder.Append("_");
-					else if (i > 0 && i + 1 < len && !char.IsUpper(value[i + 1]))
+					if (hasUpper && (i + 1) < len && char.IsLower(value[i + 1]))
 						this.builder.Append("_");
 
 					letter = char.ToLower(letter);
+					hasUpper = true;
 				}
 
 				this.builder.Append(letter);
