@@ -65,6 +65,7 @@
     </Compile>
     <Compile Include="Phases\Transformation\TransformerTests.cs" />
     <Compile Include="RingBufferHarness.cs" />
+    <Compile Include="Serialization\UnderscoreNormalizer.cs" />
     <Compile Include="Timeout\SystemClockTests.cs" />
     <Compile Include="Timeout\TimeoutHydratableTests.cs" />
     <Compile Include="Timeout\TimeoutAggregateTests.cs" />
