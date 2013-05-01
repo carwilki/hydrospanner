@@ -1,7 +1,9 @@
 ﻿namespace Hydrospanner.Timeout
 {
 	using System;
+	using System.ComponentModel;
 
+	[Description("json:underscore")]
 	public sealed class TimeoutRequestedEvent : IInternalMessage
 	{
 		public string Key { get; private set; }

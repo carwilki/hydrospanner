@@ -2,10 +2,10 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Runtime.Serialization;
+	using System.ComponentModel;
 
-	[DataContract]
-	public class TimeoutMemento
+	[Description("json:underscore")]
+	public sealed class TimeoutMemento
 	{
 		public TimeoutMemento(SortedList<DateTime, HashSet<string>> source)
 		{
@@ -38,7 +38,6 @@
 			}
 		}
 
-		[DataMember]
 		public Dictionary<DateTime, List<string>> Timeouts { get; private set; }
 	}
 }
