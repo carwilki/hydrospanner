@@ -30,7 +30,7 @@ namespace Hydrospanner.Phases.Snapshot
 				.Replace("\r\n", string.Empty)
 				.Replace(" ", string.Empty);
 
-			json.ShouldEqual("{\"first\":\"1\"}");
+			json.ShouldEqual("{\"First\":\"1\"}");
 		};
 
 		static Memento memento;
