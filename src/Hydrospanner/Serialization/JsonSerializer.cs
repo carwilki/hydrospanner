@@ -97,11 +97,20 @@
 
 		private class UnderscoreContractResolver : DefaultContractResolver
 		{
+			protected override JsonDictionaryContract CreateDictionaryContract(Type objectType)
+			{
+				if (objectType.IsGenericType && objectType.GetGenericArguments()[0] == typeof(string))
+					return (JsonDictionaryContract)this.resolver.ResolveContract(objectType);
+
+				return base.CreateDictionaryContract(objectType);
+			}
+
 			protected override string ResolvePropertyName(string propertyName)
 			{
 				return this.normalizer.Normalize(propertyName);
 			}
 
+			private readonly DefaultContractResolver resolver = new DefaultContractResolver();
 			private readonly UnderscoreNormalizer normalizer = new UnderscoreNormalizer();
 		}
 	}

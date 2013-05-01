@@ -4,6 +4,7 @@
 namespace Hydrospanner.Serialization
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Runtime.Serialization;
 	using System.Text;
 	using Machine.Specifications;
@@ -45,6 +46,48 @@ namespace Hydrospanner.Serialization
 					Ninth = Instant,
 					Tenth = Values.First
 				};
+			}
+
+			public class when_serializing_a_dictionary
+			{
+				Establish context = () =>
+					payload = new Dictionary<string, string> { { "Hello", "World" } };
+
+				Because of = () =>
+					json = Encoding.UTF8.GetString(serializer.Serialize(payload));
+
+				It should_not_modify_the_key_names = () =>
+				{
+					var parsed = json
+						.Replace("\r\n", string.Empty)
+						.Replace(" ", string.Empty);
+
+					parsed.ShouldEqual("{\"Hello\":\"World\"}");
+				};
+
+				static Dictionary<string, string> payload; 
+				static string json;
+			}
+			
+			public class when_serializing_a_complex_dictionary
+			{
+				Establish context = () =>
+					payload = new Dictionary<string, MyComplexType> { { "MyKey", new MyComplexType { Second = 1 } } };
+
+				Because of = () =>
+					json = Encoding.UTF8.GetString(serializer.Serialize(payload));
+
+				It should_modify_the_key_names_of_the_value_items = () =>
+				{
+					var parsed = json
+						.Replace("\r\n", string.Empty)
+						.Replace(" ", string.Empty);
+
+					parsed.ShouldEqual("{\"MyKey\":{\"second\":1}}");
+				};
+
+				static Dictionary<string, MyComplexType> payload;
+				static string json;
 			}
 
 			public class when_serialization_raises_an_exception

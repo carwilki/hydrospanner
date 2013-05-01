@@ -3,7 +3,6 @@
 
 namespace Hydrospanner.Phases.Snapshot
 {
-	using System.Collections.Generic;
 	using System.Text;
 	using Machine.Specifications;
 	using Serialization;
@@ -15,7 +14,10 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			handler = new SerializationHandler(new JsonSerializer());
 			item = new SnapshotItem();
-			memento = new Dictionary<string, string> { { "Hello", "World" } };
+			memento = new Memento()
+			{
+				First = "1"
+			};
 			item.AsPublicSnapshot("Key", memento, 42);
 		};
 
@@ -28,12 +30,17 @@ namespace Hydrospanner.Phases.Snapshot
 				.Replace("\r\n", string.Empty)
 				.Replace(" ", string.Empty);
 
-			json.ShouldEqual("{\"hello\":\"World\"}");
+			json.ShouldEqual("{\"first\":\"1\"}");
 		};
 
-		static Dictionary<string, string> memento;
+		static Memento memento;
 		static SerializationHandler handler;
 		static SnapshotItem item;
+
+		private class Memento
+		{
+			public string First { get; set; }
+		}
 	}
 }
 
