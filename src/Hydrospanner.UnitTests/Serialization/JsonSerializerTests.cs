@@ -5,7 +5,6 @@ namespace Hydrospanner.Serialization
 {
 	using System;
 	using System.Collections.Generic;
-	using System.ComponentModel;
 	using System.Runtime.Serialization;
 	using System.Text;
 	using Machine.Specifications;
@@ -115,17 +114,6 @@ namespace Hydrospanner.Serialization
 				static Cycle thing;
 				static Exception exception;
 			}
-
-			public class when_serializing_an_underscore_based_enum
-			{
-				Because of = () =>
-					serialized = serializer.Serialize(UnderscoreEnum.LastName);
-
-				It should_write_out_the_underscores_in_the_enum_values = () =>
-					Encoding.UTF8.GetString(serialized).ShouldEqual("'last_name'".Replace("'", "\""));
-
-				static byte[] serialized;
-			}
 		}
 
 		public class during_deserializtion
@@ -148,29 +136,6 @@ namespace Hydrospanner.Serialization
 					serializer.Deserialize(Json, "System.Int32").ShouldEqual(1);
 
 				static readonly byte[] Json = Encoding.UTF8.GetBytes("1");
-			}
-
-			public class when_deserializing_a_by_convention_underscore_object
-			{
-				It should_respect_the_implicit_underscores_in_the_name = () =>
-					serializer.Deserialize<Underscored>(serialized).ShouldBeLike(new Underscored
-					{
-						FirstName = "Hello",
-						LastName = "World",
-						IPAddress = "127.0.0.1",
-						Custom = 42
-					});
-
-				static readonly byte[] serialized = Encoding.UTF8.GetBytes(
-					"{'first_name':'Hello','last_name':'World','ip_address':'127.0.0.1','PascalCasedName':42}".Replace("'", "\""));
-			}
-
-			public class when_deserializing_an_underscore_based_enum
-			{
-				It should_respect_the_implicit_underscores_in_the_name = () =>
-					serializer.Deserialize<UnderscoreEnum>(serialized).ShouldEqual(UnderscoreEnum.LastName);
-
-				static readonly byte[] serialized = Encoding.UTF8.GetBytes("'last_name'".Replace("'", "\""));
 			}
 
 			public class when_the_typename_is_NOT_found
@@ -265,28 +230,6 @@ namespace Hydrospanner.Serialization
 		Second,
 		Third,
 		Fourth
-	}
-
-	[DataContract]
-	[Description("json:underscore")]
-	public class Underscored
-	{
-		[DataMember]
-		public string FirstName { get; set; }
-		[DataMember]
-		public string LastName { get; set; }
-		[DataMember]
-		public string IPAddress { get; set; }
-		[DataMember(Name = "PascalCasedName")]
-		public int Custom { get; set; }
-	}
-
-	[Description("json:underscore")]
-	public enum UnderscoreEnum
-	{
-		FirstName,
-		LastName,
-		Surname
 	}
 }
 

@@ -69,6 +69,9 @@
     <Compile Include="Phases\Transformation\SystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\Transformer.cs" />
     <Compile Include="RingBufferBase.cs" />
+    <Compile Include="Serialization\UnderscoreContractResolver.cs" />
+    <Compile Include="Serialization\UnderscoreEnumConverter.cs" />
+    <Compile Include="Serialization\UnderscoreExtensions.cs" />
     <Compile Include="Serialization\UnderscoreNormalizer.cs" />
     <Compile Include="Timeout\SystemTimer.cs" />
     <Compile Include="Timeout\TimeoutAbortedEvent.cs" />
