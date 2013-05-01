@@ -155,18 +155,29 @@ namespace Hydrospanner.Serialization
 		static JsonSerializer serializer;
 	}
 
+	[DataContract]
 	[Serializable]
 	public class MyComplexType
 	{
+		[DataMember(Name = "alternate_name")]
 		public int First { get; set; }
+		[DataMember]
 		public long Second { get; set; }
+		[DataMember]
 		public decimal Third { get; set; }
+		[DataMember]
 		public ushort Fourth { get; set; }
+		[DataMember]
 		public byte Fifth { get; set; }
+		[DataMember]
 		public Guid Sixth { get; set; }
+		[DataMember]
 		public string Seventh { get; set; }
+		[DataMember]
 		public Uri Eighth { get; set; }
+		[DataMember]
 		public DateTime Ninth { get; set; }
+		[DataMember]
 		public Values Tenth { get; set; }
 	}
 

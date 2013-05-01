@@ -94,47 +94,15 @@
 			ContractResolver = new UnderscoreContractResolver()
 		};
 		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>(1024);
-	}
 
-	internal class UnderscoreContractResolver : DefaultContractResolver
-	{
-		protected override string ResolvePropertyName(string propertyName)
+		private class UnderscoreContractResolver : DefaultContractResolver
 		{
-			return this.normalizer.Normalize(propertyName);
-		}
-
-		private readonly UnderscoreNormalizer normalizer = new UnderscoreNormalizer();
-	}
-
-	internal class UnderscoreNormalizer
-	{
-		public string Normalize(string value)
-		{
-			if (string.IsNullOrEmpty(value))
-				return value;
-
-			this.builder.Clear();
-
-			var hasUpper = false;
-			var len = value.Length;
-			for (var i = 0; i < len; i++)
+			protected override string ResolvePropertyName(string propertyName)
 			{
-				var letter = value[i];
-				if (char.IsUpper(letter))
-				{
-					if (hasUpper && (i + 1) < len && char.IsLower(value[i + 1]))
-						this.builder.Append("_");
-
-					letter = char.ToLower(letter);
-					hasUpper = true;
-				}
-
-				this.builder.Append(letter);
+				return this.normalizer.Normalize(propertyName);
 			}
 
-			return this.builder.ToString();
+			private readonly UnderscoreNormalizer normalizer = new UnderscoreNormalizer();
 		}
-
-		private readonly StringBuilder builder = new StringBuilder(1024);
 	}
 }

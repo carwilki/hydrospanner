@@ -28,7 +28,7 @@ namespace Hydrospanner.Phases.Snapshot
 				.Replace("\r\n", string.Empty)
 				.Replace(" ", string.Empty);
 
-			json.ShouldEqual("{\"Hello\":\"World\"}");
+			json.ShouldEqual("{\"hello\":\"World\"}");
 		};
 
 		static Dictionary<string, string> memento;

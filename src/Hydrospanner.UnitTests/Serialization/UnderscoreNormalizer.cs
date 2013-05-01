@@ -35,6 +35,14 @@ namespace Hydrospanner.Serialization
 				result.ShouldEqual(input);
 		}
 
+		public class when_the_input_is_already_lowercased_with_underscores
+		{
+			Establish context = () =>
+				input = "lowercase_property_name";
+
+			It should_return_input_unchanged = () =>
+				result.ShouldEqual(input);
+		}
 		public class when_the_input_is_all_uppercase
 		{
 			Establish context = () =>
