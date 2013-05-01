@@ -159,6 +159,18 @@ namespace Hydrospanner.Serialization
 
 				static readonly byte[] Malformed = Encoding.UTF8.GetBytes("Not a json object.");
 			}
+
+			public class when_the_json_property_matches_the_net_object_property_but_not_the_datamember_name
+			{
+				Because of = () =>
+					deserialized = serializer.Deserialize<MyComplexType>(Encoding.UTF8.GetBytes(Json));
+
+				It should_deserialize_correctly = () =>
+					deserialized.ShouldBeLike(new MyComplexType { First = 42 });
+
+				static MyComplexType deserialized;
+				const string Json = "{\"First\":42}";
+			}
 		}
 
 		public class during_genericized_deserialization
