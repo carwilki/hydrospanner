@@ -48,8 +48,12 @@
 		}
 		public void AsTransientMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action<bool> ack)
 		{
-			// TODO: get this under test
-			this.AsForeignMessage(body, type, headers, foreignId, ack);
+			this.Clear();
+			this.SerializedBody = body;
+			this.SerializedType = type;
+			this.Headers = headers;
+			this.ForeignId = foreignId;
+			this.Acknowledgment = ack;
 			this.IsTransient = true;
 		}
 		public void AsTransientMessage(object body)

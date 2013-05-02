@@ -48,6 +48,46 @@ namespace Hydrospanner.Phases.Transformation
 	}
 
 	[Subject(typeof(TransformationItem))]
+	public class when_initializing_a_foreign_message_as_transient
+	{
+		Establish context = () =>
+		{
+			item = new TransformationItem();
+			body = new byte[] { 1, 2, 3 };
+			type = "Type";
+			headers = new Dictionary<string, string>();
+			foreignId = Guid.NewGuid();
+			ack = x => { };
+		};
+
+		Because of = () =>
+			item.AsTransientMessage(body, type, headers, foreignId, ack);
+
+		It should_set_the_following_properties_according_to_the_given_arguments = () =>
+		{
+			item.SerializedBody.ShouldEqual(body);
+			item.SerializedType.ShouldEqual(type);
+			item.Headers.ShouldEqual(headers);
+			item.Acknowledgment.ShouldEqual(ack);
+			item.IsTransient.ShouldBeTrue();
+		};
+
+		It should_set_the_following_properties_to_their_defaults = () =>
+		{
+			item.MessageSequence.ShouldEqual(0);
+			item.SerializedHeaders.ShouldBeNull();
+			item.Body.ShouldBeNull();
+		};
+
+		static TransformationItem item;
+		static byte[] body;
+		static string type;
+		static Dictionary<string, string> headers;
+		static Guid foreignId;
+		static Action<bool> ack;
+	}
+
+	[Subject(typeof(TransformationItem))]
 	public class when_initializing_a_local_message
 	{
 		Establish context = () =>
