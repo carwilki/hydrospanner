@@ -32,11 +32,12 @@
 			// if a received message fails deserialization, is rejected as poison, and is republished to this queue
 			// without fixing the code and restarting the process, it will be discarded as a duplicate message.
 			if (this.duplicates.Contains(delivery.MessageId))
-			{
 				Log.DebugFormat("Rejecting message {0} of type '{1}' as duplicate.", delivery.MessageId, delivery.MessageType);
-				return;
-			}
-
+			else
+				this.PublishJournaledMessageToRingBuffer(delivery);
+		}
+		private void PublishJournaledMessageToRingBuffer(MessageDelivery delivery)
+		{
 			Log.DebugFormat("New message {0} of type '{1}' arrived, pushing to disruptor.", delivery.MessageId, delivery.MessageType);
 			var next = this.ring.Next();
 			var claimed = this.ring[next];
