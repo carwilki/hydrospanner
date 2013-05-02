@@ -120,6 +120,12 @@
 
 			return value;
 		}
+
+		public static void TryClear<T>(this ICollection<T> collection)
+		{
+			if (collection != null && !collection.IsReadOnly)
+				collection.Clear();
+		}
 	}
 
 	internal static class ThreadExtensions

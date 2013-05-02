@@ -65,6 +65,9 @@ namespace Hydrospanner.Phases.Transformation
 			Because of = () =>
 				result = transformer.Transform(replayDelivery).ToList();
 
+			It should_try_to_clear_any_messages_from_the_hydratable = () =>
+				hydratable.PendingMessages.ShouldBeEmpty();
+
 			It should_NOT_gather_and_return_any_messages = () =>
 				result.ShouldBeEmpty();
 		}

@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using log4net;
 	using Snapshot;
 	using Timeout;
 
@@ -23,6 +24,11 @@
 		{
 			if (live)
 				this.AddMessages(hydratable);
+			else if (hydratable.PendingMessages.Count > 0)
+			{
+				Log.Warn("Hydratable at '{0}' has {1} pending messages during replay.".FormatWith(hydratable.Key, hydratable.PendingMessages.Count));
+				hydratable.PendingMessages.TryClear();
+			}
 				
 			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
 				this.TakeSnapshot(hydratable, messageSequence);
@@ -42,8 +48,7 @@
 			foreach (var message in messages)
 				this.gathered.Add(this.watcher.Filter(key, message));
 
-			if (!messages.IsReadOnly)
-				messages.Clear();
+			messages.TryClear();
 		}
 		private void TakeSnapshot(IHydratable hydratable, long messageSequence)
 		{
@@ -73,6 +78,7 @@
 			this.watcher = watcher;
 		}
 
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Transformer));
 		private readonly List<object> gathered = new List<object>();
 		private readonly IRingBuffer<SnapshotItem> ring;
 		private readonly IRepository repository;
