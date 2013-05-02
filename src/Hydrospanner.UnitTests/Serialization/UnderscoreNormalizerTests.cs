@@ -97,7 +97,6 @@ namespace Hydrospanner.Serialization
 				result.ShouldEqual("channel5_media");
 		}
 
-		// TODO: spaces
 		Establish context = () =>
 			normalizer = new UnderscoreNormalizer();
 

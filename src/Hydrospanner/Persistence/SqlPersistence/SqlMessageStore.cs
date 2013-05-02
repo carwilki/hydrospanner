@@ -54,12 +54,9 @@
 		{
 			try
 			{
-				// TODO: if more than one message comes back, we're in trouble and we need to shutdown.
-				var stored = this.Load(last.MessageSequence - 1).SingleOrDefault();
-				if (stored == null)
-					return false;
-
-				return stored.Sequence == last.MessageSequence
+				var stored = this.Load(last.MessageSequence - 1).LastOrDefault();
+				return stored != null 
+					&& stored.Sequence == last.MessageSequence
 					&& stored.SerializedType == last.SerializedType
 					&& stored.SerializedBody.SequenceEqual(stored.SerializedBody);
 			}
