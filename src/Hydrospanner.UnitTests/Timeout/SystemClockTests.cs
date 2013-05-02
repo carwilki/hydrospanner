@@ -42,7 +42,10 @@ namespace Hydrospanner.Timeout
 			};
 
 			Because of = () =>
+			{
 				clock.Dispose();
+				Thread.Sleep(50);
+			};
 
 			It should_dispose_the_timing_mechanism = () =>
 				timer.Received(1).Dispose();
