@@ -15,7 +15,7 @@
 		}
 		public virtual MessageListener CreateMessageListener(IRingBuffer<TransformationItem> ring)
 		{
-			return new MessageListener(this.NewReceiver, ring, this.duplicates);
+			return new MessageListener(this.NewReceiver, ring, this.duplicates, this.transients);
 		}
 		private IMessageReceiver NewReceiver()
 		{
@@ -26,7 +26,7 @@
 			return new RabbitSubscription(channel, this.sourceQueue);
 		}
 
-		public MessagingFactory(short nodeId, Uri messageBroker, string sourceQueue, DuplicateStore duplicates)
+		public MessagingFactory(short nodeId, Uri messageBroker, string sourceQueue, DuplicateStore duplicates, ICollection<string> transients)
 		{
 			if (nodeId <= 0)
 				throw new ArgumentOutOfRangeException("nodeId");
@@ -44,6 +44,7 @@
 			this.sourceQueue = sourceQueue;
 			this.duplicates = duplicates;
 			this.connector = new RabbitConnector(messageBroker);
+			this.transients = transients;
 		}
 		protected MessagingFactory()
 		{
@@ -53,5 +54,6 @@
 		private readonly string sourceQueue;
 		private readonly DuplicateStore duplicates;
 		private readonly RabbitConnector connector;
+		private readonly ICollection<string> transients;
 	}
 }

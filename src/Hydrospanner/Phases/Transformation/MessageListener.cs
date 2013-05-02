@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner.Phases.Transformation
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Threading;
 	using log4net;
 	using Messaging;
@@ -33,12 +34,27 @@
 			// without fixing the code and restarting the process, it will be discarded as a duplicate message.
 			if (this.duplicates.Contains(delivery.MessageId))
 				Log.DebugFormat("Rejecting message {0} of type '{1}' as duplicate.", delivery.MessageId, delivery.MessageType);
+			else if (this.transients.Contains(delivery.MessageType ?? string.Empty))
+				this.PublishTransientMessageToRingBuffer(delivery);
 			else
 				this.PublishJournaledMessageToRingBuffer(delivery);
 		}
+		private void PublishTransientMessageToRingBuffer(MessageDelivery delivery)
+		{
+			Log.DebugFormat("New transient message {0} of type '{1}' arrived, pushing to disruptor.", delivery.MessageId, delivery.MessageType);
+			var next = this.ring.Next();
+			var claimed = this.ring[next];
+			claimed.AsTransientMessage(
+				delivery.Payload,
+				delivery.MessageType,
+				delivery.Headers,
+				delivery.MessageId,
+				delivery.Acknowledge);
+			this.ring.Publish(next);
+		}
 		private void PublishJournaledMessageToRingBuffer(MessageDelivery delivery)
 		{
-			Log.DebugFormat("New message {0} of type '{1}' arrived, pushing to disruptor.", delivery.MessageId, delivery.MessageType);
+			Log.DebugFormat("New journaled message {0} of type '{1}' arrived, pushing to disruptor.", delivery.MessageId, delivery.MessageType);
 			var next = this.ring.Next();
 			var claimed = this.ring[next];
 			claimed.AsForeignMessage(
@@ -50,7 +66,7 @@
 			this.ring.Publish(next);
 		}
 
-		public MessageListener(Func<IMessageReceiver> receiverFactory, IRingBuffer<TransformationItem> ring, DuplicateStore duplicates)
+		public MessageListener(Func<IMessageReceiver> receiverFactory, IRingBuffer<TransformationItem> ring, DuplicateStore duplicates, ICollection<string> transients)
 		{
 			if (receiverFactory == null)
 				throw new ArgumentNullException("receiverFactory");
@@ -61,9 +77,13 @@
 			if (duplicates == null)
 				throw new ArgumentNullException("duplicates");
 
+			if (transients == null)
+				throw new ArgumentNullException("transients");
+
 			this.receiverFactory = receiverFactory;
 			this.ring = ring;
 			this.duplicates = duplicates;
+			this.transients = transients;
 		}
 		protected MessageListener()
 		{
@@ -88,6 +108,7 @@
 		private readonly Func<IMessageReceiver> receiverFactory;
 		private readonly IRingBuffer<TransformationItem> ring;
 		private readonly DuplicateStore duplicates;
+		private readonly ICollection<string> transients;
 		private bool started;
 		private bool disposed;
 	}

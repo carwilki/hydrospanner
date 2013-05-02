@@ -45,7 +45,7 @@
 			this.info = persistenceBootstrapper.Restore();
 			var duplicates = new DuplicateStore(conventionWireup.DuplicateWindow, this.info.DuplicateIdentifiers);
 			var timeoutFactory = new TimeoutFactory();
-			var messagingFactory = new MessagingFactory(conventionWireup.NodeId, conventionWireup.BrokerAddress, conventionWireup.SourceQueueName, duplicates);
+			var messagingFactory = new MessagingFactory(conventionWireup.NodeId, conventionWireup.BrokerAddress, conventionWireup.SourceQueueName, duplicates, new string[0]); // TODO
 
 			Log.Info("Loading bootstrap parameters.");
 			var messageStore = persistenceFactory.CreateMessageStore(this.info.SerializedTypes);
