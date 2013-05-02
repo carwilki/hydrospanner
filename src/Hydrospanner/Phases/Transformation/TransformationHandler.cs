@@ -24,14 +24,14 @@
 		}
 		private bool Skip()
 		{
-			if (this.skip)
+			if (this.skipAllRemaining)
 				return true;
 
 			var body = this.item.Body != null; // null body == serialization failure
 			if (this.item.MessageSequence == 0 && !body)
 				return true;
 
-			return this.skip = this.item.MessageSequence > 0 && !body;
+			return this.skipAllRemaining = this.item.MessageSequence > 0 && !body;
 		}
 		private bool Transform()
 		{
@@ -120,6 +120,6 @@
 
 		private TransformationItem item;
 		private long currentSequnce;
-		private bool skip;
+		private bool skipAllRemaining;
 	}
 }
