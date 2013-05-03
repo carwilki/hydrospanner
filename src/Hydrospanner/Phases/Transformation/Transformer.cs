@@ -30,6 +30,8 @@
 				hydratable.PendingMessages.TryClear();
 			}
 				
+			// TODO: bootstrap should get all mementos for all public snapshots and serialize them at the end of the bootstrap process
+			// TODO: (live && IsPublicSnapshot) || IsComplete
 			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
 				this.TakeSnapshot(hydratable, messageSequence);
 
