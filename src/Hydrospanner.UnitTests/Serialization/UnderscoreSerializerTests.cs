@@ -203,7 +203,8 @@ namespace Hydrospanner.Serialization
 	public enum UnderscoreEnum
 	{
 		None,
-		UnderscoreCasing
+		UnderscoreCasing,
+		AnotherOption
 	}
 
 	[Subject(typeof(JsonSerializer))]
@@ -238,6 +239,15 @@ namespace Hydrospanner.Serialization
 		{
 			this.UnderscoreCasing = UnderscoreEnum.UnderscoreCasing;
 		}
+	}
+
+	[Subject(typeof(JsonSerializer))]
+	public class when_deserializing_an_underscore_decorated_structure_with_underscore_enum
+	{
+		It should_deserialize_both_from_underscores = () =>
+			"{'underscore_casing':'another_option'}".Quote().ToObject<UnderscoreWrapper2>().UnderscoreCasing.ShouldEqual(UnderscoreEnum.AnotherOption);
+
+		static UnderscoreWrapper2 value;
 	}
 
 	public static class SerializationTestExtensions
