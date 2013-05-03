@@ -14,17 +14,15 @@
 		public void StartRecording(int expectedItems)
 		{
 			this.catalog.Clear();
-			this.saved.Clear();
+			this.saved = 0;
 		}
-
 		public void Record(SnapshotItem item)
 		{
 			this.catalog[item.Key] = item;
 		}
-
 		public void FinishRecording(long sequence = 0)
 		{
-			if (!this.catalog.Any())
+			if (this.catalog.Count == 0)
 				return;
 
 			while (true)
@@ -36,7 +34,7 @@
 				}
 				catch (Exception)
 				{
-					TimeSpan.FromSeconds(5).Sleep();
+					SleepTimeout.Sleep();
 				}
 			}
 		}
@@ -46,65 +44,63 @@
 			using (var connection = this.settings.OpenConnection())
 			using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
 			{
+				var keys = this.catalog.Keys.ToArray();
 				using (var command = connection.CreateCommand())
-					while (this.saved.Count < this.catalog.Count)
-						this.RecordBatch(command);
+					while (this.saved < this.catalog.Count)
+						this.RecordBatch(command, keys);
 
 				transaction.Commit();
 			}
 		}
-
-		private void RecordBatch(IDbCommand command)
+		private void RecordBatch(IDbCommand command, string[] keys)
 		{
-			var nextBatch = this.DetermineNextBatch();
-			this.IncludeNextBatch(command, nextBatch);
+			this.currentBatch.Clear();
+			this.AppendKeysToNextBatch(keys);
+			this.IncludeNextBatch(command);
 			command.ExecuteNonQuery();
-			this.saved.AddRange(nextBatch);
+			this.saved += this.currentBatch.Count;
 		}
-
-		private List<string> DetermineNextBatch()
+		private void AppendKeysToNextBatch(string[] keys)
 		{
-			var batch = new List<string>();
 			var payload = 0;
-			foreach (var key in this.catalog.Keys.Skip(this.saved.Count))
+
+			for (var i = this.saved; i < keys.Length; i++)
 			{
+				var key = keys[i];
+
 				var itemSize = sizeof(int) + sizeof(long) + key.Length + this.catalog[key].Serialized.Length;
-				
-				if (BatchCapacityReached(itemSize, payload, batch))
+
+				if (BatchCapacityReached(itemSize, payload, this.currentBatch))
 					break;
 
 				payload += itemSize;
-				batch.Add(key);
+				this.currentBatch.Add(key);
 			}
-			return batch;
 		}
-
-		static bool BatchCapacityReached(int nextItem, int alreadyBatched, ICollection batch)
+		private static bool BatchCapacityReached(int nextItem, int alreadyBatched, ICollection batch)
 		{
 			var payloadCapacityExceeded = nextItem + alreadyBatched > BatchSize;
 			var parameterCapacityExceeded = (batch.Count + 1) * ParametersPerStatement >= ParameterLimit;
 
 			return payloadCapacityExceeded || parameterCapacityExceeded;
 		}
-
-		private void IncludeNextBatch(IDbCommand command, IList<string> nextBatch)
+		private void IncludeNextBatch(IDbCommand command)
 		{
 			command.Parameters.Clear();
-			var builder = new StringBuilder(nextBatch.Count * Upsert.Length);
+			this.builder.Clear();
 
-			for (var i = 0; i < nextBatch.Count; i++)
-				IncludeItem(command, i, this.catalog[nextBatch[i]], builder);
+			for (var i = 0; i < this.currentBatch.Count; i++)
+				this.IncludeItem(command, i, this.catalog[this.currentBatch[i]]);
 
-			command.CommandText = builder.ToString();
+			command.CommandText = this.builder.ToString();
 		}
-
-		private static void IncludeItem(IDbCommand command, int i, SnapshotItem item, StringBuilder builder)
+		private void IncludeItem(IDbCommand command, int i, SnapshotItem item)
 		{
 			command.WithParameter("@id" + i, item.Key, DbType.String);
 			command.WithParameter("@sequence" + i, item.CurrentSequence, DbType.Int64);
 			command.WithParameter("@hash" + i, item.Serialized.ComputeHash(), DbType.UInt32);
 			command.WithParameter("@document" + i, item.Serialized, DbType.Binary);
-			builder.AppendFormat(Upsert, i);
+			this.builder.AppendFormat(Upsert, i);
 		}
 
 		public PublicSnapshotRecorder(ConnectionStringSettings settings)
@@ -112,15 +108,18 @@
 			this.settings = settings;
 		}
 		
-		const int BatchSize = 1024 * 64;
-		const string Upsert = @"
-			INSERT INTO documents (`identifier`, `message_sequence`, `document_hash`, `document`)
-			VALUES ( @id{0}, @sequence{0}, @hash{0}, @document{0} )
-			ON DUPLICATE KEY UPDATE `message_sequence` = @sequence{0}, `document_hash` = @hash{0}, `document` = @document{0};";
-		const int ParameterLimit = 65000;
-		const int ParametersPerStatement = 4;
-		readonly ConnectionStringSettings settings;
-		readonly IDictionary<string, SnapshotItem> catalog = new Dictionary<string, SnapshotItem>();
-		readonly List<string> saved = new List<string>();
+		private const int BatchSize = 1024 * 64;
+		private const string Upsert = @"
+			INSERT INTO documents (identifier, message_sequence, document_hash, document)
+			VALUES (@id{0}, @sequence{0}, @hash{0}, @document{0})
+			ON DUPLICATE KEY UPDATE message_sequence = @sequence{0}, document_hash = @hash{0}, document = @document{0};";
+		private const int ParameterLimit = 65000;
+		private const int ParametersPerStatement = 4;
+		private static readonly TimeSpan SleepTimeout = TimeSpan.FromSeconds(5);
+		private readonly ConnectionStringSettings settings;
+		private readonly IDictionary<string, SnapshotItem> catalog = new Dictionary<string, SnapshotItem>();
+		private readonly StringBuilder builder = new StringBuilder(1024 * 1024);
+		private readonly List<string> currentBatch = new List<string>(BatchSize); 
+		private int saved;
 	}
 }
