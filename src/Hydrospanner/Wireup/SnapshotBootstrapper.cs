@@ -69,7 +69,6 @@
 				var cloner = memento as ICloneable;
 				memento = (cloner == null ? memento : cloner.Clone()) ?? memento;
 
-				// TODO: clone of memento
 				var claimed = ringBuffer.Next();
 				var item = ringBuffer[sequence];
 				item.AsPublicSnapshot(hydratable.Key, memento, sequence);

@@ -27,12 +27,11 @@
 			this.ring.Publish(sequence);
 		}
 
-		public SystemClock(IRingBuffer<TransformationItem> ring, Func<SystemTimer> timerBuilder) : this()
+		public SystemClock(IRingBuffer<TransformationItem> ring, Func<TimerWrapper> timerBuilder) : this()
 		{
 			this.ring = ring;
 			this.timerBuilder = timerBuilder;
 		}
-
 		protected SystemClock()
 		{
 		}
@@ -44,17 +43,16 @@
 		}
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposing || this.disposed)
-				return;
+			if (disposing && !this.disposed)
+				this.timer = this.timer.TryDispose();
 
 			this.disposed = true;
-			this.timer = this.timer.TryDispose();
 		}
 
 		private readonly object sync = new object();
 		private readonly IRingBuffer<TransformationItem> ring;
-		private readonly Func<SystemTimer> timerBuilder;
-		private SystemTimer timer;
+		private readonly Func<TimerWrapper> timerBuilder;
+		private TimerWrapper timer;
 		private bool disposed;
 	}
 }

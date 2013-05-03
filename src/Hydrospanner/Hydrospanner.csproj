@@ -73,7 +73,7 @@
     <Compile Include="Serialization\UnderscoreEnumConverter.cs" />
     <Compile Include="Serialization\UnderscoreExtensions.cs" />
     <Compile Include="Serialization\UnderscoreNormalizer.cs" />
-    <Compile Include="Timeout\SystemTimer.cs" />
+    <Compile Include="Timeout\TimerWrapper.cs" />
     <Compile Include="Timeout\TimeoutAbortedEvent.cs" />
     <Compile Include="Timeout\TimeoutAggregate.cs" />
     <Compile Include="Timeout\TimeoutMemento.cs" />

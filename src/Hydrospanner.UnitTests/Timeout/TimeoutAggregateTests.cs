@@ -77,6 +77,50 @@ namespace Hydrospanner.Timeout
 			static readonly DateTime instant = SystemTime.UtcNow.AddMinutes(-30);
 		}
 
+		public class when_an_aborted_timeout_has_been_reached
+		{
+			Establish context = () =>
+			{
+				init.Add(new TimeoutRequestedEvent(Key, instant));
+				init.Add(new TimeoutAbortedEvent(Key, instant));
+				becauseOf = () => aggregate.DispatchTimeouts(instant.AddSeconds(1));
+			};
+
+			It should_NOT_raise_any_events = () =>
+				pending.ShouldBeEmpty();
+
+			static readonly DateTime instant = SystemTime.UtcNow.AddMinutes(30);
+		}
+
+		public class when_a_timeout_has_been_reached_dispatched_and_time_continues
+		{
+			Establish context = () =>
+			{
+				init.Add(new TimeoutRequestedEvent(Key, instant));
+				init.Add(new TimeoutReachedEvent(Key, instant, SystemTime.UtcNow));
+				becauseOf = () => aggregate.DispatchTimeouts(instant.AddSeconds(1));
+			};
+
+			It should_NOT_raise_any_events_for_the_reached_timeout = () =>
+				pending.ShouldBeEmpty();
+
+			static readonly DateTime instant = SystemTime.UtcNow.AddMinutes(30);
+		}
+
+		public class when_a_timeout_is_reached_for_a_timeout_that_was_not_found
+		{
+			Establish context = () =>
+			{
+				init.Add(new TimeoutReachedEvent("key not found", instant, SystemTime.UtcNow));
+				becauseOf = () => aggregate.DispatchTimeouts(instant.AddSeconds(1));
+			};
+
+			It should_NOT_raise_any_events_for_the_reached_timeout = () =>
+				pending.ShouldBeEmpty();
+
+			static readonly DateTime instant = SystemTime.UtcNow.AddMinutes(30);
+		}
+
 		Establish context = () =>
 		{
 			SystemTime.Freeze(DateTime.UtcNow);
@@ -92,6 +136,8 @@ namespace Hydrospanner.Timeout
 			{
 				if (message is TimeoutRequestedEvent)
 					aggregate.Apply(message as TimeoutRequestedEvent);
+				else if (message is TimeoutAbortedEvent)
+					aggregate.Apply(message as TimeoutAbortedEvent);
 				else if (message is TimeoutReachedEvent)
 					aggregate.Apply(message as TimeoutReachedEvent);
 				else

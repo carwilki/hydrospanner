@@ -8,7 +8,7 @@
 	{
 		public virtual SystemClock CreateSystemClock(IRingBuffer<TransformationItem> ring)
 		{
-			return new SystemClock(ring, () => new SystemTimer(TimeSpan.FromSeconds(1)));
+			return new SystemClock(ring, () => new TimerWrapper(TimeSpan.FromSeconds(1)));
 		}
 	}
 }

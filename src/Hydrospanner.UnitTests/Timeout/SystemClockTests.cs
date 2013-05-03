@@ -82,7 +82,7 @@ namespace Hydrospanner.Timeout
 		Establish context = () =>
 		{
 			SystemTime.Freeze(Now);
-			timer = Substitute.For<SystemTimer>();
+			timer = Substitute.For<TimerWrapper>();
 			harness = new RingBufferHarness<TransformationItem>();
 			clock = new SystemClock(harness, () => timer);
 		};
@@ -92,7 +92,7 @@ namespace Hydrospanner.Timeout
 
 		static readonly DateTime Now = DateTime.UtcNow;
 		static TimerCallback callback;
-		static SystemTimer timer;
+		static TimerWrapper timer;
 		static RingBufferHarness<TransformationItem> harness;
 		static SystemClock clock;
 	}

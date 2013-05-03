@@ -6,6 +6,7 @@ namespace Hydrospanner.Phases.Transformation
 	using System;
 	using System.Collections.Generic;
 	using Machine.Specifications;
+	using Serialization;
 
 	[Subject(typeof(TransformationItem))]
 	public class when_initializing_a_foreign_message
@@ -195,6 +196,27 @@ namespace Hydrospanner.Phases.Transformation
 
 		static TransformationItem item;
 		static object body;
+	}
+
+	public class when_deserializing_journaled_item_fails
+	{
+		Establish context = () =>
+		{
+			item = new TransformationItem();
+			item.AsJournaledMessage(1, new byte[] { 1, 2, 3 }, string.Empty, null);
+		};
+
+		Because of = () =>
+			thrown = Catch.Exception(() => item.Deserialize(new JsonSerializer()));
+
+		It should_clear_any_item_body = () =>
+			item.Body.ShouldBeNull();
+
+		It should_not_throw_an_exception = () =>
+			thrown.ShouldBeNull();
+
+		static TransformationItem item;
+		static Exception thrown;
 	}
 }
 

@@ -37,6 +37,7 @@
 		{
 			this.Remove(message.Key, message.Instant);
 		}
+
 		private void Add(string key, DateTime instant)
 		{
 			HashSet<string> keys;

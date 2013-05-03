@@ -60,11 +60,8 @@
 		}
 		private Type LoadType(string typeName)
 		{
-			if (string.IsNullOrWhiteSpace(typeName))
-				return null;
-
-			Type type;
-			if (!this.types.TryGetValue(typeName, out type))
+			Type type = null;
+			if (!string.IsNullOrEmpty(typeName) && !this.types.TryGetValue(typeName, out type))
 				this.types[typeName] = type = Type.GetType(typeName);
 
 			return type;

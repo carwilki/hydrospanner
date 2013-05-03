@@ -3,18 +3,18 @@
 	using System;
 	using System.Threading;
 
-	public class SystemTimer : IDisposable
+	public class TimerWrapper : IDisposable
 	{
 		public virtual void Start(TimerCallback callback)
 		{
 			this.timer = new Timer(callback, null, StartImmediately, (int)this.interval.TotalMilliseconds);
 		}
 
-		public SystemTimer(TimeSpan interval)
+		public TimerWrapper(TimeSpan interval)
 		{
 			this.interval = interval;
 		}
-		protected SystemTimer()
+		protected TimerWrapper()
 		{
 		}
 

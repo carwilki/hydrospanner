@@ -20,6 +20,9 @@ namespace Hydrospanner.Phases.Transformation
 		It should_throw_if_the_ring_is_null = () =>
 			Try(() => new Transformer(Substitute.For<IRepository>(), null, Substitute.For<ITimeoutWatcher>())).ShouldBeOfType<ArgumentNullException>();
 
+		It should_throw_if_the_watcher_is_null = () =>
+			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>(), null)).ShouldBeOfType<ArgumentNullException>();
+
 		It should_NOT_throw_if_the_parameters_are_appropriate = () =>
 		{
 			Try(() => new Transformer(Substitute.For<IRepository>(), new RingBufferHarness<SnapshotItem>(), Substitute.For<ITimeoutWatcher>())).ShouldBeNull();

@@ -104,7 +104,11 @@
 	{
 		public static HydrationInfo Lookup(Delivery<TimeoutReachedEvent> delivery)
 		{
-			return new HydrationInfo(delivery.Message.Key, () => null); // used to route the the hydratable in question
+			return new HydrationInfo(delivery.Message.Key, Create);
+		}
+		private static IHydratable Create()
+		{
+			throw new InvalidOperationException("Default timeout route should never create a hydratable.");
 		}
 	}
 }

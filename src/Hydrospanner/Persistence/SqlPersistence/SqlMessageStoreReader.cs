@@ -41,10 +41,7 @@
 		}
 		private bool TryRead()
 		{
-			if (this.reader == null)
-				return false;
-
-			if (!this.reader.Read())
+			if (this.reader == null || !this.reader.Read())
 				return false;
 
 			this.Current = new JournaledMessage
