@@ -25,10 +25,10 @@ namespace Hydrospanner.Messaging.Rabbit
 		public class when_specifying_an_broker_address
 		{
 			Establish context = () =>
-			{
-				var address = new Uri("amqp://domain.com:1234/");
-				connector = new RabbitConnector(address, factory);
-			};
+				address = new Uri("amqp://domain.com:1234/");
+
+			Because of = () =>
+				factory = RabbitConnectionParser.Parse(address);
 
 			It should_use_the_address_from_the_url_provided = () =>
 			{
@@ -42,10 +42,10 @@ namespace Hydrospanner.Messaging.Rabbit
 		public class when_specifying_an_broker_address_with_credentials
 		{
 			Establish context = () =>
-			{
-				var address = new Uri("amqp://username:password@domain.com:1234/");
-				connector = new RabbitConnector(address, factory);
-			};
+				address = new Uri("amqp://username:password@domain.com:1234/");
+
+			Because of = () =>
+				factory = RabbitConnectionParser.Parse(address);
 
 			It should_use_the_address_from_the_url_provided = () =>
 			{
@@ -56,13 +56,30 @@ namespace Hydrospanner.Messaging.Rabbit
 			};
 		}
 
+		public class when_specifying_an_broker_address_with_username_but_no_password
+		{
+			Establish context = () =>
+				address = new Uri("amqp://username@domain.com:1234/");
+
+			Because of = () =>
+				factory = RabbitConnectionParser.Parse(address);
+
+			It should_use_the_default_guest_password = () =>
+			{
+				factory.UserName.ShouldEqual("username");
+				factory.Password.ShouldEqual("guest");
+				factory.HostName.ShouldEqual("domain.com");
+				factory.Port.ShouldEqual(1234);
+			};
+		}
+
 		public class when_specifying_a_secure_broker_address
 		{
 			Establish context = () =>
-			{
-				var address = new Uri("amqps://domain.com:7890/");
-				connector = new RabbitConnector(address, factory);
-			};
+				address = new Uri("amqps://domain.com:7890/");
+
+			Because of = () =>
+				factory = RabbitConnectionParser.Parse(address);
 
 			It should_connect_using_a_secure_connection = () =>
 			{
@@ -77,10 +94,10 @@ namespace Hydrospanner.Messaging.Rabbit
 		public class when_specifying_to_ignore_server_certificate_errors
 		{
 			Establish context = () =>
-			{
-				var address = new Uri("amqps://domain.com:7890/?ignore-issuer=true");
-				connector = new RabbitConnector(address, factory);
-			};
+				address = new Uri("amqps://domain.com:7890/?ignore-issuer=true");
+
+			Because of = () =>
+				factory = RabbitConnectionParser.Parse(address);
 
 			It should_connect_using_a_secure_connection = () =>
 			{
@@ -266,7 +283,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			factory.CreateConnection().Returns(connection);
 			connection.CreateModel().Returns(channel1);
 
-			address = new Uri("ampq://localhost:5671/");
+			address = new Uri("amqp://localhost:5671/");
 			connector = new RabbitConnector(address, factory);
 		};
 

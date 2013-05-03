@@ -1,9 +1,6 @@
 ﻿namespace Hydrospanner.Messaging.Rabbit
 {
 	using System;
-	using System.Collections.Generic;
-	using System.Net.Security;
-	using System.Security.Authentication;
 	using RabbitMQ.Client;
 
 	public class RabbitConnector : IDisposable
@@ -49,46 +46,16 @@
 			}
 		}
 
-		public RabbitConnector(Uri address) : this(address, new ConnectionFactory())
-		{
-		}
-		public RabbitConnector(Uri address, ConnectionFactory factory)
+		public RabbitConnector(Uri address, ConnectionFactory factory = null) : this()
 		{
 			if (address == null)
 				throw new ArgumentNullException("address");
 
-			this.factory = factory;
-			factory.HostName = address.Host;
-			factory.Port = address.Port;
-
-			var credentials = ParseUserInfo(address.UserInfo);
-			factory.UserName = credentials.Key;
-			factory.Password = credentials.Value;
-
-			if (SecureConnection != address.Scheme)
-				return;
-
-			var accepted = address.Query.Contains(IgnoreIssuer) ? SslPolicyErrors.RemoteCertificateChainErrors : SslPolicyErrors.None;
-			factory.Ssl = new SslOption(address.Host)
-			{
-				Enabled = true,
-				Version = SslProtocols.Tls,
-				AcceptablePolicyErrors = accepted,
-			};
+			this.factory = factory ?? RabbitConnectionParser.Parse(address);
 		}
 		protected RabbitConnector()
 		{
-		}
-		private static KeyValuePair<string, string> ParseUserInfo(string credentials)
-		{
-			if (string.IsNullOrWhiteSpace(credentials))
-				return new KeyValuePair<string, string>(Guest, Guest);
-
-			var split = credentials.Split(":".ToCharArray());
-			if (split.Length == 1)
-				return new KeyValuePair<string, string>(split[0], Guest);
-
-			return new KeyValuePair<string, string>(split[0], split[1]);
+			this.sync = new object();
 		}
 
 		public void Dispose()
@@ -105,12 +72,9 @@
 			this.Disconnect();
 		}
 
-		private const string IgnoreIssuer = "ignore-issuer=true";
-		private const string SecureConnection = "amqps";
-		private const string Guest = "guest";
 		private static readonly TimeSpan ConnectionFailureTimeout = TimeSpan.FromSeconds(3);
-		private readonly object sync = new object();
 		private readonly ConnectionFactory factory;
+		private readonly object sync;
 		private IConnection connection;
 		private bool disposed;
 	}

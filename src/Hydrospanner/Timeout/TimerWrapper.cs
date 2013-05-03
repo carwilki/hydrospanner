@@ -25,11 +25,10 @@
 		}
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposing || this.disposed)
-				return;
+			if (disposing && !this.disposed)
+				this.timer = this.timer.TryDispose();
 
 			this.disposed = true;
-			this.timer = this.timer.TryDispose();
 		}
 
 		private const int StartImmediately = 0;

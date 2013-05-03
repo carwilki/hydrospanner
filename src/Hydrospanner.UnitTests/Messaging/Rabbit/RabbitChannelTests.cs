@@ -846,7 +846,7 @@ namespace Hydrospanner.Messaging.Rabbit
 		{
 			ItemActions = JournalItemAction.Dispatch,
 			MessageSequence = 1234,
-			SerializedType = "Some.Type",
+			SerializedType = "Some.Type, SomeAssembly",
 			SerializedBody = new byte[] { 0, 1, 2, 3, 4 },
 			Headers = new Dictionary<string, string>()
 		};

@@ -48,6 +48,7 @@
     <Compile Include="..\VersionAssemblyInfo.cs">
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="HydrationInfoTests.cs" />
     <Compile Include="Persistence\DefaultRepositoryTests.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -55,6 +56,8 @@
     <Compile Include="Persistence\HydratableGraveyardTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitChannelTests.cs" />
     <Compile Include="Messaging\Rabbit\RabbitConnectorTests.cs" />
+    <Compile Include="Persistence\SqlPersistence\SqlCheckpointStoreTests.cs" />
+    <Compile Include="Persistence\SqlPersistence\SqlMessageStoreReaderTests.cs" />
     <Compile Include="Persistence\SqlPersistence\JournalMessageTypeRegistrarTests.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlMessageStoreTests.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlMessageStoreWriterTests.cs" />
@@ -70,6 +73,7 @@
     <Compile Include="Timeout\SystemClockTests.cs" />
     <Compile Include="Timeout\TimeoutHydratableTests.cs" />
     <Compile Include="Timeout\TimeoutAggregateTests.cs" />
+    <Compile Include="Timeout\TimerWrapperTests.cs" />
     <Compile Include="Wireup\ConventionRoutingTableTests.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -118,6 +122,7 @@
       <HintPath>..\packages\NSubstitute.1.6.0.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="RabbitMQ.Client">
       <HintPath>..\packages\RabbitMQ.Client.3.0.4\lib\net30\RabbitMQ.Client.dll</HintPath>

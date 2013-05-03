@@ -51,6 +51,7 @@
       <Link>Properties\VersionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="IInternalMessage.cs" />
+    <Compile Include="Messaging\Rabbit\RabbitConnectionParser.cs" />
     <Compile Include="Persistence\DefaultRepository.cs" />
     <Compile Include="Delivery.cs" />
     <Compile Include="Persistence\GraveyardMemento.cs" />

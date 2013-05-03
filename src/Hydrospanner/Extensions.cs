@@ -5,6 +5,7 @@
 	using System.Configuration;
 	using System.Data;
 	using System.Data.Common;
+	using System.Data.SqlClient;
 	using System.Globalization;
 	using System.Text;
 	using System.Threading;
@@ -156,11 +157,7 @@
 				throw new ArgumentNullException("connectionSettings");
 
 			var provider = DbProviderFactories.GetFactory(connectionSettings.ProviderName);
-			var connection = provider.CreateConnection();
-
-			if (connection == null)
-				throw new ConfigurationErrorsException(string.Format("The connection named \"{0}\" could not be created.", connectionSettings.Name));
-
+			var connection = provider.CreateConnection() ?? new SqlConnection();
 			connection.ConnectionString = connectionSettings.ConnectionString;
 			connection.Open();
 			return connection;

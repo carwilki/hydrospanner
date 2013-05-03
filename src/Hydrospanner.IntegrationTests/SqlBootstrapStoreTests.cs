@@ -12,6 +12,18 @@ namespace Hydrospanner.IntegrationTests
 	[Subject(typeof(SqlBootstrapStore))]
 	public class when_loading_bootstrap_information : TestDatabase
 	{
+		public class and_the_constructor_has_invalid_arguments
+		{
+			It should_throw_when_the_factory_is_null = () =>
+				Catch.Exception(() => new SqlBootstrapStore(null, "connection", 1)).ShouldBeOfType<ArgumentNullException>();
+
+			It should_throw_when_the_connection_is_empty = () =>
+				Catch.Exception(() => new SqlBootstrapStore(factory, string.Empty, 1)).ShouldBeOfType<ArgumentNullException>();
+
+			It should_throw_duplicate_window_is_too_small = () =>
+				Catch.Exception(() => new SqlBootstrapStore(factory, "connection", 0)).ShouldBeOfType<ArgumentOutOfRangeException>();
+		}
+
 		public class and_errors_occur
 		{
 			Establish context = TearDownDatabase;
@@ -71,7 +83,7 @@ namespace Hydrospanner.IntegrationTests
 				nap = x;
 				InitializeDatabase();
 			});
-			var factory = DbProviderFactories.GetFactory(settings.ProviderName);
+			factory = DbProviderFactories.GetFactory(settings.ProviderName);
 			store = new SqlBootstrapStore(factory, settings.ConnectionString, ForeignIdsToLoad);
 		};
 
@@ -80,6 +92,7 @@ namespace Hydrospanner.IntegrationTests
 
 		static BootstrapInfo result;
 		static SqlBootstrapStore store;
+		static DbProviderFactory factory;
 		static TimeSpan nap;
 		const int ForeignIdsToLoad = 5;
 	}

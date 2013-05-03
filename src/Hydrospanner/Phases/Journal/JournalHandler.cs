@@ -9,9 +9,6 @@
 	{
 		public void OnNext(JournalItem data, long sequence, bool endOfBatch)
 		{
-			if (data.MessageSequence % 10000 == 0)
-				Log.InfoFormat("Received message up to sequence {0} for journaling.", data.MessageSequence);
-
 			Log.DebugFormat("Received message sequence {0} of type {1} for journaling.", data.MessageSequence, data.SerializedType);
 			if (data.ItemActions.HasFlag(JournalItemAction.Journal))
 				this.buffer.Add(data);
