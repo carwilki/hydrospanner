@@ -3,6 +3,7 @@
 
 namespace Hydrospanner.Persistence
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.Linq;
@@ -129,6 +130,82 @@ namespace Hydrospanner.Persistence
 			static Delivery<string> tombstoneDelivery;
 		}
 
+		public class when_deliverying_a_replay_message_against_a_public_hydratable
+		{
+			Establish context = () =>
+				routes.Lookup(replayDelivery).Returns(x => new[] { publicInfo });
+
+			Because of = () =>
+				loadResult = repository.Load(replayDelivery).ToArray();
+
+			It should_return_the_hydratable = () =>
+				loadResult.Single().ShouldEqual(publicHydratable);
+
+			It should_mark_the_hydratable_as_recently_accessed = () =>
+				repository.Accessed.Single().ShouldEqual(publicHydratable);
+
+			static readonly PublicHydratable publicHydratable = new PublicHydratable();
+			static readonly Delivery<int> replayDelivery = new Delivery<int>(0, null, 1, false, true);
+			static readonly HydrationInfo publicInfo = new HydrationInfo("key", () => publicHydratable);
+		}
+
+		public class when_deliverying_a_replay_message_against_a_private_hydratable
+		{
+			Establish context = () =>
+				routes.Lookup(replayDelivery).Returns(x => new[] { privateInfo });
+
+			Because of = () =>
+				loadResult = repository.Load(replayDelivery).ToArray();
+
+			It should_return_the_hydratable = () =>
+				loadResult.Single().ShouldEqual(privateHydratable);
+
+			It should_NOT_mark_the_hydratable_as_recently_accessed = () =>
+				repository.Accessed.ShouldBeEmpty();
+
+			static readonly MyHydratable privateHydratable = new MyHydratable("key");
+			static readonly Delivery<int> replayDelivery = new Delivery<int>(0, null, 1, false, true);
+			static readonly HydrationInfo privateInfo = new HydrationInfo("key", () => privateHydratable);
+		}
+
+		public class when_deliverying_a_live_message_against_a_public_hydratable
+		{
+			Establish context = () =>
+				routes.Lookup(liveDelivery).Returns(x => new[] { publicInfo });
+
+			Because of = () =>
+				loadResult = repository.Load(liveDelivery).ToArray();
+
+			It should_return_the_hydratable = () =>
+				loadResult.Single().ShouldEqual(publicHydratable);
+
+			It should_NOT_mark_the_hydratable_as_recently_accessed = () =>
+				repository.Accessed.ShouldBeEmpty();
+
+			static readonly PublicHydratable publicHydratable = new PublicHydratable();
+			static readonly Delivery<int> liveDelivery = new Delivery<int>(0, null, 1, true, true);
+			static readonly HydrationInfo publicInfo = new HydrationInfo("key", () => publicHydratable);
+		}
+
+		public class when_deleting_a_recently_accessed_public_hydratable
+		{
+			Establish context = () =>
+			{
+				routes.Lookup(replayDelivery).Returns(x => new[] { publicInfo });
+				loadResult = repository.Load(replayDelivery).ToArray();
+			};
+
+			Because of = () =>
+				repository.Delete(loadResult.Single());
+
+			It should_remove_the_hydratable_from_the_recently_accessed_list = () =>
+				repository.Accessed.ShouldBeEmpty();
+
+			static readonly PublicHydratable publicHydratable = new PublicHydratable();
+			static readonly Delivery<int> replayDelivery = new Delivery<int>(0, null, 1, false, true);
+			static readonly HydrationInfo publicInfo = new HydrationInfo("key", () => publicHydratable);
+		}
+
 		Establish context = () =>
 		{
 			graveyard = new HydratableGraveyard();
@@ -144,9 +221,10 @@ namespace Hydrospanner.Persistence
 		const int Message = 42;
 		static readonly string Key = Message.ToString(CultureInfo.InvariantCulture);
 		static readonly MyHydratable Document = new MyHydratable(Key);
+		static readonly PublicHydratable PublicDocument = new PublicHydratable();
 		static readonly Dictionary<string, string> Headers = new Dictionary<string, string>();
 		static HydrationInfo myHydrationInfo;
-		static Delivery<int> delivery; 
+		static Delivery<int> delivery;
 		static IEnumerable<IHydratable> loadResult;
 		static DefaultRepository repository;
 		static IRoutingTable routes;
@@ -163,9 +241,9 @@ namespace Hydrospanner.Persistence
 
 		public bool IsComplete { get { return false; } }
 
-		public bool IsPublicSnapshot { get { return false; } }
+		public virtual bool IsPublicSnapshot { get { return false; } }
 
-		public ICollection<object> PendingMessages { get; private set; } 
+		public ICollection<object> PendingMessages { get; private set; }
 
 		public void Hydrate(Delivery<int> delivery)
 		{
@@ -180,6 +258,17 @@ namespace Hydrospanner.Persistence
 		}
 
 		readonly string key;
+	}
+
+	public class PublicHydratable : MyHydratable
+	{
+		public override bool IsPublicSnapshot
+		{
+			get { return true; }
+		}
+		public PublicHydratable() : base("some-key")
+		{
+		}
 	}
 }
 

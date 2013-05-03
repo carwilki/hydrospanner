@@ -9,9 +9,15 @@
 		{
 			get { return this.catalog.Values; }
 		}
+		public ICollection<IHydratable> Accessed
+		{
+			get { return this.accessed; }
+		} 
 
 		public IEnumerable<IHydratable<T>> Load<T>(Delivery<T> delivery)
 		{
+			this.live = delivery.Live;
+
 			foreach (var info in this.routes.Lookup(delivery))
 			{
 				if (string.IsNullOrEmpty(info.Key))
@@ -21,11 +27,13 @@
 					continue;
 
 				var hydratable = this.Load<T>(info);
-				if (hydratable != null)
-					yield return hydratable;
+				if (hydratable == null)
+					continue;
+
+				this.Touch(hydratable);
+				yield return hydratable;
 			}
 		}
-
 		private IHydratable<T> Load<T>(HydrationInfo info)
 		{
 			IHydratable hydratable;
@@ -39,9 +47,17 @@
 			this.catalog[info.Key] = hydratable;
 			return hydratable as IHydratable<T>;
 		}
+		private void Touch(IHydratable hydratable)
+		{
+			if (!this.live && hydratable.IsPublicSnapshot)
+				this.accessed.Add(hydratable);
+		}
 
 		public void Delete(IHydratable hydratable)
 		{
+			if (!this.live)
+				this.accessed.Remove(hydratable);
+
 			this.graveyard.Bury(hydratable.Key);
 			this.catalog.Remove(hydratable.Key);
 		}
@@ -63,8 +79,10 @@
 			this.routes = routes;
 		}
 
-		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>();
+		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>(1024 * 64);
+		private readonly HashSet<IHydratable> accessed = new HashSet<IHydratable>(); 
 		private readonly HydratableGraveyard graveyard;
 		private readonly IRoutingTable routes;
+		private bool live;
 	}
 }
