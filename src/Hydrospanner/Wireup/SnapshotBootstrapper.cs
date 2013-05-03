@@ -66,8 +66,8 @@
 					continue;
 
 				var memento = hydratable.Memento;
-				var cloneable = memento as ICloneable;
-				memento = (cloneable == null) ? memento : cloneable.Clone();
+				var cloner = memento as ICloneable;
+				memento = (cloner == null ? memento : cloner.Clone()) ?? memento;
 
 				// TODO: clone of memento
 				var claimed = ringBuffer.Next();
