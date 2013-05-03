@@ -59,7 +59,6 @@
 
 		public virtual void SavePublicSnapshots(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer, long sequence)
 		{
-			// TODO: get this under test
 			foreach (var hydratable in repository)
 			{
 				if (!hydratable.IsPublicSnapshot)
@@ -70,7 +69,7 @@
 				memento = (cloner == null ? memento : cloner.Clone()) ?? memento;
 
 				var claimed = ringBuffer.Next();
-				var item = ringBuffer[sequence];
+				var item = ringBuffer[claimed];
 				item.AsPublicSnapshot(hydratable.Key, memento, sequence);
 				ringBuffer.Publish(claimed);
 			}

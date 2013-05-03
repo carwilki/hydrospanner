@@ -5,12 +5,14 @@ namespace Hydrospanner.Wireup
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Globalization;
 	using System.Linq;
 	using Machine.Specifications;
 	using NSubstitute;
 	using Persistence;
 	using Phases.Bootstrap;
 	using Phases.Snapshot;
+	using Timeout;
 
 	[Subject(typeof(SnapshotBootstrapper))]
 	public class when_bootstrapping_from_a_system_snapshot
@@ -220,6 +222,94 @@ namespace Hydrospanner.Wireup
 				returnedInfo.ShouldEqual(providedInfo);
 
 			static SystemSnapshotStreamReader reader;
+		}
+
+		public class when_saving_public_snapshots
+		{
+			Establish context = () =>
+			{
+				var hydros = new List<IHydratable>();
+				for (var i = 0; i < 3; i++)
+				{
+					var hydro = Substitute.For<IHydratable>();
+					hydro.Key.Returns("key" + i);
+					hydro.Memento.Returns(i);
+					hydro.IsPublicSnapshot.Returns(i % 2 == 0);
+					hydros.Add(hydro);
+				}
+				repository.GetEnumerator().Returns(hydros.GetEnumerator());
+				ring = new RingBufferHarness<SnapshotItem>();
+			};
+
+			Because of = () =>
+				bootstrapper.SavePublicSnapshots(repository, ring, 42);
+
+			It should_publish_only_public_hydratable_mementos_to_the_ring = () =>
+				ring.AllItems.ShouldBeLike(new[]
+				{
+					new SnapshotItem
+					{
+						CurrentSequence = 42,
+						IsPublicSnapshot = true,
+						Key = "key0",
+						Memento = 0,
+						MementosRemaining = 0,
+						Serialized = null
+					},
+					new SnapshotItem
+					{
+						CurrentSequence = 42,
+						IsPublicSnapshot = true,
+						Key = "key2",
+						Memento = 2,
+						MementosRemaining = 0,
+						Serialized = null
+					}
+				});
+
+			static RingBufferHarness<SnapshotItem> ring;
+		}
+
+		public class when_saving_public_snapshots_with_cloneable_mementos
+		{
+			Establish context = () =>
+			{
+				var hydros = new List<IHydratable>();
+				var hydro = Substitute.For<IHydratable>();
+				hydro.Key.Returns("key");
+				hydro.Memento.Returns(new Cloneable());
+				hydro.IsPublicSnapshot.Returns(true);
+				hydros.Add(hydro);
+				repository.GetEnumerator().Returns(hydros.GetEnumerator());
+				ring = new RingBufferHarness<SnapshotItem>();
+			};
+
+			Because of = () =>
+				bootstrapper.SavePublicSnapshots(repository, ring, 42);
+
+			It should_publish_the_cloned_memento_to_the_Ring = () =>
+				ring.AllItems.ShouldBeLike(new[]
+				{
+					new SnapshotItem
+					{
+						CurrentSequence = 42,
+						IsPublicSnapshot = true,
+						Key = "key",
+						Memento = "cloned",
+						MementosRemaining = 0,
+						Serialized = null
+					},
+				});
+
+			static RingBufferHarness<SnapshotItem> ring;
+
+			public class Cloneable : ICloneable
+			{
+				public object Clone()
+				{
+					return "cloned";
+				}
+			}
 		}
 
 		Establish context = () =>

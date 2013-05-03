@@ -18,12 +18,12 @@
 			this.IsPublicSnapshot = true;
 			this.CurrentSequence = sequence;
 			this.Key = key;
-			this.Memento = memento;
+			this.Memento = memento; // TODO: clone
 		}
 		public void AsPartOfSystemSnapshot(long sequence, int remaining, object memento)
 		{
 			this.Clear();
-			this.Memento = memento;
+			this.Memento = memento; // TODO: clone
 			this.CurrentSequence = sequence;
 			this.MementosRemaining = remaining;
 		}

@@ -39,7 +39,7 @@ namespace Hydrospanner.Timeout
 			Because of = () =>
 			{
 				timer.Start(x => invocations++);
-				Thread.Sleep(10);
+				Thread.Sleep(25);
 			};
 
 			It should_invoke_the_callback_for_each_interval = () =>
