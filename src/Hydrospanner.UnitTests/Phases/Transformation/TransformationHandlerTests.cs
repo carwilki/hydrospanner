@@ -154,10 +154,7 @@ namespace Hydrospanner.Phases.Transformation
 					deliveryHandler.Received(1).Deliver(item, false);
 
 				It should_have_handled_the_correct_resulting_messages = () =>
-				{
-					deliveryHandler.Received(1).Deliver("hello", JournaledSequence);
-					deliveryHandler.Received(1).Deliver("world", JournaledSequence + 1);
-				};
+					deliveryHandler.Received(0).Deliver(Arg.Any<string>(), Arg.Any<long>());
 			}
 
 			public class when_the_yielded_messages_yield_more_messages
@@ -180,9 +177,6 @@ namespace Hydrospanner.Phases.Transformation
 					deliveryHandler
 						.Deliver("hello", ReplayMessageSequence - 9)
 						.Returns(new object[] { "world" });
-					deliveryHandler
-						.Deliver("world", ReplayMessageSequence - 8)
-						.Returns(new object[0]);
 
 					handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
 				};
@@ -190,10 +184,10 @@ namespace Hydrospanner.Phases.Transformation
 				Because of = () =>
 					handler.OnNext(item, 1, false);
 
-				It should_publish_the_incoming_message_and_the_resulting_messages = () =>
+				It should_NOT_publish_the_incoming_message_and_the_resulting_messages = () =>
 					journal.AllItems.ShouldBeEmpty();
 
-				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
+				It should_NOT_increment_the_snapshot_by_the_number_of_messages_published = () =>
 					snapshot.DidNotReceive().Track(Arg.Any<long>());
 
 				It should_NOT_reassign_the_message_sequence_of_the_incoming_message = () =>
@@ -203,8 +197,7 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					// sanity check
 					deliveryHandler.Received(1).Deliver(item, Arg.Any<bool>());
-					deliveryHandler.Received(1).Deliver("hello", Arg.Any<long>());
-					deliveryHandler.Received(1).Deliver("world", Arg.Any<long>());
+					deliveryHandler.Received(0).Deliver(Arg.Any<string>(), Arg.Any<long>());
 				};
 			}
 
@@ -219,7 +212,7 @@ namespace Hydrospanner.Phases.Transformation
 						Headers = new Dictionary<string, string>(),
 						SerializedHeaders = Encoding.UTF8.GetBytes("{}"),
 						SerializedType = default(int).ResolvableTypeName(),
-						MessageSequence = JournaledSequence - 5
+						MessageSequence = JournaledSequence - 5,
 					};
 					item2 = new TransformationItem
 					{
@@ -256,8 +249,8 @@ namespace Hydrospanner.Phases.Transformation
 				{
 					// sanity check
 					deliveryHandler.Received(1).Deliver(item, Arg.Any<bool>());
-					deliveryHandler.Received(1).Deliver("hello", Arg.Any<long>());
-					deliveryHandler.Received(1).Deliver("world", Arg.Any<long>());
+					deliveryHandler.Received(0).Deliver("hello", Arg.Any<long>());
+					deliveryHandler.Received(0).Deliver("world", Arg.Any<long>());
 					deliveryHandler.Received(1).Deliver(item2, Arg.Any<bool>());
 				};
 
@@ -342,6 +335,12 @@ namespace Hydrospanner.Phases.Transformation
 							Headers = new Dictionary<string, string>()
 						}
 					});
+
+				It should_correctly_sequence_the_messages_for_delivery_to_the_application = () =>
+				{
+					deliveryHandler.Received(1).Deliver("hello", JournaledSequence + 2);
+					deliveryHandler.Received(1).Deliver("world", JournaledSequence + 3);
+				};
 
 				It should_increment_the_snapshot_by_the_number_of_messages_published = () =>
 					snapshot.Received().Track(JournaledSequence + 3);
@@ -506,6 +505,7 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
+				deliveryHandler.Deliver(Arg.Do<TransformationItem>(x => receivedSequence = x.MessageSequence), true);
 				transientItem = new TransformationItem();
 				transientItem.AsTransientMessage(new object());
 			};
@@ -513,8 +513,34 @@ namespace Hydrospanner.Phases.Transformation
 			Because of = () =>
 				handler.OnNext(transientItem, 1, true);
 
+			It should_not_increment_the_sequence_for_transient_messages = () =>
+				receivedSequence.ShouldEqual(JournaledSequence);
+
 			It should_not_be_forwarded_to_the_journal_handler = () =>
 				journal.AllItems.ShouldBeEmpty();
+
+			static TransformationItem transientItem;
+			static long receivedSequence;
+		}
+
+		public class when_a_transient_message_causes_other_messages_to_be_generated
+		{
+			Establish context = () =>
+			{
+				handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
+				transientItem = new TransformationItem();
+				transientItem.AsTransientMessage(new object());
+				deliveryHandler.Deliver(transientItem, true).Returns(new object[] { "hello", "world" });
+			};
+
+			Because of = () =>
+				handler.OnNext(transientItem, 1, true);
+
+			It should_correctly_sequence_the_resulting_messages_for_delivery_to_the_application = () =>
+			{
+				deliveryHandler.Received(1).Deliver("hello", JournaledSequence + 1);
+				deliveryHandler.Received(1).Deliver("world", JournaledSequence + 2);
+			};
 
 			static TransformationItem transientItem;
 		}
