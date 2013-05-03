@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Transformation
 {
+	using System;
 	using System.Collections.Generic;
 
 	public class CommandFilterTransformer : ITransformer
@@ -14,6 +15,9 @@
 
 		public CommandFilterTransformer(ITransformer inner)
 		{
+			if (inner == null)
+				throw new ArgumentNullException("inner");
+
 			this.inner = inner;
 		}
 
