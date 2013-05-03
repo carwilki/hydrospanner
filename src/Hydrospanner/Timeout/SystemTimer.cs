@@ -7,7 +7,7 @@
 	{
 		public virtual void Start(TimerCallback callback)
 		{
-			this.timer = new Timer(callback, null, StartImmediately, this.interval.Milliseconds);
+			this.timer = new Timer(callback, null, StartImmediately, (int)this.interval.TotalMilliseconds);
 		}
 
 		public SystemTimer(TimeSpan interval)
