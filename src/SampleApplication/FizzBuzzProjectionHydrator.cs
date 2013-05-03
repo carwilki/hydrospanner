@@ -5,7 +5,6 @@
 	using Hydrospanner;
 
 	public class FizzBuzzProjectionHydrator :
-		IHydratable,
 		IHydratable<CountEvent>,
 		IHydratable<FizzEvent>,
 		IHydratable<BuzzEvent>,
@@ -59,20 +58,24 @@
 		{
 			return new FizzBuzzProjectionHydrator(memento);
 		}
-		public static HydrationInfo Lookup(CountEvent message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<CountEvent> delivery)
 		{
+			var message = delivery.Message;
 			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzProjectionHydrator(message.StreamId));
 		}
-		public static HydrationInfo Lookup(FizzEvent message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<FizzEvent> delivery)
 		{
+			var message = delivery.Message;
 			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzProjectionHydrator(message.StreamId));
 		}
-		public static HydrationInfo Lookup(BuzzEvent message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<BuzzEvent> delivery)
 		{
+			var message = delivery.Message;
 			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzProjectionHydrator(message.StreamId));
 		}
-		public static HydrationInfo Lookup(FizzBuzzEvent message, Dictionary<string, string> headers)
+		public static HydrationInfo Lookup(Delivery<FizzBuzzEvent> delivery)
 		{
+			var message = delivery.Message;
 			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzProjectionHydrator(message.StreamId));
 		}
 
