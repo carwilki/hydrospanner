@@ -31,7 +31,7 @@
 					this.SaveSnapshotItems();
 					break;
 				}
-				catch (Exception)
+				catch
 				{
 					SleepTimeout.Sleep();
 				}
@@ -97,10 +97,10 @@
 		}
 		private void IncludeItem(IDbCommand command, int i, SnapshotItem item)
 		{
-			command.WithParameter("@id" + i, item.Key, DbType.String);
-			command.WithParameter("@sequence" + i, item.CurrentSequence, DbType.Int64);
-			command.WithParameter("@hash" + i, item.Serialized.ComputeHash(), DbType.UInt32);
-			command.WithParameter("@document" + i, item.Serialized, DbType.Binary);
+			command.WithParameter("@i" + i, item.Key, DbType.String);
+			command.WithParameter("@s" + i, item.CurrentSequence, DbType.Int64);
+			command.WithParameter("@h" + i, item.Serialized.ComputeHash(), DbType.UInt32);
+			command.WithParameter("@d" + i, (object)item.Serialized ?? DBNull.Value, DbType.Binary);
 			this.builder.AppendFormat(Upsert, i);
 		}
 
@@ -110,9 +110,7 @@
 		}
 		
 		private const int BatchSize = 1024 * 64;
-		private const string Upsert = @"
-			INSERT INTO documents VALUES (@id{0}, @sequence{0}, @hash{0}, @document{0})
-			ON DUPLICATE KEY UPDATE message_sequence = @sequence{0}, document_hash = @hash{0}, document = @document{0};";
+		private const string Upsert = "INSERT INTO documents VALUES (@i{0}, @s{0}, @h{0}, @d{0}) ON DUPLICATE KEY UPDATE sequence = @s{0}, hash = @h{0}, document = @d{0};";
 		private const int ParameterLimit = 65000;
 		private const int ParametersPerStatement = 4;
 		private static readonly TimeSpan SleepTimeout = TimeSpan.FromSeconds(5);

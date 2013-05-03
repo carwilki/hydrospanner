@@ -74,6 +74,9 @@
 		// Reference: http://stackoverflow.com/a/425184/605022
 		public static uint ComputeHash(this byte[] data)
 		{
+			if (data == null)
+				return 0;
+
 			unchecked
 			{
 				uint result = 0;

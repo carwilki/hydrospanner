@@ -77,8 +77,8 @@ namespace Hydrospanner.IntegrationTests
 
 			CREATE TABLE IF NOT EXISTS documents (
 				`identifier` VARCHAR(256) NOT NULL,
-				`message_sequence` BIGINT NOT NULL,
-				`document_hash` INT UNSIGNED NOT NULL,
+				`sequence` BIGINT NOT NULL,
+				`hash` INT UNSIGNED NOT NULL,
 				`document` MEDIUMBLOB NULL,
 				PRIMARY KEY (`identifier`),
 				UNIQUE INDEX `identifier_UNIQUE` (`identifier` ASC) 
@@ -109,7 +109,7 @@ namespace Hydrospanner.IntegrationTests
 
 			DROP VIEW IF EXISTS `documents_view`;
 			CREATE VIEW `documents_view` AS
-			SELECT identifier, CAST(document as char(65535)), message_sequence, document_hash
+			SELECT identifier, CAST(document as char(65535)), sequence, hash
 			  FROM documents;
 
 			DROP VIEW IF EXISTS `messages_view`;

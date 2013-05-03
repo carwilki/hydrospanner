@@ -29,7 +29,8 @@
 		}
 		public void Serialize(ISerializer serializer)
 		{
-			this.Serialized = serializer.Serialize(this.Memento);
+			if (this.Memento != null)
+				this.Serialized = serializer.Serialize(this.Memento);
 		}
 		private void Clear()
 		{

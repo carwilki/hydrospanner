@@ -5,8 +5,8 @@ use `<DOCUMENTS-DATABASE-NAME-HERE>`;
 
 CREATE TABLE IF NOT EXISTS documents (
 	`identifier` VARCHAR(1024) NOT NULL,
-	`message_sequence` BIGINT NOT NULL,
-	`document_hash` INT UNSIGNED NOT NULL,
+	`msg_seq` BIGINT NOT NULL,
+	`hash` INT UNSIGNED NOT NULL,
 	`document` MEDIUMBLOB NULL,
 	PRIMARY KEY (`identifier`),
 	UNIQUE INDEX `identifier_UNIQUE` (`identifier` ASC) 
