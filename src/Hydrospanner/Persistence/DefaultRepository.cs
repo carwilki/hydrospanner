@@ -5,6 +5,17 @@
 
 	public class DefaultRepository : IRepository
 	{
+		public IEnumerable<KeyValuePair<string, object>> GetPublicMementos()
+		{
+			// TODO: test
+			foreach (var hydratable in this.catalog.Values)
+			{
+				var memento = hydratable.Memento;
+				if (memento != null)
+					yield return new KeyValuePair<string, object>(hydratable.Key, memento);
+			}
+		}
+
 		public IEnumerable<object> GetMementos()
 		{
 			var graveyardMemento = this.graveyard.GetMemento();

@@ -26,14 +26,12 @@
 				this.AddMessages(hydratable);
 			else if (hydratable.PendingMessages.Count > 0)
 			{
-				Log.Warn("Hydratable at '{0}' has {1} pending messages during replay.".FormatWith(hydratable.Key, hydratable.PendingMessages.Count));
+				Log.Warn("Hydratable at '{0}' has {1} pending messages during replay, but shouldn't.".FormatWith(hydratable.Key, hydratable.PendingMessages.Count));
 				hydratable.PendingMessages.TryClear();
 			}
 				
-			// TODO: bootstrap should get all mementos for all public snapshots and serialize them at the end of the bootstrap process
-			// TODO: (live && IsPublicSnapshot) || IsComplete
-			if (hydratable.IsPublicSnapshot || hydratable.IsComplete)
-				this.TakeSnapshot(hydratable, messageSequence);
+			if (hydratable.IsPublicSnapshot && (live || hydratable.IsComplete))
+				this.TakePublicSnapshot(hydratable, messageSequence);
 
 			if (!hydratable.IsComplete)
 				return;
@@ -52,7 +50,7 @@
 
 			messages.TryClear();
 		}
-		private void TakeSnapshot(IHydratable hydratable, long messageSequence)
+		private void TakePublicSnapshot(IHydratable hydratable, long messageSequence)
 		{
 			var memento = hydratable.Memento;
 			var cloner = memento as ICloneable;

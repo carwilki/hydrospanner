@@ -57,6 +57,18 @@
 			}
 		}
 
+		public virtual void SavePublicSnapshots(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer, long sequence)
+		{
+			// TODO: get under test
+			foreach (var memento in repository.GetPublicMementos())
+			{
+				var claimed = ringBuffer.Next();
+				var item = ringBuffer[sequence];
+				item.AsPublicSnapshot(memento.Key, memento.Value, sequence);
+				ringBuffer.Publish(claimed);
+			}
+		}
+
 		public SnapshotBootstrapper(SnapshotFactory snapshotFactory, DisruptorFactory disruptorFactory)
 		{
 			if (snapshotFactory == null)

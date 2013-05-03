@@ -77,22 +77,52 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
-				repository.Load(replayDelivery).Returns(new[] { hydratable });
+				repository.Load(liveDelivery).Returns(new[] { hydratable });
 			};
 
 			Because of = () =>
-				transformer.Transform(replayDelivery);
+				transformer.Transform(liveDelivery);
 
 			It should_take_a_snapshot = () =>
 				snapshotRing.AllItems.Single().ShouldBeLike(new SnapshotItem
 				{
-					CurrentSequence = ReplayMessage,
+					CurrentSequence = LiveMessageSequence,
 					IsPublicSnapshot = true,
 					Key = hydratable.Key,
 					Memento = new SomethingHappenedProjection { Value = Incoming.Value },
 					MementosRemaining = 0,
 					Serialized = null
 				});
+		}
+
+		public class when_the_public_snapshot_hydratable_is_being_replayed
+		{
+			Establish context = () =>
+			{
+				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
+				repository.Load(replayDelivery).Returns(new[] { hydratable });
+			};
+
+			Because of = () =>
+				transformer.Transform(replayDelivery);
+
+			It should_NOT_take_a_snapshot = () =>
+				snapshotRing.AllItems.ShouldBeEmpty();
+		}
+		
+		public class when_the_hydratable_is_not_a_public_snapshot
+		{
+			Establish context = () =>
+			{
+				hydratable = new TestHydratable(!IsPublicSnapshot, BecomesComplete, Key);
+				repository.Load(liveDelivery).Returns(new[] { hydratable });
+			};
+
+			Because of = () =>
+				transformer.Transform(liveDelivery);
+
+			It should_NOT_take_a_snapshot = () =>
+				snapshotRing.AllItems.ShouldBeEmpty();
 		}
 
 		public class when_the_hydratable_collection_cannot_be_modified
@@ -117,11 +147,11 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 			{
 				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key, new Cloner(cloned));
-				repository.Load(replayDelivery).Returns(new[] { hydratable });
+				repository.Load(liveDelivery).Returns(new[] { hydratable });
 			};
 
 			Because of = () =>
-				transformer.Transform(replayDelivery);
+				transformer.Transform(liveDelivery);
 
 			It should_push_the_clone_to_the_snapshot_ring_buffer = () =>
 				snapshotRing.AllItems.Single().Memento.ShouldEqual(cloned);
@@ -145,7 +175,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				hydratable = new TestHydratable(!IsPublicSnapshot, BecomesComplete, Key);
+				hydratable = new TestHydratable(IsPublicSnapshot, BecomesComplete, Key);
 				repository.Load(liveDelivery).Returns(new[] { hydratable });
 
 				timeoutHydratable = Substitute.For<IHydratable>();

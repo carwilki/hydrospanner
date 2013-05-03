@@ -19,7 +19,7 @@
 			info = this.snapshots.RestoreSnapshots(this.repository, info);
 			if (info == null)
 				return false;
-
+			
 			Log.Info("Starting snapshot disruptor.");
 			this.snapshotDisruptor = this.disruptors.CreateSnapshotDisruptor();
 			this.snapshotDisruptor.Start();
@@ -32,7 +32,10 @@
 			var restored = this.messages.Restore(info, this.journalDisruptor, this.repository);
 			if (!restored)
 				return false;
-			
+
+			// TODO: test
+			this.snapshots.SavePublicSnapshots(this.repository, this.snapshotDisruptor.RingBuffer, info.JournaledSequence);
+
 			Log.Info("Starting primary transformation disruptor.");
 			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor(this.repository, info);
 			this.transformationDisruptor.Start();
