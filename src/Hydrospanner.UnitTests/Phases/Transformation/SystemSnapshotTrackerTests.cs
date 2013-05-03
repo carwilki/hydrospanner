@@ -4,6 +4,7 @@
 namespace Hydrospanner.Phases.Transformation
 {
 	using System;
+	using System.Collections.Generic;
 	using Machine.Specifications;
 	using NSubstitute;
 	using Snapshot;
@@ -64,13 +65,13 @@ namespace Hydrospanner.Phases.Transformation
 					new SnapshotItem
 					{
 						CurrentSequence = 100,
-						Memento = 2,
+						Memento = 1,
 						MementosRemaining = 1
 					},
 					new SnapshotItem
 					{
 						CurrentSequence = 100,
-						Memento = 1,
+						Memento = 2,
 						MementosRemaining = 0
 					}
 				});
@@ -90,13 +91,13 @@ namespace Hydrospanner.Phases.Transformation
 					new SnapshotItem
 					{
 						CurrentSequence = 101,
-						Memento = 2,
+						Memento = 1,
 						MementosRemaining = 1
 					},
 					new SnapshotItem
 					{
 						CurrentSequence = 101,
-						Memento = 1,
+						Memento = 2,
 						MementosRemaining = 0
 					}
 				});
@@ -131,15 +132,15 @@ namespace Hydrospanner.Phases.Transformation
 					new SnapshotItem
 					{
 						CurrentSequence = 101,
-						Memento = 2,
+						Memento = 1,
 						MementosRemaining = 1
 					},
 					new SnapshotItem
 					{
 						CurrentSequence = 101,
-						Memento = 1,
+						Memento = 2,
 						MementosRemaining = 0
-					}
+					},
 				});
 		}
 
@@ -194,7 +195,16 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			snapshots = new RingBufferHarness<SnapshotItem>();
 			repository = Substitute.For<IRepository>();
-			repository.GetMementos().Returns(new object[] { 1, 2 });
+
+			var hydro1 = Substitute.For<IHydratable>();
+			hydro1.Memento.Returns(1);
+
+			var hydro2 = Substitute.For<IHydratable>();
+			hydro2.Memento.Returns(2);
+			var list = new List<IHydratable>(new[] { hydro1, hydro2 });
+
+			repository.Count.Returns(list.Count);
+			repository.GetEnumerator().Returns(x => list.GetEnumerator());
 		};
 
 		static SystemSnapshotTracker tracker;

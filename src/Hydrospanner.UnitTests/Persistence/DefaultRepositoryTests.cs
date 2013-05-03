@@ -90,6 +90,7 @@ namespace Hydrospanner.Persistence
 		{
 			Establish context = () =>
 			{
+				repository = new DefaultRepository(routes, graveyard);
 				tombstoneDelivery = new Delivery<string>(Tombstone, Headers, 1, true, true);
 				tombstoned = new MyHydratable(Tombstone);
 				tombstoneInfo = new HydrationInfo(Tombstone, () => tombstoned);
@@ -103,13 +104,13 @@ namespace Hydrospanner.Persistence
 			
 			Because of = () =>
 			{
-				snapshot = repository.GetMementos().ToList();
+				snapshot = repository.Select(x => x.Memento).ToList();
 				
-				var restored = new DefaultRepository(routes);
+				var restored = new DefaultRepository(routes, graveyard);
 				foreach (var memento in snapshot)
 					restored.Restore(memento);
 
-				snapshotOfRestoredRepository = restored.GetMementos().ToList();
+				snapshotOfRestoredRepository = restored.Select(x => x.Memento).ToList();
 			};
 
 			It should_include_the_graveyard_first_in_the_snapshot = () =>
@@ -129,28 +130,12 @@ namespace Hydrospanner.Persistence
 			static Delivery<string> tombstoneDelivery;
 		}
 
-		public class when_the_memento_returned_from_the_hydratable_is_null
-		{
-			Establish context = () =>
-			{
-				var info = new HydrationInfo("42", () => new NullMementoHydratable("42"));
-				routes.Lookup(Arg.Any<Delivery<Guid>>()).Returns(new[] { info });
-			};
-
-			It should_add_them_to_the_repository_for_future_retreival = () =>
-			{
-				var loaded = repository.Load(new Delivery<Guid>()).ToList();
-				loaded.Single().ShouldBeOfType<NullMementoHydratable>();
-			};
-
-			It should_not_yield_the_value_back_to_the_caller = () =>
-				repository.GetMementos().ShouldBeEmpty();
-		}
-
 		Establish context = () =>
 		{
+			graveyard = new HydratableGraveyard();
 			routes = Substitute.For<IRoutingTable>();
-			repository = new DefaultRepository(routes);
+			routes.Restore(Arg.Any<GraveyardMemento>()).Returns(graveyard);
+			repository = new DefaultRepository(routes, graveyard);
 			myHydrationInfo = new HydrationInfo(Key, () => Document);
 			delivery = new Delivery<int>(Message, Headers, 1, true, true);
 
@@ -166,6 +151,7 @@ namespace Hydrospanner.Persistence
 		static IEnumerable<IHydratable> loadResult;
 		static DefaultRepository repository;
 		static IRoutingTable routes;
+		static HydratableGraveyard graveyard;
 	}
 
 	public class MyHydratable : IHydratable<int>

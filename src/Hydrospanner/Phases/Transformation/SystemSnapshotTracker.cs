@@ -1,7 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Transformation
 {
 	using System;
-	using System.Linq;
 	using Snapshot;
 
 	public sealed class SystemSnapshotTracker : ISystemSnapshotTracker
@@ -19,13 +18,12 @@
 
 		private void PublishMementos(long sequence)
 		{
-			var mementos = this.repository.GetMementos().ToArray();
-
-			for (var i = mementos.Length; i-- > 0;)
+			var remaining = this.repository.Count;
+			foreach (var hydratable in this.repository)
 			{
 				var next = this.snapshotRing.Next();
 				var claimed = this.snapshotRing[next];
-				claimed.AsPartOfSystemSnapshot(sequence, i, mementos[i]);
+				claimed.AsPartOfSystemSnapshot(sequence, --remaining, hydratable.Memento);
 				this.snapshotRing.Publish(next);
 			}
 		}

@@ -1,35 +1,11 @@
 ﻿namespace Hydrospanner.Persistence
 {
+	using System.Collections;
 	using System.Collections.Generic;
 	using Wireup;
 
 	public class DefaultRepository : IRepository
 	{
-		public IEnumerable<KeyValuePair<string, object>> GetPublicMementos()
-		{
-			// TODO: test
-			foreach (var hydratable in this.catalog.Values)
-			{
-				var memento = hydratable.Memento;
-				if (memento != null)
-					yield return new KeyValuePair<string, object>(hydratable.Key, memento);
-			}
-		}
-
-		public IEnumerable<object> GetMementos()
-		{
-			var graveyardMemento = this.graveyard.GetMemento();
-			if (graveyardMemento.Keys.Length > 0)
-				yield return graveyardMemento;
-
-			foreach (var hydratable in this.catalog.Values)
-			{
-				var memento = hydratable.Memento;
-				if (memento != null)
-					yield return memento;
-			}
-		}
-
 		public IEnumerable<IHydratable<T>> Load<T>(Delivery<T> delivery)
 		{
 			foreach (var info in this.routes.Lookup(delivery))
@@ -60,37 +36,39 @@
 			this.graveyard.Bury(hydratable.Key);
 			this.catalog.Remove(hydratable.Key);
 		}
-
 		public void Restore(object memento)
 		{
-			if (!this.graveyardRestored && this.RestoreGraveyard(memento as GraveyardMemento))
-				return;
-
 			var hydratable = this.routes.Restore(memento);
 			if (hydratable != null)
 				this.catalog[hydratable.Key] = hydratable;
 		}
-		private bool RestoreGraveyard(GraveyardMemento memento)
+
+		public int Count
 		{
-			if (memento == null)
-				return false;
-
-			var keys = memento.Keys;
-			for (var i = 0; i < keys.Length; i++)
-				this.graveyard.Bury(keys[i]);
-
-			this.graveyardRestored = true;
-			return true;
+			get { return this.catalog.Count; }
+		}
+		public IEnumerator<IHydratable> GetEnumerator()
+		{
+			return this.catalog.Values.GetEnumerator();
+		}
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return this.GetEnumerator();
 		}
 
-		public DefaultRepository(IRoutingTable routes)
+		public DefaultRepository(IRoutingTable routes) : this(routes, null)
 		{
+		}
+		public DefaultRepository(IRoutingTable routes, HydratableGraveyard graveyard)
+		{
+			graveyard = graveyard ?? new HydratableGraveyard();
+			this.catalog[graveyard.Key] = this.graveyard = graveyard;
+
 			this.routes = routes;
 		}
 
 		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>();
-		private readonly HydratableGraveyard graveyard = new HydratableGraveyard();
+		private readonly HydratableGraveyard graveyard;
 		private readonly IRoutingTable routes;
-		private bool graveyardRestored;
 	}
 }
