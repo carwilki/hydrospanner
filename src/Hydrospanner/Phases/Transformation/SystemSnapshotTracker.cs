@@ -18,8 +18,9 @@
 
 		private void PublishMementos(long sequence)
 		{
-			var remaining = this.repository.Count;
-			foreach (var hydratable in this.repository)
+			var items = this.repository.Items;
+			var remaining = items.Count;
+			foreach (var hydratable in items)
 			{
 				var next = this.snapshotRing.Next();
 				var claimed = this.snapshotRing[next];

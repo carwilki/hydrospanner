@@ -2,9 +2,10 @@
 {
 	using System.Collections.Generic;
 
-	public interface IRepository : IEnumerable<IHydratable>
+	public interface IRepository
 	{
-		int Count { get; }
+		ICollection<IHydratable> Items { get; }
+
 		IEnumerable<IHydratable<T>> Load<T>(Delivery<T> delivery);
 
 		void Delete(IHydratable hydratable);

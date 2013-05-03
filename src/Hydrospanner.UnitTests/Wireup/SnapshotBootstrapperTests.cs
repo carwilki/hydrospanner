@@ -235,7 +235,7 @@ namespace Hydrospanner.Wireup
 					hydro.IsPublicSnapshot.Returns(i % 2 == 0);
 					hydros.Add(hydro);
 				}
-				repository.GetEnumerator().Returns(hydros.GetEnumerator());
+				repository.Items.Returns(hydros);
 				ring = new RingBufferHarness<SnapshotItem>();
 			};
 

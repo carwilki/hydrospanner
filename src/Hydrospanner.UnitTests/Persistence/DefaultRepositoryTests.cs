@@ -103,13 +103,13 @@ namespace Hydrospanner.Persistence
 			
 			Because of = () =>
 			{
-				snapshot = repository.Select(x => x.Memento).ToList();
+				snapshot = repository.Items.Select(x => x.Memento).ToList();
 				
 				var restored = new DefaultRepository(routes, graveyard);
 				foreach (var memento in snapshot)
 					restored.Restore(memento);
 
-				snapshotOfRestoredRepository = restored.Select(x => x.Memento).ToList();
+				snapshotOfRestoredRepository = restored.Items.Select(x => x.Memento).ToList();
 			};
 
 			It should_include_the_graveyard_first_in_the_snapshot = () =>

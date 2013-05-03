@@ -59,7 +59,8 @@
 
 		public virtual void SavePublicSnapshots(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer, long sequence)
 		{
-			foreach (var hydratable in repository)
+			var hydratables = repository.Items;
+			foreach (var hydratable in hydratables)
 			{
 				if (!hydratable.IsPublicSnapshot)
 					continue;

@@ -203,8 +203,7 @@ namespace Hydrospanner.Phases.Transformation
 			hydro2.Memento.Returns(2);
 			var list = new List<IHydratable>(new[] { hydro1, hydro2 });
 
-			repository.Count.Returns(list.Count);
-			repository.GetEnumerator().Returns(x => list.GetEnumerator());
+			repository.Items.Returns(list);
 		};
 
 		static SystemSnapshotTracker tracker;
