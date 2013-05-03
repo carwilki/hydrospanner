@@ -3,16 +3,17 @@
 
 namespace Hydrospanner.Phases.Snapshot
 {
+	using System;
 	using Machine.Specifications;
 
 	[Subject(typeof(SnapshotItem))]
 	public class when_initializing_a_public_snapshot_item
 	{
 		Establish context = () =>
-			item = new SnapshotItem();
+		                    item = new SnapshotItem();
 
 		Because of = () =>
-			item.AsPublicSnapshot("key", "value", 42);
+		             item.AsPublicSnapshot("key", "value", 42);
 
 		It should_set_the_following_properties_according_to_the_given_arguments = () =>
 		{
@@ -35,10 +36,10 @@ namespace Hydrospanner.Phases.Snapshot
 	public class when_initializing_a_part_of_a_system_snapshot
 	{
 		Establish context = () =>
-			item = new SnapshotItem();
+		                    item = new SnapshotItem();
 
 		Because of = () =>
-			item.AsPartOfSystemSnapshot(1, 2, "value");
+		             item.AsPartOfSystemSnapshot(1, 2, "value");
 
 		It should_set_the_following_properties_according_to_the_given_arguments = () =>
 		{
@@ -55,6 +56,42 @@ namespace Hydrospanner.Phases.Snapshot
 		};
 
 		static SnapshotItem item;
+	}
+
+	public class when_providing_a_cloneable_system_memento
+	{
+		Establish context = () =>
+			item = new SnapshotItem();
+
+		Because of = () =>
+			item.AsPartOfSystemSnapshot(42, 0, new Cloner());
+
+		It should_clone_the_memento = () =>
+			item.Memento.ShouldEqual("cloned");
+
+		static SnapshotItem item;
+	}
+
+	public class when_providing_a_cloneable_public_memento
+	{
+		Establish context = () =>
+			item = new SnapshotItem();
+
+		Because of = () =>
+			item.AsPublicSnapshot("key", new Cloner(), 42);
+
+		It should_clone_the_memento = () =>
+			item.Memento.ShouldEqual("cloned");
+
+		static SnapshotItem item;
+	}
+
+	internal class Cloner : ICloneable
+	{
+		public object Clone()
+		{
+			return "cloned";
+		}
 	}
 }
 

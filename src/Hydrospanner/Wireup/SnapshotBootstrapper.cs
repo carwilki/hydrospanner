@@ -64,13 +64,9 @@
 				if (!hydratable.IsPublicSnapshot)
 					continue;
 
-				var memento = hydratable.Memento;
-				var cloner = memento as ICloneable;
-				memento = (cloner == null ? memento : cloner.Clone()) ?? memento;
-
 				var claimed = ringBuffer.Next();
 				var item = ringBuffer[claimed];
-				item.AsPublicSnapshot(hydratable.Key, memento, sequence);
+				item.AsPublicSnapshot(hydratable.Key, hydratable.Memento, sequence);
 				ringBuffer.Publish(claimed);
 			}
 		}

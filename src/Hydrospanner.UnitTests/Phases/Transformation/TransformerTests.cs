@@ -145,36 +145,7 @@ namespace Hydrospanner.Phases.Transformation
 			static Exception thrown;
 		}
 
-		public class when_the_hydratable_can_be_snapshot_and_return_a_cloneable_object
-		{
-			Establish context = () =>
-			{
-				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key, new Cloner(cloned));
-				repository.Load(liveDelivery).Returns(new[] { hydratable });
-			};
-
-			Because of = () =>
-				transformer.Transform(liveDelivery);
-
-			It should_push_the_clone_to_the_snapshot_ring_buffer = () =>
-				snapshotRing.AllItems.Single().Memento.ShouldEqual(cloned);
-
-			private class Cloner : ICloneable
-			{
-				public object Clone()
-				{
-					return this.cloned1;
-				}
-				public Cloner(object cloned)
-				{
-					this.cloned1 = cloned;
-				}
-				private readonly object cloned1;
-			}
-			static readonly object cloned = new object();
-		}
-
-		public class when_the_hydratable_becomes_complete_as_a_result_of_transformation
+		public class when_the_public_hydratable_becomes_complete_as_a_result_of_transformation
 		{
 			Establish context = () =>
 			{
