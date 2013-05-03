@@ -4,7 +4,7 @@
 	using System.Collections.Generic;
 	using Wireup;
 
-	public class DefaultRepository : IRepository
+	public sealed class DefaultRepository : IRepository
 	{
 		public IEnumerable<IHydratable<T>> Load<T>(Delivery<T> delivery)
 		{
@@ -16,19 +16,24 @@
 				if (this.graveyard.Contains(info.Key))
 					continue;
 
-				IHydratable hydratable;
-				if (this.catalog.TryGetValue(info.Key, out hydratable))
-					yield return hydratable as IHydratable<T>;
-				else
-				{
-					hydratable = info.Create();
-					if (hydratable == null)
-						continue;
-
-					this.catalog[info.Key] = hydratable;
-					yield return hydratable as IHydratable<T>;
-				}
+				var hydratable = this.Load<T>(info);
+				if (hydratable != null)
+					yield return hydratable;
 			}
+		}
+
+		private IHydratable<T> Load<T>(HydrationInfo info)
+		{
+			IHydratable hydratable;
+			if (this.catalog.TryGetValue(info.Key, out hydratable))
+				return hydratable as IHydratable<T>;
+
+			hydratable = info.Create();
+			if (hydratable == null)
+				return null;
+
+			this.catalog[info.Key] = hydratable;
+			return hydratable as IHydratable<T>;
 		}
 
 		public void Delete(IHydratable hydratable)
