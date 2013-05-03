@@ -38,7 +38,8 @@
 			var live = false;
 			if (this.item.MessageSequence == 0)
 			{
-				this.item.MessageSequence = this.currentSequnce + 1;
+				this.offset = this.item.IsTransient ? 0 : IncludeIncomingMessage;
+				this.item.MessageSequence = this.currentSequnce + this.offset;
 				live = true;
 			}
 
@@ -56,21 +57,20 @@
 		}
 		private void PublishToJournalPhase()
 		{
-			var offset = this.item.IsTransient ? 0 : IncludeIncomingMessage;
-			Log.DebugFormat("Publishing {0} items to the Journal Disruptor.", this.buffer.Count + offset);
+			Log.DebugFormat("Publishing {0} items to the Journal Disruptor.", this.buffer.Count + this.offset);
 
-			var size = this.buffer.Count + offset;
+			var size = this.buffer.Count + this.offset;
 			if (size == 0)
 				return;
 
 			var batch = this.journalRing.Next(size);
 
-			if (offset > 0)
+			if (this.offset > 0)
 				this.journalRing[batch.Start].AsForeignMessage(
 					this.currentSequnce + 1, this.item.SerializedBody, this.item.Body, this.item.Headers, this.item.ForeignId, this.item.Acknowledgment);
 
-			for (var i = offset; i < size; i++)
-				this.journalRing[i + batch.Start].AsTransformationResultMessage(this.currentSequnce + 1 + i, this.buffer[i - offset], BlankHeaders);
+			for (var i = this.offset; i < size; i++)
+				this.journalRing[i + batch.Start].AsTransformationResultMessage(this.currentSequnce + 1 + i, this.buffer[i - this.offset], BlankHeaders);
 
 			this.journalRing.Publish(batch);
 		}
@@ -78,11 +78,11 @@
 		{
 			if (this.item.MessageSequence > this.currentSequnce)
 			{
-				var offset = this.item.IsTransient ? 0 : IncludeIncomingMessage;
-				this.currentSequnce += this.buffer.Count + offset;
+				this.currentSequnce += this.buffer.Count + this.offset;
 				this.snapshot.Track(this.currentSequnce);
 			}
 
+			this.offset = 0;
 			this.buffer.Clear();
 		}
 
@@ -120,6 +120,7 @@
 
 		private TransformationItem item;
 		private long currentSequnce;
+		private int offset;
 		private bool skipAllRemaining;
 	}
 }
