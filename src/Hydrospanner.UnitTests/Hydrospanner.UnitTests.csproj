@@ -63,6 +63,7 @@
     <Compile Include="Persistence\SqlPersistence\SqlMessageStoreWriterTests.cs" />
     <Compile Include="Phases\Bootstrap\BootstrapItemTests.cs" />
     <Compile Include="Phases\Transformation\CommandFilterTransformerTests.cs" />
+    <Compile Include="Phases\Transformation\ReflectionDeliveryHandlerTests.cs" />
     <Compile Include="Phases\Transformation\SystemSnapshotTrackerTests.cs" />
     <Compile Include="Phases\Transformation\TransformationHandlerTests.cs">
       <SubType>Code</SubType>
