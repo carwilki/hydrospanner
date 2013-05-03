@@ -59,22 +59,19 @@
 
 		public virtual void SavePublicSnapshots(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer, long sequence)
 		{
-			var hydratables = repository.Items;
+			var hydratables = repository.Accessed;
 			foreach (var hydratable in hydratables)
 			{
 				if (!hydratable.IsPublicSnapshot)
 					continue;
-
-				// TODO
-				// if this hydratable hasn't been touched as a part of the rebuild
-				// in other words, we may need to ask the repo for a collection of hydratables that have
-				// been touched as a result of the transformation *since* the last snapshot, e.g. any that have
 
 				var claimed = ringBuffer.Next();
 				var item = ringBuffer[claimed];
 				item.AsPublicSnapshot(hydratable.Key, hydratable.Memento, sequence);
 				ringBuffer.Publish(claimed);
 			}
+
+			hydratables.TryClear();
 		}
 
 		public SnapshotBootstrapper(SnapshotFactory snapshotFactory, DisruptorFactory disruptorFactory)

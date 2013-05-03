@@ -235,7 +235,7 @@ namespace Hydrospanner.Wireup
 					hydro.IsPublicSnapshot.Returns(i % 2 == 0);
 					hydros.Add(hydro);
 				}
-				repository.Items.Returns(hydros);
+				repository.Accessed.Returns(hydros);
 				ring = new RingBufferHarness<SnapshotItem>();
 			};
 
@@ -264,6 +264,9 @@ namespace Hydrospanner.Wireup
 						Serialized = null
 					}
 				});
+
+			It should_clear_the_recently_accessed_list = () =>
+				repository.Accessed.ShouldBeEmpty();
 
 			static RingBufferHarness<SnapshotItem> ring;
 		}
