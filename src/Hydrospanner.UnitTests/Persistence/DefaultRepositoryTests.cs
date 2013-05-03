@@ -3,7 +3,6 @@
 
 namespace Hydrospanner.Persistence
 {
-	using System;
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.Linq;
@@ -177,36 +176,6 @@ namespace Hydrospanner.Persistence
 		public MyHydratable(string key)
 		{
 			this.PendingMessages = new List<object>();
-			this.key = key;
-		}
-
-		readonly string key;
-	}
-
-	public class NullMementoHydratable : IHydratable<Guid>
-	{
-		public string Key { get { return this.key; } }
-		public object Memento { get { return null; } }
-
-		#region -- Boilerplate --
-
-		public bool IsComplete { get { return false; } }
-
-		public bool IsPublicSnapshot { get { return false; } }
-
-		public ICollection<object> PendingMessages
-		{
-			get { return null; }
-		}
-
-		public void Hydrate(Delivery<Guid> delivery)
-		{
-		}
-
-		#endregion
-
-		public NullMementoHydratable(string key)
-		{
 			this.key = key;
 		}
 

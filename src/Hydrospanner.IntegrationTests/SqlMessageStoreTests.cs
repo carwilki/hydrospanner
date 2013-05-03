@@ -26,8 +26,6 @@ namespace Hydrospanner.IntegrationTests
 					command.CommandText = "select count(*) from messages; select count(*) from metadata;";
 					using (var reader = command.ExecuteReader())
 					{
-						if (reader == null)
-							throw new SpecificationException("reader is null and should not be.");
 						reader.Read().ShouldBeTrue();
 						reader.GetInt64(0).ShouldEqual(0L);
 						reader.NextResult().ShouldBeTrue();
@@ -77,8 +75,6 @@ namespace Hydrospanner.IntegrationTests
 					command.CommandText = "select * from messages;";
 					using (var reader = command.ExecuteReader())
 					{
-						if (reader == null)
-							throw new SpecificationException("reader is null and should not be.");
 						reader.Read().ShouldBeTrue();
 						reader.GetInt64(0).ShouldEqual(0L);
 						reader.GetInt16(1).ShouldEqual((short)1);
@@ -104,8 +100,6 @@ namespace Hydrospanner.IntegrationTests
 					command.CommandText = "select * from metadata;";
 					using (var reader = command.ExecuteReader())
 					{
-						if (reader == null)
-							throw new SpecificationException("reader is null and should not be.");
 						reader.Read().ShouldBeTrue();
 						reader.GetInt16(0).ShouldEqual((short)1);
 						reader.GetString(1).ShouldEqual(string.Empty.ResolvableTypeName());

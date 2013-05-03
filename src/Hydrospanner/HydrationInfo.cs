@@ -7,7 +7,7 @@
 		public string Key { get; private set; }
 		public IHydratable Create()
 		{
-			if (this.factory != null)
+			if (this.factory != null) // struct default == null
 				return this.factory();
 
 			return null;

@@ -9,15 +9,6 @@
 
 	internal class JsonSerializer : ISerializer
 	{
-		public string ContentEncoding
-		{
-			get { return "utf8"; }
-		}
-		public string ContentFormat
-		{
-			get { return "json"; }
-		}
-
 		public byte[] Serialize(object graph)
 		{
 			if (graph == null)
@@ -34,6 +25,21 @@
 			}
 		}
 
+		public T Deserialize<T>(byte[] serialized)
+		{
+			if (serialized == null || serialized.Length == 0)
+				return default(T);
+
+			try
+			{
+				var json = DefaultEncoding.GetString(serialized);
+				return JsonConvert.DeserializeObject<T>(json, Settings);
+			}
+			catch (Exception e)
+			{
+				throw new SerializationException(e.Message, e);
+			}
+		}
 		public object Deserialize(byte[] serialized, string typeName)
 		{
 			if (serialized == null || serialized.Length == 0)
@@ -62,21 +68,6 @@
 				this.types[typeName] = type = Type.GetType(typeName);
 
 			return type;
-		}
-		public T Deserialize<T>(byte[] serialized)
-		{
-			if (serialized == null || serialized.Length == 0)
-				return default(T);
-
-			try
-			{
-				var json = DefaultEncoding.GetString(serialized);
-				return JsonConvert.DeserializeObject<T>(json, Settings);
-			}
-			catch (Exception e)
-			{
-				throw new SerializationException(e.Message, e);
-			}
 		}
 
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);

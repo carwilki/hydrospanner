@@ -33,15 +33,6 @@
 			return command;
 		}
 
-		public static void AddParameter(this IDbCommand command, string name, object value, DbType type)
-		{
-			var parameter = command.CreateParameter();
-			parameter.ParameterName = name;
-			parameter.DbType = type;
-			parameter.Value = value ?? DBNull.Value;
-			command.Parameters.Add(parameter);
-		}
-
 		public static Guid ToGuid(this byte[] value)
 		{
 			return value == null || value.Length == 0 ? Guid.Empty : new Guid(value);

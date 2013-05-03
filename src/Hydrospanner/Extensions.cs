@@ -71,17 +71,15 @@
 			return BitConverter.GetBytes(value);
 		}
 
-		// Reference: http://stackoverflow.com/a/425184/605022
 		public static uint ComputeHash(this byte[] data)
 		{
-			if (data == null)
-				return 0;
-
+			// Reference: http://stackoverflow.com/a/425184/605022
 			unchecked
 			{
 				uint result = 0;
-				for (var i = 0; i < data.Length; i++)
-					result = (result * 31) ^ data[i];
+				if (data != null)
+					for (var i = 0; i < data.Length; i++)
+						result = (result * 31) ^ data[i];
 
 				return result;
 			}
@@ -169,20 +167,12 @@
 		}
 		public static IDbCommand WithParameter(this IDbCommand command, string name, object value, DbType type)
 		{
-			try
-			{
-				var parameter = command.CreateParameter();
-				parameter.ParameterName = name;
-				parameter.Value = value ?? DBNull.Value;
-				parameter.DbType = type;
-				command.Parameters.Add(parameter);
-				return command;
-			}
-			catch
-			{
-				command.Dispose();
-				throw;
-			}
+			var parameter = command.CreateParameter();
+			parameter.ParameterName = name;
+			parameter.DbType = type;
+			parameter.Value = value ?? DBNull.Value;
+			command.Parameters.Add(parameter);
+			return command;
 		}
 	}
 }

@@ -9,12 +9,9 @@
 	{
 		public static bool HasJsonUnderscoreAttribute(this Type type)
 		{
-			if (type == null)
-				return false;
-
 			var descriptions = (DescriptionAttribute[])type.GetCustomAttributes(typeof(DescriptionAttribute), false);
-			for (var i = 0; i < descriptions.Length; i++)
-				if (descriptions[i].Description == "json:underscore")
+			foreach (var description in descriptions)
+				if (description.Description == "json:underscore")
 					return true;
 
 			return false;

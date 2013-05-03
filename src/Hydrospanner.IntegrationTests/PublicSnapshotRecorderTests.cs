@@ -47,7 +47,6 @@ namespace Hydrospanner.IntegrationTests
 		static SnapshotItem item;
 	}
 
-	[Ignore("Long running...")]
 	[Subject(typeof(PublicSnapshotRecorder))]
 	public class when_there_are_many_snapshots : TestDatabase
 	{

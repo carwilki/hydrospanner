@@ -1,10 +1,9 @@
 ﻿namespace Hydrospanner.Persistence.SqlPersistence
 {
-	using System;
 	using System.Data;
 	using System.Data.Common;
 
-	public class SqlBulkInsertSession : IDisposable
+	public class SqlBulkInsertSession
 	{
 		public virtual SqlBulkInsertSession BeginTransaction()
 		{
@@ -22,7 +21,7 @@
 		public virtual void IncludeParameter(string name, object value)
 		{
 			var type = value is byte[] ? DbType.Binary : DbType.String;
-			this.command.AddParameter(name, value, type);
+			this.command.WithParameter(name, value, type);
 		}
 
 		public virtual void ExecuteCurrentCommand(string commandText)
@@ -51,17 +50,6 @@
 		}
 		protected SqlBulkInsertSession()
 		{
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-				this.Cleanup();
 		}
 
 		private readonly DbProviderFactory factory;

@@ -92,8 +92,6 @@ namespace Hydrospanner.Timeout
 			{
 				if (message is TimeoutRequestedEvent)
 					aggregate.Apply(message as TimeoutRequestedEvent);
-				else if (message is TimeoutAbortedEvent)
-					aggregate.Apply(message as TimeoutAbortedEvent);
 				else if (message is TimeoutReachedEvent)
 					aggregate.Apply(message as TimeoutReachedEvent);
 				else
