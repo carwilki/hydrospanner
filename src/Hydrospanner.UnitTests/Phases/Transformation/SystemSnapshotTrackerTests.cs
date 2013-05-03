@@ -165,13 +165,13 @@ namespace Hydrospanner.Phases.Transformation
 					new SnapshotItem
 					{
 						CurrentSequence = 200,
-						Memento = 2,
+						Memento = 1,
 						MementosRemaining = 1
 					},
 					new SnapshotItem
 					{
 						CurrentSequence = 200,
-						Memento = 1,
+						Memento = 2,
 						MementosRemaining = 0
 					},
 
@@ -179,13 +179,13 @@ namespace Hydrospanner.Phases.Transformation
 					new SnapshotItem
 					{
 						CurrentSequence = 300,
-						Memento = 2,
+						Memento = 1,
 						MementosRemaining = 1
 					},
 					new SnapshotItem
 					{
 						CurrentSequence = 300,
-						Memento = 1,
+						Memento = 2,
 						MementosRemaining = 0
 					}
 				});
