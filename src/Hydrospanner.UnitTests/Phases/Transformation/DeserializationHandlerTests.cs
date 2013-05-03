@@ -75,6 +75,19 @@ namespace Hydrospanner.Phases.Transformation
 			static object received;
 		}
 
+		public class when_deserializers_run_in_parallel
+		{
+			Establish context = () =>
+			{
+				handler = new DeserializationHandler(new JsonSerializer(), 2, 1);
+				item.AsJournaledMessage(
+					42, Encoding.UTF8.GetBytes(Body), Headers.GetType().AssemblyQualifiedName, Encoding.UTF8.GetBytes(Body));
+			};
+
+			It should_skip_items_which_do_not_match_the_mod = () =>
+				item.Body.ShouldBeNull();
+		}
+
 		Establish context = () =>
 		{
 			handler = new DeserializationHandler(new JsonSerializer());
