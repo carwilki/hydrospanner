@@ -6,7 +6,7 @@
 	using System.Reflection;
 	using log4net;
 
-	public class ConventionRoutingTable : IRoutingTable
+	public sealed class ConventionRoutingTable : IRoutingTable
 	{
 		public IEnumerable<HydrationInfo> Lookup<T>(Delivery<T> delivery)
 		{

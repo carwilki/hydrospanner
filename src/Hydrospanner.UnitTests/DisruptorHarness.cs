@@ -2,7 +2,7 @@
 {
 	using System;
 
-	public class DisruptorHarness<T> : IDisruptor<T> where T : class, new()
+	public sealed class DisruptorHarness<T> : IDisruptor<T> where T : class, new()
 	{
 		public bool Started { get; private set; }
 		public bool Stopped { get; private set; }

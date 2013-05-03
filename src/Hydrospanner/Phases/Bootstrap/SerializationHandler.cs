@@ -6,7 +6,7 @@
 	using log4net;
 	using Serialization;
 
-	public class SerializationHandler : IEventHandler<BootstrapItem>
+	public sealed class SerializationHandler : IEventHandler<BootstrapItem>
 	{
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{

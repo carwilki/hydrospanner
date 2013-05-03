@@ -5,7 +5,7 @@
 	using log4net;
 	using Transformation;
 
-	public class CountdownHandler : IEventHandler<BootstrapItem>, IEventHandler<TransformationItem>
+	public sealed class CountdownHandler : IEventHandler<BootstrapItem>, IEventHandler<TransformationItem>
 	{
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{

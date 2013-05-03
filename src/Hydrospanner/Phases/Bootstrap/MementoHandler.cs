@@ -4,7 +4,7 @@
 	using Disruptor;
 	using log4net;
 
-	public class MementoHandler : IEventHandler<BootstrapItem>
+	public sealed class MementoHandler : IEventHandler<BootstrapItem>
 	{
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{

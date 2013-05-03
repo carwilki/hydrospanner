@@ -2,7 +2,7 @@
 {
 	using System.Collections.Generic;
 
-	public class HydratableGraveyard : IHydratable
+	public sealed class HydratableGraveyard : IHydratable
 	{
 		public string Key { get; private set; }
 		public bool IsComplete

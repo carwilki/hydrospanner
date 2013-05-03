@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	public class CommandFilterTransformer : ITransformer
+	public sealed class CommandFilterTransformer : ITransformer
 	{
 		public IEnumerable<object> Transform<T>(Delivery<T> delivery)
 		{

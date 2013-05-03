@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	public class DuplicateStore
+	public sealed class DuplicateStore
 	{
 		public bool Contains(Guid key)
 		{

@@ -26,7 +26,7 @@
 			return new RabbitSubscription(channel, this.sourceQueue);
 		}
 
-		public MessagingFactory(short nodeId, Uri messageBroker, string sourceQueue, DuplicateStore duplicates, ICollection<string> transients)
+		public MessagingFactory(short nodeId, Uri messageBroker, string sourceQueue, DuplicateStore duplicates, ICollection<string> transients) : this()
 		{
 			if (nodeId <= 0)
 				throw new ArgumentOutOfRangeException("nodeId");

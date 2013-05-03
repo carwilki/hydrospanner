@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	public class BootstrapInfo
+	public sealed class BootstrapInfo
 	{
 		public long JournaledSequence { get; set; }
 		public long DispatchSequence { get; set; }

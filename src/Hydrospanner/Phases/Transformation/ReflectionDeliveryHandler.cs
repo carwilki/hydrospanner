@@ -4,7 +4,7 @@
 	using System.Collections.Generic;
 	using System.Reflection;
 
-	public class ReflectionDeliveryHandler : IDeliveryHandler
+	public sealed class ReflectionDeliveryHandler : IDeliveryHandler
 	{
 		public IEnumerable<object> Deliver(TransformationItem item, bool live)
 		{

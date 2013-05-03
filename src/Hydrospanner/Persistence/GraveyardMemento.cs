@@ -1,6 +1,6 @@
 ﻿namespace Hydrospanner.Persistence
 {
-	public class GraveyardMemento
+	public sealed class GraveyardMemento
 	{
 		public string[] Keys { get; private set; }
 

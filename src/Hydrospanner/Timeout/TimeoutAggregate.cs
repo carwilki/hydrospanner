@@ -3,7 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 
-	public class TimeoutAggregate : ICloneable
+	public sealed class TimeoutAggregate : ICloneable
 	{
 		public void DispatchTimeouts(DateTime now)
 		{
