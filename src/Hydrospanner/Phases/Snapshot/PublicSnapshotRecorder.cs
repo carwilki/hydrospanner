@@ -1,7 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Snapshot
 {
 	using System;
-	using System.Collections;
 	using System.Collections.Generic;
 	using System.Configuration;
 	using System.Data;
@@ -41,12 +40,13 @@
 
 		private void SaveSnapshotItems()
 		{
+			var keys = this.catalog.Keys.ToArray();
+
 			using (var connection = this.settings.OpenConnection())
 			using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
 			{
-				var keys = this.catalog.Keys.ToArray();
 				using (var command = connection.CreateCommand())
-					while (this.saved < this.catalog.Count)
+					while (this.saved < keys.Length)
 						this.RecordBatch(command, keys);
 
 				transaction.Commit();
@@ -62,25 +62,26 @@
 		}
 		private void AppendKeysToNextBatch(string[] keys)
 		{
-			var payload = 0;
+			var payloadSize = 0;
 
 			for (var i = this.saved; i < keys.Length; i++)
 			{
 				var key = keys[i];
+				var item = this.catalog[key];
 
-				var itemSize = sizeof(int) + sizeof(long) + key.Length + this.catalog[key].Serialized.Length;
-
-				if (BatchCapacityReached(itemSize, payload, this.currentBatch))
+				var serialized = item.Serialized;
+				var itemSize = sizeof(int) + sizeof(long) + key.Length + (serialized == null ? 0 : serialized.Length);
+				if (BatchCapacityReached(itemSize, payloadSize, this.currentBatch.Count))
 					break;
 
-				payload += itemSize;
-				this.currentBatch.Add(key);
+				payloadSize += itemSize;
+				this.currentBatch.Add(item);
 			}
 		}
-		private static bool BatchCapacityReached(int nextItem, int alreadyBatched, ICollection batch)
+		private static bool BatchCapacityReached(int nextItem, int alreadyBatched, int batchCount)
 		{
 			var payloadCapacityExceeded = nextItem + alreadyBatched > BatchSize;
-			var parameterCapacityExceeded = (batch.Count + 1) * ParametersPerStatement >= ParameterLimit;
+			var parameterCapacityExceeded = (batchCount + 1) * ParametersPerStatement >= ParameterLimit;
 
 			return payloadCapacityExceeded || parameterCapacityExceeded;
 		}
@@ -90,7 +91,7 @@
 			this.builder.Clear();
 
 			for (var i = 0; i < this.currentBatch.Count; i++)
-				this.IncludeItem(command, i, this.catalog[this.currentBatch[i]]);
+				this.IncludeItem(command, i, this.currentBatch[i]);
 
 			command.CommandText = this.builder.ToString();
 		}
@@ -110,8 +111,7 @@
 		
 		private const int BatchSize = 1024 * 64;
 		private const string Upsert = @"
-			INSERT INTO documents (identifier, message_sequence, document_hash, document)
-			VALUES (@id{0}, @sequence{0}, @hash{0}, @document{0})
+			INSERT INTO documents VALUES (@id{0}, @sequence{0}, @hash{0}, @document{0})
 			ON DUPLICATE KEY UPDATE message_sequence = @sequence{0}, document_hash = @hash{0}, document = @document{0};";
 		private const int ParameterLimit = 65000;
 		private const int ParametersPerStatement = 4;
@@ -119,7 +119,7 @@
 		private readonly ConnectionStringSettings settings;
 		private readonly IDictionary<string, SnapshotItem> catalog = new Dictionary<string, SnapshotItem>();
 		private readonly StringBuilder builder = new StringBuilder(1024 * 1024);
-		private readonly List<string> currentBatch = new List<string>(BatchSize); 
+		private readonly List<SnapshotItem> currentBatch = new List<SnapshotItem>(BatchSize); 
 		private int saved;
 	}
 }
