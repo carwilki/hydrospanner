@@ -19,13 +19,16 @@
 		private HandleDelegate CreateCallback(Type messageType)
 		{
 			HandleDelegate callback;
-			if (this.callbacks.TryGetValue(messageType, out callback))
-				return callback;
+			if (!this.callbacks.TryGetValue(messageType, out callback))
+				this.callbacks[messageType] = callback = this.CreateCallback(this.callbackDelegateMethod.MakeGenericMethod(messageType));
 
-			var method = this.callbackDelegateMethod.MakeGenericMethod(messageType);
-			this.callbacks[messageType] = callback = (HandleDelegate)Delegate.CreateDelegate(typeof(HandleDelegate), this, method);
 			return callback;
 		}
+		private HandleDelegate CreateCallback(MethodInfo method)
+		{
+			return (HandleDelegate)Delegate.CreateDelegate(typeof(HandleDelegate), this, method);
+		}
+
 		// ReSharper disable UnusedMember.Local
 		// ReSharper disable SuspiciousTypeConversion.Global
 		private IEnumerable<object> RegisterCallbackDelegate<T>(object message, Dictionary<string, string> headers, long sequence, bool live, bool local)
