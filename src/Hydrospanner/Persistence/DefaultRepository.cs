@@ -9,7 +9,7 @@
 		{
 			get { return this.catalog.Values; }
 		}
-		public ICollection<IHydratable> Accessed
+		public IDictionary<IHydratable, long> Accessed
 		{
 			get { return this.accessed; }
 		} 
@@ -30,7 +30,7 @@
 				if (hydratable == null)
 					continue;
 
-				this.Touch(hydratable);
+				this.Touch(hydratable, delivery.Sequence);
 				yield return hydratable;
 			}
 		}
@@ -47,10 +47,15 @@
 			this.catalog[info.Key] = hydratable;
 			return hydratable as IHydratable<T>;
 		}
-		private void Touch(IHydratable hydratable)
+		private void Touch(IHydratable hydratable, long sequence)
 		{
-			if (!this.live && hydratable.IsPublicSnapshot)
-				this.accessed.Add(hydratable);
+			if (this.live || !hydratable.IsPublicSnapshot)
+				return;
+
+			// the incoming sequence hasn't yet affected the results, but any callers
+			// to that access collection will be invoking it *after* the message has
+			// taken effect
+			this.accessed[hydratable] = sequence;
 		}
 
 		public void Delete(IHydratable hydratable)
@@ -80,7 +85,7 @@
 		}
 
 		private readonly Dictionary<string, IHydratable> catalog = new Dictionary<string, IHydratable>(1024 * 64);
-		private readonly HashSet<IHydratable> accessed = new HashSet<IHydratable>(); 
+		private readonly Dictionary<IHydratable, long> accessed = new Dictionary<IHydratable, long>(1024 * 64);
 		private readonly HydratableGraveyard graveyard;
 		private readonly IRoutingTable routes;
 		private bool live;

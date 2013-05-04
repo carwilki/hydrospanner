@@ -226,28 +226,28 @@ namespace Hydrospanner.Wireup
 		{
 			Establish context = () =>
 			{
-				var hydros = new List<IHydratable>();
+				var hydros = new List<KeyValuePair<IHydratable, long>>();
 				for (var i = 0; i < 3; i++)
 				{
 					var hydro = Substitute.For<IHydratable>();
 					hydro.Key.Returns("key" + i);
 					hydro.Memento.Returns(i);
 					hydro.IsPublicSnapshot.Returns(i % 2 == 0);
-					hydros.Add(hydro);
+					hydros.Add(new KeyValuePair<IHydratable, long>(hydro, i + 1));
 				}
-				repository.Accessed.Returns(hydros);
+				repository.Accessed.Returns(hydros.ToDictionary(x => x.Key, x => x.Value));
 				ring = new RingBufferHarness<SnapshotItem>();
 			};
 
 			Because of = () =>
-				bootstrapper.SavePublicSnapshots(repository, ring, 42);
+				bootstrapper.SavePublicSnapshots(repository, ring);
 
 			It should_publish_only_public_hydratable_mementos_to_the_ring = () =>
 				ring.AllItems.ShouldBeLike(new[]
 				{
 					new SnapshotItem
 					{
-						CurrentSequence = 42,
+						CurrentSequence = 1,
 						IsPublicSnapshot = true,
 						Key = "key0",
 						Memento = 0,
@@ -256,7 +256,7 @@ namespace Hydrospanner.Wireup
 					},
 					new SnapshotItem
 					{
-						CurrentSequence = 42,
+						CurrentSequence = 3,
 						IsPublicSnapshot = true,
 						Key = "key2",
 						Memento = 2,

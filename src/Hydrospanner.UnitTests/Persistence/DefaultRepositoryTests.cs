@@ -3,7 +3,6 @@
 
 namespace Hydrospanner.Persistence
 {
-	using System;
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.Linq;
@@ -142,10 +141,10 @@ namespace Hydrospanner.Persistence
 				loadResult.Single().ShouldEqual(publicHydratable);
 
 			It should_mark_the_hydratable_as_recently_accessed = () =>
-				repository.Accessed.Single().ShouldEqual(publicHydratable);
+				repository.Accessed.Single().ShouldEqual(new KeyValuePair<IHydratable, long>(publicHydratable, replayDelivery.Sequence));
 
 			static readonly PublicHydratable publicHydratable = new PublicHydratable();
-			static readonly Delivery<int> replayDelivery = new Delivery<int>(0, null, 1, false, true);
+			static readonly Delivery<int> replayDelivery = new Delivery<int>(0, null, 13, false, true);
 			static readonly HydrationInfo publicInfo = new HydrationInfo("key", () => publicHydratable);
 		}
 

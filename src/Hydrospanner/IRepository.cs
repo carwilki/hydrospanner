@@ -5,7 +5,7 @@
 	public interface IRepository
 	{
 		ICollection<IHydratable> Items { get; }
-		ICollection<IHydratable> Accessed { get; }
+		IDictionary<IHydratable, long> Accessed { get; }
 
 		IEnumerable<IHydratable<T>> Load<T>(Delivery<T> delivery);
 

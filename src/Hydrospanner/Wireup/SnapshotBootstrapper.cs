@@ -57,17 +57,18 @@
 			}
 		}
 
-		public virtual void SavePublicSnapshots(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer, long sequence)
+		public virtual void SavePublicSnapshots(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer)
 		{
 			var hydratables = repository.Accessed;
-			foreach (var hydratable in hydratables)
+			foreach (var pair in hydratables)
 			{
+				var hydratable = pair.Key;
 				if (!hydratable.IsPublicSnapshot)
 					continue;
 
 				var claimed = ringBuffer.Next();
 				var item = ringBuffer[claimed];
-				item.AsPublicSnapshot(hydratable.Key, hydratable.Memento, sequence);
+				item.AsPublicSnapshot(hydratable.Key, hydratable.Memento, pair.Value);
 				ringBuffer.Publish(claimed);
 			}
 
