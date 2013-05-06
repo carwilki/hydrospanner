@@ -30,11 +30,13 @@
 			if (this.skipAllRemaining)
 				return true;
 
-			var body = this.item.Body != null; // null body == serialization failure
-			if (this.item.MessageSequence == 0 && !body)
-				return true;
+			if (this.item.Body != null)
+				return false;
 
-			return this.skipAllRemaining = this.item.MessageSequence > 0 && !body;
+			if (this.item.MessageSequence == 0)
+				return false;
+
+			return this.skipAllRemaining = true;
 		}
 		private bool Transform()
 		{

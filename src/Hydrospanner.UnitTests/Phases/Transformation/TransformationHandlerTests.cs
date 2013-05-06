@@ -54,6 +54,26 @@ namespace Hydrospanner.Phases.Transformation
 				deliveryHandler.Received(0).Deliver(Arg.Any<object>(), Arg.Any<long>());
 		}
 
+		public class when_a_live_message_arrives_after_a_message_with_no_body
+		{
+			Establish context = () =>
+			{
+				handler = new TransformationHandler(0, journal, deliveryHandler, snapshot);
+				handler.OnNext(new TransformationItem(), 1, false);
+			};
+
+			Because of = () =>
+				handler.OnNext(subsequentItem, 2, false);
+
+			It should_process_the_subsequent_message = () =>
+				deliveryHandler.Received(1).Deliver(subsequentItem, true);
+
+			static readonly TransformationItem subsequentItem = new TransformationItem
+			{
+				Body = new object()
+			};
+		}
+
 		public class when_a_journaled_message_with_no_body_arrives
 		{
 			Establish context = () =>
@@ -62,7 +82,7 @@ namespace Hydrospanner.Phases.Transformation
 			Because of = () =>
 			{
 				handler.OnNext(serializationFailure, 1, false);
-				handler.OnNext(subsequenceItem, 2, false);
+				handler.OnNext(subsequentItem, 2, false);
 			};
 
 			It should_skip_all_messages_thereafter = () =>
@@ -72,7 +92,7 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				MessageSequence = 1,
 			};
-			static readonly TransformationItem subsequenceItem = new TransformationItem
+			static readonly TransformationItem subsequentItem = new TransformationItem
 			{
 				MessageSequence = 2,
 				Body = new object()
