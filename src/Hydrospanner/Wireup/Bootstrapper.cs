@@ -33,7 +33,7 @@
 			if (!restored)
 				return false;
 
-			Log.Info("Taking snapshots all public hydratables at sequence {0}".FormatWith(info.JournaledSequence));
+			Log.Info("Taking snapshots of all public hydratables at sequence {0}".FormatWith(info.JournaledSequence));
 			this.snapshots.SavePublicSnapshots(this.repository, this.snapshotDisruptor.RingBuffer);
 
 			Log.Info("Starting primary transformation disruptor.");
