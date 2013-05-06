@@ -11,7 +11,7 @@
 		IHydratable<FizzBuzzEvent>
 	{
 		public string Key { get { return KeyFactory(this.document.StreamId); } }
-		public bool IsComplete { get { return false; } }
+		public bool IsComplete { get; private set; }
 		public bool IsPublicSnapshot { get { return true; } }
 		public object Memento { get { return this.document; } }
 		public ICollection<object> PendingMessages { get; private set; }
@@ -33,6 +33,7 @@
 		}
 		public void Hydrate(Delivery<FizzBuzzEvent> delivery)
 		{
+			this.IsComplete = true;
 			this.document.Message = "FizzBuzz";
 			this.document.Value = delivery.Message.Value;
 		}
