@@ -18,9 +18,12 @@
 			var liveMessage = this.Transform();
 
 			if (liveMessage)
+			{
 				this.PublishToJournalPhase();
+				this.Increment();
+			}
 
-			this.Increment();
+			this.Clear();
 		}
 		private bool Skip()
 		{
@@ -68,19 +71,26 @@
 				this.journalRing[batch.Start].AsForeignMessage(
 					this.currentSequnce + 1, this.item.SerializedBody, this.item.Body, this.item.Headers, this.item.ForeignId, this.item.Acknowledgment);
 
-			for (var i = this.offset; i < size; i++)
-				this.journalRing[i + batch.Start].AsTransformationResultMessage(this.currentSequnce + 1 + i, this.buffer[i - this.offset], BlankHeaders);
+			for (var i = 0; i < this.buffer.Count; i++)
+			{
+				var disruptorSequence = batch.Start + i + this.offset;
+				var messageSequence = this.currentSequnce + 1 + i + this.offset;
+				this.journalRing[disruptorSequence].AsTransformationResultMessage(messageSequence, this.buffer[i], BlankHeaders);
+			}
 
 			this.journalRing.Publish(batch);
 		}
 		private void Increment()
 		{
-			if (this.item.MessageSequence > this.currentSequnce)
-			{
-				this.currentSequnce += this.buffer.Count + this.offset;
-				this.snapshot.Track(this.currentSequnce);
-			}
+			if (this.item.MessageSequence <= this.currentSequnce)
+				return;
 
+			var increment = this.buffer.Count + this.offset;
+			this.currentSequnce += increment;
+			this.snapshot.Track(this.currentSequnce);
+		}
+		private void Clear()
+		{
 			this.offset = 0;
 			this.buffer.Clear();
 		}
