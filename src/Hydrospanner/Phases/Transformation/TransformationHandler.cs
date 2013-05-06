@@ -12,7 +12,7 @@
 		{
 			this.item = data;
 
-			if (this.Skip())
+			if (!this.CanHandle())
 				return;
 
 			var liveMessage = this.Transform();
@@ -25,18 +25,18 @@
 
 			this.Clear();
 		}
-		private bool Skip()
+		private bool CanHandle()
 		{
-			if (this.skipAllRemaining)
+			if (this.canHandle)
 				return true;
 
 			if (this.item.Body != null)
-				return false;
+				return true;
 
 			if (this.item.MessageSequence == 0)
 				return false;
 
-			return this.skipAllRemaining = true;
+			return this.canHandle = false;
 		}
 		private bool Transform()
 		{
@@ -119,6 +119,7 @@
 			this.journalRing = journalRing;
 			this.deliveryHandler = deliveryHandler;
 			this.snapshot = snapshot;
+			this.canHandle = true;
 		}
 
 		private const int IncludeIncomingMessage = 1;
@@ -128,10 +129,9 @@
 		private readonly IDeliveryHandler deliveryHandler;
 		private readonly ISystemSnapshotTracker snapshot;
 		private readonly List<object> buffer = new List<object>();
-
 		private TransformationItem item;
 		private long currentSequnce;
 		private int offset;
-		private bool skipAllRemaining;
+		private bool canHandle;
 	}
 }
