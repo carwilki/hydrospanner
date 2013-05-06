@@ -83,6 +83,9 @@
 		}
 		private void Increment()
 		{
+			if (this.item.MessageSequence <= this.currentSequnce && this.buffer.Count == 0)
+				return;
+
 			this.currentSequnce += this.buffer.Count + this.offset;
 			this.snapshot.Track(this.currentSequnce);
 		}

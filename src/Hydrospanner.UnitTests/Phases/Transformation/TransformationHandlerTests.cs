@@ -562,7 +562,48 @@ namespace Hydrospanner.Phases.Transformation
 				deliveryHandler.Received(1).Deliver("world", JournaledSequence + 2);
 			};
 
+			It should_push_only_the_generated_messages_to_the_journal_queue = () =>
+				journal.AllItems.ShouldBeLike(new[]
+				{
+					Create("hello", JournaledSequence + 1),
+					Create("world", JournaledSequence + 2)
+				});
+
+			static JournalItem Create(string body, long sequence)
+			{
+				var item = new JournalItem();
+				item.AsTransformationResultMessage(sequence, body, new Dictionary<string, string>());
+				return item;
+			}
+
 			static TransformationItem transientItem;
+		}
+
+		public class when_subsequent_messages_arrive_after_a_transient_message_generates_more_messages
+		{
+			Establish context = () =>
+			{
+				handler = new TransformationHandler(JournaledSequence, journal, deliveryHandler, snapshot);
+				transientItem = new TransformationItem();
+				transientItem.AsTransientMessage(new object());
+
+				subsequentItem = new TransformationItem();
+				subsequentItem.AsForeignMessage(null, null, new Dictionary<string, string>(), Guid.NewGuid(), null);
+				subsequentItem.Body = new object();
+				deliveryHandler.Deliver(transientItem, true).Returns(transientGenerated);
+
+				handler.OnNext(transientItem, 1, true);
+			};
+
+			Because of = () =>
+				handler.OnNext(subsequentItem, 2, true);
+
+			It should_correctly_sequence_the_subsequent_message_for_delivery_to_the_application = () =>
+				subsequentItem.MessageSequence.ShouldEqual(JournaledSequence + transientGenerated.Length + 1);
+
+			static TransformationItem transientItem;
+			static TransformationItem subsequentItem;
+			static readonly object[] transientGenerated = new object[] { "hello", "world" };
 		}
 		
 		Establish context = () =>
