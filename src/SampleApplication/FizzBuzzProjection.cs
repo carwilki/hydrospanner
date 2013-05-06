@@ -1,7 +1,9 @@
 ﻿namespace SampleApplication
 {
 	using System;
+	using System.ComponentModel;
 
+	[Description("json:underscore")]
 	public class FizzBuzzProjection
 	{
 		public Guid StreamId { get; set; }

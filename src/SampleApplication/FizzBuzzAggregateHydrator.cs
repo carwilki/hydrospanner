@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.ComponentModel;
 	using Hydrospanner;
 	using Hydrospanner.Timeout;
 
@@ -105,6 +106,7 @@
 		private readonly Guid streamId;
 	}
 
+	[Description("json:underscore")]
 	public class FizzBuzzAggregateMemento
 	{
 		public Guid StreamId { get; set; }
