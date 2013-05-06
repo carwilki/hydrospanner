@@ -205,6 +205,17 @@ namespace Hydrospanner.Persistence
 			static readonly HydrationInfo publicInfo = new HydrationInfo("key", () => publicHydratable);
 		}
 
+		public class when_restoring_a_graveyard_memento
+		{
+			Because of = () =>
+				repository.Restore(memento);
+
+			It should_populate_the_internal_graveyard_with_keys_from_the_memento = () =>
+				graveyard.Contains(memento.Keys[0]).ShouldBeTrue();
+
+			static readonly GraveyardMemento memento = new GraveyardMemento(new[] { "tombstoned-key" });
+		}
+
 		Establish context = () =>
 		{
 			graveyard = new HydratableGraveyard();

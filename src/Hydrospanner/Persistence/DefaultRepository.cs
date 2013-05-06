@@ -68,9 +68,17 @@
 		}
 		public void Restore(object memento)
 		{
-			var hydratable = this.routes.Restore(memento);
+			var hydratable = this.RestoreMemento(memento);
 			if (hydratable != null)
 				this.catalog[hydratable.Key] = hydratable;
+		}
+		private IHydratable RestoreMemento(object memento)
+		{
+			var graveyardMemento = memento as GraveyardMemento;
+			if (graveyardMemento != null)
+				return HydratableGraveyard.Restore(graveyardMemento, this.graveyard);
+
+			return this.routes.Restore(memento);
 		}
 
 		public DefaultRepository(IRoutingTable routes) : this(routes, null)

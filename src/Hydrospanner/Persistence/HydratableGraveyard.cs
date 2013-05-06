@@ -49,9 +49,26 @@
 			this.window = new Queue<string>(this.graveyard);
 		}
 
-		public static HydratableGraveyard Restore(GraveyardMemento memento)
+		public static HydratableGraveyard Restore(GraveyardMemento memento, HydratableGraveyard hydratable = null)
 		{
-			return new HydratableGraveyard(memento);
+			if (hydratable == null)
+				return new HydratableGraveyard(memento);
+
+			hydratable.RestoreMemento(memento);
+			return hydratable;
+		}
+		private void RestoreMemento(GraveyardMemento memento)
+		{
+			if (memento == null || memento.Keys == null)
+				return;
+
+			var keys = memento.Keys;
+
+			this.graveyard.Clear();
+			this.window.Clear();
+
+			for (var i = 0; i < keys.Length; i++)
+				this.Bury(keys[i]);
 		}
 
 		private readonly int capacity;
