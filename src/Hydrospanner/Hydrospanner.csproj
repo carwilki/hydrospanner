@@ -62,6 +62,7 @@
     <Compile Include="Persistence\SqlPersistence\SqlBulkInsertSession.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlMessageStoreWriter.cs" />
     <Compile Include="Phases\Journal\JournalItemAction.cs" />
+    <Compile Include="Phases\Snapshot\PublicSnapshotDispatchHandler.cs" />
     <Compile Include="Phases\Transformation\ISystemSnapshotTracker.cs" />
     <Compile Include="Phases\Transformation\IDeliveryHandler.cs" />
     <Compile Include="Phases\Transformation\ITransformer.cs" />
