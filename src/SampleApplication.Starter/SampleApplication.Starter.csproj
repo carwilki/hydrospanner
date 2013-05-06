@@ -38,16 +38,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Hydrospanner\Hydrospanner.csproj">
+      <Project>{f3564171-9b41-419d-b914-2d08c3a698f3}</Project>
+      <Name>Hydrospanner</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SampleApplication\SampleApplication.csproj">
       <Project>{aaaeb656-3dde-4df1-b393-c2a19bda7cc1}</Project>
       <Name>SampleApplication</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.5.0.4\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="RabbitMQ.Client">
+    <Reference Include="RabbitMQ.Client, Version=3.0.4.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RabbitMQ.Client.3.0.4\lib\net30\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />

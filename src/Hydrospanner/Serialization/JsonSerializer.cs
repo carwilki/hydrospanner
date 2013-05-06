@@ -7,7 +7,7 @@
 	using Newtonsoft.Json;
 	using Newtonsoft.Json.Converters;
 
-	internal class JsonSerializer : ISerializer
+	public class JsonSerializer : ISerializer
 	{
 		public byte[] Serialize(object graph)
 		{

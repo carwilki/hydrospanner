@@ -3,10 +3,7 @@
 	using System;
 	using System.Collections;
 	using System.Configuration;
-	using System.Runtime.Serialization.Formatters;
-	using System.Text;
-	using Newtonsoft.Json;
-	using Newtonsoft.Json.Converters;
+	using Hydrospanner.Serialization;
 	using RabbitMQ.Client;
 
 	internal static class Program
@@ -58,9 +55,8 @@
 				Value = value,
 				MessageId = messageId
 			};
-			var json = JsonConvert.SerializeObject(message, Formatting.Indented, Settings);
-			var payload = DefaultEncoding.GetBytes(json);
 
+			var payload = Serializer.Serialize(message);
 			properties.MessageId = messageId.ToString();
 			properties.Type = message.GetType().AssemblyQualifiedName;
 
@@ -89,18 +85,6 @@
 
 		private static readonly Uri ServerAddress = new Uri(ConfigurationManager.AppSettings["rabbit-server"]);
 		private static readonly string QueueName = ConfigurationManager.AppSettings["queue-name"];
-		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
-		private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
-		{
-			TypeNameHandling = TypeNameHandling.None,
-			TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-			DefaultValueHandling = DefaultValueHandling.Ignore,
-			NullValueHandling = NullValueHandling.Ignore,
-			MissingMemberHandling = MissingMemberHandling.Ignore,
-			DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-			DateFormatHandling = DateFormatHandling.IsoDateFormat,
-			DateParseHandling = DateParseHandling.DateTime,
-			Converters = { new StringEnumConverter() }
-		};
+		private static readonly ISerializer Serializer = new Hydrospanner.Serialization.JsonSerializer();
 	}
 }
