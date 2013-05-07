@@ -33,14 +33,17 @@
 			}
 			catch (DbException e)
 			{
-				if (IsDuplicateViolation(e) && this.IsDuplicateMessage(items.Last()))
-					return true; // TODO: get this under test
+				this.Cleanup();
 
-				this.Sleep(e);
+				if (IsDuplicateViolation(e) && this.IsDuplicateMessage(items.Last()))
+					return true;
+
+				Sleep(e);
 			}
 			catch (Exception e)
 			{
-				this.Sleep(e);
+				this.Cleanup();
+				Sleep(e);
 			}
 
 			return false;
@@ -54,21 +57,24 @@
 		{
 			try
 			{
-				var stored = this.Load(last.MessageSequence - 1).LastOrDefault();
-				return stored != null 
-					&& stored.Sequence == last.MessageSequence
-					&& stored.SerializedType == last.SerializedType
-					&& stored.SerializedBody.SequenceEqual(stored.SerializedBody);
+				var stored = this.Load(last.MessageSequence).FirstOrDefault();
+				return stored != null
+				       && stored.Sequence == last.MessageSequence
+				       && stored.SerializedType == last.SerializedType
+				       && stored.SerializedBody.SequenceEqual(stored.SerializedBody);
 			}
 			catch
 			{
 				return false;
 			}
 		}
-		private void Sleep(Exception e)
+		private void Cleanup()
+		{
+			this.writer.Cleanup();
+		}
+		private static void Sleep(Exception e)
 		{
 			Log.Warn("Unable to persist messages to durable storage.", e);
-			this.writer.Cleanup();
 			Timeout.Sleep();
 		}
 
