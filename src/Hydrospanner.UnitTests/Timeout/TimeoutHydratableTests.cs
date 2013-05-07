@@ -35,11 +35,12 @@ namespace Hydrospanner.Timeout
 		Because of = () =>
 			filtered = watcher.Filter(SomeKey, instant);
 
-		It should_return_the_object_reference_provided = () =>
-			filtered.ShouldBeLike(new TimeoutRequestedEvent(SomeKey, instant));
+		It should_request_a_timeout_rounded_up_to_the_nearest_second = () =>
+			filtered.ShouldBeLike(new TimeoutRequestedEvent(SomeKey, rounded));
 
 		const string SomeKey = "Hello, World!";
-		static readonly DateTime instant = DateTime.UtcNow;
+		static readonly DateTime rounded = DateTime.Parse("2001-02-03 04:05:07");
+		static readonly DateTime instant = DateTime.Parse("2001-02-03 04:05:06").AddTicks(1);
 		static readonly object message = new object();
 		static ITimeoutWatcher watcher;
 		static object filtered;
