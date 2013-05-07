@@ -62,19 +62,16 @@
 		{
 			Log.DebugFormat("Publishing {0} items to the Journal Disruptor.", this.buffer.Count + this.offset);
 
-			var size = this.buffer.Count + this.offset;
-			if (size == 0)
-				return;
-
+			var size = this.buffer.Count + 1;
 			var batch = this.journalRing.Next(size);
 
-			if (this.offset > 0)
-				this.journalRing[batch.Start].AsForeignMessage(
-					this.currentSequnce + 1, this.item.SerializedBody, this.item.Body, this.item.Headers, this.item.ForeignId, this.item.Acknowledgment);
+			var foreignSequence = this.item.IsTransient ? 0 : this.currentSequnce + 1;
+			this.journalRing[batch.Start].AsForeignMessage(
+				foreignSequence, this.item.SerializedBody, this.item.Body, this.item.Headers, this.item.ForeignId, this.item.Acknowledgment);
 
 			for (var i = 0; i < this.buffer.Count; i++)
 			{
-				var disruptorSequence = batch.Start + i + this.offset;
+				var disruptorSequence = batch.Start + i + 1;
 				var messageSequence = this.currentSequnce + 1 + i + this.offset;
 				this.journalRing[disruptorSequence].AsTransformationResultMessage(messageSequence, this.buffer[i], BlankHeaders);
 			}

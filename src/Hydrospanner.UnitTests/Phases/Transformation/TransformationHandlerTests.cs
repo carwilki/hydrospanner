@@ -536,8 +536,8 @@ namespace Hydrospanner.Phases.Transformation
 			It should_not_increment_the_sequence_for_transient_messages = () =>
 				receivedSequence.ShouldEqual(JournaledSequence);
 
-			It should_not_be_forwarded_to_the_journal_handler = () =>
-				journal.AllItems.ShouldBeEmpty();
+			It should_forwarded_the_transient_message_journal_ring_for_acknowledgment_only = () =>
+				journal.AllItems[0].ItemActions.ShouldEqual(JournalItemAction.Acknowledge);
 
 			static TransformationItem transientItem;
 			static long receivedSequence;
@@ -562,9 +562,21 @@ namespace Hydrospanner.Phases.Transformation
 				deliveryHandler.Received(1).Deliver("world", JournaledSequence + 2);
 			};
 
-			It should_push_only_the_generated_messages_to_the_journal_queue = () =>
+			It should_push_the_incoming_and_generated_messages_to_the_journal_queue = () =>
 				journal.AllItems.ShouldBeLike(new[]
 				{
+					new JournalItem
+					{
+						MessageSequence = 0,
+						Body = transientItem.Body,
+						ForeignId = transientItem.ForeignId,
+						Headers = transientItem.Headers,
+						SerializedBody = null,
+						SerializedType = null,
+						SerializedHeaders = null,
+						Acknowledgment = null,
+						ItemActions = JournalItemAction.Acknowledge
+					},
 					Create("hello", JournaledSequence + 1),
 					Create("world", JournaledSequence + 2)
 				});

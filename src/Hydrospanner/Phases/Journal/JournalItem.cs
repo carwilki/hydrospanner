@@ -29,7 +29,9 @@
 			this.Headers = headers;
 			this.ForeignId = foreignId;
 			this.Acknowledgment = acknowledgment;
-			this.SerializedType = body.ResolvableTypeName();
+
+			if (sequence > 0)
+				this.SerializedType = body.ResolvableTypeName();
 		}
 		public void AsTransformationResultMessage(long sequence, object body, Dictionary<string, string> headers)
 		{
