@@ -29,10 +29,10 @@
 		public virtual IDisruptor<JournalItem> CreateJournalDisruptor(BootstrapInfo info)
 		{
 			var messageStore = this.persistence.CreateMessageStore(info.SerializedTypes);
-			var messageSender = this.messaging.CreateMessageSender();
+			var messageSender = this.messaging.CreateJournalMessageSender();
 			var checkpointStore = this.persistence.CreateDispatchCheckpointStore();
 
-			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 256);
+			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new BlockingWaitStrategy(), 1024 * 256);
 			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(new JsonSerializer()))
 			    .Then(new JournalHandler(messageStore))
 			    .Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
@@ -46,7 +46,7 @@
 			var systemRecorder = this.snapshots.CreateSystemSnapshotRecorder();
 			var publicRecorder = this.snapshots.CreatePublicSnapshotRecorder();
 
-			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 128);
+			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new BlockingWaitStrategy(), 1024 * 128);
 			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(CreateSerializer()))
 			    .Then(new SystemSnapshotHandler(systemRecorder), new PublicSnapshotHandler(publicRecorder));
 
@@ -72,7 +72,7 @@
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence);
 
 			var slots = ComputeDisruptorSize(countdown);
-			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), slots);
+			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new BlockingWaitStrategy(), slots);
 			disruptor.HandleEventsWith(serializers.Cast<IEventHandler<TransformationItem>>().ToArray())
 				.Then(transformationHandler)
 				.Then(new CountdownHandler(countdown, complete));
@@ -109,7 +109,7 @@
 			var serializationHandler = new DeserializationHandler(CreateSerializer());
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker);
-			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
+			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new BlockingWaitStrategy(), 1024 * 256);
 			disruptor.HandleEventsWith(serializationHandler).Then(transformationHandler);
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
