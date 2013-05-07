@@ -3,6 +3,7 @@
 	using System;
 	using Disruptor;
 	using log4net;
+	using Messaging;
 
 	public sealed class AcknowledgmentHandler : IEventHandler<JournalItem>
 	{
@@ -20,11 +21,11 @@
 
 			Log.InfoFormat("Executing end-of-batch acknowledgement action (current message sequence: {0}).", data.MessageSequence);
 
-			this.ack(true);
+			this.ack(Acknowledgment.ConfirmBatch);
 			this.ack = null;
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(AcknowledgmentHandler));
-		private Action<bool> ack;
+		private Action<Acknowledgment> ack;
 	}
 }

@@ -4,6 +4,7 @@
 	using System.Collections.Generic;
 	using System.Runtime.Serialization;
 	using log4net;
+	using Messaging;
 	using Serialization;
 
 	public sealed class TransformationItem
@@ -17,11 +18,11 @@
 		public Dictionary<string, string> Headers { get; set; }
 
 		public Guid ForeignId { get; set; }
-		public Action<bool> Acknowledgment { get; set; }
+		public Action<Acknowledgment> Acknowledgment { get; set; }
 
 		public bool IsTransient { get; set; }
 
-		public void AsForeignMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action<bool> ack)
+		public void AsForeignMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action<Acknowledgment> ack)
 		{
 			this.Clear();
 			this.SerializedBody = body;
@@ -46,7 +47,7 @@
 			this.SerializedType = type;
 			this.SerializedHeaders = headers;
 		}
-		public void AsTransientMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action<bool> ack)
+		public void AsTransientMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action<Acknowledgment> ack)
 		{
 			this.Clear();
 			this.SerializedBody = body;
@@ -91,7 +92,7 @@
 				if (this.Acknowledgment != null)
 				{
 					Log.Warn("Unable to deserialize item of type '{0}'".FormatWith(this.SerializedType), e);
-					this.Acknowledgment(false);
+					this.Acknowledgment(Messaging.Acknowledgment.RejectSingle);
 				}
 				else
 					Log.Fatal("Unable to deserialize item of type '{0}'".FormatWith(this.SerializedType), e);

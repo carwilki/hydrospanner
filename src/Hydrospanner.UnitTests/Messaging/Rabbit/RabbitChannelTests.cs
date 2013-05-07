@@ -738,7 +738,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			{
 				It should_acknowledge_the_delivery_tag_to_the_underlying_channel = () =>
 				{
-					delivery.Acknowledge(true);
+					delivery.Acknowledge(Acknowledgment.ConfirmBatch);
 					actualChannel.Received(1).BasicAck(rabbitMessage.DeliveryTag, true);
 				};
 			}
@@ -747,7 +747,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			{
 				It should_reject_the_delivery_tag_to_the_underlying_channel = () =>
 				{
-					delivery.Acknowledge(false);
+					delivery.Acknowledge(Acknowledgment.RejectSingle);
 					actualChannel.Received(1).BasicReject(rabbitMessage.DeliveryTag, false);
 				};
 			}
@@ -757,7 +757,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				It should_NOT_invoke_the_ack_against_the_underlying_channel = () =>
 				{
 					channel.Dispose();
-					delivery.Acknowledge(true);
+					delivery.Acknowledge(Acknowledgment.ConfirmBatch);
 					actualChannel.Received(0).BasicAck(Arg.Any<ulong>(), Arg.Any<bool>());
 				};
 			}
@@ -767,7 +767,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				It should_not_invoke_the_ack_against_the_underlying_channel = () =>
 				{
 					actualChannel.IsOpen.Returns(false);
-					delivery.Acknowledge(true);
+					delivery.Acknowledge(Acknowledgment.ConfirmBatch);
 					actualChannel.Received(0).BasicAck(Arg.Any<ulong>(), Arg.Any<bool>());
 				};
 			}
@@ -777,7 +777,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				It should_suppress_the_exception = () =>
 				{
 					actualChannel.When(x => x.BasicAck(Arg.Any<ulong>(), Arg.Any<bool>())).Do(x => { throw new Exception(); });
-					delivery.Acknowledge(true);
+					delivery.Acknowledge(Acknowledgment.ConfirmBatch);
 				};
 			}
 

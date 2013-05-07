@@ -4,6 +4,7 @@
 namespace Hydrospanner.Phases.Journal
 {
 	using Machine.Specifications;
+	using Messaging;
 
 	public class AcknowledgmentHandlerTests
 	{
@@ -18,8 +19,8 @@ namespace Hydrospanner.Phases.Journal
 			It should_invoke_the_acknowledgment_callback_exactly_once = () =>
 				invocations.ShouldEqual(1);
 
-			It should_acknowledge_success = () =>
-				result.ShouldEqual(true);
+			It should_acknowledge_the_entire_batch = () =>
+				result.ShouldEqual(Acknowledgment.ConfirmBatch);
 		}
 
 		public class when_multiple_acknowledgment_items_are_ready_to_be_acknowledged
@@ -37,7 +38,7 @@ namespace Hydrospanner.Phases.Journal
 				invocations.ShouldEqual(1);
 
 			It should_acknowledge_success = () =>
-				result.ShouldEqual(true);
+				result.ShouldEqual(Acknowledgment.ConfirmBatch);
 		}
 
 		public class when_the_last_item_in_the_set_is_not_an_acknowledgment_item
@@ -58,7 +59,7 @@ namespace Hydrospanner.Phases.Journal
 				invocations.ShouldEqual(1);
 
 			It should_acknowledge_success = () =>
-				result.ShouldEqual(true);
+				result.ShouldEqual(Acknowledgment.ConfirmBatch);
 		}
 
 		public class when_no_acknowledgment_items_are_in_the_batch

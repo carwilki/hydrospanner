@@ -36,7 +36,7 @@
 			{
 				// we get a deadlock because no new messages can be received, but we also don't want to ack things we shouldn't...
 				// perhaps we count # of dups in a row and if it reaches duplicate capacity, we ack?
-				delivery.Acknowledge(true); // TODO: get this under test; also, do we really want to ack all messages up to this point when a duplicate is received?
+				delivery.Acknowledge(Acknowledgment.ConfirmSingle); // TODO: get this under test; also, do we really want to ack all messages up to this point when a duplicate is received?
 				Log.DebugFormat("Rejecting message {0} of type '{1}' as duplicate.", delivery.MessageId, delivery.MessageType);
 			}
 			else if (this.transients.Contains(delivery.MessageType ?? string.Empty))
