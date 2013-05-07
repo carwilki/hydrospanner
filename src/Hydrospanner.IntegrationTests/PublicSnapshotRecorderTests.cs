@@ -35,10 +35,10 @@ namespace Hydrospanner.IntegrationTests
 				using (var reader = command.ExecuteReader())
 				{
 					reader.Read().ShouldBeTrue();
-					reader.GetString(0).ShouldEqual("key");
-					reader.GetInt64(1).ShouldEqual(1);
-					((uint)reader.GetValue(2)).ShouldBeGreaterThan(0);
-					(reader.GetValue(3) as byte[]).ShouldBeLike(item.Serialized);
+					reader.GetString(1).ShouldEqual("key");
+					reader.GetInt64(2).ShouldEqual(1);
+					((uint)reader.GetValue(3)).ShouldBeGreaterThan(0);
+					(reader.GetValue(4) as byte[]).ShouldBeLike(item.Serialized);
 				}
 			}
 		};
