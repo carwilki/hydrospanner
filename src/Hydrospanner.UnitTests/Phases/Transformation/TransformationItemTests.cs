@@ -6,6 +6,7 @@ namespace Hydrospanner.Phases.Transformation
 	using System;
 	using System.Collections.Generic;
 	using Machine.Specifications;
+	using Messaging;
 	using Serialization;
 
 	[Subject(typeof(TransformationItem))]
@@ -45,7 +46,7 @@ namespace Hydrospanner.Phases.Transformation
 		static string type;
 		static Dictionary<string, string> headers;
 		static Guid foreignId;
-		static Action<bool> ack;
+		static Action<Acknowledgment> ack;
 	}
 
 	[Subject(typeof(TransformationItem))]
@@ -85,7 +86,7 @@ namespace Hydrospanner.Phases.Transformation
 		static string type;
 		static Dictionary<string, string> headers;
 		static Guid foreignId;
-		static Action<bool> ack;
+		static Action<Acknowledgment> ack;
 	}
 
 	[Subject(typeof(TransformationItem))]

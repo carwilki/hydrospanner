@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner
 {
 	using System;
+	using Disruptor;
 	using Disruptor.Dsl;
 	
 	internal interface IDisruptor<T> : IDisposable where T : class
@@ -24,7 +25,7 @@
 		}
 		public void Stop()
 		{
-			this.disruptor.Shutdown();
+			this.disruptor.Halt();
 		}
 
 		public DisruptorBase(Disruptor<T> disruptor)

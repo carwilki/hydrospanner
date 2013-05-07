@@ -7,6 +7,7 @@ namespace Hydrospanner.Phases.Transformation
 	using System.Collections.Generic;
 	using System.Text;
 	using Machine.Specifications;
+	using Messaging;
 	using Serialization;
 
 	[Subject(typeof(DeserializationHandler))]
@@ -58,8 +59,8 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 				item.AsForeignMessage(body, Headers.GetType().AssemblyQualifiedName, headers, Guid.Empty, success => received = success);
 
-			It should_provide_false_to_the_callback = () =>
-				((bool)received).ShouldBeFalse();
+			It should_provide_a_single_rejection_to_the_callback = () =>
+				((Acknowledgment)received).ShouldEqual(Acknowledgment.RejectSingle);
 
 			It should_NOT_throw_an_exception = () =>
 				thrown.ShouldBeNull();

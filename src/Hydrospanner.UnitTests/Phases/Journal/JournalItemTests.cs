@@ -6,6 +6,7 @@ namespace Hydrospanner.Phases.Journal
 	using System;
 	using System.Collections.Generic;
 	using Machine.Specifications;
+	using Messaging;
 	using Timeout;
 
 	[Subject(typeof(JournalItem))]
@@ -37,7 +38,7 @@ namespace Hydrospanner.Phases.Journal
 		static readonly byte[] serializedBody = new byte[] { 1, 2, 3 };
 		static readonly Dictionary<string, string> headers = new Dictionary<string, string>();
 		static readonly Guid ForeignId = Guid.NewGuid();
-		static readonly Action<bool> Acknowledgment = success => { };
+		static readonly Action<Acknowledgment> Acknowledgment = success => { };
 	}
 
 	[Subject(typeof(JournalItem))]
@@ -71,7 +72,7 @@ namespace Hydrospanner.Phases.Journal
 		static readonly byte[] serializedBody = new byte[] { 1, 2, 3 };
 		static readonly Dictionary<string, string> headers = new Dictionary<string, string>();
 		static readonly Guid ForeignId = Guid.NewGuid();
-		static readonly Action<bool> Acknowledgment = success => { };
+		static readonly Action<Acknowledgment> Acknowledgment = success => { };
 	}
 
 	[Subject(typeof(JournalItem))]

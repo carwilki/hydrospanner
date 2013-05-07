@@ -30,10 +30,13 @@
 			if (!delivery.Populated)
 				return;
 
-			// if a received message fails deserialization, is rejected as poison, and is republished to this queue
+			// NOTE: if a received message fails deserialization, is rejected as poison, and is republished to this queue
 			// without fixing the code and restarting the process, it will be discarded as a duplicate message.
 			if (this.duplicates.Contains(delivery.MessageId))
+			{
+				delivery.Acknowledge(Acknowledgment.ConfirmSingle);
 				Log.DebugFormat("Rejecting message {0} of type '{1}' as duplicate.", delivery.MessageId, delivery.MessageType);
+			}
 			else if (this.transients.Contains(delivery.MessageType ?? string.Empty))
 				this.PublishTransientMessageToRingBuffer(delivery);
 			else

@@ -12,9 +12,10 @@
 		public byte[] Payload { get; private set; }
 		public Dictionary<string, string> Headers { get; private set; }
 		public string MessageType { get; private set; }
-		public Action<bool> Acknowledge { get; private set; }
+		public Action<Acknowledgment> Acknowledge { get; private set; }
 
-		public MessageDelivery(Guid messageId, byte[] payload, string type, Dictionary<string, string> headers, Action<bool> acknowledge) : this()
+		public MessageDelivery(Guid messageId, byte[] payload, string type, Dictionary<string, string> headers, Action<Acknowledgment> acknowledge)
+			: this()
 		{
 			this.Populated = true;
 			this.MessageId = messageId;
@@ -23,5 +24,12 @@
 			this.MessageType = type;
 			this.Acknowledge = acknowledge;
 		}
+	}
+
+	public enum Acknowledgment : byte
+	{
+		ConfirmBatch,
+		ConfirmSingle,
+		RejectSingle
 	}
 }

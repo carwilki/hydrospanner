@@ -188,6 +188,9 @@ namespace Hydrospanner.Phases.Transformation
 			Establish context = () =>
 				receiver.Receive(Arg.Do<TimeSpan>(x => UponReceive())).Returns(Delivery);
 
+			Cleanup after = () =>
+				ack = Acknowledgment.ConfirmBatch;
+
 			static void UponReceive()
 			{
 				if (++counter >= MaxReceives)
@@ -203,13 +206,17 @@ namespace Hydrospanner.Phases.Transformation
 			It should_NOT_push_the_message_to_the_ring_buffer = () =>
 				harness.AllItems.Count.ShouldEqual(1);
 
+			It should_acknowledge_receipt_of_the_message_to_the_underlying_channel = () =>
+				ack.ShouldEqual(Acknowledgment.ConfirmSingle);
+
 			It should_attempt_to_receive_another_message_from_the_underlying_messaging_handler_until_disposed = () =>
 				receiver.Received(MaxReceives).Receive(Arg.Any<TimeSpan>());
 
 			const int MaxReceives = 2;
 			static readonly MessageDelivery Delivery = new MessageDelivery(
-				Guid.NewGuid(), new byte[] { 0, 1, 2, 3 }, "some-type", new Dictionary<string, string>(), null);
+				Guid.NewGuid(), new byte[] { 0, 1, 2, 3 }, "some-type", new Dictionary<string, string>(), x => ack = x);
 			static int counter;
+			static Acknowledgment ack;
 		}
 
 		public class when_the_listener_is_disposed_after_starting

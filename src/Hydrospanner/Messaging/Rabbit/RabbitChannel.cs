@@ -187,14 +187,14 @@
 			var headers = meta.Headers.Copy();
 			var tag = message.DeliveryTag;
 
-			return new MessageDelivery(id, message.Body, meta.Type, headers, success =>
+			return new MessageDelivery(id, message.Body, meta.Type, headers, ack =>
 			{
 				if (this.disposed || !currentChannel.IsOpen)
 					return;
 
 				try
 				{
-					AcknowledgeMessage(currentChannel, success, tag);
+					AcknowledgeMessage(currentChannel, ack, tag);
 				}
 				catch
 				{
@@ -204,7 +204,7 @@
 				}
 			});
 		}
-		private static void AcknowledgeMessage(IModel currentChannel, bool success, ulong tag)
+		private static void AcknowledgeMessage(IModel currentChannel, Acknowledgment acknowledgment, ulong tag)
 		{
 			// Threading notes:
 			// According to the RabbitMQ Client PDF documentation for .NET, a single channel is not thread safe and access to it
@@ -223,10 +223,12 @@
 			// confirmation of the committed transaction.  In other words, the code below is entirely thread safe SO LONG AS this channel
 			// remains a non-transactional channel.  I also asserted that confirming multiple messages while individually rejecting individual
 			// messages here and there worked as expected.
-			if (success)
+			if (Acknowledgment.ConfirmBatch == acknowledgment)
 				currentChannel.BasicAck(tag, AcknowledgeMultiple);
-			else
+			else if (Acknowledgment.RejectSingle == acknowledgment)
 				currentChannel.BasicReject(tag, MarkAsDeadLetter);
+			else
+				currentChannel.BasicAck(tag, AcknowledgeSingle);
 		}
 
 		private IModel OpenChannel(bool receive)
@@ -312,6 +314,7 @@
 		private const int ExchangeNotFound = 404;
 		private const string ContentType = "application/vnd.hydrospanner-msg+json";
 		private const string ContentEncoding = "utf8";
+		private const bool AcknowledgeSingle = false; // false = single ack
 		private const bool AcknowledgeMultiple = true;
 		private const bool MarkAsDeadLetter = false; // false = make it a dead letter
 		private static readonly ILog Log = LogManager.GetLogger(typeof(RabbitChannel));
