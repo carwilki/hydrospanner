@@ -19,8 +19,6 @@
 		}
 		private void TryDispatch()
 		{
-			Log.InfoFormat("Dispatching {0} public snapshots.", this.buffer.Count);
-
 			try
 			{
 				while (true)

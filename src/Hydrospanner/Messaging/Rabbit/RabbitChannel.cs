@@ -41,8 +41,8 @@
 			meta.Headers = new Hashtable
 			{
 				{ "x-meta-key", message.Key },
-				{ "x-meta-sequence", message.CurrentSequence },
-				{ "x-meta-hash", message.ComputedHash }
+				{ "x-meta-sequence", message.CurrentSequence.ToString(CultureInfo.InvariantCulture) },
+				{ "x-meta-hash", message.ComputedHash.ToString(CultureInfo.InvariantCulture) }
 			};
 
 			try
@@ -147,8 +147,9 @@
 				currentChannel.TxCommit();
 				return true;
 			}
-			catch
+			catch (Exception e)
 			{
+				Log.Warn("Unable to commit messaging transaction.", e);
 				this.Close();
 				return false;
 			}
