@@ -2,7 +2,7 @@
 {
 	public static class DbScripts
 	{
-		public const string DocumentsCreation = @"
+		public const string MessagesCreation = @"
 			USE `{0}`;
 
 			CREATE TABLE metadata (
@@ -53,7 +53,7 @@
 			  FROM messages M
 			  JOIN metadata T on M.metadata_id = T.metadata_id;";
 
-		public const string MessagesCreation = @"
+		public const string DocumentsCreation = @"
 			USE `{0}`;
 
 			CREATE TABLE documents (
