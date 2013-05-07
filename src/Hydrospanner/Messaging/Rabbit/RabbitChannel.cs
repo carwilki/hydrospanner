@@ -14,7 +14,7 @@
 	{
 		public bool Send(SnapshotItem message)
 		{
-			// TODO: get this under test (spike/proof of concept)
+			// TODO: get this entire set of methods under test (spike/proof of concept)
 			if (message == null)
 				throw new ArgumentNullException();
 
@@ -35,30 +35,25 @@
 			meta.DeliveryMode = Persistent;
 			meta.Type = message.MementoType.ResolvableTypeName();
 			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
-			//// meta.MessageId = message.CurrentSequence.ToMessageId(this.nodeId); // TODO: unique?
-			//// message id may not be necessary here? this is a "document update" event
-			//// which is idempotent by default
+			meta.MessageId = message.CurrentSequence.ToMessageId(this.nodeId, message.ComputedHash);
 			meta.ContentType = ContentType;
 			meta.ContentEncoding = ContentEncoding;
 			meta.Headers = new Hashtable
 			{
 				{ "x-meta-key", message.Key },
 				{ "x-meta-sequence", message.CurrentSequence },
-				{ "x-meta-hash", 0 } // TODO: this hash should be calculated by the serializer.
+				{ "x-meta-hash", message.ComputedHash }
 			};
-
-			//meta.Headers = message.Headers.CopyTo(meta.Headers);
-			var exchange = message.MementoType.NormalizeType();
 
 			try
 			{
-				currentChannel.BasicPublish(exchange, string.Empty, meta, message.Serialized);
+				currentChannel.BasicPublish(message.MementoType.NormalizeType(), string.Empty, meta, message.Serialized);
 			}
 			catch (AlreadyClosedException e)
 			{
 				var reason = e.ShutdownReason;
 				if (reason != null && reason.Initiator == ShutdownInitiator.Peer && reason.ReplyCode == ExchangeNotFound)
-					Log.Fatal("Exchange '{0}' does not exist.".FormatWith(exchange), e); // CONFIG: use throttling to log4net xml config
+					Log.Fatal("Exchange '{0}' does not exist.".FormatWith(message.MementoType.NormalizeType()), e); // CONFIG: use throttling to log4net xml config
 
 				Wait.Sleep();
 				this.Close();

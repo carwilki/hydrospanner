@@ -250,6 +250,7 @@ namespace Hydrospanner.Wireup
 						IsPublicSnapshot = true,
 						Key = "key0",
 						Memento = 0,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 0,
 						Serialized = null
 					},
@@ -259,6 +260,7 @@ namespace Hydrospanner.Wireup
 						IsPublicSnapshot = true,
 						Key = "key2",
 						Memento = 2,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 0,
 						Serialized = null
 					}

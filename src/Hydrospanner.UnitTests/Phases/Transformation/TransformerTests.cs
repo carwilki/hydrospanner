@@ -93,6 +93,7 @@ namespace Hydrospanner.Phases.Transformation
 					IsPublicSnapshot = true,
 					Key = hydratable.Key,
 					Memento = new SomethingHappenedProjection { Value = Incoming.Value },
+					MementoType = typeof(SomethingHappenedProjection).ResolvableTypeName(),
 					MementosRemaining = 0,
 					Serialized = null
 				});
@@ -169,6 +170,7 @@ namespace Hydrospanner.Phases.Transformation
 					IsPublicSnapshot = true,
 					Key = hydratable.Key,
 					Memento = new SomethingHappenedProjection { Value = Incoming.Value },
+					MementoType = typeof(SomethingHappenedProjection).ResolvableTypeName(),
 					MementosRemaining = 0,
 					Serialized = null
 				});
@@ -208,6 +210,7 @@ namespace Hydrospanner.Phases.Transformation
 						IsPublicSnapshot = true,
 						Key = hydratable.Key,
 						Memento = new SomethingHappenedProjection { Value = Incoming.Value },
+						MementoType = typeof(SomethingHappenedProjection).ResolvableTypeName(),
 						MementosRemaining = 0,
 						Serialized = null
 					},
@@ -217,6 +220,7 @@ namespace Hydrospanner.Phases.Transformation
 						IsPublicSnapshot = true,
 						Key = hydratable.Key,
 						Memento = new SomethingHappenedProjection { Value = subsequentIncoming.Value },
+						MementoType = typeof(SomethingHappenedProjection).ResolvableTypeName(),
 						MementosRemaining = 0,
 						Serialized = null
 					}

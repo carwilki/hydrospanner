@@ -20,7 +20,7 @@ namespace Hydrospanner.Phases.Snapshot
 			item.IsPublicSnapshot.ShouldBeTrue();
 			item.Key.ShouldEqual("key");
 			item.Memento.ShouldEqual("value");
-			item.MementoType.ShouldEqual(typeof(string));
+			item.MementoType.ShouldEqual(typeof(string).ResolvableTypeName());
 			item.CurrentSequence.ShouldEqual(42);
 		};
 
@@ -85,7 +85,7 @@ namespace Hydrospanner.Phases.Snapshot
 			item.Memento.ShouldEqual("cloned");
 
 		It should_prefer_the_cloned_memento_type_when_possbile = () =>
-			item.MementoType.ShouldEqual(typeof(string));
+			item.MementoType.ShouldEqual(typeof(string).ResolvableTypeName());
 
 		static SnapshotItem item;
 	}

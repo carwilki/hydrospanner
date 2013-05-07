@@ -12,6 +12,15 @@
 		{
 			return ((sequence << 16) + nodeId).ToString(CultureInfo.InvariantCulture);
 		}
+		public static string ToMessageId(this long sequence, short nodeId, uint hash)
+		{
+			// TODO: test
+			sequence = sequence << 32;
+			sequence += nodeId;
+			sequence = sequence << 16;
+			sequence += hash;
+			return sequence.ToString(CultureInfo.InvariantCulture);
+		}
 		public static Guid ToMessageId(this string value)
 		{
 			if (string.IsNullOrWhiteSpace(value))
@@ -55,10 +64,6 @@
 				value = value.Substring(0, end);
 
 			return value.Trim().ToLowerInvariant().Replace(".", "-");
-		}
-		public static string NormalizeType(this Type value)
-		{
-			return value.FullName.ToLowerInvariant().Replace(".", "-");
 		}
 
 		private static readonly Encoding RabbitEncoding = Encoding.UTF8;
