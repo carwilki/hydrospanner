@@ -734,12 +734,21 @@ namespace Hydrospanner.Messaging.Rabbit
 					delivery.Populated.ShouldBeFalse();
 			}
 
-			public class when_successfully_acknowledging_delivery
+			public class when_successfully_acknowledging_delivery_of_a_batch
 			{
 				It should_acknowledge_the_delivery_tag_to_the_underlying_channel = () =>
 				{
 					delivery.Acknowledge(Acknowledgment.ConfirmBatch);
 					actualChannel.Received(1).BasicAck(rabbitMessage.DeliveryTag, true);
+				};
+			}
+
+			public class when_successfully_acknowledging_delivery_of_a_single_message
+			{
+				It should_acknowledge_the_delivery_tag_to_the_underlying_channel = () =>
+				{
+					delivery.Acknowledge(Acknowledgment.ConfirmSingle);
+					actualChannel.Received(1).BasicAck(rabbitMessage.DeliveryTag, false);
 				};
 			}
 

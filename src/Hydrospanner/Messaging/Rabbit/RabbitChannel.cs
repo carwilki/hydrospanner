@@ -169,7 +169,7 @@
 			else if (Acknowledgment.RejectSingle == acknowledgment)
 				currentChannel.BasicReject(tag, MarkAsDeadLetter);
 			else
-				throw new NotImplementedException("TODO");
+				currentChannel.BasicAck(tag, AcknowledgeSingle);
 		}
 
 		private IModel OpenChannel(bool receive)
@@ -254,6 +254,7 @@
 		private const byte Persistent = 2;
 		private const string ContentType = "application/vnd.hydrospanner-msg+json";
 		private const string ContentEncoding = "utf8";
+		private const bool AcknowledgeSingle = false; // false = single ack
 		private const bool AcknowledgeMultiple = true;
 		private const bool MarkAsDeadLetter = false; // false = make it a dead letter
 		private static readonly ILog Log = LogManager.GetLogger(typeof(RabbitChannel));
