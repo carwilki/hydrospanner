@@ -6,6 +6,7 @@
 	using log4net;
 	using Messaging;
 
+	// TODO: get this entire handler under test (spike/proof of concept)
 	public class PublicSnapshotDispatchHandler : IEventHandler<SnapshotItem>
 	{
 		public void OnNext(SnapshotItem data, long sequence, bool endOfBatch)

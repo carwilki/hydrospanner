@@ -56,6 +56,10 @@
 
 			return value.Trim().ToLowerInvariant().Replace(".", "-");
 		}
+		public static string NormalizeType(this Type value)
+		{
+			return value.FullName.ToLowerInvariant().Replace(".", "-");
+		}
 
 		private static readonly Encoding RabbitEncoding = Encoding.UTF8;
 	}

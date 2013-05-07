@@ -1,6 +1,7 @@
 ﻿namespace Hydrospanner.Messaging.Rabbit
 {
 	using System;
+	using System.Collections;
 	using System.Globalization;
 	using log4net;
 	using Phases.Journal;
@@ -13,7 +14,63 @@
 	{
 		public bool Send(SnapshotItem message)
 		{
-			throw new NotImplementedException();
+			// TODO: get this under test (spike/proof of concept)
+			if (message == null)
+				throw new ArgumentNullException();
+
+			if (this.disposed)
+				return false;
+
+			var currentChannel = this.OpenChannel(false);
+			if (currentChannel == null)
+				return false;
+
+			return this.Send(message, currentChannel);
+		}
+		private bool Send(SnapshotItem message, IModel currentChannel)
+		{
+			// FUTURE: ContentType and ContentEncoding will be dynamic based upon serialization, e.g. +json, +msgpack, +pb, etc.
+			var meta = currentChannel.CreateBasicProperties();
+			meta.AppId = this.normalizedNodeId;
+			meta.DeliveryMode = Persistent;
+			meta.Type = message.MementoType.ResolvableTypeName();
+			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
+			//// meta.MessageId = message.CurrentSequence.ToMessageId(this.nodeId); // TODO: unique?
+			//// message id may not be necessary here? this is a "document update" event
+			//// which is idempotent by default
+			meta.ContentType = ContentType;
+			meta.ContentEncoding = ContentEncoding;
+			meta.Headers = new Hashtable
+			{
+				{ "x-meta-key", message.Key },
+				{ "x-meta-sequence", message.CurrentSequence },
+				{ "x-meta-hash", 0 } // TODO: this hash should be calculated by the serializer.
+			};
+
+			//meta.Headers = message.Headers.CopyTo(meta.Headers);
+			var exchange = message.MementoType.NormalizeType();
+
+			try
+			{
+				currentChannel.BasicPublish(exchange, string.Empty, meta, message.Serialized);
+			}
+			catch (AlreadyClosedException e)
+			{
+				var reason = e.ShutdownReason;
+				if (reason != null && reason.Initiator == ShutdownInitiator.Peer && reason.ReplyCode == ExchangeNotFound)
+					Log.Fatal("Exchange '{0}' does not exist.".FormatWith(exchange), e); // CONFIG: use throttling to log4net xml config
+
+				Wait.Sleep();
+				this.Close();
+				return false;
+			}
+			catch
+			{
+				this.Close();
+				return false;
+			}
+
+			return true;
 		}
 
 		public bool Send(JournalItem message)
