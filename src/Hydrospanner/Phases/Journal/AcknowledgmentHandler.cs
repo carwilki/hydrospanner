@@ -12,6 +12,7 @@
 			Log.DebugFormat("Receiving acknowledgement action for journal item of type {0}, at sequence {1}", data.SerializedType, data.MessageSequence);
 
 			this.ack = data.Acknowledgment ?? this.ack;
+			this.max = Math.Max(data.MessageSequence, this.max);
 
 			if (!endOfBatch)
 				return;
@@ -19,7 +20,7 @@
 			if (this.ack == null)
 				return;
 
-			Log.InfoFormat("Executing end-of-batch acknowledgement action (current message sequence: {0}).", data.MessageSequence);
+			Log.InfoFormat("Executing end-of-batch acknowledgement action (current message sequence: {0}).", this.max);
 
 			this.ack(Acknowledgment.ConfirmBatch);
 			this.ack = null;
@@ -27,5 +28,6 @@
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(AcknowledgmentHandler));
 		private Action<Acknowledgment> ack;
+		private long max;
 	}
 }
