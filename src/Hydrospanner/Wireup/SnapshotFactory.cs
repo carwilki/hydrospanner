@@ -18,6 +18,9 @@
 		}
 		public virtual ISnapshotRecorder CreatePublicSnapshotRecorder()
 		{
+			if (this.settings.ConnectionString == "null-storage")
+				return new NullSnapshotRecorder();
+
 			return new PublicSnapshotRecorder(this.settings);
 		}
 
