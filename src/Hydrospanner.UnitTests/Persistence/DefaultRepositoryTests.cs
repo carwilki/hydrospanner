@@ -3,6 +3,7 @@
 
 namespace Hydrospanner.Persistence
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.Linq;
@@ -251,8 +252,6 @@ namespace Hydrospanner.Persistence
 
 		public bool IsComplete { get { return false; } }
 
-		public virtual bool IsPublicSnapshot { get { return false; } }
-
 		public ICollection<object> PendingMessages { get; private set; }
 
 		public void Hydrate(Delivery<int> delivery)
@@ -270,11 +269,11 @@ namespace Hydrospanner.Persistence
 		readonly string key;
 	}
 
-	public class PublicHydratable : MyHydratable
+	public class PublicHydratable : MyHydratable, IPublicHydratable
 	{
-		public override bool IsPublicSnapshot
+		public Type MementoType
 		{
-			get { return true; }
+			get { return typeof(string); }
 		}
 		public PublicHydratable() : base("some-key")
 		{

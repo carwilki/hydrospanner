@@ -29,9 +29,10 @@
 				Log.Warn("Hydratable at '{0}' has {1} pending messages during replay, but shouldn't.".FormatWith(hydratable.Key, hydratable.PendingMessages.Count));
 				hydratable.PendingMessages.TryClear();
 			}
-				
-			if (hydratable.IsPublicSnapshot && (live || hydratable.IsComplete))
-				this.TakePublicSnapshot(hydratable, messageSequence);
+
+			var @public = hydratable as IPublicHydratable;
+			if (@public != null && (live || hydratable.IsComplete))
+				this.TakePublicSnapshot(@public, messageSequence);
 
 			if (!hydratable.IsComplete)
 				return;
@@ -50,7 +51,7 @@
 
 			messages.TryClear();
 		}
-		private void TakePublicSnapshot(IHydratable hydratable, long messageSequence)
+		private void TakePublicSnapshot(IPublicHydratable hydratable, long messageSequence)
 		{
 			var memento = hydratable.Memento;
 			var cloner = memento as ICloneable;

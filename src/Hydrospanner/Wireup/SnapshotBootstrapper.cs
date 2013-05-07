@@ -63,7 +63,7 @@
 			foreach (var pair in hydratables)
 			{
 				var hydratable = pair.Key;
-				if (!hydratable.IsPublicSnapshot)
+				if (!(hydratable is IPublicHydratable))
 					continue;
 
 				var claimed = ringBuffer.Next();

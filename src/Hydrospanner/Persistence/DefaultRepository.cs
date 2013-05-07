@@ -49,7 +49,7 @@
 		}
 		private void Touch(IHydratable hydratable, long sequence)
 		{
-			if (this.live || !hydratable.IsPublicSnapshot)
+			if (this.live || !(hydratable is IPublicHydratable))
 				return;
 
 			// the incoming sequence hasn't yet affected the results, but any callers

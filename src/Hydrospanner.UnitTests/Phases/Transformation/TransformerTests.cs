@@ -42,7 +42,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				hydratable = new TestHydratable(!IsPublicSnapshot, !BecomesComplete, Key);
+				hydratable = new TestHydratable(!BecomesComplete, Key);
 				repository.Load(liveDelivery).Returns(new[] { hydratable });
 				watcher.Filter(hydratable.Key, Incoming).Returns(Incoming);
 			};
@@ -61,7 +61,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				hydratable = new TestHydratable(!IsPublicSnapshot, !BecomesComplete, Key);
+				hydratable = new TestHydratable(!BecomesComplete, Key);
 				repository.Load(replayDelivery).Returns(new[] { hydratable });
 			};
 
@@ -79,7 +79,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
+				hydratable = new PublicHydratable(Key);
 				repository.Load(liveDelivery).Returns(new[] { hydratable });
 			};
 
@@ -102,7 +102,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
+				hydratable = new PublicHydratable(Key);
 				repository.Load(replayDelivery).Returns(new[] { hydratable });
 			};
 
@@ -117,7 +117,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				hydratable = new TestHydratable(!IsPublicSnapshot, BecomesComplete, Key);
+				hydratable = new TestHydratable(BecomesComplete, Key);
 				repository.Load(liveDelivery).Returns(new[] { hydratable });
 			};
 
@@ -149,7 +149,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				hydratable = new TestHydratable(IsPublicSnapshot, BecomesComplete, Key);
+				hydratable = new PublicHydratable(Key, BecomesComplete);
 				repository.Load(liveDelivery).Returns(new[] { hydratable });
 
 				timeoutHydratable = Substitute.For<IHydratable>();
@@ -189,7 +189,7 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				subsequentIncoming = new SomethingHappenedEvent { Value = "Goodbye, World!" };
 				subsequentDelivery = new Delivery<SomethingHappenedEvent>(subsequentIncoming, Headers, LiveMessageSequence + 1, true, true);
-				hydratable = new TestHydratable(IsPublicSnapshot, !BecomesComplete, Key);
+				hydratable = new PublicHydratable(Key);
 				repository.Load(liveDelivery).Returns(new[] { hydratable });
 				repository.Load(subsequentDelivery).Returns(new[] { hydratable });
 
@@ -270,7 +270,6 @@ namespace Hydrospanner.Phases.Transformation
 
 		public string Key { get { return this.key; } }
 		public bool IsComplete { get; private set; }
-		public bool IsPublicSnapshot { get { return this.isPublicSnapshot; } }
 		public virtual ICollection<object> PendingMessages { get; private set; }
 		public object Memento { get { return this.memento ?? new SomethingHappenedProjection { Value = this.EventsReceived.Last() }; } }
 
@@ -283,24 +282,35 @@ namespace Hydrospanner.Phases.Transformation
 				this.IsComplete = true;
 		}
 
-		public TestHydratable(bool isPublicSnapshot, bool becomesComplete, string key, object memento = null)
+		public TestHydratable(bool becomesComplete, string key, object memento = null)
 		{
-			this.isPublicSnapshot = isPublicSnapshot;
 			this.becomesComplete = becomesComplete;
 			this.key = key;
 			this.memento = memento;
 			this.PendingMessages = new List<object>();
 		}
 		
-		private readonly bool isPublicSnapshot;
 		private readonly bool becomesComplete;
 		private readonly string key;
 		private readonly object memento;
 	}
 
+	public class PublicHydratable : TestHydratable, IPublicHydratable
+	{
+		public PublicHydratable(string key, bool becomesComplete = false)
+			: base(becomesComplete, key, null)
+		{
+		}
+
+		public Type MementoType
+		{
+			get { return typeof(string); }
+		}
+	}
+
 	public class ReadOnlyMessagesHydratable : TestHydratable
 	{
-		public ReadOnlyMessagesHydratable() : base(false, false, string.Empty, null)
+		public ReadOnlyMessagesHydratable() : base(false, string.Empty, null)
 		{
 		}
 
