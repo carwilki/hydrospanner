@@ -4,12 +4,18 @@
 	using System.Globalization;
 	using log4net;
 	using Phases.Journal;
+	using Phases.Snapshot;
 	using RabbitMQ.Client;
 	using RabbitMQ.Client.Events;
 	using RabbitMQ.Client.Exceptions;
 
 	public class RabbitChannel : IMessageSender, IMessageReceiver
 	{
+		public bool Send(SnapshotItem message)
+		{
+			throw new NotImplementedException();
+		}
+
 		public bool Send(JournalItem message)
 		{
 			if (message == null)
@@ -60,7 +66,7 @@
 			catch (AlreadyClosedException e)
 			{
 				var reason = e.ShutdownReason;
-				if (reason != null && reason.Initiator == ShutdownInitiator.Peer && reason.ReplyCode == 404)
+				if (reason != null && reason.Initiator == ShutdownInitiator.Peer && reason.ReplyCode == ExchangeNotFound)
 					Log.Fatal("Exchange '{0}' does not exist.".FormatWith(exchange), e); // CONFIG: use throttling to log4net xml config
 
 				Wait.Sleep();
@@ -250,6 +256,7 @@
 		}
 
 		private const byte Persistent = 2;
+		private const int ExchangeNotFound = 404;
 		private const string ContentType = "application/vnd.hydrospanner-msg+json";
 		private const string ContentEncoding = "utf8";
 		private const bool AcknowledgeMultiple = true;

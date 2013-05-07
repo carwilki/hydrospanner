@@ -46,9 +46,13 @@
 			var systemRecorder = this.snapshots.CreateSystemSnapshotRecorder();
 			var publicRecorder = this.snapshots.CreatePublicSnapshotRecorder();
 
+			var systemHandler = new SystemSnapshotHandler(systemRecorder);
+			var publicHandler = new PublicSnapshotHandler(publicRecorder);
+			var dispatchHandler = new PublicSnapshotDispatchHandler(this.messaging.CreateSnapshotMessageSender());
+
 			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new BlockingWaitStrategy(), 1024 * 128);
 			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(CreateSerializer()))
-			    .Then(new SystemSnapshotHandler(systemRecorder), new PublicSnapshotHandler(publicRecorder));
+			    .Then(systemHandler, publicHandler, dispatchHandler);
 
 			this.snapshotRing = new RingBufferBase<SnapshotItem>(disruptor.RingBuffer);
 			return new DisruptorBase<SnapshotItem>(disruptor);

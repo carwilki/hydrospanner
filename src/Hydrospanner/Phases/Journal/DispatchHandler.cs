@@ -52,7 +52,7 @@
 			if (this.sender.Send(item))
 				return true;
 
-			Log.WarnFormat("Failed to dispatch message sequence {0} of type {1}.", item.MessageSequence, item.SerializedType);
+			Log.WarnFormat("Failed to dispatch message sequence {0} of type {1}.", item.MessageSequence, item.SerializedType ?? "(null)");
 			return false;
 		}
 

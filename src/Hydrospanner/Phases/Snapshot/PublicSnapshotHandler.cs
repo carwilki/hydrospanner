@@ -42,7 +42,7 @@
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(PublicSnapshotHandler));
-		private readonly ISnapshotRecorder recorder;
 		private readonly Dictionary<string, SnapshotItem> buffer = new Dictionary<string, SnapshotItem>();
+		private readonly ISnapshotRecorder recorder;
 	}
 }
