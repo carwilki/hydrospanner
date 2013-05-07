@@ -33,6 +33,8 @@
 		public void Hydrate(Delivery<CountCommand> delivery)
 		{
 			this.aggregate.Increment(delivery.Message.Value);
+			if (delivery.Live)
+				this.PendingMessages.Add(DateTime.UtcNow.AddSeconds(1));
 		}
 		public void Hydrate(Delivery<CountEvent> delivery)
 		{
