@@ -1,7 +1,6 @@
 ﻿namespace Hydrospanner.Wireup
 {
 	using System;
-	using System.Collections.Generic;
 	using Messaging;
 	using Messaging.Rabbit;
 	using Phases.Transformation;
@@ -15,7 +14,7 @@
 		}
 		public virtual MessageListener CreateMessageListener(IRingBuffer<TransformationItem> ring)
 		{
-			return new MessageListener(this.NewReceiver, ring, this.duplicates, this.transients);
+			return new MessageListener(this.NewReceiver, ring, this.duplicates);
 		}
 		private IMessageReceiver NewReceiver()
 		{
@@ -26,7 +25,7 @@
 			return new RabbitSubscription(channel, this.sourceQueue);
 		}
 
-		public MessagingFactory(short nodeId, Uri messageBroker, string sourceQueue, DuplicateStore duplicates, ICollection<string> transients) : this()
+		public MessagingFactory(short nodeId, Uri messageBroker, string sourceQueue, DuplicateStore duplicates) : this()
 		{
 			if (nodeId <= 0)
 				throw new ArgumentOutOfRangeException("nodeId");
@@ -44,7 +43,6 @@
 			this.sourceQueue = sourceQueue;
 			this.duplicates = duplicates;
 			this.connector = new RabbitConnector(messageBroker);
-			this.transients = transients;
 		}
 		protected MessagingFactory()
 		{
@@ -54,6 +52,5 @@
 		private readonly string sourceQueue;
 		private readonly DuplicateStore duplicates;
 		private readonly RabbitConnector connector;
-		private readonly ICollection<string> transients;
 	}
 }

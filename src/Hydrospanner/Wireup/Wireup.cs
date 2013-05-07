@@ -45,7 +45,7 @@
 
 		private Wireup(ConventionWireupParameters conventionWireup, IEnumerable<Type> transient, IEnumerable<Assembly> assemblies)
 		{
-			var types = transient.Select(x => x.ResolvableTypeName()).ToArray();
+			var transientTypes = transient.Select(x => x.ResolvableTypeName()).ToArray(); // TODO
 
 			Log.Info("Preparing to bootstrap the system.");
 			var repository = new DefaultRepository(new ConventionRoutingTable(assemblies));
@@ -57,7 +57,7 @@
 			this.info = persistenceBootstrapper.Restore();
 			var duplicates = new DuplicateStore(conventionWireup.DuplicateWindow, this.info.DuplicateIdentifiers);
 			var timeoutFactory = new TimeoutFactory();
-			var messagingFactory = new MessagingFactory(conventionWireup.NodeId, conventionWireup.BrokerAddress, conventionWireup.SourceQueueName, duplicates, types);
+			var messagingFactory = new MessagingFactory(conventionWireup.NodeId, conventionWireup.BrokerAddress, conventionWireup.SourceQueueName, duplicates);
 
 			Log.Info("Loading bootstrap parameters.");
 			var messageStore = persistenceFactory.CreateMessageStore(this.info.SerializedTypes);
