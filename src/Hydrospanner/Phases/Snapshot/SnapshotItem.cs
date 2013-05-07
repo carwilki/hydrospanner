@@ -11,15 +11,17 @@
 
 		public string Key { get; set; }
 		public object Memento { get; set; }
+		public Type MementoType { get; set; }
 		public byte[] Serialized { get; set; }
 
-		public void AsPublicSnapshot(string key, object memento, long sequence)
+		public void AsPublicSnapshot(string key, object memento, Type mementoType, long sequence)
 		{
 			this.Clear();
 			this.IsPublicSnapshot = true;
 			this.CurrentSequence = sequence;
 			this.Key = key;
 			this.Memento = Clone(memento);
+			this.MementoType = this.Memento == null ? mementoType : this.Memento.GetType();
 		}
 		public void AsPartOfSystemSnapshot(long sequence, int remaining, object memento)
 		{
@@ -38,6 +40,7 @@
 			this.IsPublicSnapshot = false;
 			this.Key = null;
 			this.Memento = null;
+			this.MementoType = null;
 			this.Serialized = null;
 			this.CurrentSequence = this.MementosRemaining = 0;
 		}

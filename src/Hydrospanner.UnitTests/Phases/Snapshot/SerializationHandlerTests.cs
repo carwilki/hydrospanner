@@ -14,11 +14,11 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			handler = new SerializationHandler(new JsonSerializer());
 			item = new SnapshotItem();
-			memento = new Memento()
+			memento = new Memento
 			{
 				First = "1"
 			};
-			item.AsPublicSnapshot("Key", memento, 42);
+			item.AsPublicSnapshot("Key", memento, memento.GetType(), 42);
 		};
 
 		Because of = () =>

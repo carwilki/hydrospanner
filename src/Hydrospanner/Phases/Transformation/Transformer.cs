@@ -59,7 +59,7 @@
 
 			var next = this.ring.Next();
 			var claimed = this.ring[next];
-			claimed.AsPublicSnapshot(hydratable.Key, memento, messageSequence);
+			claimed.AsPublicSnapshot(hydratable.Key, memento, hydratable.MementoType, messageSequence);
 			this.ring.Publish(next);
 		}
 
