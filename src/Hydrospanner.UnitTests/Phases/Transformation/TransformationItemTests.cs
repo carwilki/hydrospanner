@@ -50,31 +50,34 @@ namespace Hydrospanner.Phases.Transformation
 	}
 
 	[Subject(typeof(TransformationItem))]
-	public class when_initializing_a_foreign_message_as_transient
+	public class when_marking_a_foreign_message_as_transient
 	{
 		Establish context = () =>
 		{
-			item = new TransformationItem();
 			body = new byte[] { 1, 2, 3 };
 			type = "Type";
 			headers = new Dictionary<string, string>();
 			foreignId = Guid.NewGuid();
 			ack = x => { };
+			item = new TransformationItem();
+			item.AsForeignMessage(body, type, headers, foreignId, ack);
 		};
 
 		Because of = () =>
-			item.AsTransientMessage(body, type, headers, foreignId, ack);
+			item.MarkAsTransientMessage();
 
-		It should_set_the_following_properties_according_to_the_given_arguments = () =>
+		It should_leave_all_foreign_message_properties_alone = () =>
 		{
 			item.SerializedBody.ShouldEqual(body);
 			item.SerializedType.ShouldEqual(type);
 			item.Headers.ShouldEqual(headers);
 			item.Acknowledgment.ShouldEqual(ack);
-			item.IsTransient.ShouldBeTrue();
 		};
 
-		It should_set_the_following_properties_to_their_defaults = () =>
+		It should_mark_the_message_as_transient = () =>
+			item.IsTransient.ShouldBeTrue();
+
+		It should_keep_following_properties_to_their_defaults = () =>
 		{
 			item.MessageSequence.ShouldEqual(0);
 			item.SerializedHeaders.ShouldBeNull();

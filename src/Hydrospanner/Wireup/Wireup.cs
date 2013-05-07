@@ -43,10 +43,8 @@
 			Log.Fatal("Unable to start the hydrospanner, one or more serialization errors occurred during the bootstrap process.");
 		}
 
-		private Wireup(ConventionWireupParameters conventionWireup, IEnumerable<Type> transient, IEnumerable<Assembly> assemblies)
+		private Wireup(ConventionWireupParameters conventionWireup, IEnumerable<Type> transientTypes, IEnumerable<Assembly> assemblies)
 		{
-			var transientTypes = transient.Select(x => x.ResolvableTypeName()).ToArray(); // TODO
-
 			Log.Info("Preparing to bootstrap the system.");
 			var repository = new DefaultRepository(new ConventionRoutingTable(assemblies));
 			var persistenceFactory = new PersistenceFactory(conventionWireup.JournalConnectionName, conventionWireup.DuplicateWindow, conventionWireup.JournalBatchSize);
@@ -61,7 +59,7 @@
 
 			Log.Info("Loading bootstrap parameters.");
 			var messageStore = persistenceFactory.CreateMessageStore(this.info.SerializedTypes);
-			var disruptorFactory = new DisruptorFactory(messagingFactory, persistenceFactory, snapshotFactory, conventionWireup.SystemSnapshotFrequency);
+			var disruptorFactory = new DisruptorFactory(messagingFactory, persistenceFactory, snapshotFactory, conventionWireup.SystemSnapshotFrequency, transientTypes);
 			var snapshotBootstrapper = new SnapshotBootstrapper(snapshotFactory, disruptorFactory);
 			var messageBootstrapper = new MessageBootstrapper(messageStore, disruptorFactory);
 

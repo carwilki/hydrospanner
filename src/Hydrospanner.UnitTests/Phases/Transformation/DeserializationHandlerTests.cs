@@ -76,11 +76,26 @@ namespace Hydrospanner.Phases.Transformation
 			static object received;
 		}
 
+		public class when_the_message_type_is_found_in_the_list_of_transient_messages
+		{
+			Establish context = () =>
+			{
+				var serializer = new JsonSerializer();
+				var transientTypes = new HashSet<Type> { typeof(string) };
+				handler = new DeserializationHandler(serializer, transientTypes);
+				var serialized = serializer.Serialize("Hello, World!");
+				item.AsForeignMessage(serialized, typeof(string).AssemblyQualifiedName, new Dictionary<string, string>(), Guid.NewGuid(), null);
+			};
+
+			It should_mark_the_item_as_transient = () =>
+				item.IsTransient.ShouldBeTrue();
+		}
+
 		public class when_deserializers_run_in_parallel
 		{
 			Establish context = () =>
 			{
-				handler = new DeserializationHandler(new JsonSerializer(), 2, 1);
+				handler = new DeserializationHandler(new JsonSerializer(), new HashSet<Type>(), 2, 1);
 				item.AsJournaledMessage(
 					42, Encoding.UTF8.GetBytes(Body), Headers.GetType().AssemblyQualifiedName, Encoding.UTF8.GetBytes(Body));
 			};
@@ -91,7 +106,7 @@ namespace Hydrospanner.Phases.Transformation
 
 		Establish context = () =>
 		{
-			handler = new DeserializationHandler(new JsonSerializer());
+			handler = new DeserializationHandler(new JsonSerializer(), new HashSet<Type>());
 			item = new TransformationItem();
 		};
 
