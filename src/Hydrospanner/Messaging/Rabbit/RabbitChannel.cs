@@ -33,7 +33,7 @@
 			var meta = currentChannel.CreateBasicProperties();
 			meta.AppId = this.normalizedNodeId;
 			meta.DeliveryMode = Persistent;
-			meta.Type = message.MementoType.ResolvableTypeName();
+			meta.Type = message.MementoType;
 			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
 			meta.MessageId = message.CurrentSequence.ToMessageId(this.nodeId, message.ComputedHash);
 			meta.ContentType = ContentType;
