@@ -108,9 +108,12 @@
 		}
 		private static IHydratable Create()
 		{
-			// TODO: this should return null once the "tombstone" window has passed
-			// and/or once we're sure that this code won't be improperly executed
+#if DEBUG
+			// this should only occur if the tombstome/graveyard window has passed/been exceeded.
 			throw new InvalidOperationException("Default timeout route should never create a hydratable.");
+#else
+			return null;
+#endif
 		}
 	}
 }
