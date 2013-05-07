@@ -44,6 +44,7 @@ namespace Hydrospanner.IntegrationTests
 				var item = new JournalItem();
 				item.AsForeignMessage(0, new byte[] { 1 }, "hi", new Dictionary<string, string>(), Guid.NewGuid(), null);
 				item.Serialize(new JsonSerializer());
+				item.SerializedType = typeof(string).ResolvableTypeName();
 				items.Add(item);
 			};
 
@@ -60,11 +61,13 @@ namespace Hydrospanner.IntegrationTests
 				var first = new JournalItem();
 				first.AsForeignMessage(0, new byte[] { 1 }, "hi", new Dictionary<string, string> { { "key", "value" } }, ForeignId, x => { });
 				first.Serialize(serializer);
+				first.SerializedType = typeof(string).ResolvableTypeName();
 				items.Add(first);
 	
 				var second = new JournalItem();
 				second.AsTransformationResultMessage(1, "hi", new Dictionary<string, string> { { "key", "value" } });
 				second.Serialize(serializer);
+				second.SerializedType = typeof(string).ResolvableTypeName();
 				items.Add(second);
 			};
 
