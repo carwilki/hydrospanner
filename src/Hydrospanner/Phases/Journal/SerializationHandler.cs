@@ -10,7 +10,9 @@
 		{
 			Log.DebugFormat("Serializing JournalItem of type {0}.", data.SerializedType);
 
-			data.Serialize(this.serializer);
+			var action = data.ItemActions;
+			if (action.HasFlag(JournalItemAction.Dispatch) || action.HasFlag(JournalItemAction.Journal))
+				data.Serialize(this.serializer);
 		}
 
 		public SerializationHandler(ISerializer serializer)

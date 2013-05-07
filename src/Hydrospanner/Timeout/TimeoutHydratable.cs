@@ -39,9 +39,14 @@
 		public object Filter(string key, object message)
 		{
 			if (message is DateTime)
-				return new TimeoutRequestedEvent(key, (DateTime)message);
+				return new TimeoutRequestedEvent(key, RoundUpToNearestSecond((DateTime)message));
 
 			return message;
+		}
+		private static DateTime RoundUpToNearestSecond(DateTime instant)
+		{
+			// http://stackoverflow.com/questions/7029353/c-sharp-round-up-time-to-nearest-x-minutes
+			return new DateTime(((instant.Ticks + TimeSpan.TicksPerSecond - 1) / TimeSpan.TicksPerSecond) * TimeSpan.TicksPerSecond);
 		}
 
 		public void Hydrate(Delivery<CurrentTimeMessage> delivery)
@@ -108,9 +113,12 @@
 		}
 		private static IHydratable Create()
 		{
-			// TODO: this should return null once the "tombstone" window has passed
-			// and/or once we're sure that this code won't be improperly executed
+#if DEBUG
+			// this should only occur if the tombstome/graveyard window has passed/been exceeded.
 			throw new InvalidOperationException("Default timeout route should never create a hydratable.");
+#else
+			return null;
+#endif
 		}
 	}
 }

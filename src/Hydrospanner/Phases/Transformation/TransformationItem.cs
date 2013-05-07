@@ -47,14 +47,8 @@
 			this.SerializedType = type;
 			this.SerializedHeaders = headers;
 		}
-		public void AsTransientMessage(byte[] body, string type, Dictionary<string, string> headers, Guid foreignId, Action<Acknowledgment> ack)
+		public void MarkAsTransientMessage()
 		{
-			this.Clear();
-			this.SerializedBody = body;
-			this.SerializedType = type;
-			this.Headers = headers;
-			this.ForeignId = foreignId;
-			this.Acknowledgment = ack;
 			this.IsTransient = true;
 		}
 		public void AsTransientMessage(object body)

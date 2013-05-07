@@ -17,7 +17,7 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_no_receiver_is_provided
 		{
 			Because of = () =>
-				Try(() => new MessageListener(null, harness, new DuplicateStore(1024), transients));
+				Try(() => new MessageListener(null, harness, new DuplicateStore(1024)));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
@@ -26,7 +26,7 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_no_ring_buffer_is_provided
 		{
 			Because of = () =>
-				Try(() => new MessageListener(() => receiver, null, duplicates, transients));
+				Try(() => new MessageListener(() => receiver, null, duplicates));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
@@ -35,16 +35,7 @@ namespace Hydrospanner.Phases.Transformation
 		public class when_no_duplicate_store_is_provided
 		{
 			Because of = () =>
-				Try(() => new MessageListener(() => receiver, harness, null, transients));
-
-			It should_throw_an_exception = () =>
-				thrown.ShouldBeOfType<ArgumentNullException>();
-		}
-
-		public class when_no_transient_types_collection_is_provided
-		{
-			Because of = () =>
-				Try(() => new MessageListener(() => receiver, harness, duplicates, null));
+				Try(() => new MessageListener(() => receiver, harness, null));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
@@ -138,41 +129,6 @@ namespace Hydrospanner.Phases.Transformation
 
 			It should_indicate_the_item_to_be_persistent = () =>
 				harness.AllItems.ToList().ForEach(x => x.IsTransient.ShouldBeFalse());
-
-			It should_attempt_to_receive_another_message_from_the_underlying_messaging_handler_until_disposed = () =>
-				receiver.Received(MaxReceives).Receive(Arg.Any<TimeSpan>());
-
-			const int MaxReceives = 2;
-			static readonly MessageDelivery Delivery = new MessageDelivery(
-				Guid.NewGuid(), new byte[] { 0, 1, 2, 3 }, "some-type", new Dictionary<string, string>(), null);
-			static int counter;
-		}
-
-		public class when_a_transient_message_arrives
-		{
-			Establish context = () =>
-			{
-				transients.Add(Delivery.MessageType);
-				receiver.Receive(Arg.Do<TimeSpan>(x => UponReceive())).Returns(Delivery);
-			};
-
-			static void UponReceive()
-			{
-				if (++counter >= MaxReceives)
-					listener.Dispose();
-			}
-
-			Because of = () =>
-			{
-				listener.Start();
-				Thread.Sleep(50);
-			};
-
-			It should_push_the_message_to_the_ring_buffer = () =>
-				harness.AllItems.Count.ShouldBeGreaterThan(0);
-
-			It should_indicate_the_item_to_be_persistent = () =>
-				harness.AllItems.ToList().ForEach(x => x.IsTransient.ShouldBeTrue());
 
 			It should_attempt_to_receive_another_message_from_the_underlying_messaging_handler_until_disposed = () =>
 				receiver.Received(MaxReceives).Receive(Arg.Any<TimeSpan>());
@@ -280,8 +236,7 @@ namespace Hydrospanner.Phases.Transformation
 			receiver = Substitute.For<IMessageReceiver>();
 			harness = new RingBufferHarness<TransformationItem>();
 			duplicates = new DuplicateStore(1024);
-			transients = new HashSet<string>();
-			listener = new MessageListener(() => receiver, harness, duplicates, transients);
+			listener = new MessageListener(() => receiver, harness, duplicates);
 		};
 
 		Cleanup after = () =>
@@ -294,7 +249,6 @@ namespace Hydrospanner.Phases.Transformation
 		static RingBufferHarness<TransformationItem> harness;
 		static MessageListener listener;
 		static DuplicateStore duplicates;
-		static HashSet<string> transients; 
 		static Exception thrown;
 	}
 }

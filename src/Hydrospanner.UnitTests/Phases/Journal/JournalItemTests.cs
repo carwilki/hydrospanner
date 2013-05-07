@@ -58,7 +58,7 @@ namespace Hydrospanner.Phases.Journal
 			item.Headers.ShouldEqual(headers);
 			item.ForeignId.ShouldEqual(ForeignId);
 			item.Body.ShouldEqual(Body);
-			item.SerializedType.ShouldEqual(Body.ResolvableTypeName());
+			item.SerializedType.ShouldBeNull();
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>

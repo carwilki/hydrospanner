@@ -66,6 +66,22 @@ namespace Hydrospanner.Phases.Journal
 				item.Headers.ShouldNotBeNull();
 		}
 
+		public class when_the_item_is_acknowledgment_only
+		{
+			Establish context = () =>
+			{
+				item.AsForeignMessage(0, null, null, null, Guid.NewGuid(), null);
+				item.Body = new object();
+				item.Headers = new Dictionary<string, string> { { string.Empty, null } };
+			};
+
+			It should_NOT_serialize_the_body = () =>
+				item.SerializedBody.ShouldBeNull();
+
+			It should_NOT_serialize_the_headers = () =>
+				item.SerializedHeaders.ShouldBeNull();
+		}
+
 		public class when_the_headers_need_to_be_serialized
 		{
 			Establish context = () =>
@@ -111,7 +127,7 @@ namespace Hydrospanner.Phases.Journal
 		};
 
 		Because of = () =>
-				handler.OnNext(item, 0, false);
+			handler.OnNext(item, 0, false);
 
 		static readonly Dictionary<string, string> Value = new Dictionary<string, string> { { "Value", "42" } };
 		static readonly byte[] SerializedValue = Encoding.UTF8.GetBytes("{\n  \"Value\": \"42\"\n}");

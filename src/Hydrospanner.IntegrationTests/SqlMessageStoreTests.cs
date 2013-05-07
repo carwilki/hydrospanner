@@ -111,6 +111,30 @@ namespace Hydrospanner.IntegrationTests
 			static readonly Guid ForeignId = Guid.NewGuid();
 		}
 
+		public class when_saving_a_duplicate_message
+		{
+			Establish context = () =>
+			{
+				item = new JournalItem();
+				item.AsForeignMessage(42, new byte[] { 1, 2, 3, 4, 5, 6 }, null, new Dictionary<string, string>(), Guid.NewGuid(), null);
+				item.SerializedType = "some-type";
+				items.Add(item);
+
+				Persist();
+			};
+
+			It should_only_record_the_message_once = () =>
+			{
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = "select count(*) from messages;";
+					((long)command.ExecuteScalar()).ShouldEqual(1);
+				}
+			};
+
+			static JournalItem item;
+		}
+
 		Establish context = () =>
 		{
 			ThreadExtensions.Freeze(x =>
@@ -122,6 +146,9 @@ namespace Hydrospanner.IntegrationTests
 		};
 
 		Because of = () =>
+			Persist();
+
+		static void Persist()
 		{
 			var factory = DbProviderFactories.GetFactory(settings.ProviderName);
 			var types = new JournalMessageTypeRegistrar(new string[0]);
@@ -130,7 +157,7 @@ namespace Hydrospanner.IntegrationTests
 			var writer = new SqlMessageStoreWriter(session, builder, types, 100);
 			store = new SqlMessageStore(factory, settings.ConnectionString, writer, types);
 			store.Save(items);
-		};
+		}
 
 		static List<JournalItem> items;
 		static SqlMessageStore store;
