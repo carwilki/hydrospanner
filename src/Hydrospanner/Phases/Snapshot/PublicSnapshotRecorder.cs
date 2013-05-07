@@ -6,6 +6,7 @@
 	using System.Data;
 	using System.Linq;
 	using System.Text;
+	using log4net;
 	using IsolationLevel = System.Data.IsolationLevel;
 
 	internal class PublicSnapshotRecorder : ISnapshotRecorder
@@ -31,8 +32,9 @@
 					this.SaveSnapshotItems();
 					break;
 				}
-				catch
+				catch (Exception e)
 				{
+					Log.Warn("Unable to persist to database.", e);
 					SleepTimeout.Sleep();
 				}
 			}
@@ -113,6 +115,7 @@
 		private const string Upsert = "INSERT INTO documents VALUES (@i{0}, @s{0}, @h{0}, @d{0}) ON DUPLICATE KEY UPDATE sequence = @s{0}, hash = @h{0}, document = @d{0};";
 		private const int ParameterLimit = 65000;
 		private const int ParametersPerStatement = 4;
+		private static readonly ILog Log = LogManager.GetLogger(typeof(PublicSnapshotRecorder));
 		private static readonly TimeSpan SleepTimeout = TimeSpan.FromSeconds(5);
 		private readonly ConnectionStringSettings settings;
 		private readonly IDictionary<string, SnapshotItem> catalog = new Dictionary<string, SnapshotItem>();
