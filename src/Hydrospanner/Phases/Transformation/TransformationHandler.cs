@@ -27,8 +27,8 @@
 		}
 		private bool CanHandle()
 		{
-			if (this.canHandle)
-				return true;
+			if (!this.canHandle)
+				return false;
 
 			if (this.item.Body != null)
 				return true;

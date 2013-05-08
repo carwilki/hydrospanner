@@ -51,7 +51,7 @@ namespace Hydrospanner.Phases.Transformation
 				handler.OnNext(new TransformationItem(), 1, false);
 
 			It should_skip_that_message = () =>
-				deliveryHandler.Received(0).Deliver(Arg.Any<object>(), Arg.Any<long>());
+				deliveryHandler.Received(0).Deliver(Arg.Any<TransformationItem>(), Arg.Any<bool>());
 		}
 
 		public class when_a_live_message_arrives_after_a_message_with_no_body
@@ -86,7 +86,7 @@ namespace Hydrospanner.Phases.Transformation
 			};
 
 			It should_skip_all_messages_thereafter = () =>
-				deliveryHandler.Received(0).Deliver(Arg.Any<object>(), Arg.Any<long>());
+				deliveryHandler.Received(0).Deliver(Arg.Any<TransformationItem>(), Arg.Any<bool>());
 
 			static readonly TransformationItem serializationFailure = new TransformationItem
 			{
