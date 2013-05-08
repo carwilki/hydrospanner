@@ -23,6 +23,7 @@
 				using (var jsonWriter = new JsonTextWriter(streamWriter))
 				{
 					this.serializer.Serialize(jsonWriter, graph);
+					jsonWriter.Flush();
 					return stream.ToArray();
 				}
 			}
