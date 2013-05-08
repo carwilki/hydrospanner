@@ -14,7 +14,7 @@
 			CREATE TABLE messages (
 				sequence bigint NOT NULL,
 				metadata_id smallint NOT NULL,
-				foreign_id BINARY(16) NULL,
+				foreign_id binary(16) NULL,
 				payload mediumblob NOT NULL,
 				headers mediumblob NULL,
 				CONSTRAINT PK_checkpoints PRIMARY KEY CLUSTERED (sequence)
@@ -48,7 +48,7 @@
 					UNHEX(SUBSTRING($guid, 20, 4)),
 					UNHEX(SUBSTRING($guid, 25, 12)));
 
-			CREATE VIEW `messages_view` AS
+			CREATE VIEW messages_view AS
 			SELECT M.sequence, T.type_name, toguid(M.foreign_id) as foreign_id, CAST(M.payload as CHAR(65535)) as payload, CAST(M.headers as CHAR(65535)) as headers
 			  FROM messages M
 			  JOIN metadata T on M.metadata_id = T.metadata_id;";
@@ -57,17 +57,16 @@
 			USE `{0}`;
 
 			CREATE TABLE documents (
-				`id` BINARY(16) NOT NULL,
-				`identifier` VARCHAR(1024) NOT NULL,
-				`sequence` BIGINT NOT NULL,
-				`hash` INT UNSIGNED NOT NULL,
-				`document` MEDIUMBLOB NULL,
-				PRIMARY KEY (`id`),
-				UNIQUE INDEX `identifier_UNIQUE` (`id` ASC) 
+				id binary(16) NOT NULL,
+				identifier varchar(1024) NOT NULL,
+				sequence bigint NOT NULL,
+				hash int unsigned NOT NULL,
+				document mediumblob NULL,
+				CONSTRAINT PK_documents PRIMARY KEY CLUSTERED (id)
 			);
 
-			CREATE VIEW `documents_view` AS
-			SELECT identifier, CAST(document as char(65535)) as document, sequence, hex(id) as id, hash as hash
+			CREATE VIEW documents_view AS
+			SELECT identifier, CAST(document as char(65535)) as document, sequence, hex(id) as id, hash
 			  FROM documents;";
 	}
 }
