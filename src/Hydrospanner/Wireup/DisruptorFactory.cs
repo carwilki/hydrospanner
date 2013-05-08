@@ -13,6 +13,7 @@
 	using Phases.Transformation;
 	using Serialization;
 	using Timeout;
+	using SerializationHandler = Phases.Transformation.SerializationHandler;
 
 	internal class DisruptorFactory
 	{
@@ -70,9 +71,9 @@
 				serializerCount++;
 
 			var replayTransientTypes = new HashSet<Type>();
-			var serializers = new DeserializationHandler[serializerCount];
+			var serializers = new SerializationHandler[serializerCount];
 			for (var i = 0; i < serializerCount; i++)
-				serializers[i] = new DeserializationHandler(CreateSerializer(), replayTransientTypes, serializerCount, i);
+				serializers[i] = new SerializationHandler(CreateSerializer(), replayTransientTypes, serializerCount, i);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence);
 
 			var slots = ComputeDisruptorSize(countdown);
@@ -110,7 +111,7 @@
 		}
 		public virtual IDisruptor<TransformationItem> CreateTransformationDisruptor(IRepository repository, BootstrapInfo info)
 		{
-			var serializationHandler = new DeserializationHandler(CreateSerializer(), this.transientTypes);
+			var serializationHandler = new SerializationHandler(CreateSerializer(), this.transientTypes);
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker);
 			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);

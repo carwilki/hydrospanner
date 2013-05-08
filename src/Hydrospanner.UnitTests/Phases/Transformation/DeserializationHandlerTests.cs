@@ -10,7 +10,7 @@ namespace Hydrospanner.Phases.Transformation
 	using Messaging;
 	using Serialization;
 
-	[Subject(typeof(DeserializationHandler))]
+	[Subject(typeof(SerializationHandler))]
 	public class when_deserializing_the_transformation_item
 	{
 		public class when_the_body_exists
@@ -82,7 +82,7 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				var serializer = new JsonSerializer();
 				var transientTypes = new HashSet<Type> { typeof(string) };
-				handler = new DeserializationHandler(serializer, transientTypes);
+				handler = new SerializationHandler(serializer, transientTypes);
 				var serialized = serializer.Serialize("Hello, World!");
 				item.AsForeignMessage(serialized, typeof(string).AssemblyQualifiedName, new Dictionary<string, string>(), Guid.NewGuid(), null);
 			};
@@ -97,7 +97,7 @@ namespace Hydrospanner.Phases.Transformation
 			{
 				var serializer = new JsonSerializer();
 				var transientTypes = new HashSet<Type> { typeof(string) };
-				handler = new DeserializationHandler(serializer, transientTypes);
+				handler = new SerializationHandler(serializer, transientTypes);
 				var serialized = serializer.Serialize("Hello, World!");
 				item.AsForeignMessage(serialized, typeof(string).AssemblyQualifiedName, new Dictionary<string, string>(), Guid.NewGuid(), null);
 				item.MessageSequence = 1;
@@ -111,7 +111,7 @@ namespace Hydrospanner.Phases.Transformation
 		{
 			Establish context = () =>
 			{
-				handler = new DeserializationHandler(new JsonSerializer(), new HashSet<Type>(), 2, 1);
+				handler = new SerializationHandler(new JsonSerializer(), new HashSet<Type>(), 2, 1);
 				item.AsJournaledMessage(
 					42, Encoding.UTF8.GetBytes(Body), Headers.GetType().AssemblyQualifiedName, Encoding.UTF8.GetBytes(Body));
 			};
@@ -122,7 +122,7 @@ namespace Hydrospanner.Phases.Transformation
 
 		Establish context = () =>
 		{
-			handler = new DeserializationHandler(new JsonSerializer(), new HashSet<Type>());
+			handler = new SerializationHandler(new JsonSerializer(), new HashSet<Type>());
 			item = new TransformationItem();
 		};
 
@@ -136,7 +136,7 @@ namespace Hydrospanner.Phases.Transformation
 		const string Value = "hi";
 		static readonly string Body = "{{ \"{0}\": \"{1}\" }}".FormatWith(Key, Value);
 		static readonly Dictionary<string, string> Headers = new Dictionary<string, string> { { Key, Value } };
-		static DeserializationHandler handler;
+		static SerializationHandler handler;
 		static TransformationItem item;
 		static Exception thrown;
 	}
