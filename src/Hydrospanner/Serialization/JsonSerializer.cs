@@ -22,7 +22,7 @@
 				using (var streamWriter = new StreamWriter(stream, DefaultEncoding))
 				using (var jsonWriter = new JsonTextWriter(streamWriter))
 				{
-					serializer.Serialize(jsonWriter, graph);
+					this.serializer.Serialize(jsonWriter, graph);
 					return stream.ToArray();
 				}
 			}
