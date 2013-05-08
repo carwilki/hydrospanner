@@ -59,6 +59,7 @@
 
 		public virtual void SavePublicSnapshots(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer)
 		{
+			var count = 0;
 			var hydratables = repository.Accessed;
 			foreach (var pair in hydratables)
 			{
@@ -66,12 +67,14 @@
 				if (!hydratable.IsPublicSnapshot)
 					continue;
 
+				count++;
 				var claimed = ringBuffer.Next();
 				var item = ringBuffer[claimed];
 				item.AsPublicSnapshot(hydratable.Key, hydratable.Memento, pair.Value);
 				ringBuffer.Publish(claimed);
 			}
 
+			Log.Info("{0} public hydratables snapshots taken.".FormatWith(count));
 			hydratables.TryClear();
 		}
 
