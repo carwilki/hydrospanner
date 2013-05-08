@@ -94,7 +94,7 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
   <PropertyGroup Label="EdgeRunner">
     <StartAction>Program</StartAction>
     <StartProgram>$(TargetDir)$(EdgeRunner)</StartProgram>
