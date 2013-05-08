@@ -33,7 +33,9 @@
 			// without fixing the code and restarting the process, it will be discarded as a duplicate message.
 			if (this.duplicates.Contains(delivery.MessageId))
 			{
-				delivery.Acknowledge(Acknowledgment.ConfirmSingle);
+				if (delivery.Acknowledge != null)
+					delivery.Acknowledge(Acknowledgment.ConfirmSingle);
+
 				Log.DebugFormat("Rejecting message {0} of type '{1}' as duplicate.", delivery.MessageId, delivery.MessageType);
 			}
 			else
