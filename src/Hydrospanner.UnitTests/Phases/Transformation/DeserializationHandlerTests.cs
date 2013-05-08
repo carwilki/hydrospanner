@@ -91,6 +91,22 @@ namespace Hydrospanner.Phases.Transformation
 				item.IsTransient.ShouldBeTrue();
 		}
 
+		public class when_the_replaying_message_type_is_found_in_the_list_of_transient_messages
+		{
+			Establish context = () =>
+			{
+				var serializer = new JsonSerializer();
+				var transientTypes = new HashSet<Type> { typeof(string) };
+				handler = new DeserializationHandler(serializer, transientTypes);
+				var serialized = serializer.Serialize("Hello, World!");
+				item.AsForeignMessage(serialized, typeof(string).AssemblyQualifiedName, new Dictionary<string, string>(), Guid.NewGuid(), null);
+				item.MessageSequence = 1;
+			};
+
+			It should_NOT_mark_the_item_as_transient = () =>
+				item.IsTransient.ShouldBeFalse();
+		}
+
 		public class when_deserializers_run_in_parallel
 		{
 			Establish context = () =>

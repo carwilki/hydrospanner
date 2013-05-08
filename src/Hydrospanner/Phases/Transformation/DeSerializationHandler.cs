@@ -17,7 +17,8 @@
 				Log.Info("Starting deserialization");
 
 			data.Deserialize(this.serializer);
-			if (data.Body == null || data.IsTransient)
+
+			if (data.Body == null || data.IsTransient || data.MessageSequence > 0)
 				return;
 
 			if (this.transientTypes.Contains(data.Body.GetType()))
