@@ -2,10 +2,12 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.IO;
 	using System.Runtime.Serialization;
 	using System.Text;
 	using Newtonsoft.Json;
 	using Newtonsoft.Json.Converters;
+	using JsonNetSerializer = Newtonsoft.Json.JsonSerializer;
 
 	public class JsonSerializer : ISerializer
 	{
@@ -13,11 +15,16 @@
 		{
 			if (graph == null)
 				return null;
-			
+
 			try
 			{
-				var serialized = JsonConvert.SerializeObject(graph, Settings);
-				return DefaultEncoding.GetBytes(serialized);
+				using (var stream = new MemoryStream())
+				using (var streamWriter = new StreamWriter(stream, DefaultEncoding))
+				using (var jsonWriter = new JsonTextWriter(streamWriter))
+				{
+					serializer.Serialize(jsonWriter, graph);
+					return stream.ToArray();
+				}
 			}
 			catch (Exception e)
 			{
@@ -32,8 +39,10 @@
 
 			try
 			{
-				var json = DefaultEncoding.GetString(serialized);
-				return JsonConvert.DeserializeObject<T>(json, Settings);
+				using (var stream = new MemoryStream(serialized))
+				using (var streamReader = new StreamReader(stream, DefaultEncoding))
+				using (var jsonReader = new JsonTextReader(streamReader))
+					return this.serializer.Deserialize<T>(jsonReader);
 			}
 			catch (Exception e)
 			{
@@ -51,7 +60,10 @@
 
 			try
 			{
-				return JsonConvert.DeserializeObject(DefaultEncoding.GetString(serialized), type, Settings);
+				using (var stream = new MemoryStream(serialized))
+				using (var streamReader = new StreamReader(stream, DefaultEncoding))
+				using (var jsonReader = new JsonTextReader(streamReader))
+					return this.serializer.Deserialize(jsonReader, type);
 			}
 			catch (Exception e)
 			{
@@ -68,7 +80,8 @@
 		}
 
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
-		private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>(1024);
+		private readonly JsonNetSerializer serializer = new JsonNetSerializer
 		{
 			NullValueHandling = NullValueHandling.Ignore,
 			TypeNameHandling = TypeNameHandling.None,
@@ -80,6 +93,5 @@
 			Converters = { new UnderscoreEnumConverter(), new StringEnumConverter() },
 			ContractResolver = new UnderscoreContractResolver()
 		};
-		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>(1024);
 	}
 }
