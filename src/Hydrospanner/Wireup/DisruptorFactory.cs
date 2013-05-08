@@ -76,7 +76,7 @@
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence);
 
 			var slots = ComputeDisruptorSize(countdown);
-			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), slots);
+			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new BlockingWaitStrategy(), slots);
 			disruptor.HandleEventsWith(serializers.Cast<IEventHandler<TransformationItem>>().ToArray())
 				.Then(transformationHandler)
 				.Then(new CountdownHandler(countdown, complete));
