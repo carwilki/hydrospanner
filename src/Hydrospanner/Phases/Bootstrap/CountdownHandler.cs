@@ -25,6 +25,10 @@
 			if (--this.countdown == 0)
 			{
 				Log.InfoFormat("Successfully replayed {0} messages from journal.", this.items);
+
+				if (this.failed)
+					Log.Error("Some messages could not be replayed.");
+
 				this.callback(!this.failed);
 			}
 		}

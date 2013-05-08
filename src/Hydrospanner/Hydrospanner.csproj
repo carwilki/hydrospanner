@@ -12,7 +12,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -57,6 +57,7 @@
     <Compile Include="Persistence\GraveyardMemento.cs" />
     <Compile Include="Persistence\HydratableGraveyard.cs" />
     <Compile Include="Persistence\NullStore.cs" />
+    <Compile Include="Persistence\SqlPersistence\DbScripts.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlBulkInsertCommandBuilder.cs" />
     <Compile Include="Persistence\SqlPersistence\JournalMessageTypeRegistrar.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlBulkInsertSession.cs" />
@@ -135,7 +136,7 @@
     <Compile Include="Phases\Snapshot\SystemSnapshotLoader.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotRecorder.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotHandler.cs" />
-    <Compile Include="Phases\Transformation\DeserializationHandler.cs" />
+    <Compile Include="Phases\Transformation\SerializationHandler.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="Phases\Journal\JournalItem.cs" />
@@ -168,8 +169,9 @@
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.5.0.4\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.5.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client">
       <HintPath>..\packages\RabbitMQ.Client.3.0.4\lib\net30\RabbitMQ.Client.dll</HintPath>
@@ -187,5 +189,5 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
 </Project>
