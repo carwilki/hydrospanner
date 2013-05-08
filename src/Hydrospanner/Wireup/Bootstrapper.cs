@@ -15,10 +15,12 @@
 			if (this.started)
 				return true;
 
+			this.started = true;
+
 			Log.Info("Loading mementos from latest snapshot.");
 			info = this.snapshots.RestoreSnapshots(this.repository, info);
 			if (info == null)
-				return false;
+				return this.started = false;
 			
 			Log.Info("Starting snapshot disruptor.");
 			this.snapshotDisruptor = this.disruptors.CreateSnapshotDisruptor();
@@ -31,7 +33,7 @@
 			Log.Info("Restoring messages from journal.");
 			var restored = this.messages.Restore(info, this.journalDisruptor, this.repository);
 			if (!restored)
-				return false;
+				return this.started = false;
 
 			Log.Info("Taking snapshots of all public hydratables at sequence {0}".FormatWith(info.JournaledSequence));
 			this.snapshots.SavePublicSnapshots(this.repository, this.snapshotDisruptor.RingBuffer);
