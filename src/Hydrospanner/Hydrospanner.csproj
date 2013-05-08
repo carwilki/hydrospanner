@@ -136,7 +136,7 @@
     <Compile Include="Phases\Snapshot\SystemSnapshotLoader.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotRecorder.cs" />
     <Compile Include="Phases\Snapshot\SystemSnapshotHandler.cs" />
-    <Compile Include="Phases\Transformation\DeserializationHandler1.cs" />
+    <Compile Include="Phases\Transformation\DeserializationHandler.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IHydratable.cs" />
     <Compile Include="Phases\Journal\JournalItem.cs" />
