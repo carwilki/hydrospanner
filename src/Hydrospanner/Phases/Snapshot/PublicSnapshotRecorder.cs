@@ -85,8 +85,8 @@
 		}
 		private static bool BatchCapacityReached(int nextItem, int alreadyBatched, int batchCount)
 		{
-			var payloadCapacityExceeded = nextItem + alreadyBatched > BatchSize;
-			var parameterCapacityExceeded = (batchCount + 1) * ParametersPerStatement >= ParameterLimit;
+			var payloadCapacityExceeded = nextItem + alreadyBatched > MaxBatchSizeInBytes;
+			var parameterCapacityExceeded = (batchCount + 1) * ParametersPerStatement > MaxParametersPerBatch;
 
 			return payloadCapacityExceeded || parameterCapacityExceeded;
 		}
@@ -114,16 +114,16 @@
 			this.settings = settings;
 		}
 		
-		private const int BatchSize = 1024 * 1024 * 64;
-		private const string Upsert = "INSERT INTO documents VALUES (UNHEX(MD5(@i{0})), @i{0}, @s{0}, @h{0}, @d{0}) ON DUPLICATE KEY UPDATE sequence = @s{0}, hash = @h{0}, document = @d{0};";
-		private const int ParameterLimit = 16384;
+		private const int MaxBatchSizeInBytes = 1024 * 1024 * 64;
+		private const int MaxParametersPerBatch = 16384;
 		private const int ParametersPerStatement = 4;
+		private const string Upsert = "INSERT INTO documents VALUES (UNHEX(MD5(@i{0})), @i{0}, @s{0}, @h{0}, @d{0}) ON DUPLICATE KEY UPDATE sequence = @s{0}, hash = @h{0}, document = @d{0};";
 		private static readonly ILog Log = LogManager.GetLogger(typeof(PublicSnapshotRecorder));
 		private static readonly TimeSpan SleepTimeout = TimeSpan.FromSeconds(5);
 		private readonly ConnectionStringSettings settings;
 		private readonly IDictionary<string, SnapshotItem> catalog = new Dictionary<string, SnapshotItem>();
 		private readonly StringBuilder builder = new StringBuilder(1024 * 1024);
-		private readonly List<SnapshotItem> currentBatch = new List<SnapshotItem>(BatchSize); 
+		private readonly List<SnapshotItem> currentBatch = new List<SnapshotItem>(MaxBatchSizeInBytes); 
 		private int saved;
 	}
 }
