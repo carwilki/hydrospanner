@@ -111,7 +111,7 @@
 			this.settings = settings;
 		}
 		
-		private const int BatchSize = 1024 * 64;
+		private const int BatchSize = 1024 * 1024 * 64;
 		private const string Upsert = "INSERT INTO documents VALUES (UNHEX(MD5(@i{0})), @i{0}, @s{0}, @h{0}, @d{0}) ON DUPLICATE KEY UPDATE sequence = @s{0}, hash = @h{0}, document = @d{0};";
 		private const int ParameterLimit = 65000;
 		private const int ParametersPerStatement = 4;
