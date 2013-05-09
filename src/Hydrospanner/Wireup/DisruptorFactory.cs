@@ -19,7 +19,7 @@
 	{
 		public virtual IDisruptor<BootstrapItem> CreateBootstrapDisruptor(IRepository repository, int countdown, Action<bool> complete)
 		{
-			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new YieldingWaitStrategy(), 1024 * 4);
+			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new SleepingWaitStrategy(), 1024 * 4);
 			disruptor
 				.HandleEventsWith(new Phases.Bootstrap.SerializationHandler(CreateSerializer()))
 				.Then(new MementoHandler(repository))
@@ -77,7 +77,7 @@
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence);
 
 			var slots = ComputeDisruptorSize(countdown);
-			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new BlockingWaitStrategy(), slots);
+			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), slots);
 			disruptor.HandleEventsWith(serializers.Cast<IEventHandler<TransformationItem>>().ToArray())
 				.Then(transformationHandler)
 				.Then(new CountdownHandler(countdown, complete));
