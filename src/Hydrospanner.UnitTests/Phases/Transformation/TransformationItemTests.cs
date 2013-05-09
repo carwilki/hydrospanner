@@ -195,7 +195,7 @@ namespace Hydrospanner.Phases.Transformation
 			item.MessageSequence.ShouldEqual(0);
 			item.SerializedBody.ShouldBeNull();
 			item.SerializedHeaders.ShouldBeNull();
-			item.SerializedType.ShouldBeNull();
+			item.SerializedType.ShouldEqual(body.ResolvableTypeName());
 		};
 
 		static TransformationItem item;
