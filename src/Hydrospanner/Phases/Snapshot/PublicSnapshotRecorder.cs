@@ -53,12 +53,15 @@
 
 				transaction.Commit();
 			}
+
+			Log.DebugFormat("Inserted {0} items successfully", this.saved);
 		}
 		private void RecordBatch(IDbCommand command, IList<string> keys)
 		{
 			this.currentBatch.Clear();
 			this.AppendKeysToNextBatch(keys);
 			this.IncludeNextBatch(command);
+			Log.DebugFormat("Inserting batch of {0} public snapshot items.", this.currentBatch.Count);
 			command.ExecuteNonQuery();
 			this.saved += this.currentBatch.Count;
 		}
@@ -113,7 +116,7 @@
 		
 		private const int BatchSize = 1024 * 1024 * 64;
 		private const string Upsert = "INSERT INTO documents VALUES (UNHEX(MD5(@i{0})), @i{0}, @s{0}, @h{0}, @d{0}) ON DUPLICATE KEY UPDATE sequence = @s{0}, hash = @h{0}, document = @d{0};";
-		private const int ParameterLimit = 65000;
+		private const int ParameterLimit = 16384;
 		private const int ParametersPerStatement = 4;
 		private static readonly ILog Log = LogManager.GetLogger(typeof(PublicSnapshotRecorder));
 		private static readonly TimeSpan SleepTimeout = TimeSpan.FromSeconds(5);
