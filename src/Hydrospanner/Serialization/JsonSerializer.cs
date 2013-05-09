@@ -68,6 +68,8 @@
 		}
 
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
+		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>(1024);
+
 		// Don't use static for this--it's not thread safe because contract resolver is stateful
 		private readonly JsonSerializerSettings settings = new JsonSerializerSettings
 		{
@@ -81,6 +83,5 @@
 			Converters = { new UnderscoreEnumConverter(), new StringEnumConverter() },
 			ContractResolver = new UnderscoreContractResolver()
 		};
-		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>(1024);
 	}
 }
