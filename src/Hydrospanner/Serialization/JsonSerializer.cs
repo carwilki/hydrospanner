@@ -67,6 +67,13 @@
 			return type;
 		}
 
+		public JsonSerializer(IDictionary<string, Type> types = null)
+		{
+			if (types != null)
+				foreach (var item in types)
+					this.types.Add(item.Key, item.Value);
+		}
+
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
 		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>(1024);
 

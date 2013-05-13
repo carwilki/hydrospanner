@@ -21,7 +21,7 @@
 		{
 			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new SleepingWaitStrategy(), 1024 * 4);
 			disruptor
-				.HandleEventsWith(new Phases.Bootstrap.SerializationHandler(CreateSerializer()))
+				.HandleEventsWith(new Phases.Bootstrap.SerializationHandler(this.CreateInboundSerializer()))
 				.Then(new MementoHandler(repository))
 				.Then(new CountdownHandler(countdown, complete));
 
@@ -35,7 +35,7 @@
 			var checkpointStore = this.persistence.CreateDispatchCheckpointStore();
 
 			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 256);
-			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(new JsonSerializer()))
+			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(CreateOutboundSerializer()))
 			    .Then(new JournalHandler(messageStore))
 			    .Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
 			    .Then(new DispatchCheckpointHandler(checkpointStore));
@@ -49,7 +49,7 @@
 			var publicRecorder = this.snapshots.CreatePublicSnapshotRecorder();
 
 			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 128);
-			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(CreateSerializer()))
+			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(this.CreateInboundSerializer()))
 			    .Then(new SystemSnapshotHandler(systemRecorder), new PublicSnapshotHandler(publicRecorder));
 
 			this.snapshotRing = new RingBufferBase<SnapshotItem>(disruptor.RingBuffer);
@@ -73,7 +73,7 @@
 			var replayTransientTypes = new HashSet<Type>();
 			var serializers = new SerializationHandler[serializerCount];
 			for (var i = 0; i < serializerCount; i++)
-				serializers[i] = new SerializationHandler(CreateSerializer(), replayTransientTypes, serializerCount, i);
+				serializers[i] = new SerializationHandler(this.CreateInboundSerializer(), replayTransientTypes, serializerCount, i);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence);
 
 			var slots = ComputeDisruptorSize(countdown);
@@ -111,7 +111,7 @@
 		}
 		public virtual IDisruptor<TransformationItem> CreateTransformationDisruptor(IRepository repository, BootstrapInfo info)
 		{
-			var serializationHandler = new SerializationHandler(CreateSerializer(), this.transientTypes);
+			var serializationHandler = new SerializationHandler(this.CreateInboundSerializer(), this.transientTypes);
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker);
 			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
@@ -119,7 +119,11 @@
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
 
-		private static ISerializer CreateSerializer()
+		private ISerializer CreateInboundSerializer()
+		{
+			return new JsonSerializer(this.registeredTypes);
+		}
+		private static ISerializer CreateOutboundSerializer()
 		{
 			return new JsonSerializer();
 		}
@@ -132,7 +136,13 @@
 			return new Disruptor<T>(() => new T(), new MultiThreadedLowContentionClaimStrategy(size), wait, TaskScheduler.Default);
 		}
 
-		public DisruptorFactory(MessagingFactory messaging, PersistenceFactory persistence, SnapshotFactory snapshots, int snapshotFrequency, IEnumerable<Type> transientTypes)
+		public DisruptorFactory(
+			MessagingFactory messaging,
+			PersistenceFactory persistence,
+			SnapshotFactory snapshots,
+			int snapshotFrequency,
+			IDictionary<string, Type> registeredTypes,
+			IEnumerable<Type> transientTypes)
 		{
 			if (messaging == null)
 				throw new ArgumentNullException("messaging");
@@ -145,6 +155,9 @@
 
 			if (snapshotFrequency <= 0)
 				throw new ArgumentOutOfRangeException("snapshotFrequency");
+
+			if (registeredTypes == null)
+				throw new ArgumentNullException("registeredTypes");
 			
 			if (transientTypes == null)
 				throw new ArgumentNullException("transientTypes");
@@ -153,6 +166,7 @@
 			this.snapshots = snapshots;
 			this.persistence = persistence;
 			this.snapshotFrequency = snapshotFrequency;
+			this.registeredTypes = registeredTypes;
 			this.transientTypes = new HashSet<Type>(transientTypes);
 		}
 		protected DisruptorFactory()
@@ -163,6 +177,7 @@
 		private readonly MessagingFactory messaging;
 		private readonly PersistenceFactory persistence;
 		private readonly int snapshotFrequency;
+		private readonly IDictionary<string, Type> registeredTypes;
 		private readonly HashSet<Type> transientTypes;
 		private IRingBuffer<JournalItem> journalRing;
 		private IRingBuffer<SnapshotItem> snapshotRing;
