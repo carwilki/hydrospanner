@@ -13,10 +13,10 @@
 		{
 			return Initialize(null, null, assembliesToSan);
 		}
-		public static Wireup Initialize(IDictionary<string, Type> registeredTypes, IEnumerable<Type> transientTypes, params Assembly[] assembliesToScan)
+		public static Wireup Initialize(IDictionary<string, Type> aliasTypes, IEnumerable<Type> transientTypes, params Assembly[] assembliesToScan)
 		{
 			var configuration = new ConventionWireupParameters();
-			registeredTypes = registeredTypes ?? new Dictionary<string, Type>();
+			aliasTypes = aliasTypes ?? new Dictionary<string, Type>();
 			transientTypes = transientTypes ?? new Type[0];
 			assembliesToScan = assembliesToScan ?? new Assembly[0];
 
@@ -24,7 +24,7 @@
 			if (scan.Count == 0)
 				scan.Add(Assembly.GetCallingAssembly());
 
-			return new Wireup(configuration, registeredTypes, transientTypes, scan);
+			return new Wireup(configuration, aliasTypes, transientTypes, scan);
 		}
 
 		public void Execute()
@@ -35,7 +35,7 @@
 			Log.Fatal("Unable to start the hydrospanner, one or more serialization errors occurred during the bootstrap process.");
 		}
 
-		private Wireup(ConventionWireupParameters conventionWireup, IDictionary<string, Type> registeredTypes, IEnumerable<Type> transientTypes, IEnumerable<Assembly> assemblies)
+		private Wireup(ConventionWireupParameters conventionWireup, IDictionary<string, Type> aliasTypes, IEnumerable<Type> transientTypes, IEnumerable<Assembly> assemblies)
 		{
 			Log.Info("Preparing to bootstrap the system.");
 			var repository = new DefaultRepository(new ConventionRoutingTable(assemblies));
@@ -51,7 +51,7 @@
 
 			Log.Info("Loading bootstrap parameters.");
 			var messageStore = persistenceFactory.CreateMessageStore(this.info.SerializedTypes);
-			var disruptorFactory = new DisruptorFactory(messagingFactory, persistenceFactory, snapshotFactory, conventionWireup.SystemSnapshotFrequency, registeredTypes, transientTypes);
+			var disruptorFactory = new DisruptorFactory(messagingFactory, persistenceFactory, snapshotFactory, conventionWireup.SystemSnapshotFrequency, aliasTypes, transientTypes);
 			var snapshotBootstrapper = new SnapshotBootstrapper(snapshotFactory, disruptorFactory);
 			var messageBootstrapper = new MessageBootstrapper(messageStore, disruptorFactory);
 

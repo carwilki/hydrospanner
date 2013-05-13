@@ -67,10 +67,10 @@
 			return type;
 		}
 
-		public JsonSerializer(IDictionary<string, Type> types = null)
+		public JsonSerializer(IEnumerable<KeyValuePair<string, Type>> aliases = null)
 		{
-			if (types != null)
-				foreach (var item in types)
+			if (aliases != null)
+				foreach (var item in aliases)
 					this.types.Add(item.Key, item.Value);
 		}
 

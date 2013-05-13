@@ -121,7 +121,7 @@
 
 		private ISerializer CreateInboundSerializer()
 		{
-			return new JsonSerializer(this.registeredTypes);
+			return new JsonSerializer(this.aliasTypes);
 		}
 		private static ISerializer CreateOutboundSerializer()
 		{
@@ -141,7 +141,7 @@
 			PersistenceFactory persistence,
 			SnapshotFactory snapshots,
 			int snapshotFrequency,
-			IDictionary<string, Type> registeredTypes,
+			IDictionary<string, Type> aliasTypes,
 			IEnumerable<Type> transientTypes)
 		{
 			if (messaging == null)
@@ -156,8 +156,8 @@
 			if (snapshotFrequency <= 0)
 				throw new ArgumentOutOfRangeException("snapshotFrequency");
 
-			if (registeredTypes == null)
-				throw new ArgumentNullException("registeredTypes");
+			if (aliasTypes == null)
+				throw new ArgumentNullException("aliasTypes");
 			
 			if (transientTypes == null)
 				throw new ArgumentNullException("transientTypes");
@@ -166,7 +166,7 @@
 			this.snapshots = snapshots;
 			this.persistence = persistence;
 			this.snapshotFrequency = snapshotFrequency;
-			this.registeredTypes = registeredTypes;
+			this.aliasTypes = aliasTypes;
 			this.transientTypes = new HashSet<Type>(transientTypes);
 		}
 		protected DisruptorFactory()
@@ -177,7 +177,7 @@
 		private readonly MessagingFactory messaging;
 		private readonly PersistenceFactory persistence;
 		private readonly int snapshotFrequency;
-		private readonly IDictionary<string, Type> registeredTypes;
+		private readonly IDictionary<string, Type> aliasTypes;
 		private readonly HashSet<Type> transientTypes;
 		private IRingBuffer<JournalItem> journalRing;
 		private IRingBuffer<SnapshotItem> snapshotRing;
