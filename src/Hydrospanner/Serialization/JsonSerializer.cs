@@ -2,12 +2,10 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.IO;
 	using System.Runtime.Serialization;
 	using System.Text;
 	using Newtonsoft.Json;
 	using Newtonsoft.Json.Converters;
-	using JsonNetSerializer = Newtonsoft.Json.JsonSerializer;
 
 	public class JsonSerializer : ISerializer
 	{
@@ -15,17 +13,11 @@
 		{
 			if (graph == null)
 				return null;
-
+			
 			try
 			{
-				using (var stream = new MemoryStream())
-				using (var streamWriter = new StreamWriter(stream, DefaultEncoding))
-				using (var jsonWriter = new JsonTextWriter(streamWriter))
-				{
-					this.serializer.Serialize(jsonWriter, graph);
-					jsonWriter.Flush();
-					return stream.ToArray();
-				}
+				var serialized = JsonConvert.SerializeObject(graph, this.settings);
+				return DefaultEncoding.GetBytes(serialized);
 			}
 			catch (Exception e)
 			{
@@ -40,10 +32,8 @@
 
 			try
 			{
-				using (var stream = new MemoryStream(serialized))
-				using (var streamReader = new StreamReader(stream, DefaultEncoding))
-				using (var jsonReader = new JsonTextReader(streamReader))
-					return this.serializer.Deserialize<T>(jsonReader);
+				var json = DefaultEncoding.GetString(serialized);
+				return JsonConvert.DeserializeObject<T>(json, this.settings);
 			}
 			catch (Exception e)
 			{
@@ -61,10 +51,7 @@
 
 			try
 			{
-				using (var stream = new MemoryStream(serialized))
-				using (var streamReader = new StreamReader(stream, DefaultEncoding))
-				using (var jsonReader = new JsonTextReader(streamReader))
-					return this.serializer.Deserialize(jsonReader, type);
+				return JsonConvert.DeserializeObject(DefaultEncoding.GetString(serialized), type, this.settings);
 			}
 			catch (Exception e)
 			{
@@ -82,7 +69,9 @@
 
 		private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
 		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>(1024);
-		private readonly JsonNetSerializer serializer = new JsonNetSerializer
+
+		// Don't use static for this--it's not thread safe because contract resolver is stateful
+		private readonly JsonSerializerSettings settings = new JsonSerializerSettings
 		{
 			NullValueHandling = NullValueHandling.Ignore,
 			TypeNameHandling = TypeNameHandling.None,

@@ -121,7 +121,7 @@ namespace Hydrospanner.IntegrationTests
 	}
 
 	[Subject(typeof(PublicSnapshotRecorder))]
-	public class when_an_error_happen : TestDatabase
+	public class when_an_error_happens : TestDatabase
 	{
 		Establish context = () =>
 		{

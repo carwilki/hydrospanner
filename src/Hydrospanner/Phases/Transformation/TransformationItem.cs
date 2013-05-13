@@ -56,6 +56,7 @@
 			this.Clear();
 			this.Body = body;
 			this.IsTransient = true;
+			this.SerializedType = body.ResolvableTypeName();
 		}
 		private void Clear()
 		{

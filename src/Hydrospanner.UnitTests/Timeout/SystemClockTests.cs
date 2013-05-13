@@ -25,10 +25,12 @@ namespace Hydrospanner.Timeout
 			It should_pass_the_callback_to_the_timing_mechanism_for_regular_invocation = () =>
 			{
 				callback.Invoke(null);
+				var message = new CurrentTimeMessage(Now);
 				harness.AllItems.Single().ShouldBeLike(new TransformationItem
 				{
-					Body = new CurrentTimeMessage(Now),
-					IsTransient = true
+					Body = message,
+					IsTransient = true,
+					SerializedType = message.ResolvableTypeName()
 				});
 			};
 		}
