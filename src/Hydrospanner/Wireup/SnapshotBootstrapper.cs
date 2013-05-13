@@ -74,7 +74,7 @@
 				ringBuffer.Publish(claimed);
 			}
 
-			Log.InfoFormat("{0} public hydratables snapshots taken.", count));
+			Log.InfoFormat("{0} public hydratables snapshots taken.", count);
 			hydratables.TryClear();
 		}
 
