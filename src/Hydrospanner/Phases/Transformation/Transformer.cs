@@ -26,7 +26,7 @@
 				this.AddMessages(hydratable);
 			else if (hydratable.PendingMessages.Count > 0)
 			{
-				Log.Warn("Hydratable at '{0}' has {1} pending messages during replay, but shouldn't.".FormatWith(hydratable.Key, hydratable.PendingMessages.Count));
+				Log.WarnFormat("Hydratable at '{0}' has {1} pending messages during replay, but shouldn't.", hydratable.Key, hydratable.PendingMessages.Count);
 				hydratable.PendingMessages.TryClear();
 			}
 				
