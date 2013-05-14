@@ -42,6 +42,7 @@
 		{
 			Log.DebugFormat("Replaying hydratables that subscribe to type {0}.", this.item.SerializedType);
 			this.deliveryHandler.Deliver(this.item, false);
+			this.snapshot.Track(this.item.MessageSequence);
 		}
 		private void Deliver()
 		{
