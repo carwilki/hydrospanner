@@ -93,7 +93,7 @@
 			{
 				var next = ringBuffer.Next();
 				var claimed = ringBuffer[next];
-				claimed.AsPartOfSystemSnapshot(info.JournaledSequence, --remaining, hydratable.Memento, hydratable.MementoType);
+				claimed.AsPartOfSystemSnapshot(info.JournaledSequence, --remaining, hydratable.Key, hydratable.Memento, hydratable.MementoType);
 				ringBuffer.Publish(next);
 			}
 		}

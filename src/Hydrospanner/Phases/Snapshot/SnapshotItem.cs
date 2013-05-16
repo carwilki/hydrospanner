@@ -27,9 +27,10 @@
 			var type = this.Memento == null ? mementoType : this.Memento.GetType();
 			this.MementoType = type.ResolvableTypeName();
 		}
-		public void AsPartOfSystemSnapshot(long sequence, int remaining, object memento, Type mementoType)
+		public void AsPartOfSystemSnapshot(long sequence, int remaining, string key, object memento, Type mementoType)
 		{
 			this.Clear();
+			this.Key = key; // TODO: test
 			this.Memento = Clone(memento);
 			this.CurrentSequence = sequence;
 			this.MementosRemaining = remaining;

@@ -164,10 +164,10 @@ namespace Hydrospanner.Phases.Snapshot
 			first = new SnapshotItem();
 			middle = new SnapshotItem();
 			last = new SnapshotItem();
-			
-			first.AsPartOfSystemSnapshot(Sequence, 2, "first", typeof(string));
-			middle.AsPartOfSystemSnapshot(Sequence, 1, "middle", typeof(string));
-			last.AsPartOfSystemSnapshot(Sequence, 0, "last", typeof(string));
+
+			first.AsPartOfSystemSnapshot(Sequence, 2, "key", "first", typeof(string));
+			middle.AsPartOfSystemSnapshot(Sequence, 1, "key", "middle", typeof(string));
+			last.AsPartOfSystemSnapshot(Sequence, 0, "key", "last", typeof(string));
 
 			first.Serialize(serializer);
 			middle.Serialize(serializer);

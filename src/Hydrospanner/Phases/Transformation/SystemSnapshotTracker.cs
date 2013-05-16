@@ -24,7 +24,7 @@
 			{
 				var next = this.snapshotRing.Next();
 				var claimed = this.snapshotRing[next];
-				claimed.AsPartOfSystemSnapshot(sequence, --remaining, hydratable.Memento, hydratable.MementoType);
+				claimed.AsPartOfSystemSnapshot(sequence, --remaining, hydratable.Key, hydratable.Memento, hydratable.MementoType);
 				this.snapshotRing.Publish(next);
 			}
 		}

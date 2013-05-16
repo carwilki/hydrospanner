@@ -64,6 +64,7 @@ namespace Hydrospanner.Phases.Transformation
 				{ 
 					new SnapshotItem
 					{
+						Key = "key0",
 						CurrentSequence = 100,
 						Memento = 1,
 						MementoType = typeof(int).ResolvableTypeName(),
@@ -71,6 +72,7 @@ namespace Hydrospanner.Phases.Transformation
 					},
 					new SnapshotItem
 					{
+						Key = "key1",
 						CurrentSequence = 100,
 						Memento = 2,
 						MementoType = typeof(int).ResolvableTypeName(),
@@ -92,6 +94,7 @@ namespace Hydrospanner.Phases.Transformation
 				{ 
 					new SnapshotItem
 					{
+						Key = "key0",
 						CurrentSequence = 101,
 						Memento = 1,
 						MementoType = typeof(int).ResolvableTypeName(),
@@ -99,6 +102,7 @@ namespace Hydrospanner.Phases.Transformation
 					},
 					new SnapshotItem
 					{
+						Key = "key1",
 						CurrentSequence = 101,
 						Memento = 2,
 						MementoType = typeof(int).ResolvableTypeName(),
@@ -135,6 +139,7 @@ namespace Hydrospanner.Phases.Transformation
 				{ 
 					new SnapshotItem
 					{
+						Key = "key0",
 						CurrentSequence = 101,
 						Memento = 1,
 						MementoType = typeof(int).ResolvableTypeName(),
@@ -142,6 +147,7 @@ namespace Hydrospanner.Phases.Transformation
 					},
 					new SnapshotItem
 					{
+						Key = "key1",
 						CurrentSequence = 101,
 						Memento = 2,
 						MementoType = typeof(int).ResolvableTypeName(),
@@ -170,6 +176,7 @@ namespace Hydrospanner.Phases.Transformation
 					// First snapshot @ 200
 					new SnapshotItem
 					{
+						Key = "key0",
 						CurrentSequence = 200,
 						Memento = 1,
 						MementoType = typeof(int).ResolvableTypeName(),
@@ -177,6 +184,7 @@ namespace Hydrospanner.Phases.Transformation
 					},
 					new SnapshotItem
 					{
+						Key = "key1",
 						CurrentSequence = 200,
 						Memento = 2,
 						MementoType = typeof(int).ResolvableTypeName(),
@@ -186,6 +194,7 @@ namespace Hydrospanner.Phases.Transformation
 					// Second snapshot @ 300
 					new SnapshotItem
 					{
+						Key = "key0",
 						CurrentSequence = 300,
 						Memento = 1,
 						MementoType = typeof(int).ResolvableTypeName(),
@@ -193,6 +202,7 @@ namespace Hydrospanner.Phases.Transformation
 					},
 					new SnapshotItem
 					{
+						Key = "key1",
 						CurrentSequence = 300,
 						Memento = 2,
 						MementoType = typeof(int).ResolvableTypeName(),
@@ -208,9 +218,12 @@ namespace Hydrospanner.Phases.Transformation
 
 			var hydro1 = Substitute.For<IHydratable>();
 			hydro1.Memento.Returns(1);
+			hydro1.Key.Returns("key0");
 
 			var hydro2 = Substitute.For<IHydratable>();
 			hydro2.Memento.Returns(2);
+			hydro2.Key.Returns("key1");
+
 			var list = new List<IHydratable>(new[] { hydro1, hydro2 });
 
 			repository.Items.Returns(list);

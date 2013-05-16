@@ -40,20 +40,21 @@ namespace Hydrospanner.Phases.Snapshot
 			item = new SnapshotItem();
 
 		Because of = () =>
-			item.AsPartOfSystemSnapshot(1, 2, "value", typeof(string));
+			item.AsPartOfSystemSnapshot(1, 2, "key", "value", typeof(string));
 
 		It should_set_the_following_properties_according_to_the_given_arguments = () =>
 		{
+			item.Key.ShouldEqual("key");
 			item.CurrentSequence.ShouldEqual(1);
 			item.MementosRemaining.ShouldEqual(2);
 			item.Memento.ShouldEqual("value");
+			item.MementoType.ShouldEqual(typeof(string).ResolvableTypeName());
 		};
 
 		It should_set_the_following_properties_to_their_default_values = () =>
 		{
 			item.IsPublicSnapshot.ShouldBeFalse();
 			item.Serialized.ShouldBeNull();
-			item.Key.ShouldBeNull();
 		};
 
 		static SnapshotItem item;
@@ -65,7 +66,7 @@ namespace Hydrospanner.Phases.Snapshot
 			item = new SnapshotItem();
 
 		Because of = () =>
-			item.AsPartOfSystemSnapshot(42, 0, new Cloner(), typeof(string));
+			item.AsPartOfSystemSnapshot(42, 0, "key", new Cloner(), typeof(string));
 
 		It should_clone_the_memento = () =>
 			item.Memento.ShouldEqual("cloned");
@@ -96,7 +97,7 @@ namespace Hydrospanner.Phases.Snapshot
 			item = new SnapshotItem();
 
 		Because of = () =>
-			item.AsPartOfSystemSnapshot(0, 0, new Cloner(), typeof(int));
+			item.AsPartOfSystemSnapshot(0, 0, "key", new Cloner(), typeof(int));
 
 		It should_clone_the_memento = () =>
 			item.Memento.ShouldEqual("cloned");

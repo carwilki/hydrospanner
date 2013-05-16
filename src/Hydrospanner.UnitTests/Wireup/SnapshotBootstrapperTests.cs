@@ -304,7 +304,7 @@ namespace Hydrospanner.Wireup
 					{
 						CurrentSequence = Info.JournaledSequence,
 						IsPublicSnapshot = false,
-						Key = null,
+						Key = "key0",
 						Memento = 0,
 						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 1,
@@ -314,7 +314,7 @@ namespace Hydrospanner.Wireup
 					{
 						CurrentSequence = Info.JournaledSequence,
 						IsPublicSnapshot = false,
-						Key = null,
+						Key = "key1",
 						Memento = 1,
 						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 0,
