@@ -52,11 +52,13 @@
 
 			var systemHandler = new SystemSnapshotHandler(systemRecorder);
 			var publicHandler = new PublicSnapshotHandler(publicRecorder);
-			var dispatchHandler = new PublicSnapshotDispatchHandler(this.messaging.CreateNewMessageSender());
+
+			// FUTURE: this enables publishing the projections on the wire.
+			// var dispatchHandler = new PublicSnapshotDispatchHandler(this.messaging.CreateNewMessageSender());
 
 			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 128);
 			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(this.CreateInboundSerializer()))
-				.Then(systemHandler, publicHandler, dispatchHandler)
+				.Then(systemHandler, publicHandler)
 				.Then(new ClearItemHandler());
 
 			this.snapshotRing = new RingBufferBase<SnapshotItem>(disruptor.RingBuffer);
