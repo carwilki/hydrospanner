@@ -15,7 +15,7 @@ namespace Hydrospanner.IntegrationTests
 		Establish context = () =>
 		{
 			item = new SnapshotItem();
-			item.AsPublicSnapshot("key", "value", 1);
+			item.AsPublicSnapshot("key", "value", typeof(string), 1);
 			item.Serialize(new JsonSerializer());
 			recorder = new PublicSnapshotRecorder(settings);
 		};
@@ -78,7 +78,7 @@ namespace Hydrospanner.IntegrationTests
 		static SnapshotItem Generate(string key, string value, long sequence)
 		{
 			var item = new SnapshotItem();
-			item.AsPublicSnapshot(key, value, sequence);
+			item.AsPublicSnapshot(key, value, typeof(string), sequence);
 			item.Serialize(serializer);
 			return item;
 		}
@@ -129,7 +129,7 @@ namespace Hydrospanner.IntegrationTests
 			recorder = new PublicSnapshotRecorder(settings);
 
 			snapshotItem = new SnapshotItem();
-			snapshotItem.AsPublicSnapshot("key", "memento", 42);
+			snapshotItem.AsPublicSnapshot("key", "memento", typeof(string), 42);
 			snapshotItem.Serialize(new JsonSerializer());
 
 			ThreadExtensions.Freeze(x =>

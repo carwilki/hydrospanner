@@ -79,16 +79,16 @@ namespace Hydrospanner.Messaging.Rabbit
 				connector.Received(1).Dispose();
 		}
 
-		public class when_sending_a_null_message
+		public class when_sending_a_null_journal_message
 		{
 			Because of = () =>
-				Try(() => channel.Send(null));
+				Try(() => channel.Send((JournalItem)null));
 
 			It should_throw_an_exception = () =>
 				thrown.ShouldBeOfType<ArgumentNullException>();
 		}
 
-		public class when_sending_a_message_that_should_NOT_be_dispatched
+		public class when_sending_a_journal_message_that_should_NOT_be_dispatched
 		{
 			Because of = () =>
 				result = channel.Send(new JournalItem());
@@ -100,7 +100,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				result.ShouldBeTrue();
 		}
 
-		public class when_attempting_to_send_a_message_without_a_payload
+		public class when_attempting_to_send_a_journal_message_without_a_payload
 		{
 			Because of = () =>
 				result = channel.Send(NoPayload);
@@ -117,7 +117,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			};
 		}
 
-		public class when_attempting_to_send_a_message_with_an_unknown_type
+		public class when_attempting_to_send_a_journal_message_with_an_unknown_type
 		{
 			Because of = () =>
 				result = channel.Send(NoMessageType);
@@ -136,7 +136,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			};
 		}
 
-		public class when_sending_a_message
+		public class when_sending_a_journal_message
 		{
 			Establish context = () =>
 				messageToSend.Headers["test-header"] = "test-value";
@@ -185,7 +185,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				result.ShouldBeTrue();
 		}
 
-		public class when_sending_additional_messages
+		public class when_sending_additional_journal_messages
 		{
 			Establish context = () =>
 			{
@@ -262,7 +262,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				thrown.ShouldBeNull();
 		}
 
-		public class when_sending_a_message_with_null_headers
+		public class when_sending_a_journal_message_with_null_headers
 		{
 			Establish context = () =>
 				messageToSend.Headers = null;
@@ -274,7 +274,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				properties.Headers.ShouldBeEmpty();
 		}
 
-		public class when_sending_a_message_throws_an_exception
+		public class when_sending_a_journal_message_throws_an_exception
 		{
 			Establish context = () =>
 			{
@@ -300,7 +300,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				result.ShouldBeFalse();
 		}
 
-		public class when_sending_a_message_where_the_exchange_does_not_exist
+		public class when_sending_a_journal_message_where_the_exchange_does_not_exist
 		{
 			Establish context = () =>
 			{
@@ -338,7 +338,7 @@ namespace Hydrospanner.Messaging.Rabbit
 			static TimeSpan slept;
 		}
 
-		public class when_sending_a_message_after_a_previously_failed_attempt
+		public class when_sending_a_journal_message_after_a_previously_failed_attempt
 		{
 			Establish context = () =>
 			{
@@ -359,7 +359,7 @@ namespace Hydrospanner.Messaging.Rabbit
 				result.ShouldBeTrue();
 		}
 
-		public class when_disposing_after_sending_a_message
+		public class when_disposing_after_sending_a_journal_message
 		{
 			Establish context = () =>
 			{

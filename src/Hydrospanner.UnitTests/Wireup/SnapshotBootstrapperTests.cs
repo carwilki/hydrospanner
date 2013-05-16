@@ -256,6 +256,7 @@ namespace Hydrospanner.Wireup
 						IsPublicSnapshot = true,
 						Key = "key0",
 						Memento = 0,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 0,
 						Serialized = null
 					},
@@ -265,6 +266,7 @@ namespace Hydrospanner.Wireup
 						IsPublicSnapshot = true,
 						Key = "key2",
 						Memento = 2,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 0,
 						Serialized = null
 					}
@@ -286,7 +288,6 @@ namespace Hydrospanner.Wireup
 					var hydro = Substitute.For<IHydratable>();
 					hydro.Key.Returns("key" + i);
 					hydro.Memento.Returns(i);
-					hydro.IsPublicSnapshot.Returns(false);
 					hydros.Add(hydro);
 				}
 				repository.Items.Returns(hydros);

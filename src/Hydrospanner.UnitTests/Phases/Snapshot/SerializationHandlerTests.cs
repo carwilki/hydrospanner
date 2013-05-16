@@ -14,11 +14,11 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			handler = new SerializationHandler(new JsonSerializer());
 			item = new SnapshotItem();
-			memento = new Memento()
+			memento = new Memento
 			{
 				First = "1"
 			};
-			item.AsPublicSnapshot("Key", memento, 42);
+			item.AsPublicSnapshot("Key", memento, memento.GetType(), 42);
 		};
 
 		Because of = () =>
@@ -32,6 +32,9 @@ namespace Hydrospanner.Phases.Snapshot
 
 			json.ShouldEqual("{\"First\":\"1\"}");
 		};
+
+		It should_compute_the_hash_of_the_memento = () =>
+			item.ComputedHash.ShouldBeGreaterThan(0);
 
 		static Memento memento;
 		static SerializationHandler handler;

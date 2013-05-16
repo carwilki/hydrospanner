@@ -12,6 +12,14 @@
 		{
 			return ((sequence << 16) + nodeId).ToString(CultureInfo.InvariantCulture);
 		}
+		public static string ToMessageId(this long sequence, short nodeId, uint hash)
+		{
+			sequence = sequence << 32;
+			sequence += nodeId;
+			sequence = sequence << 16;
+			sequence += hash;
+			return sequence.ToString(CultureInfo.InvariantCulture);
+		}
 		public static Guid ToMessageId(this string value)
 		{
 			if (string.IsNullOrWhiteSpace(value))

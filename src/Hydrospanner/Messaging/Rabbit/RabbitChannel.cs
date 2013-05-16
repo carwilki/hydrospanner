@@ -1,15 +1,73 @@
 ﻿namespace Hydrospanner.Messaging.Rabbit
 {
 	using System;
+	using System.Collections;
 	using System.Globalization;
 	using log4net;
 	using Phases.Journal;
+	using Phases.Snapshot;
 	using RabbitMQ.Client;
 	using RabbitMQ.Client.Events;
 	using RabbitMQ.Client.Exceptions;
 
 	public class RabbitChannel : IMessageSender, IMessageReceiver
 	{
+		public bool Send(SnapshotItem message)
+		{
+			// TODO: get this under test
+			if (message == null)
+				throw new ArgumentNullException();
+
+			if (this.disposed)
+				return false;
+
+			var currentChannel = this.OpenChannel(false);
+			if (currentChannel == null)
+				return false;
+
+			return this.Send(message, currentChannel);
+		}
+		private bool Send(SnapshotItem message, IModel currentChannel)
+		{
+			// FUTURE: ContentType and ContentEncoding will be dynamic based upon serialization, e.g. +json, +msgpack, +pb, etc.
+			var meta = currentChannel.CreateBasicProperties();
+			meta.AppId = this.normalizedNodeId;
+			meta.DeliveryMode = Persistent;
+			meta.Type = message.MementoType;
+			meta.Timestamp = new AmqpTimestamp(SystemTime.EpochUtcNow);
+			meta.MessageId = message.CurrentSequence.ToMessageId(this.nodeId, message.ComputedHash);
+			meta.ContentType = ContentType;
+			meta.ContentEncoding = ContentEncoding;
+			meta.Headers = new Hashtable
+			{
+				{ "x-meta-key", message.Key },
+				{ "x-meta-sequence", message.CurrentSequence.ToString(CultureInfo.InvariantCulture) },
+				{ "x-meta-hash", message.ComputedHash.ToString(CultureInfo.InvariantCulture) }
+			};
+
+			try
+			{
+				currentChannel.BasicPublish(message.MementoType.NormalizeType(), string.Empty, meta, message.Serialized);
+			}
+			catch (AlreadyClosedException e)
+			{
+				var reason = e.ShutdownReason;
+				if (reason != null && reason.Initiator == ShutdownInitiator.Peer && reason.ReplyCode == ExchangeNotFound)
+					Log.Fatal("Exchange '{0}' does not exist.".FormatWith(message.MementoType.NormalizeType()), e); // CONFIG: use throttling to log4net xml config
+
+				Wait.Sleep();
+				this.Close();
+				return false;
+			}
+			catch
+			{
+				this.Close();
+				return false;
+			}
+
+			return true;
+		}
+
 		public bool Send(JournalItem message)
 		{
 			if (message == null)
@@ -60,7 +118,7 @@
 			catch (AlreadyClosedException e)
 			{
 				var reason = e.ShutdownReason;
-				if (reason != null && reason.Initiator == ShutdownInitiator.Peer && reason.ReplyCode == 404)
+				if (reason != null && reason.Initiator == ShutdownInitiator.Peer && reason.ReplyCode == ExchangeNotFound)
 					Log.Fatal("Exchange '{0}' does not exist.".FormatWith(exchange), e); // CONFIG: use throttling to log4net xml config
 
 				Wait.Sleep();
@@ -89,8 +147,9 @@
 				currentChannel.TxCommit();
 				return true;
 			}
-			catch
+			catch (Exception e)
 			{
+				Log.Warn("Unable to commit messaging transaction.", e);
 				this.Close();
 				return false;
 			}
@@ -252,6 +311,7 @@
 		}
 
 		private const byte Persistent = 2;
+		private const int ExchangeNotFound = 404;
 		private const string ContentType = "application/vnd.hydrospanner-msg+json";
 		private const string ContentEncoding = "utf8";
 		private const bool AcknowledgeSingle = false; // false = single ack

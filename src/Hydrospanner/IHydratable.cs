@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner
 {
+	using System;
 	using System.Collections.Generic;
 
 	public interface IHydratable
@@ -8,6 +9,7 @@
 		bool IsComplete { get; }
 		bool IsPublicSnapshot { get; }
 		object Memento { get; }
+		Type MementoType { get; }
 		ICollection<object> PendingMessages { get; }
 	}
 

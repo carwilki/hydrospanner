@@ -8,7 +8,7 @@
 
 	public class MessagingFactory
 	{
-		public virtual IMessageSender CreateJournalMessageSender()
+		public virtual IMessageSender CreateNewMessageSender()
 		{
 			return new RabbitChannel(this.connector, this.nodeId);
 		}

@@ -75,7 +75,7 @@
 				count++;
 				var claimed = ringBuffer.Next();
 				var item = ringBuffer[claimed];
-				item.AsPublicSnapshot(hydratable.Key, hydratable.Memento, pair.Value);
+				item.AsPublicSnapshot(hydratable.Key, hydratable.Memento, hydratable.MementoType, pair.Value);
 				ringBuffer.Publish(claimed);
 			}
 

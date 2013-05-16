@@ -30,6 +30,10 @@
 		{
 			get { return this.aggregate.Clone(); }
 		}
+		public Type MementoType
+		{
+			get { return typeof(TimeoutMemento); }
+		}
 
 		public IHydratable Abort(IHydratable hydratable)
 		{

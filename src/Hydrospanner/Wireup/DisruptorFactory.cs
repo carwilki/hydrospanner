@@ -32,7 +32,7 @@
 		public virtual IDisruptor<JournalItem> CreateJournalDisruptor(BootstrapInfo info)
 		{
 			var messageStore = this.persistence.CreateMessageStore(info.SerializedTypes);
-			var messageSender = this.messaging.CreateJournalMessageSender();
+			var messageSender = this.messaging.CreateNewMessageSender();
 			var checkpointStore = this.persistence.CreateDispatchCheckpointStore();
 
 			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 256);
@@ -50,9 +50,13 @@
 			var systemRecorder = this.snapshots.CreateSystemSnapshotRecorder();
 			var publicRecorder = this.snapshots.CreatePublicSnapshotRecorder();
 
+			var systemHandler = new SystemSnapshotHandler(systemRecorder);
+			var publicHandler = new PublicSnapshotHandler(publicRecorder);
+			var dispatchHandler = new PublicSnapshotDispatchHandler(this.messaging.CreateNewMessageSender());
+
 			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 128);
 			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(this.CreateInboundSerializer()))
-				.Then(new SystemSnapshotHandler(systemRecorder), new PublicSnapshotHandler(publicRecorder))
+				.Then(systemHandler, publicHandler, dispatchHandler)
 				.Then(new ClearItemHandler());
 
 			this.snapshotRing = new RingBufferBase<SnapshotItem>(disruptor.RingBuffer);

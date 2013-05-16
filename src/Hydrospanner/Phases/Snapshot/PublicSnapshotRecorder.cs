@@ -104,7 +104,7 @@
 		{
 			command.WithParameter("@i" + i, item.Key, DbType.String);
 			command.WithParameter("@s" + i, item.CurrentSequence, DbType.Int64);
-			command.WithParameter("@h" + i, item.Serialized.ComputeHash(), DbType.UInt32);
+			command.WithParameter("@h" + i, item.ComputedHash, DbType.UInt32);
 			command.WithParameter("@d" + i, item.Serialized, DbType.Binary);
 			this.builder.AppendFormat(Upsert, i);
 		}

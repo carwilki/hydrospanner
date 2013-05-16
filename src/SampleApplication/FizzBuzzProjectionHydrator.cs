@@ -14,6 +14,10 @@
 		public bool IsComplete { get; private set; }
 		public bool IsPublicSnapshot { get { return true; } }
 		public object Memento { get { return this.document; } }
+		public Type MementoType
+		{
+			get { return typeof(FizzBuzzProjection); }
+		}
 		public ICollection<object> PendingMessages { get; private set; }
 
 		public void Hydrate(Delivery<CountEvent> delivery)

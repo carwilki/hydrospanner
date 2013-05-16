@@ -3,6 +3,7 @@
 
 namespace Hydrospanner.Persistence
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.Linq;
@@ -246,12 +247,12 @@ namespace Hydrospanner.Persistence
 		public const int MyMemento = 4242;
 		public string Key { get { return this.key; } }
 		public object Memento { get { return MyMemento; } }
+		public virtual Type MementoType { get { return typeof(int); } }
+		public virtual bool IsPublicSnapshot { get { return false; } }
 
 		#region -- Boilerplate --
 
 		public bool IsComplete { get { return false; } }
-
-		public virtual bool IsPublicSnapshot { get { return false; } }
 
 		public ICollection<object> PendingMessages { get; private set; }
 
@@ -275,6 +276,10 @@ namespace Hydrospanner.Persistence
 		public override bool IsPublicSnapshot
 		{
 			get { return true; }
+		}
+		public override Type MementoType
+		{
+			get { return typeof(string); }
 		}
 		public PublicHydratable() : base("some-key")
 		{
