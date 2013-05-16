@@ -20,7 +20,7 @@
 			if (this.ack == null)
 				return;
 
-			Log.InfoFormat("Executing end-of-batch acknowledgement action (current message sequence: {0}).", this.max);
+			Log.DebugFormat("Executing end-of-batch acknowledgement action (current message sequence: {0}).", this.max);
 
 			this.ack(Acknowledgment.ConfirmBatch);
 			this.ack = null;
