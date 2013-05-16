@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Persistence
 {
+	using System;
 	using System.Collections.Generic;
 
 	public sealed class HydratableGraveyard : IHydratable
@@ -16,6 +17,10 @@
 		public object Memento
 		{
 			get { return this.GetMemento(); }
+		}
+		public Type MementoType
+		{
+			get { return typeof(GraveyardMemento); }
 		}
 		public ICollection<object> PendingMessages { get; private set; }
 

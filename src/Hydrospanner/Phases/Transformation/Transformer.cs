@@ -30,9 +30,8 @@
 				hydratable.PendingMessages.TryClear();
 			}
 
-			var @public = hydratable as IPublicHydratable;
-			if (@public != null && (live || hydratable.IsComplete))
-				this.TakePublicSnapshot(@public, messageSequence);
+			if (hydratable.IsPublicSnapshot && (live || hydratable.IsComplete))
+				this.TakePublicSnapshot(hydratable, messageSequence);
 
 			if (!hydratable.IsComplete)
 				return;
@@ -51,7 +50,7 @@
 
 			messages.TryClear();
 		}
-		private void TakePublicSnapshot(IPublicHydratable hydratable, long messageSequence)
+		private void TakePublicSnapshot(IHydratable hydratable, long messageSequence)
 		{
 			var memento = hydratable.Memento;
 			var cloner = memento as ICloneable;

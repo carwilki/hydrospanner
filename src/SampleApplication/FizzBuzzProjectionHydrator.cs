@@ -5,7 +5,6 @@
 	using Hydrospanner;
 
 	public class FizzBuzzProjectionHydrator :
-		IPublicHydratable,
 		IHydratable<CountEvent>,
 		IHydratable<FizzEvent>,
 		IHydratable<BuzzEvent>,
@@ -13,6 +12,7 @@
 	{
 		public string Key { get { return KeyFactory(this.document.StreamId); } }
 		public bool IsComplete { get; private set; }
+		public bool IsPublicSnapshot { get { return true; } }
 		public object Memento { get { return this.document; } }
 		public Type MementoType
 		{

@@ -162,6 +162,7 @@ namespace Hydrospanner.Wireup
 			public bool IsComplete { get; private set; }
 			public bool IsPublicSnapshot { get; private set; }
 			public object Memento { get; private set; }
+			public Type MementoType { get; private set; }
 			public ICollection<object> PendingMessages { get; private set; }
 		}
 		// ReSharper restore UnusedAutoPropertyAccessor.Local

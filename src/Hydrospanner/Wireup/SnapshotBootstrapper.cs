@@ -68,8 +68,8 @@
 			var hydratables = repository.Accessed;
 			foreach (var pair in hydratables)
 			{
-				var hydratable = pair.Key as IPublicHydratable;
-				if (hydratable == null)
+				var hydratable = pair.Key;
+				if (!hydratable.IsPublicSnapshot)
 					continue;
 
 				count++;

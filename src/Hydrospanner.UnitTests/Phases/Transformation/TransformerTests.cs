@@ -274,8 +274,10 @@ namespace Hydrospanner.Phases.Transformation
 
 		public string Key { get { return this.key; } }
 		public bool IsComplete { get; private set; }
+		public virtual bool IsPublicSnapshot { get { return false; } }
 		public virtual ICollection<object> PendingMessages { get; private set; }
 		public object Memento { get { return this.memento ?? new SomethingHappenedProjection { Value = this.EventsReceived.Last() }; } }
+		public virtual Type MementoType { get { return typeof(SomethingHappenedProjection); } }
 
 		public virtual void Hydrate(Delivery<SomethingHappenedEvent> delivery)
 		{
@@ -299,14 +301,18 @@ namespace Hydrospanner.Phases.Transformation
 		private readonly object memento;
 	}
 
-	public class PublicHydratable : TestHydratable, IPublicHydratable
+	public class PublicHydratable : TestHydratable
 	{
 		public PublicHydratable(string key, bool becomesComplete = false)
 			: base(becomesComplete, key, null)
 		{
 		}
 
-		public Type MementoType
+		public override bool IsPublicSnapshot
+		{
+			get { return true; }
+		}
+		public override Type MementoType
 		{
 			get { return typeof(string); }
 		}

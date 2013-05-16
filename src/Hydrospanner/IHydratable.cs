@@ -7,13 +7,10 @@
 	{
 		string Key { get; }
 		bool IsComplete { get; }
+		bool IsPublicSnapshot { get; }
 		object Memento { get; }
-		ICollection<object> PendingMessages { get; }
-	}
-
-	public interface IPublicHydratable : IHydratable
-	{
 		Type MementoType { get; }
+		ICollection<object> PendingMessages { get; }
 	}
 
 	public interface IHydratable<T> : IHydratable

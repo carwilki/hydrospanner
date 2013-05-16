@@ -29,6 +29,10 @@
 				};
 			}
 		}
+		public Type MementoType
+		{
+			get { return typeof(FizzBuzzAggregateMemento); }
+		}
 
 		public void Hydrate(Delivery<CountCommand> delivery)
 		{

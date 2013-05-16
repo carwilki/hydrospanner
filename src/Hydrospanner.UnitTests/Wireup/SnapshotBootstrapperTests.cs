@@ -234,9 +234,10 @@ namespace Hydrospanner.Wireup
 				var hydros = new List<KeyValuePair<IHydratable, long>>();
 				for (var i = 0; i < 3; i++)
 				{
-					var hydro = i % 2 == 0 ? Substitute.For<IPublicHydratable>() : Substitute.For<IHydratable>();
+					var hydro = Substitute.For<IHydratable>();
 					hydro.Key.Returns("key" + i);
 					hydro.Memento.Returns(i);
+					hydro.IsPublicSnapshot.Returns(i % 2 == 0);
 					hydros.Add(new KeyValuePair<IHydratable, long>(hydro, i + 1));
 				}
 				repository.Accessed.Returns(hydros.ToDictionary(x => x.Key, x => x.Value));

@@ -247,6 +247,8 @@ namespace Hydrospanner.Persistence
 		public const int MyMemento = 4242;
 		public string Key { get { return this.key; } }
 		public object Memento { get { return MyMemento; } }
+		public virtual Type MementoType { get { return typeof(int); } }
+		public virtual bool IsPublicSnapshot { get { return false; } }
 
 		#region -- Boilerplate --
 
@@ -269,9 +271,13 @@ namespace Hydrospanner.Persistence
 		readonly string key;
 	}
 
-	public class PublicHydratable : MyHydratable, IPublicHydratable
+	public class PublicHydratable : MyHydratable
 	{
-		public Type MementoType
+		public override bool IsPublicSnapshot
+		{
+			get { return true; }
+		}
+		public override Type MementoType
 		{
 			get { return typeof(string); }
 		}
