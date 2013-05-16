@@ -18,12 +18,17 @@ namespace Hydrospanner.Wireup
 		public class when_the_snapshot_factory_provided_is_null
 		{
 			It should_throw_an_exception = () =>
-				Catch.Exception(() => new SnapshotBootstrapper(null, Substitute.For<DisruptorFactory>())).ShouldBeOfType<ArgumentNullException>();
+				Catch.Exception(() => new SnapshotBootstrapper(null, Substitute.For<DisruptorFactory>(), 10)).ShouldBeOfType<ArgumentNullException>();
 		}
 		public class when_the_disruptor_factory_provided_is_null
 		{
 			It should_throw_an_exception = () =>
-				Catch.Exception(() => new SnapshotBootstrapper(Substitute.For<SnapshotFactory>(), null)).ShouldBeOfType<ArgumentNullException>();
+				Catch.Exception(() => new SnapshotBootstrapper(Substitute.For<SnapshotFactory>(), null, 10)).ShouldBeOfType<ArgumentNullException>();
+		}
+		public class when_the_snapshot_frequency_is_out_of_range
+		{
+			It should_throw_an_exception = () =>
+				Catch.Exception(() => new SnapshotBootstrapper(Substitute.For<SnapshotFactory>(), Substitute.For<DisruptorFactory>(), 0)).ShouldBeOfType<ArgumentOutOfRangeException>();
 		}
 
 		public class when_no_bootstrap_info_is_provided
@@ -240,7 +245,7 @@ namespace Hydrospanner.Wireup
 			};
 
 			Because of = () =>
-				bootstrapper.SavePublicSnapshots(repository, ring);
+				bootstrapper.SaveSnapshot(repository, ring, new BootstrapInfo());
 
 			It should_publish_only_public_hydratable_mementos_to_the_ring = () =>
 				ring.AllItems.ShouldBeLike(new[]
@@ -271,6 +276,53 @@ namespace Hydrospanner.Wireup
 			static RingBufferHarness<SnapshotItem> ring;
 		}
 
+		public class when_the_replayed_message_count_exceeds_the_snapshot_frequency
+		{
+			Establish context = () =>
+			{
+				var hydros = new List<IHydratable>();
+				for (var i = 0; i < 2; i++)
+				{
+					var hydro = Substitute.For<IHydratable>();
+					hydro.Key.Returns("key" + i);
+					hydro.Memento.Returns(i);
+					hydro.IsPublicSnapshot.Returns(false);
+					hydros.Add(hydro);
+				}
+				repository.Items.Returns(hydros);
+				ring = new RingBufferHarness<SnapshotItem>();
+			};
+
+			Because of = () =>
+				bootstrapper.SaveSnapshot(repository, ring, Info);
+
+			It should_take_a_snapshot_of_all_items_in_the_repository = () =>
+				ring.AllItems.ShouldBeLike(new[]
+				{
+					new SnapshotItem
+					{
+						CurrentSequence = Info.JournaledSequence,
+						IsPublicSnapshot = false,
+						Key = null,
+						Memento = 0,
+						MementosRemaining = 1,
+						Serialized = null
+					},
+					new SnapshotItem
+					{
+						CurrentSequence = Info.JournaledSequence,
+						IsPublicSnapshot = false,
+						Key = null,
+						Memento = 1,
+						MementosRemaining = 0,
+						Serialized = null
+					}
+				});
+
+			static readonly BootstrapInfo Info = new BootstrapInfo(42, 0, new string[0], new Guid[0]).AddSnapshotSequence(snapshotFrequency + 1);
+			static RingBufferHarness<SnapshotItem> ring;
+		}
+
 		Establish context = () =>
 		{
 			thrown = null;
@@ -279,7 +331,7 @@ namespace Hydrospanner.Wireup
 			repository = Substitute.For<IRepository>();
 			providedInfo = new BootstrapInfo(2, 1, new string[0], new Guid[0]);
 
-			bootstrapper = new SnapshotBootstrapper(snapshots, disruptors);
+			bootstrapper = new SnapshotBootstrapper(snapshots, disruptors, snapshotFrequency);
 		};
 		static void Try(Action callback)
 		{
@@ -293,6 +345,7 @@ namespace Hydrospanner.Wireup
 		static BootstrapInfo providedInfo;
 		static IRepository repository;
 		static Exception thrown;
+		static long snapshotFrequency = 10;
 	}
 }
 

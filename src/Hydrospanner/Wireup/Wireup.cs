@@ -52,7 +52,7 @@
 			Log.Info("Loading bootstrap parameters.");
 			var messageStore = persistenceFactory.CreateMessageStore(this.info.SerializedTypes);
 			var disruptorFactory = new DisruptorFactory(messagingFactory, persistenceFactory, snapshotFactory, conventionWireup.SystemSnapshotFrequency, aliasTypes, transientTypes);
-			var snapshotBootstrapper = new SnapshotBootstrapper(snapshotFactory, disruptorFactory);
+			var snapshotBootstrapper = new SnapshotBootstrapper(snapshotFactory, disruptorFactory, conventionWireup.SystemSnapshotFrequency);
 			var messageBootstrapper = new MessageBootstrapper(messageStore, disruptorFactory);
 
 			this.bootstrapper = new Bootstrapper(repository, disruptorFactory, snapshotBootstrapper, messageBootstrapper, timeoutFactory, messagingFactory);
