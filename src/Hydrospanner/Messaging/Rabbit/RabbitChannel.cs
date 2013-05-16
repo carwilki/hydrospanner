@@ -14,7 +14,7 @@
 	{
 		public bool Send(SnapshotItem message)
 		{
-			// TODO: get this under test
+			// FUTURE: get this under test (when we start dispatching projections)
 			if (message == null)
 				throw new ArgumentNullException();
 

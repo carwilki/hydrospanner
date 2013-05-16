@@ -6,7 +6,7 @@
 	using log4net;
 	using Messaging;
 
-	// TODO: this is all spike code
+	// FUTURE: get this handler under test when we start dispatching projections
 	public class PublicSnapshotDispatchHandler : IEventHandler<SnapshotItem>
 	{
 		public void OnNext(SnapshotItem data, long sequence, bool endOfBatch)
