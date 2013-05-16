@@ -78,7 +78,7 @@ namespace Hydrospanner.Phases.Snapshot
 				Establish context = () =>
 				{
 					firstOfNextSnapshot = new SnapshotItem();
-					firstOfNextSnapshot.AsPartOfSystemSnapshot(42, ItemsInNextSnapshot - 1, "newMemento");
+					firstOfNextSnapshot.AsPartOfSystemSnapshot(42, ItemsInNextSnapshot - 1, "newMemento", typeof(string));
 					firstOfNextSnapshot.Serialize(new JsonSerializer());
 
 					handler.OnNext(first, 0, false);
@@ -109,9 +109,9 @@ namespace Hydrospanner.Phases.Snapshot
 			middle = new SnapshotItem();
 			last = new SnapshotItem();
 
-			first.AsPartOfSystemSnapshot(0, 2, "first");
-			middle.AsPartOfSystemSnapshot(0, 1, "middle");
-			last.AsPartOfSystemSnapshot(0, 0, "last");
+			first.AsPartOfSystemSnapshot(0, 2, "first", typeof(string));
+			middle.AsPartOfSystemSnapshot(0, 1, "middle", typeof(string));
+			last.AsPartOfSystemSnapshot(0, 0, "last", typeof(string));
 
 			var serializer = new JsonSerializer();
 			first.Serialize(serializer);

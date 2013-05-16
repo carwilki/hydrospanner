@@ -52,7 +52,7 @@ namespace Hydrospanner.IntegrationTests
 		static SnapshotItem Generate(int value, long sequence, int remaining)
 		{
 			var item = new SnapshotItem();
-			item.AsPartOfSystemSnapshot(sequence, remaining, value);
+			item.AsPartOfSystemSnapshot(sequence, remaining, value, value.GetType());
 			item.Serialize(serializer);
 			return item;
 		}

@@ -27,12 +27,15 @@
 			var type = this.Memento == null ? mementoType : this.Memento.GetType();
 			this.MementoType = type.ResolvableTypeName();
 		}
-		public void AsPartOfSystemSnapshot(long sequence, int remaining, object memento)
+		public void AsPartOfSystemSnapshot(long sequence, int remaining, object memento, Type mementoType)
 		{
 			this.Clear();
 			this.Memento = Clone(memento);
 			this.CurrentSequence = sequence;
 			this.MementosRemaining = remaining;
+
+			var type = this.Memento == null ? mementoType : this.Memento.GetType();
+			this.MementoType = type.ResolvableTypeName();
 		}
 		public void Serialize(ISerializer serializer)
 		{

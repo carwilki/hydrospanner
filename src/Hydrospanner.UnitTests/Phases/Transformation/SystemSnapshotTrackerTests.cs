@@ -66,12 +66,14 @@ namespace Hydrospanner.Phases.Transformation
 					{
 						CurrentSequence = 100,
 						Memento = 1,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 1
 					},
 					new SnapshotItem
 					{
 						CurrentSequence = 100,
 						Memento = 2,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 0
 					}
 				});
@@ -92,12 +94,14 @@ namespace Hydrospanner.Phases.Transformation
 					{
 						CurrentSequence = 101,
 						Memento = 1,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 1
 					},
 					new SnapshotItem
 					{
 						CurrentSequence = 101,
 						Memento = 2,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 0
 					}
 				});
@@ -133,12 +137,14 @@ namespace Hydrospanner.Phases.Transformation
 					{
 						CurrentSequence = 101,
 						Memento = 1,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 1
 					},
 					new SnapshotItem
 					{
 						CurrentSequence = 101,
 						Memento = 2,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 0
 					},
 				});
@@ -166,12 +172,14 @@ namespace Hydrospanner.Phases.Transformation
 					{
 						CurrentSequence = 200,
 						Memento = 1,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 1
 					},
 					new SnapshotItem
 					{
 						CurrentSequence = 200,
 						Memento = 2,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 0
 					},
 
@@ -180,12 +188,14 @@ namespace Hydrospanner.Phases.Transformation
 					{
 						CurrentSequence = 300,
 						Memento = 1,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 1
 					},
 					new SnapshotItem
 					{
 						CurrentSequence = 300,
 						Memento = 2,
+						MementoType = typeof(int).ResolvableTypeName(),
 						MementosRemaining = 0
 					}
 				});
