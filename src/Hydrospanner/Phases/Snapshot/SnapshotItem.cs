@@ -33,7 +33,7 @@
 			if (this.Memento != null)
 				this.Serialized = serializer.Serialize(this.Memento);
 		}
-		private void Clear()
+		public void Clear()
 		{
 			this.IsPublicSnapshot = false;
 			this.Key = null;

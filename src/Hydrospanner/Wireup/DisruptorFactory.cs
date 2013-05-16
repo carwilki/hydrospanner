@@ -7,6 +7,7 @@
 	using Disruptor;
 	using Disruptor.Dsl;
 	using Persistence;
+	using Phases;
 	using Phases.Bootstrap;
 	using Phases.Journal;
 	using Phases.Snapshot;
@@ -36,9 +37,10 @@
 
 			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 256);
 			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(CreateOutboundSerializer()))
-			    .Then(new JournalHandler(messageStore))
-			    .Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
-			    .Then(new DispatchCheckpointHandler(checkpointStore));
+				.Then(new JournalHandler(messageStore))
+				.Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
+				.Then(new DispatchCheckpointHandler(checkpointStore))
+				.Then(new ClearItemHandler());
 
 			this.journalRing = new RingBufferBase<JournalItem>(disruptor.RingBuffer);
 			return new DisruptorBase<JournalItem>(disruptor);
@@ -50,7 +52,8 @@
 
 			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 128);
 			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(this.CreateInboundSerializer()))
-			    .Then(new SystemSnapshotHandler(systemRecorder), new PublicSnapshotHandler(publicRecorder));
+				.Then(new SystemSnapshotHandler(systemRecorder), new PublicSnapshotHandler(publicRecorder))
+				.Then(new ClearItemHandler());
 
 			this.snapshotRing = new RingBufferBase<SnapshotItem>(disruptor.RingBuffer);
 			return new DisruptorBase<SnapshotItem>(disruptor);
@@ -114,8 +117,13 @@
 			var serializationHandler = new SerializationHandler(this.CreateInboundSerializer(), this.transientTypes);
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker);
+
 			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
-			disruptor.HandleEventsWith(serializationHandler).Then(transformationHandler);
+			disruptor
+				.HandleEventsWith(serializationHandler)
+				.Then(transformationHandler)
+				.Then(new ClearItemHandler());
+
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
 
