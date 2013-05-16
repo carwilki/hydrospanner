@@ -57,7 +57,12 @@
 			}
 		}
 
-		public virtual void SavePublicSnapshots(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer)
+		public virtual void SaveSnapshot(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer, BootstrapInfo info)
+		{
+			TakePublicSnapshot(repository, ringBuffer);
+			this.TryTakeSystemSnapshot(repository, ringBuffer, info); // this must *always* happen after public snapshots
+		}
+		private static void TakePublicSnapshot(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer)
 		{
 			var count = 0;
 			var hydratables = repository.Accessed;
@@ -77,8 +82,23 @@
 			Log.InfoFormat("{0} public hydratables snapshots taken.", count);
 			hydratables.TryClear();
 		}
+		private void TryTakeSystemSnapshot(IRepository repository, IRingBuffer<SnapshotItem> ringBuffer, BootstrapInfo info)
+		{
+			if ((info.JournaledSequence - info.SnapshotSequence) <= this.snapshotFrequency)
+				return;
 
-		public SnapshotBootstrapper(SnapshotFactory snapshotFactory, DisruptorFactory disruptorFactory)
+			var items = repository.Items;
+			var remaining = items.Count;
+			foreach (var hydratable in items)
+			{
+				var next = ringBuffer.Next();
+				var claimed = ringBuffer[next];
+				claimed.AsPartOfSystemSnapshot(info.JournaledSequence, --remaining, hydratable.Memento);
+				ringBuffer.Publish(next);
+			}
+		}
+
+		public SnapshotBootstrapper(SnapshotFactory snapshotFactory, DisruptorFactory disruptorFactory, long snapshotFrequency)
 		{
 			if (snapshotFactory == null)
 				throw new ArgumentNullException("snapshotFactory");
@@ -86,8 +106,12 @@
 			if (disruptorFactory == null)
 				throw new ArgumentNullException("disruptorFactory");
 
+			if (snapshotFrequency <= 0)
+				throw new ArgumentOutOfRangeException("snapshotFrequency");
+
 			this.snapshotFactory = snapshotFactory;
 			this.disruptorFactory = disruptorFactory;
+			this.snapshotFrequency = snapshotFrequency;
 		}
 		protected SnapshotBootstrapper()
 		{
@@ -97,6 +121,7 @@
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
 		private readonly SnapshotFactory snapshotFactory;
 		private readonly DisruptorFactory disruptorFactory;
+		private readonly long snapshotFrequency;
 		private bool success;
 	}
 }

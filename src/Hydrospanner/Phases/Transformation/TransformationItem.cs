@@ -58,7 +58,7 @@
 			this.IsTransient = true;
 			this.SerializedType = body.ResolvableTypeName();
 		}
-		private void Clear()
+		public void Clear()
 		{
 			this.MessageSequence = 0;
 			this.SerializedBody = this.SerializedHeaders = null;

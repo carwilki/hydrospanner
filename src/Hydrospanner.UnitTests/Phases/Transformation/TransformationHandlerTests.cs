@@ -124,8 +124,8 @@ namespace Hydrospanner.Phases.Transformation
 				It should_NOT_publish_the_incoming_message_or_anything_else = () =>
 					journal.AllItems.ShouldBeEmpty();
 
-				It should_increment_the_snapshot_by_one = () =>
-					snapshot.DidNotReceive().Track(Arg.Any<long>());
+				It should_NOT_track_the_snapshots = () =>
+					snapshot.Received(0).Track(Arg.Any<long>());
 
 				It should_NOT_assign_the_message_sequence_on_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(ReplayMessageSequence);
@@ -164,8 +164,8 @@ namespace Hydrospanner.Phases.Transformation
 				It should_NOT_publish_the_incoming_message_or_the_resulting_messages = () =>
 					journal.AllItems.ShouldBeEmpty();
 
-				It should_increment_the_snapshot = () =>
-					snapshot.DidNotReceive().Track(Arg.Any<long>());
+				It should_NOT_track_the_snapshots = () =>
+					snapshot.Received(0).Track(Arg.Any<long>());
 
 				It should_NOT_reassign_the_sequence_number_of_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence - 1);
@@ -207,8 +207,8 @@ namespace Hydrospanner.Phases.Transformation
 				It should_NOT_publish_the_incoming_message_and_the_resulting_messages = () =>
 					journal.AllItems.ShouldBeEmpty();
 
-				It should_NOT_increment_the_snapshot_by_the_number_of_messages_published = () =>
-					snapshot.DidNotReceive().Track(Arg.Any<long>());
+				It should_NOT_track_the_snapshots = () =>
+					snapshot.Received(0).Track(Arg.Any<long>());
 
 				It should_NOT_reassign_the_message_sequence_of_the_incoming_message = () =>
 					item.MessageSequence.ShouldEqual(JournaledSequence - 10);

@@ -7,6 +7,7 @@
 	using Disruptor;
 	using Disruptor.Dsl;
 	using Persistence;
+	using Phases;
 	using Phases.Bootstrap;
 	using Phases.Journal;
 	using Phases.Snapshot;
@@ -21,7 +22,7 @@
 		{
 			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new SleepingWaitStrategy(), 1024 * 4);
 			disruptor
-				.HandleEventsWith(new Phases.Bootstrap.SerializationHandler(CreateSerializer()))
+				.HandleEventsWith(new Phases.Bootstrap.SerializationHandler(this.CreateInboundSerializer()))
 				.Then(new MementoHandler(repository))
 				.Then(new CountdownHandler(countdown, complete));
 
@@ -35,10 +36,11 @@
 			var checkpointStore = this.persistence.CreateDispatchCheckpointStore();
 
 			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 256);
-			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(new JsonSerializer()))
-			    .Then(new JournalHandler(messageStore))
-			    .Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
-			    .Then(new DispatchCheckpointHandler(checkpointStore));
+			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(CreateOutboundSerializer()))
+				.Then(new JournalHandler(messageStore))
+				.Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
+				.Then(new DispatchCheckpointHandler(checkpointStore))
+				.Then(new ClearItemHandler());
 
 			this.journalRing = new RingBufferBase<JournalItem>(disruptor.RingBuffer);
 			return new DisruptorBase<JournalItem>(disruptor);
@@ -52,9 +54,10 @@
 			var publicHandler = new PublicSnapshotHandler(publicRecorder);
 			var dispatchHandler = new PublicSnapshotDispatchHandler(this.messaging.CreateNewMessageSender());
 
-			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new BlockingWaitStrategy(), 1024 * 128);
-			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(CreateSerializer()))
-			    .Then(systemHandler, publicHandler, dispatchHandler);
+			var disruptor = CreateSingleThreadedDisruptor<SnapshotItem>(new SleepingWaitStrategy(), 1024 * 128);
+			disruptor.HandleEventsWith(new Phases.Snapshot.SerializationHandler(this.CreateInboundSerializer()))
+				.Then(systemHandler, publicHandler, dispatchHandler)
+				.Then(new ClearItemHandler());
 
 			this.snapshotRing = new RingBufferBase<SnapshotItem>(disruptor.RingBuffer);
 			return new DisruptorBase<SnapshotItem>(disruptor);
@@ -77,7 +80,7 @@
 			var replayTransientTypes = new HashSet<Type>();
 			var serializers = new SerializationHandler[serializerCount];
 			for (var i = 0; i < serializerCount; i++)
-				serializers[i] = new SerializationHandler(CreateSerializer(), replayTransientTypes, serializerCount, i);
+				serializers[i] = new SerializationHandler(this.CreateInboundSerializer(), replayTransientTypes, serializerCount, i);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence);
 
 			var slots = ComputeDisruptorSize(countdown);
@@ -115,15 +118,24 @@
 		}
 		public virtual IDisruptor<TransformationItem> CreateTransformationDisruptor(IRepository repository, BootstrapInfo info)
 		{
-			var serializationHandler = new SerializationHandler(CreateSerializer(), this.transientTypes);
+			var serializationHandler = new SerializationHandler(this.CreateInboundSerializer(), this.transientTypes);
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker);
+
 			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 256);
-			disruptor.HandleEventsWith(serializationHandler).Then(transformationHandler);
+			disruptor
+				.HandleEventsWith(serializationHandler)
+				.Then(transformationHandler)
+				.Then(new ClearItemHandler());
+
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
 
-		private static ISerializer CreateSerializer()
+		private ISerializer CreateInboundSerializer()
+		{
+			return new JsonSerializer(this.aliasTypes);
+		}
+		private static ISerializer CreateOutboundSerializer()
 		{
 			return new JsonSerializer();
 		}
@@ -136,7 +148,13 @@
 			return new Disruptor<T>(() => new T(), new MultiThreadedLowContentionClaimStrategy(size), wait, TaskScheduler.Default);
 		}
 
-		public DisruptorFactory(MessagingFactory messaging, PersistenceFactory persistence, SnapshotFactory snapshots, int snapshotFrequency, IEnumerable<Type> transientTypes)
+		public DisruptorFactory(
+			MessagingFactory messaging,
+			PersistenceFactory persistence,
+			SnapshotFactory snapshots,
+			int snapshotFrequency,
+			IDictionary<string, Type> aliasTypes,
+			IEnumerable<Type> transientTypes)
 		{
 			if (messaging == null)
 				throw new ArgumentNullException("messaging");
@@ -149,6 +167,9 @@
 
 			if (snapshotFrequency <= 0)
 				throw new ArgumentOutOfRangeException("snapshotFrequency");
+
+			if (aliasTypes == null)
+				throw new ArgumentNullException("aliasTypes");
 			
 			if (transientTypes == null)
 				throw new ArgumentNullException("transientTypes");
@@ -157,6 +178,7 @@
 			this.snapshots = snapshots;
 			this.persistence = persistence;
 			this.snapshotFrequency = snapshotFrequency;
+			this.aliasTypes = aliasTypes;
 			this.transientTypes = new HashSet<Type>(transientTypes);
 		}
 		protected DisruptorFactory()
@@ -167,6 +189,7 @@
 		private readonly MessagingFactory messaging;
 		private readonly PersistenceFactory persistence;
 		private readonly int snapshotFrequency;
+		private readonly IDictionary<string, Type> aliasTypes;
 		private readonly HashSet<Type> transientTypes;
 		private IRingBuffer<JournalItem> journalRing;
 		private IRingBuffer<SnapshotItem> snapshotRing;

@@ -35,8 +35,8 @@
 			if (!restored)
 				return this.started = false;
 
-			Log.InfoFormat("Taking snapshots of all public hydratables at sequence {0}", info.JournaledSequence);
-			this.snapshots.SavePublicSnapshots(this.repository, this.snapshotDisruptor.RingBuffer);
+			Log.InfoFormat("Taking snapshots of hydratables at sequence {0}", info.JournaledSequence);
+			this.snapshots.SaveSnapshot(this.repository, this.snapshotDisruptor.RingBuffer, info);
 
 			Log.Info("Starting primary transformation disruptor.");
 			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor(this.repository, info);

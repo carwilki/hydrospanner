@@ -100,7 +100,7 @@ namespace Hydrospanner.Wireup
 				journalDisruptor.Received(0).Start();
 
 				messages.Received(0).Restore(info2, journalDisruptor, repository);
-				snapshots.Received(0).SavePublicSnapshots(repository, snapshotDisruptor.RingBuffer);
+				snapshots.Received(0).SaveSnapshot(repository, snapshotDisruptor.RingBuffer, info2);
 
 				disruptors.Received(0).CreateTransformationDisruptor(repository, info2);
 				transformationDisruptor.Received(0).Start();
@@ -123,7 +123,7 @@ namespace Hydrospanner.Wireup
 
 			It should_NOT_invoke_the_later_bootstrap_steps = () =>
 			{
-				snapshots.Received(0).SavePublicSnapshots(repository, snapshotDisruptor.RingBuffer);
+				snapshots.Received(0).SaveSnapshot(repository, snapshotDisruptor.RingBuffer, info2);
 
 				disruptors.Received(0).CreateTransformationDisruptor(repository, info2);
 				transformationDisruptor.Received(0).Start();
@@ -245,7 +245,7 @@ namespace Hydrospanner.Wireup
 			journalDisruptor.Start();
 			
 			messages.Restore(info2, journalDisruptor, repository);
-			snapshots.SavePublicSnapshots(repository, snapshotDisruptor.RingBuffer);
+			snapshots.SaveSnapshot(repository, snapshotDisruptor.RingBuffer, info2);
 
 			disruptors.CreateTransformationDisruptor(repository, info2);
 			transformationDisruptor.Start();

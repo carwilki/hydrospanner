@@ -42,7 +42,7 @@
 			this.Serialized = serializer.Serialize(this.Memento);
 			this.ComputedHash = this.Serialized.ComputeHash(); // TODO: test
 		}
-		private void Clear()
+		public void Clear()
 		{
 			this.IsPublicSnapshot = false;
 			this.Key = null;

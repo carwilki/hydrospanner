@@ -71,7 +71,7 @@
 			if (this.SerializedHeaders == null && this.Headers != null && this.Headers.Count > 0)
 				this.SerializedHeaders = serializer.Serialize(this.Headers);
 		}
-		private void Clear()
+		public void Clear()
 		{
 			this.MessageSequence = 0;
 			this.SerializedBody = this.SerializedHeaders = null;
