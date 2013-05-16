@@ -40,7 +40,7 @@
 				return;
 
 			this.Serialized = serializer.Serialize(this.Memento);
-			this.ComputedHash = this.Serialized.ComputeHash(); // TODO: test
+			this.ComputedHash = this.Serialized.ComputeHash();
 		}
 		public void Clear()
 		{

@@ -33,6 +33,9 @@ namespace Hydrospanner.Phases.Snapshot
 			json.ShouldEqual("{\"First\":\"1\"}");
 		};
 
+		It should_compute_the_hash_of_the_memento = () =>
+			item.ComputedHash.ShouldBeGreaterThan(0);
+
 		static Memento memento;
 		static SerializationHandler handler;
 		static SnapshotItem item;
