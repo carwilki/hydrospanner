@@ -14,7 +14,7 @@
 	{
 		public bool Send(SnapshotItem message)
 		{
-			// TODO: get this entire set of methods under test (spike/proof of concept)
+			// TODO: get this under test
 			if (message == null)
 				throw new ArgumentNullException();
 

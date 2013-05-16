@@ -14,7 +14,6 @@
 		}
 		public static string ToMessageId(this long sequence, short nodeId, uint hash)
 		{
-			// TODO: test
 			sequence = sequence << 32;
 			sequence += nodeId;
 			sequence = sequence << 16;
