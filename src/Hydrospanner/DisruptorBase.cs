@@ -1,7 +1,6 @@
 ﻿namespace Hydrospanner
 {
 	using System;
-	using Disruptor;
 	using Disruptor.Dsl;
 	
 	internal interface IDisruptor<T> : IDisposable where T : class
