@@ -52,7 +52,7 @@
 			{
 				var next = ring.Next();
 				var claimed = ring[next];
-				claimed.AsSnapshot(memento.Key, memento.Value);
+				claimed.AsSnapshot(memento.Item2, memento.Item3); // TODO: item1 = key
 				ring.Publish(next);
 			}
 		}

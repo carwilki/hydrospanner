@@ -92,9 +92,9 @@ namespace Hydrospanner.Phases.Snapshot
 				var records = reader.Read().ToList();
 
 				records.Count.ShouldEqual(3);
-				records[0].ShouldBeEqual(new KeyValuePair<string, byte[]>(string.Empty.ResolvableTypeName(), "\"first\"".ToByteArray()));
-				records[1].ShouldBeEqual(new KeyValuePair<string, byte[]>(string.Empty.ResolvableTypeName(), "\"middle\"".ToByteArray()));
-				records[2].ShouldBeEqual(new KeyValuePair<string, byte[]>(string.Empty.ResolvableTypeName(), "\"last\"".ToByteArray()));
+				records[0].ShouldBeEqual(new Tuple<string, string, byte[]>("k1", string.Empty.ResolvableTypeName(), "\"first\"".ToByteArray()));
+				records[1].ShouldBeEqual(new Tuple<string, string, byte[]>("k2", string.Empty.ResolvableTypeName(), "\"middle\"".ToByteArray()));
+				records[2].ShouldBeEqual(new Tuple<string, string, byte[]>("k3", string.Empty.ResolvableTypeName(), "\"last\"".ToByteArray()));
 			};
 		}
 
@@ -165,9 +165,9 @@ namespace Hydrospanner.Phases.Snapshot
 			middle = new SnapshotItem();
 			last = new SnapshotItem();
 
-			first.AsPartOfSystemSnapshot(Sequence, 2, "key", "first", typeof(string));
-			middle.AsPartOfSystemSnapshot(Sequence, 1, "key", "middle", typeof(string));
-			last.AsPartOfSystemSnapshot(Sequence, 0, "key", "last", typeof(string));
+			first.AsPartOfSystemSnapshot(Sequence, 2, "k1", "first", typeof(string));
+			middle.AsPartOfSystemSnapshot(Sequence, 1, "k2", "middle", typeof(string));
+			last.AsPartOfSystemSnapshot(Sequence, 0, "k3", "last", typeof(string));
 
 			first.Serialize(serializer);
 			middle.Serialize(serializer);

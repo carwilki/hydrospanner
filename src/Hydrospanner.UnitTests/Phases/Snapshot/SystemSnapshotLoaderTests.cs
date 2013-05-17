@@ -4,7 +4,6 @@
 namespace Hydrospanner.Phases.Snapshot
 {
 	using System;
-	using System.Globalization;
 	using System.IO;
 	using System.IO.Abstractions;
 	using System.Linq;
@@ -75,7 +74,7 @@ namespace Hydrospanner.Phases.Snapshot
 			It should_load_the_snapshot_whose_message_sequence_is_closest_to_but_higher_than_the_provided_sequence = () =>
 			{
 				reader.MessageSequence.ShouldEqual(EarlySnapshotSequence);
-				reader.Read().First().Value.ShouldBeLike(FirstRecord);
+				reader.Read().ToList().First().Item3.ShouldBeLike(FirstRecord);
 			};
 
 			const int StoredMessageSequence = 42;
@@ -91,14 +90,19 @@ namespace Hydrospanner.Phases.Snapshot
 			loader = new SystemSnapshotLoader(directory, file, Path);
 
 			var oneRecord = BitConverter.GetBytes(1);
+			var firstRecordKey = Encoding.UTF8.GetBytes("key1");
+			var firstRecordKeyLength = BitConverter.GetBytes(firstRecordKey.Length);
 			var firstRecordType = Encoding.UTF8.GetBytes(FirstRecord.GetType().AssemblyQualifiedName ?? string.Empty);
 			var firstRecordTypeLength = BitConverter.GetBytes(firstRecordType.Length);
 			var firstRecordLength = BitConverter.GetBytes(4);
 			contents = oneRecord
+				.Concat(firstRecordKeyLength)
+				.Concat(firstRecordKey)
 				.Concat(firstRecordTypeLength)
 				.Concat(firstRecordType)
 				.Concat(firstRecordLength)
-				.Concat(FirstRecord).ToArray();
+				.Concat(FirstRecord)
+				.ToArray();
 
 			hash = new SoapHexBinary(new SHA1Managed().ComputeHash(contents)).ToString();
 		};

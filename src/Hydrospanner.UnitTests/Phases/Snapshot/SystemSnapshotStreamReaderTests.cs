@@ -66,14 +66,16 @@ namespace Hydrospanner.Phases.Snapshot
 			var contents = new List<byte>();
 			contents.AddRange(BitConverter.GetBytes(Records.Count));
 
-			var type = Encoding.UTF8.GetBytes(string.Empty.GetType().AssemblyQualifiedName ?? string.Empty);
 			foreach (var record in Records)
 			{
-				var item = record.Value;
-				contents.AddRange(BitConverter.GetBytes(type.Length));
-				contents.AddRange(type);
-				contents.AddRange(BitConverter.GetBytes(item.Length));
-				contents.AddRange(item);
+				var keyBytes = Encoding.UTF8.GetBytes(record.Item1);
+				var typeBytes = Encoding.UTF8.GetBytes(record.Item2);
+				contents.AddRange(BitConverter.GetBytes(keyBytes.Length));
+				contents.AddRange(keyBytes);
+				contents.AddRange(BitConverter.GetBytes(typeBytes.Length));
+				contents.AddRange(typeBytes);
+				contents.AddRange(BitConverter.GetBytes(record.Item3.Length));
+				contents.AddRange(record.Item3);
 			}
 
 			stream = new MemoryStream(contents.ToArray());
@@ -93,15 +95,15 @@ namespace Hydrospanner.Phases.Snapshot
 		};
 
 		const int NumberOfRecords = 42;
-		static readonly List<KeyValuePair<string, byte[]>> Records = new List<KeyValuePair<string, byte[]>>
+		static readonly List<Tuple<string, string, byte[]>> Records = new List<Tuple<string, string, byte[]>>
 		{
-			new KeyValuePair<string, byte[]>(typeof(string).AssemblyQualifiedName, Encoding.UTF8.GetBytes("First")),
-			new KeyValuePair<string, byte[]>(typeof(string).AssemblyQualifiedName, Encoding.UTF8.GetBytes("Second")),
-			new KeyValuePair<string, byte[]>(typeof(string).AssemblyQualifiedName, Encoding.UTF8.GetBytes("Third"))
+			new Tuple<string, string, byte[]>(string.Empty, typeof(string).AssemblyQualifiedName, Encoding.UTF8.GetBytes("First")),
+			new Tuple<string, string, byte[]>(string.Empty, typeof(string).AssemblyQualifiedName, Encoding.UTF8.GetBytes("Second")),
+			new Tuple<string, string, byte[]>(string.Empty, typeof(string).AssemblyQualifiedName, Encoding.UTF8.GetBytes("Third"))
 		};
 		static MemoryStream stream;
 		static SystemSnapshotStreamReader reader;
-		static List<KeyValuePair<string, byte[]>> recordsReadFromSnapshot;
+		static List<Tuple<string, string, byte[]>> recordsReadFromSnapshot;
 	}
 
 	[Subject(typeof(SystemSnapshotStreamReader))]

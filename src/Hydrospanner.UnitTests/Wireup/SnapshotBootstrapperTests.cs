@@ -59,9 +59,9 @@ namespace Hydrospanner.Wireup
 				reader = Substitute.For<SystemSnapshotStreamReader>();
 				reader.Read().Returns(new[]
 				{
-					new KeyValuePair<string, byte[]>("1", new byte[] { 1 }), 
-					new KeyValuePair<string, byte[]>("2", new byte[] { 2 }), 
-					new KeyValuePair<string, byte[]>("3", new byte[] { 3 })
+					new Tuple<string, string, byte[]>("k1", "1", new byte[] { 1 }), 
+					new Tuple<string, string, byte[]>("k2", "2", new byte[] { 2 }), 
+					new Tuple<string, string, byte[]>("k3", "3", new byte[] { 3 }), 
 				});
 
 				disruptor = new DisruptorHarness<BootstrapItem>(CompleteCallback);
@@ -124,9 +124,9 @@ namespace Hydrospanner.Wireup
 				reader = Substitute.For<SystemSnapshotStreamReader>();
 				reader.Read().Returns(new[]
 				{
-					new KeyValuePair<string, byte[]>("1", new byte[] { 1 }), 
-					new KeyValuePair<string, byte[]>("2", new byte[] { 2 }), 
-					new KeyValuePair<string, byte[]>("3", new byte[] { 3 })
+					new Tuple<string, string, byte[]>("k1", "1", new byte[] { 1 }), 
+					new Tuple<string, string, byte[]>("k2", "2", new byte[] { 2 }), 
+					new Tuple<string, string, byte[]>("k3", "3", new byte[] { 3 }), 
 				});
 
 				disruptor = new DisruptorHarness<BootstrapItem>(CompleteCallback);

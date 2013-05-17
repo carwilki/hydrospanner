@@ -30,7 +30,7 @@
 		public void AsPartOfSystemSnapshot(long sequence, int remaining, string key, object memento, Type mementoType)
 		{
 			this.Clear();
-			this.Key = key; // TODO: test
+			this.Key = key;
 			this.Memento = Clone(memento);
 			this.CurrentSequence = sequence;
 			this.MementosRemaining = remaining;

@@ -3,6 +3,7 @@
 
 namespace Hydrospanner.IntegrationTests
 {
+	using System;
 	using System.Collections.Generic;
 	using System.IO;
 	using System.IO.Abstractions;
@@ -19,7 +20,7 @@ namespace Hydrospanner.IntegrationTests
 			serializer = new JsonSerializer();
 			recorder = new SystemSnapshotRecorder(new FileWrapper(), workingDirectory);
 			expectedRecords = Enumerable.Range(1, 10)
-				.Select(x => new KeyValuePair<string, byte[]>(default(int).ResolvableTypeName(), serializer.Serialize(x)))
+				.Select(x => new Tuple<string, string, byte[]>("key", default(int).ResolvableTypeName(), serializer.Serialize(x)))
 				.ToList();
 		};
 
@@ -60,15 +61,16 @@ namespace Hydrospanner.IntegrationTests
 		static SystemSnapshotRecorder recorder;
 		static JsonSerializer serializer;
 		static readonly string workingDirectory = Directory.GetCurrentDirectory();
-		static List<KeyValuePair<string, byte[]>> expectedRecords;
+		static List<Tuple<string, string, byte[]>> expectedRecords;
 	}
 
 	public static class ShouldExtensions
 	{
-		public static void ShouldBeEqual(this KeyValuePair<string, byte[]> pair, KeyValuePair<string, byte[]> other)
+		public static void ShouldBeEqual(this Tuple<string, string, byte[]> pair, Tuple<string, string, byte[]> other)
 		{
-			pair.Key.ShouldEqual(other.Key);
-			pair.Value.ShouldBeLike(other.Value);
+			pair.Item1.ShouldEqual(other.Item1);
+			pair.Item2.ShouldEqual(other.Item2);
+			pair.Item3.ShouldEqual(other.Item3);
 		}
 	}
 }

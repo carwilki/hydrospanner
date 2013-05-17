@@ -10,16 +10,18 @@
 	{
 		public virtual int Count { get; private set; }
 		public virtual long MessageSequence { get; private set; }
-		public virtual IEnumerable<KeyValuePair<string, byte[]>> Read()
+		public virtual IEnumerable<Tuple<string, string, byte[]>> Read()
 		{
 			if (this.Count == 0)
 				yield break;
 
 			while (this.stream.Position < this.stream.Length)
 			{
+				var bytes = this.Next();
+				var key = ResolveType(bytes);
 				var type = ResolveType(this.Next());
 				var item = this.Next();
-				yield return new KeyValuePair<string, byte[]>(type, item);
+				yield return new Tuple<string, string, byte[]>(key, type, item);
 			}
 		}
 

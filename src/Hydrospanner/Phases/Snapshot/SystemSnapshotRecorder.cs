@@ -29,9 +29,13 @@
 				if (this.currentSnapshot == null)
 					return;
 
-				var typeName = item.Memento.ResolvableTypeName() ?? string.Empty;
-				this.currentSnapshot.Write(typeName.Length);
-				this.currentSnapshot.Write(typeName.ToByteArray());
+				var keyBytes = item.Key.ToByteArray();
+				this.currentSnapshot.Write(keyBytes.Length);
+				this.currentSnapshot.Write(keyBytes);
+
+				var mementoBytes = item.MementoType.ToByteArray();
+				this.currentSnapshot.Write(mementoBytes.Length);
+				this.currentSnapshot.Write(mementoBytes);
 
 				this.currentSnapshot.Write(item.Serialized.Length);
 				this.currentSnapshot.Write(item.Serialized);
@@ -94,7 +98,7 @@
 
 		const string SnapshotFilenameTemplate = "{0}-{1}";
 		const string TemporaryFilename = "current_snapshot";
-		const int SnapshotBufferSize = 1024 * 32;
+		const int SnapshotBufferSize = 1024 * 1024 * 8;
 		private readonly FileBase file;
 		private readonly string location;
 		private readonly string pathToCurrentSnapshot;
