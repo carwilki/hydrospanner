@@ -10,6 +10,9 @@
 		{
 			Log.DebugFormat("Restoring memento of type {0}.", data.SerializedType);
 			this.repository.Restore(data.Key, data.MementoType, data.Memento);
+
+			if (sequence % 10000 == 0)
+				Log.InfoFormat("Restored {0} mementos.", sequence);
 		}
 
 		public MementoHandler(IRepository repository)

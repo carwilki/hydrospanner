@@ -48,7 +48,7 @@
 				replayed = this.Replay(info, message) || replayed;
 				this.Dispatch(info, journalRing, message);
 
-				if (message.Sequence % 100000 == 0)
+				if (message.Sequence % 25000 == 0)
 					Log.InfoFormat("Pushed message sequence {0} for replay", message.Sequence);
 			}
 
