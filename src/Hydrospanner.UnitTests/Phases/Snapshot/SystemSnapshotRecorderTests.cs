@@ -4,7 +4,6 @@
 namespace Hydrospanner.Phases.Snapshot
 {
 	using System;
-	using System.Collections.Generic;
 	using System.IO;
 	using System.IO.Abstractions;
 	using System.Linq;
@@ -94,6 +93,30 @@ namespace Hydrospanner.Phases.Snapshot
 				records.Count.ShouldEqual(3);
 				records[0].ShouldBeEqual(new Tuple<string, string, byte[]>("k1", string.Empty.ResolvableTypeName(), "\"first\"".ToByteArray()));
 				records[1].ShouldBeEqual(new Tuple<string, string, byte[]>("k2", string.Empty.ResolvableTypeName(), "\"middle\"".ToByteArray()));
+				records[2].ShouldBeEqual(new Tuple<string, string, byte[]>("k3", string.Empty.ResolvableTypeName(), "\"last\"".ToByteArray()));
+			};
+		}
+
+		public class when_writing_a_null_memento_to_a_snapshot
+		{
+			Because of = () =>
+			{
+				recorder.StartRecording(3);
+				recorder.Record(first);
+				recorder.Record(new SnapshotItem { Key = "null-key2", MementoType = "some-type", Memento = null });
+				recorder.Record(last);
+				recorder.FinishRecording();
+			};
+
+			It should_include_each_item_in_the_list = () =>
+			{
+				hash = new SoapHexBinary(new SHA1Managed().ComputeHash(firstSnapshot.Contents)).ToString();
+				reader = SystemSnapshotStreamReader.Open(Sequence, hash, new MemoryStream(firstSnapshot.Contents));
+				var records = reader.Read().ToList();
+
+				records.Count.ShouldEqual(3);
+				records[0].ShouldBeEqual(new Tuple<string, string, byte[]>("k1", string.Empty.ResolvableTypeName(), "\"first\"".ToByteArray()));
+				records[1].ShouldBeEqual(new Tuple<string, string, byte[]>("null-key2", "some-type", null));
 				records[2].ShouldBeEqual(new Tuple<string, string, byte[]>("k3", string.Empty.ResolvableTypeName(), "\"last\"".ToByteArray()));
 			};
 		}

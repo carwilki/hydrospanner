@@ -17,15 +17,21 @@
 
 			while (this.stream.Position < this.stream.Length)
 			{
-				var bytes = this.Next();
-				var key = ResolveType(bytes);
-				var type = ResolveType(this.Next());
-				var item = this.Next();
-				yield return new Tuple<string, string, byte[]>(key, type, item);
+				var keyBytes = this.Next();
+				var key = ResolveString(keyBytes);
+
+				var typeBytes = this.Next();
+				var type = ResolveString(typeBytes);
+
+				var itemBytes = this.Next();
+				if (itemBytes != null && itemBytes.Length == 0)
+					itemBytes = null;
+
+				yield return new Tuple<string, string, byte[]>(key, type, itemBytes);
 			}
 		}
 
-		private static string ResolveType(byte[] rawType)
+		private static string ResolveString(byte[] rawType)
 		{
 			return rawType.SliceString(0);
 		}

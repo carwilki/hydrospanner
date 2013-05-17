@@ -33,12 +33,14 @@
 				this.currentSnapshot.Write(keyBytes.Length);
 				this.currentSnapshot.Write(keyBytes);
 
-				var mementoBytes = item.MementoType.ToByteArray();
-				this.currentSnapshot.Write(mementoBytes.Length);
-				this.currentSnapshot.Write(mementoBytes);
+				var typeBytes = item.MementoType.ToByteArray();
+				this.currentSnapshot.Write(typeBytes.Length);
+				this.currentSnapshot.Write(typeBytes);
 
-				this.currentSnapshot.Write(item.Serialized.Length);
-				this.currentSnapshot.Write(item.Serialized);
+				var serializedLength = item.Serialized == null ? 0 : item.Serialized.Length;
+				this.currentSnapshot.Write(serializedLength);
+				if (item.Serialized != null && serializedLength > 0)
+					this.currentSnapshot.Write(item.Serialized);
 			});
 		}
 
