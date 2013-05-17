@@ -20,9 +20,21 @@
 	{
 		public virtual IDisruptor<BootstrapItem> CreateBootstrapDisruptor(IRepository repository, int countdown, Action<bool> complete)
 		{
-			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new SleepingWaitStrategy(), 1024 * 4);
+			var serializerCount = 1;
+			if (countdown > 1024 * 4)
+				serializerCount++;
+			if (countdown > 1024 * 16)
+				serializerCount++;
+			if (countdown > 1024 * 64)
+				serializerCount++;
+
+			var serializers = new Phases.Bootstrap.SerializationHandler[serializerCount];
+			for (var i = 0; i < serializerCount; i++)
+				serializers[i] = new Phases.Bootstrap.SerializationHandler(this.CreateInboundSerializer(), serializerCount, i);
+
+			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new BlockingWaitStrategy(), 1024 * 64);
 			disruptor
-				.HandleEventsWith(new Phases.Bootstrap.SerializationHandler(this.CreateInboundSerializer()))
+				.HandleEventsWith(serializers.Cast<IEventHandler<BootstrapItem>>().ToArray())
 				.Then(new MementoHandler(repository))
 				.Then(new CountdownHandler(countdown, complete));
 

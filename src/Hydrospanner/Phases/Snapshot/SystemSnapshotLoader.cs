@@ -32,7 +32,7 @@
 		}
 
 		const string WildcardPattern = "*";
-		const int BufferSize = 1024 * 10;
+		const int BufferSize = 1024 * 1024 * 64;
 		readonly DirectoryBase directory;
 		readonly FileBase file;
 		readonly string path;

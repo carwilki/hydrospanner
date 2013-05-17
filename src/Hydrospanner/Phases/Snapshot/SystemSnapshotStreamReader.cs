@@ -5,6 +5,7 @@
 	using System.IO;
 	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
+	using log4net;
 
 	public class SystemSnapshotStreamReader : IDisposable
 	{
@@ -14,6 +15,8 @@
 		{
 			if (this.Count == 0)
 				yield break;
+
+			var counter = 0;
 
 			while (this.stream.Position < this.stream.Length)
 			{
@@ -27,6 +30,10 @@
 				if (itemBytes != null && itemBytes.Length == 0)
 					itemBytes = null;
 
+				if (counter % 10000 == 0)
+					Log.InfoFormat("Read {0} mementos from the snapshot", counter);
+
+				counter++;
 				yield return new Tuple<string, string, byte[]>(key, type, itemBytes);
 			}
 		}
@@ -86,7 +93,8 @@
 				this.stream.Dispose();
 		}
 
-		readonly Stream stream;
-		readonly byte[] lengthBuffer = new byte[sizeof(int)];
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SystemSnapshotStreamReader));
+		private readonly Stream stream;
+		private readonly byte[] lengthBuffer = new byte[sizeof(int)];
 	}
 }
