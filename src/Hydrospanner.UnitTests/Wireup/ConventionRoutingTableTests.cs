@@ -35,35 +35,6 @@ namespace Hydrospanner.Wireup
 			static TestMemento memento;
 			static IHydratable hydratable;
 		}
-		public class when_a_memento_type_is_already_registered_to_another_hydratable
-		{
-			Because of = () =>
-				thrown = Catch.Exception(() => new ConventionRoutingTable(typeof(MementoHydratable), typeof(DuplicateMementoHydratable)));
-
-			It should_throw_an_exception = () =>
-				thrown.ShouldBeOfType<InvalidOperationException>();
-
-			static Exception thrown;
-
-			// ReSharper disable UnusedMember.Local
-			// ReSharper disable UnusedParameter.Local
-			private class MementoHydratable
-			{
-				public static SomeHydratable Restore(string key, TestMemento memento)
-				{
-					return new SomeHydratable();
-				}
-			}
-			private class DuplicateMementoHydratable
-			{
-				public static SomeHydratable Restore(string key, TestMemento memento)
-				{
-					return new SomeHydratable();
-				}
-			}
-			// ReSharper restore UnusedParameter.Local
-			// ReSharper restore UnusedMember.Local
-		}
 
 		public class when_providing_a_null_message
 		{

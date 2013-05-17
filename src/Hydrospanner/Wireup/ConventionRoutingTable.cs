@@ -23,8 +23,18 @@
 		}
 		public IHydratable Restore<T>(string key, T memento)
 		{
-			MementoDelegate callback;
-			return this.mementos.TryGetValue(typeof(T), out callback) ? callback(key, memento) : null;
+			List<MementoDelegate> delegates;
+			if (!this.mementos.TryGetValue(typeof(T), out delegates))
+				return null;
+
+			foreach (var item in delegates)
+			{
+				var hydratable = item(key, memento);
+				if (hydratable != null)
+					return hydratable;
+			}
+
+			return null;
 		}
 
 		public ConventionRoutingTable()
@@ -85,9 +95,6 @@
 				return;
 
 			var mementoType = parameters[1].ParameterType;
-			if (this.mementos.ContainsKey(mementoType))
-				throw new InvalidOperationException("Memento of type '{0}' cannot be registered multiple times.".FormatWith(mementoType)); // TODO: allow multiple registrations
-
 			Log.DebugFormat(
 				"Registering memento restoration method '{0}.{1}({2} memento)' with the ConventionRoutingTable.", 
 				(method.DeclaringType ?? typeof(IHydratable)).Name, 
@@ -121,7 +128,11 @@
 // ReSharper disable UnusedMember.Local
 		private void RegisterGenericMemento<T>(MementoDelegate<T> callback)
 		{
-			this.mementos[typeof(T)] = (x,y) => callback(x, (T)y);
+			List<MementoDelegate> delegates;
+			if (!this.mementos.TryGetValue(typeof(T), out delegates))
+				this.mementos[typeof(T)] = delegates = new List<MementoDelegate>();
+
+			delegates.Add((x, y) => callback(x, (T)y));
 		}
 		private void RegisterGenericLookup<T>(LookupDelegate<T> callback)
 		{
@@ -138,7 +149,7 @@
 		private static readonly MethodInfo RegisterMementoMethod = typeof(ConventionRoutingTable).GetMethod("RegisterGenericMemento", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly MethodInfo RegisterLookupMethod = typeof(ConventionRoutingTable).GetMethod("RegisterGenericLookup", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ConventionRoutingTable));
-		private readonly Dictionary<Type, MementoDelegate> mementos = new Dictionary<Type, MementoDelegate>(128);
+		private readonly Dictionary<Type, List<MementoDelegate>> mementos = new Dictionary<Type, List<MementoDelegate>>(128);
 		private readonly Dictionary<Type, List<LookupDelegate>> lookups = new Dictionary<Type, List<LookupDelegate>>(128);
 		private readonly List<HydrationInfo> routes = new List<HydrationInfo>(16);
 	}
