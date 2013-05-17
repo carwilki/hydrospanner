@@ -10,10 +10,12 @@
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{
 			Log.DebugFormat("Countdown at {0}, receiving bootstrap item.", this.countdown);
-			this.failed = this.failed || (data != null && data.Memento == null);
+
+			if (!this.failed && data != null && data.Memento == null && data.SerializedMemento != null)
+				this.failed = true;
+
 			if (--this.countdown == 0)
 			{
-				// TODO: mementos will soon be null
 				Log.InfoFormat("Successfully restored {0} mementos from snapshot", this.items);
 				this.callback(!this.failed);
 			}

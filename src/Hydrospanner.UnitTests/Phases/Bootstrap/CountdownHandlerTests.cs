@@ -40,7 +40,7 @@ namespace Hydrospanner.Phases.Bootstrap
 				handler = new CountdownHandler(1, Callback);
 
 			Because of = () =>
-				handler.OnNext(new BootstrapItem(), 0, false);
+				handler.OnNext(new BootstrapItem { SerializedMemento = new byte[16] }, 0, false);
 
 			It should_invoke_the_callback_a_single_time = () =>
 				calls.ShouldEqual(1);
