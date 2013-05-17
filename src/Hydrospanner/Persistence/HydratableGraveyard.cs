@@ -64,9 +64,7 @@
 		}
 		private void RestoreMemento(GraveyardMemento memento)
 		{
-			if (memento == null || memento.Keys == null)
-				return; // TODO: mementos will soon be null
-
+			memento = memento ?? new GraveyardMemento(new string[0]);
 			var keys = memento.Keys;
 
 			this.graveyard.Clear();
