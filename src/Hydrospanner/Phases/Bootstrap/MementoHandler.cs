@@ -9,7 +9,7 @@
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{
 			if (data.Memento == null)
-				return;
+				return; // TODO: mementos can soon be null
 
 			Log.DebugFormat("Restoring memento of type {0}.", data.SerializedType);
 

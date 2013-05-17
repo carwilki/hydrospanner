@@ -13,6 +13,7 @@
 			this.failed = this.failed || (data != null && data.Memento == null);
 			if (--this.countdown == 0)
 			{
+				// TODO: mementos will soon be null
 				Log.InfoFormat("Successfully restored {0} mementos from snapshot", this.items);
 				this.callback(!this.failed);
 			}

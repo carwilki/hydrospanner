@@ -65,7 +65,7 @@
 		private void RestoreMemento(GraveyardMemento memento)
 		{
 			if (memento == null || memento.Keys == null)
-				return;
+				return; // TODO: mementos will soon be null
 
 			var keys = memento.Keys;
 

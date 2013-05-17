@@ -24,7 +24,7 @@
 		public IHydratable Restore(object memento)
 		{
 			if (memento == null)
-				return null;
+				return null; // TODO: mementos will soon be null
 
 			MementoDelegate callback;
 			return this.mementos.TryGetValue(memento.GetType(), out callback) ? callback(memento) : null;
