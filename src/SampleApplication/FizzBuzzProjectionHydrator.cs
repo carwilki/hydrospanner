@@ -10,10 +10,10 @@
 		IHydratable<BuzzEvent>,
 		IHydratable<FizzBuzzEvent>
 	{
-		public string Key { get { return KeyFactory(this.document.StreamId); } }
+		public string Key { get; private set; }
 		public bool IsComplete { get; private set; }
 		public bool IsPublicSnapshot { get { return true; } }
-		public object Memento { get { return this.document; } }
+		public object Memento { get { return this.projection; } }
 		public Type MementoType
 		{
 			get { return typeof(FizzBuzzProjection); }
@@ -22,74 +22,59 @@
 
 		public void Hydrate(Delivery<CountEvent> delivery)
 		{
-			this.document.Message = string.Empty;
-			this.document.Value = delivery.Message.Value;
+			this.projection.Message = string.Empty;
+			this.projection.Value = delivery.Message.Value;
 		}
 		public void Hydrate(Delivery<FizzEvent> delivery)
 		{
-			this.document.Message = "Fizz";
-			this.document.Value = delivery.Message.Value;
+			this.projection.Message = "Fizz";
+			this.projection.Value = delivery.Message.Value;
 		}
 		public void Hydrate(Delivery<BuzzEvent> delivery)
 		{
-			this.document.Message = "Buzz";
-			this.document.Value = delivery.Message.Value;
+			this.projection.Message = "Buzz";
+			this.projection.Value = delivery.Message.Value;
 		}
 		public void Hydrate(Delivery<FizzBuzzEvent> delivery)
 		{
 			this.IsComplete = true;
-			this.document.Message = "FizzBuzz";
-			this.document.Value = delivery.Message.Value;
+			this.projection.Message = "FizzBuzz";
+			this.projection.Value = delivery.Message.Value;
 		}
 
-		public FizzBuzzProjectionHydrator(FizzBuzzProjection memento)
+		public FizzBuzzProjectionHydrator(string key, FizzBuzzProjection memento = null)
 		{
-			this.PendingMessages = NoMessages;
-			if (memento != null)
-				this.document = memento;
-		}
-		public FizzBuzzProjectionHydrator(Guid streamId)
-		{
-			this.PendingMessages = NoMessages;
-			this.document = new FizzBuzzProjection
-			{
-				StreamId = streamId,
-				Message = string.Empty,
-				Value = 0
-			};
+			this.PendingMessages = new object[0];
+			this.Key = key;
+			this.projection = memento ?? new FizzBuzzProjection();
 		}
 
-		public static FizzBuzzProjectionHydrator Restore(FizzBuzzProjection memento)
+		public static FizzBuzzProjectionHydrator Restore(string key, FizzBuzzProjection memento)
 		{
-			return new FizzBuzzProjectionHydrator(memento);
+			return new FizzBuzzProjectionHydrator(key, memento);
 		}
 		public static HydrationInfo Lookup(Delivery<CountEvent> delivery)
 		{
-			var message = delivery.Message;
-			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzProjectionHydrator(message.StreamId));
+			return Lookup(delivery.Message.StreamId);
 		}
 		public static HydrationInfo Lookup(Delivery<FizzEvent> delivery)
 		{
-			var message = delivery.Message;
-			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzProjectionHydrator(message.StreamId));
+			return Lookup(delivery.Message.StreamId);
 		}
 		public static HydrationInfo Lookup(Delivery<BuzzEvent> delivery)
 		{
-			var message = delivery.Message;
-			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzProjectionHydrator(message.StreamId));
+			return Lookup(delivery.Message.StreamId);
 		}
 		public static HydrationInfo Lookup(Delivery<FizzBuzzEvent> delivery)
 		{
-			var message = delivery.Message;
-			return new HydrationInfo(KeyFactory(message.StreamId), () => new FizzBuzzProjectionHydrator(message.StreamId));
+			return Lookup(delivery.Message.StreamId);
 		}
-
-		private static string KeyFactory(Guid streamId)
+		private static HydrationInfo Lookup(Guid streamId)
 		{
-			return string.Format(HydratableKeys.ProjectionKey, streamId);
+			var key = string.Format(HydratableKeys.ProjectionKey, streamId);
+			return new HydrationInfo(key, () => new FizzBuzzProjectionHydrator(key));
 		}
 
-		private static readonly object[] NoMessages = new object[0];
-		private readonly FizzBuzzProjection document;
+		private readonly FizzBuzzProjection projection;
 	}
 }

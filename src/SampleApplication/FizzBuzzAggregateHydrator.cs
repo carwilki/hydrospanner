@@ -2,7 +2,6 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.ComponentModel;
 	using Hydrospanner;
 	using Hydrospanner.Timeout;
 
@@ -14,29 +13,26 @@
 		IHydratable<FizzBuzzEvent>,
 		IHydratable<TimeoutReachedEvent>
 	{
-		public string Key { get { return KeyFactory(this.streamId); } }
+		public string Key { get; private set; }
 		public bool IsComplete { get { return this.aggregate.IsComplete; } }
 		public bool IsPublicSnapshot { get { return false; } }
-		public ICollection<object> PendingMessages { get; private set; }
+		public ICollection<object> PendingMessages
+		{
+			get { return this.aggregate.PendingMessages; }
+		}
 		public object Memento
 		{
-			get
-			{
-				return new FizzBuzzAggregateMemento
-				{
-					StreamId = this.streamId,
-					Value = this.aggregate.Value,
-				};
-			}
+			get { return this.aggregate.Memento; }
 		}
 		public Type MementoType
 		{
-			get { return typeof(FizzBuzzAggregateMemento); }
+			get { return typeof(int); }
 		}
 
 		public void Hydrate(Delivery<CountCommand> delivery)
 		{
-			this.aggregate.Increment(delivery.Message.Value);
+			var message = delivery.Message;
+			this.aggregate.Increment(message.StreamId, message.Value);
 			if (delivery.Live)
 				this.PendingMessages.Add(DateTime.UtcNow.AddSeconds(1));
 		}
@@ -62,60 +58,43 @@
 				Console.WriteLine("Timeout Reached: " + delivery.Message.Instant);
 		}
 
-		public FizzBuzzAggregateHydrator(FizzBuzzAggregateMemento memento)
+		public FizzBuzzAggregateHydrator(string key, int memento = 0)
 		{
-			this.streamId = memento.StreamId;
-			var pending = new List<object>();
-			this.PendingMessages = pending;
-			this.aggregate = new FizzBuzzAggregate(memento.StreamId, memento.Value, pending);
-		}
-		public FizzBuzzAggregateHydrator(Guid streamId)
-		{
-			this.streamId = streamId;
-			var pending = new List<object>();
-			this.PendingMessages = pending;
-			this.aggregate = new FizzBuzzAggregate(streamId, pending);
+			this.Key = key;
+			this.aggregate = new FizzBuzzAggregate(memento);
 		}
 
-		public static FizzBuzzAggregateHydrator Restore(FizzBuzzAggregateMemento memento)
+		public static FizzBuzzAggregateHydrator Restore(string key, int memento)
 		{
-			return new FizzBuzzAggregateHydrator(memento);
+			return new FizzBuzzAggregateHydrator(key, memento);
 		}
 
 		public static HydrationInfo Lookup(Delivery<CountCommand> delivery)
 		{
-			return new HydrationInfo(KeyFactory(delivery.Message.StreamId), () => new FizzBuzzAggregateHydrator(delivery.Message.StreamId));
+			return Lookup(delivery.Message.StreamId);
 		}
 		public static HydrationInfo Lookup(Delivery<CountEvent> delivery)
 		{
-			return new HydrationInfo(KeyFactory(delivery.Message.StreamId), () => new FizzBuzzAggregateHydrator(delivery.Message.StreamId));
+			return Lookup(delivery.Message.StreamId);
 		}
 		public static HydrationInfo Lookup(Delivery<FizzEvent> delivery)
 		{
-			return new HydrationInfo(KeyFactory(delivery.Message.StreamId), () => new FizzBuzzAggregateHydrator(delivery.Message.StreamId));
+			return Lookup(delivery.Message.StreamId);
 		}
 		public static HydrationInfo Lookup(Delivery<BuzzEvent> delivery)
 		{
-			return new HydrationInfo(KeyFactory(delivery.Message.StreamId), () => new FizzBuzzAggregateHydrator(delivery.Message.StreamId));
+			return Lookup(delivery.Message.StreamId);
 		}
 		public static HydrationInfo Lookup(Delivery<FizzBuzzEvent> delivery)
 		{
-			return new HydrationInfo(KeyFactory(delivery.Message.StreamId), () => new FizzBuzzAggregateHydrator(delivery.Message.StreamId));
+			return Lookup(delivery.Message.StreamId);
 		}
-
-		public static string KeyFactory(Guid streamId)
+		private static HydrationInfo Lookup(Guid streamId)
 		{
-			return string.Format(HydratableKeys.AggregateKey, streamId);
+			var key = string.Format(HydratableKeys.AggregateKey, streamId);
+			return new HydrationInfo(key, () => new FizzBuzzAggregateHydrator(key));
 		}
 
 		private readonly FizzBuzzAggregate aggregate;
-		private readonly Guid streamId;
-	}
-
-	[Description("json:underscore")]
-	public class FizzBuzzAggregateMemento
-	{
-		public Guid StreamId { get; set; }
-		public int Value { get; set; }
 	}
 }
