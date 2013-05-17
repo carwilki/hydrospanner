@@ -45,8 +45,8 @@ namespace Hydrospanner.Phases.Bootstrap
 		Because of = () =>
 			handler.OnNext(new BootstrapItem(), 0, false);
 
-		It should_not_pass_the_memento_to_the_repository = () =>
-			repository.Received(0).Restore(null);
+		It should_pass_the_memento_to_the_repository = () =>
+			repository.Received(1).Restore(null);
 
 		static IRepository repository;
 		static MementoHandler handler;
