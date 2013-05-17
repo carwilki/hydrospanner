@@ -42,6 +42,8 @@
 			this.transformationDisruptor = this.disruptors.CreateTransformationDisruptor(this.repository, info);
 			this.transformationDisruptor.Start();
 
+			GC.Collect(2, GCCollectionMode.Forced);
+
 			Log.Info("Attempting to start message listener.");
 			this.clock = this.timeout.CreateSystemClock(this.transformationDisruptor.RingBuffer);
 			this.clock.Start();
