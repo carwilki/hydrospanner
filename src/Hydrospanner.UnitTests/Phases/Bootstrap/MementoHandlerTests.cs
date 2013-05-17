@@ -18,7 +18,12 @@ namespace Hydrospanner.Phases.Bootstrap
 	{
 		Establish context = () =>
 		{
-			item = new BootstrapItem { Memento = 42 };
+			item = new BootstrapItem
+			{
+				Key = "key",
+				Memento = 42,
+				MementoType = typeof(int)
+			};
 			repository = Substitute.For<IRepository>();
 			handler = new MementoHandler(repository);
 		};
@@ -27,7 +32,7 @@ namespace Hydrospanner.Phases.Bootstrap
 			handler.OnNext(item, 0, false);
 
 		It should_pass_the_memento_to_the_repository = () =>
-			repository.Received(1).Restore(item.Memento);
+			repository.Received(1).Restore("key", item.Memento);
 
 		static BootstrapItem item;
 		static IRepository repository;
@@ -38,16 +43,23 @@ namespace Hydrospanner.Phases.Bootstrap
 	{
 		Establish context = () =>
 		{
+			item = new BootstrapItem
+			{
+				Key = "key",
+				MementoType = typeof(string)
+			};
+
 			repository = Substitute.For<IRepository>();
 			handler = new MementoHandler(repository);
 		};
 
 		Because of = () =>
-			handler.OnNext(new BootstrapItem(), 0, false);
+			handler.OnNext(item, 0, false);
 
 		It should_pass_the_memento_to_the_repository = () =>
-			repository.Received(1).Restore(null);
+			repository.Received(1).Restore<string>("key", null);
 
+		static BootstrapItem item;
 		static IRepository repository;
 		static MementoHandler handler;
 	}

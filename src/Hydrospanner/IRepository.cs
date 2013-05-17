@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner
 {
+	using System;
 	using System.Collections.Generic;
 
 	public interface IRepository
@@ -10,6 +11,6 @@
 		IEnumerable<IHydratable<T>> Load<T>(Delivery<T> delivery);
 
 		void Delete(IHydratable hydratable);
-		void Restore(object memento);
+		void Restore<T>(string key, T memento);
 	}
 }

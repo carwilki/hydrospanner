@@ -66,19 +66,19 @@
 			this.graveyard.Bury(hydratable.Key);
 			this.catalog.Remove(hydratable.Key);
 		}
-		public void Restore(object memento)
+		public void Restore<T>(string key, T memento)
 		{
-			var hydratable = this.RestoreMemento(memento);
+			var hydratable = this.RestoreMemento(key, memento);
 			if (hydratable != null)
 				this.catalog[hydratable.Key] = hydratable;
 		}
-		private IHydratable RestoreMemento(object memento)
+		private IHydratable RestoreMemento<T>(string key, T memento)
 		{
 			var graveyardMemento = memento as GraveyardMemento;
 			if (graveyardMemento != null)
 				return HydratableGraveyard.Restore(graveyardMemento, this.graveyard);
 
-			return this.routes.Restore(memento);
+			return this.routes.Restore(key, memento);
 		}
 
 		public DefaultRepository(IRoutingTable routes) : this(routes, null)

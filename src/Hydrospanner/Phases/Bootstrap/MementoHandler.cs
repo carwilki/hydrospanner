@@ -9,7 +9,7 @@
 		public void OnNext(BootstrapItem data, long sequence, bool endOfBatch)
 		{
 			Log.DebugFormat("Restoring memento of type {0}.", data.SerializedType);
-			this.repository.Restore(data.Memento);
+			this.repository.Restore(data.Key, data.MementoType, data.Memento);
 		}
 
 		public MementoHandler(IRepository repository)

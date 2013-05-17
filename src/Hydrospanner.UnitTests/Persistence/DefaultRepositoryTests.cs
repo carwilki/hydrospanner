@@ -95,7 +95,7 @@ namespace Hydrospanner.Persistence
 				tombstoned = new MyHydratable(Tombstone);
 				tombstoneInfo = new HydrationInfo(Tombstone, () => tombstoned);
 				routes.Lookup(tombstoneDelivery).Returns(new[] { tombstoneInfo });
-				routes.Restore(MyHydratable.MyMemento).Returns(Document);
+				routes.Restore("key", MyHydratable.MyMemento).Returns(Document);
 
 				repository.Load(delivery).ToList();
 				repository.Load(tombstoneDelivery).ToList();
@@ -108,7 +108,7 @@ namespace Hydrospanner.Persistence
 				
 				var restored = new DefaultRepository(routes, graveyard);
 				foreach (var memento in snapshot)
-					restored.Restore(memento);
+					restored.Restore("key", memento);
 
 				snapshotOfRestoredRepository = restored.Items.Select(x => x.Memento).ToList();
 			};
@@ -209,7 +209,7 @@ namespace Hydrospanner.Persistence
 		public class when_restoring_a_graveyard_memento
 		{
 			Because of = () =>
-				repository.Restore(memento);
+				repository.Restore("key", memento);
 
 			It should_populate_the_internal_graveyard_with_keys_from_the_memento = () =>
 				graveyard.Contains(memento.Keys[0]).ShouldBeTrue();
@@ -221,7 +221,7 @@ namespace Hydrospanner.Persistence
 		{
 			graveyard = new HydratableGraveyard();
 			routes = Substitute.For<IRoutingTable>();
-			routes.Restore(Arg.Any<GraveyardMemento>()).Returns(graveyard);
+			routes.Restore("key", Arg.Any<GraveyardMemento>()).Returns(graveyard);
 			repository = new DefaultRepository(routes, graveyard);
 			myHydrationInfo = new HydrationInfo(Key, () => Document);
 			delivery = new Delivery<int>(Message, Headers, 1, true, true);

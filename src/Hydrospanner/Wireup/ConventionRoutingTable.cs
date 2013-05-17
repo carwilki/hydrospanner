@@ -21,13 +21,10 @@
 
 			return this.routes;
 		}
-		public IHydratable Restore(object memento)
+		public IHydratable Restore<T>(string key, T memento)
 		{
-			if (memento == null)
-				return null; // TODO: mementos will soon be null
-
 			MementoDelegate callback;
-			return this.mementos.TryGetValue(memento.GetType(), out callback) ? callback(memento) : null;
+			return this.mementos.TryGetValue(typeof(T), out callback) ? callback(memento) : null;
 		}
 
 		public ConventionRoutingTable()
@@ -88,6 +85,7 @@
 			if (mementoType == typeof(object))
 				return;
 
+			// TODO: we can now register the same memento multiple times
 			if (this.mementos.ContainsKey(mementoType))
 				throw new InvalidOperationException("Memento of type '{0}' cannot be registered multiple times.".FormatWith(mementoType));
 

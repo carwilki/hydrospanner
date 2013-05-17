@@ -62,6 +62,7 @@
     <Compile Include="Persistence\SqlPersistence\JournalMessageTypeRegistrar.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlBulkInsertSession.cs" />
     <Compile Include="Persistence\SqlPersistence\SqlMessageStoreWriter.cs" />
+    <Compile Include="Phases\Bootstrap\RepositoryExtensions.cs" />
     <Compile Include="Phases\ClearItemHandler.cs" />
     <Compile Include="Phases\Journal\JournalItemAction.cs" />
     <Compile Include="Phases\Snapshot\NullSnapshotRecorder.cs" />
