@@ -24,7 +24,7 @@
 		public IHydratable Restore<T>(string key, T memento)
 		{
 			MementoDelegate callback;
-			return this.mementos.TryGetValue(typeof(T), out callback) ? callback(memento) : null;
+			return this.mementos.TryGetValue(typeof(T), out callback) ? callback(key, memento) : null;
 		}
 
 		public ConventionRoutingTable()
@@ -78,16 +78,15 @@
 				return;
 
 			var parameters = method.GetParameters();
-			if (parameters.Length != 1)
+			if (parameters.Length != 2)
 				return;
 
-			var mementoType = parameters[0].ParameterType;
-			if (mementoType == typeof(object))
+			if (parameters[0].ParameterType != typeof(string))
 				return;
 
-			// TODO: we can now register the same memento multiple times
+			var mementoType = parameters[1].ParameterType;
 			if (this.mementos.ContainsKey(mementoType))
-				throw new InvalidOperationException("Memento of type '{0}' cannot be registered multiple times.".FormatWith(mementoType));
+				throw new InvalidOperationException("Memento of type '{0}' cannot be registered multiple times.".FormatWith(mementoType)); // TODO: allow multiple registrations
 
 			Log.DebugFormat(
 				"Registering memento restoration method '{0}.{1}({2} memento)' with the ConventionRoutingTable.", 
@@ -122,7 +121,7 @@
 // ReSharper disable UnusedMember.Local
 		private void RegisterGenericMemento<T>(MementoDelegate<T> callback)
 		{
-			this.mementos[typeof(T)] = x => callback((T)x);
+			this.mementos[typeof(T)] = (x,y) => callback(x, (T)y);
 		}
 		private void RegisterGenericLookup<T>(LookupDelegate<T> callback)
 		{
@@ -146,6 +145,6 @@
 
 	internal delegate HydrationInfo LookupDelegate(object delivery);
 	internal delegate HydrationInfo LookupDelegate<T>(T delivery);
-	internal delegate IHydratable MementoDelegate(object memento);
-	internal delegate IHydratable MementoDelegate<T>(T memento);
+	internal delegate IHydratable MementoDelegate(string key, object memento);
+	internal delegate IHydratable MementoDelegate<T>(string key, T memento);
 }

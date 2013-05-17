@@ -87,7 +87,7 @@
 			return new HydrationInfo(HydratableKey, () => new TimeoutHydratable());
 		}
 
-		public static TimeoutHydratable Restore(TimeoutMemento memento)
+		public static TimeoutHydratable Restore(string key, TimeoutMemento memento)
 		{
 			var hydratable = new TimeoutHydratable();
 			hydratable.aggregate.Restore(memento);

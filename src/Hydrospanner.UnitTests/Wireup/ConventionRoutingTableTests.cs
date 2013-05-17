@@ -49,14 +49,14 @@ namespace Hydrospanner.Wireup
 			// ReSharper disable UnusedParameter.Local
 			private class MementoHydratable
 			{
-				public static SomeHydratable Restore(TestMemento memento)
+				public static SomeHydratable Restore(string key, TestMemento memento)
 				{
 					return new SomeHydratable();
 				}
 			}
 			private class DuplicateMementoHydratable
 			{
-				public static SomeHydratable Restore(TestMemento memento)
+				public static SomeHydratable Restore(string key, TestMemento memento)
 				{
 					return new SomeHydratable();
 				}
@@ -126,7 +126,7 @@ namespace Hydrospanner.Wireup
 		}
 		private class TestHydratable : SomeHydratable
 		{
-			public static TestHydratable Restore(TestMemento memento)
+			public static TestHydratable Restore(string key, TestMemento memento)
 			{
 				return new TestHydratable();
 			}
@@ -134,7 +134,7 @@ namespace Hydrospanner.Wireup
 			{
 				throw new NotSupportedException("never executed because of filtering logic within the routing table method selection process.");
 			}
-			public static TestHydratable Restore<T>(TestMemento memento)
+			public static TestHydratable Restore<T>(string key, TestMemento memento)
 			{
 				throw new NotSupportedException("never executed because of filtering logic within the routing table method selection process.");
 			}
@@ -146,7 +146,7 @@ namespace Hydrospanner.Wireup
 		}
 		private class TestHydratable2 : SomeHydratable
 		{
-			public static TestHydratable2 Restore(TestMemento2 memento)
+			public static TestHydratable2 Restore(string key, TestMemento2 memento)
 			{
 				return new TestHydratable2();
 			}
