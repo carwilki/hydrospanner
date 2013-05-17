@@ -26,8 +26,13 @@ namespace Hydrospanner.Phases.Bootstrap
 				SerializedType = "some serialized type"
 			};
 
+			Type @out;
 			serializer = Substitute.For<ISerializer>();
-			serializer.Deserialize(item.SerializedMemento, item.SerializedType).Returns(42);
+			serializer.Deserialize(item.SerializedMemento, item.SerializedType, out @out).Returns(x =>
+			{
+				x[2] = DeserializedType;
+				return 42;
+			});
 
 			handler = new SerializationHandler(serializer);
 		};
@@ -38,6 +43,10 @@ namespace Hydrospanner.Phases.Bootstrap
 		It should_deserialize_the_item = () =>
 			item.Memento.ShouldEqual(42);
 
+		It should_append_the_deserialized_type = () =>
+			item.MementoType.ShouldEqual(DeserializedType);
+
+		static readonly Type DeserializedType = typeof(Guid);
 		static BootstrapItem item;
 		static ISerializer serializer;
 		static SerializationHandler handler;

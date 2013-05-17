@@ -14,7 +14,9 @@
 
 			try
 			{
-				data.Memento = this.serializer.Deserialize(data.SerializedMemento, data.SerializedType);
+				Type type;
+				data.Memento = this.serializer.Deserialize(data.SerializedMemento, data.SerializedType, out type);
+				data.MementoType = type;
 			}
 			catch (SerializationException e)
 			{

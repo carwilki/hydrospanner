@@ -42,16 +42,22 @@
 		}
 		public object Deserialize(byte[] serialized, string typeName)
 		{
+			Type deserialized;
+			return this.Deserialize(serialized, typeName, out deserialized);
+		}
+		public object Deserialize(byte[] serialized, string typeName, out Type deserializedType)
+		{
+			deserializedType = null;
 			if (serialized == null || serialized.Length == 0)
 				return null;
 
-			var type = this.LoadType(typeName);
-			if (type == null)
+			deserializedType = this.LoadType(typeName);
+			if (deserializedType == null)
 				throw new SerializationException("Type '{0}' not found.".FormatWith(typeName));
 
 			try
 			{
-				return JsonConvert.DeserializeObject(DefaultEncoding.GetString(serialized), type, this.settings);
+				return JsonConvert.DeserializeObject(DefaultEncoding.GetString(serialized), deserializedType, this.settings);
 			}
 			catch (Exception e)
 			{
