@@ -123,7 +123,7 @@
 		private readonly ConnectionStringSettings settings;
 		private readonly IDictionary<string, SnapshotItem> catalog = new Dictionary<string, SnapshotItem>();
 		private readonly StringBuilder builder = new StringBuilder(1024 * 1024);
-		private readonly List<SnapshotItem> currentBatch = new List<SnapshotItem>(MaxBatchSizeInBytes); 
+		private readonly List<SnapshotItem> currentBatch = new List<SnapshotItem>(1024 * 4); 
 		private int saved;
 	}
 }
