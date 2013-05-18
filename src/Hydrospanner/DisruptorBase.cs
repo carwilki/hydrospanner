@@ -24,7 +24,7 @@
 		}
 		public void Stop()
 		{
-			this.disruptor.Halt();
+			this.disruptor.Shutdown();
 		}
 
 		public DisruptorBase(Disruptor<T> disruptor)

@@ -91,14 +91,8 @@
 			this.listener = this.listener.TryDispose();
 			this.clock = this.clock.TryDispose();
 
-			Log.Info("Waiting a few seconds for all work to clear out of disruptors.");
-			TimeSpan.FromSeconds(3).Sleep();
-
 			Log.Info("Shutting down transformation disruptor.");
 			this.transformationDisruptor = this.transformationDisruptor.TryDispose();
-
-			Log.Info("Waiting a few hundred milliseconds for journaling and snapshotting to complete.");
-			TimeSpan.FromMilliseconds(500).Sleep();
 
 			Log.Info("Shutting down snapshot disruptor.");
 			this.snapshotDisruptor = this.snapshotDisruptor.TryDispose();
