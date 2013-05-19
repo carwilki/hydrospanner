@@ -21,13 +21,13 @@
 			if (repository == null) 
 				throw new ArgumentNullException("repository");
 
-			this.transformRing = this.disruptors.CreateStartupTransformationDisruptor(repository, info, this.OnComplete);
-			if (this.transformRing != null)
-				this.transformRing.Start();
+			var transformRing = this.disruptors.CreateStartupTransformationDisruptor(repository, info, this.OnComplete);
+			if (transformRing != null)
+				transformRing.Start();
 
-			using (this.transformRing)
+			using (transformRing)
 			{
-				this.Restore(info, journalRing);
+				this.Restore(info, transformRing, journalRing);
 				this.mutex.WaitOne();
 				return this.success;
 			}
@@ -37,7 +37,7 @@
 			this.success = result;
 			this.mutex.Set();
 		}
-		private void Restore(BootstrapInfo info, IDisruptor<JournalItem> journalRing)
+		private void Restore(BootstrapInfo info, IDisruptor<TransformationItem> transformRing, IDisruptor<JournalItem> journalRing)
 		{
 			var startingSequence = Math.Min(info.DispatchSequence + 1, info.SnapshotSequence + 1);
 			Log.InfoFormat("Restoring from sequence {0}, will dispatch and will replay messages (this could take some time...).", startingSequence);
@@ -45,7 +45,7 @@
 			var replayed = false;
 			foreach (var message in this.store.Load(startingSequence))
 			{
-				replayed = this.Replay(info, message) || replayed;
+				replayed = Replay(info, transformRing, message) || replayed;
 				this.Dispatch(info, journalRing, message);
 
 				if (message.Sequence % 25000 == 0)
@@ -56,18 +56,18 @@
 			if (!replayed)
 				this.OnComplete(true);
 		}
-		private bool Replay(BootstrapInfo info, JournaledMessage message)
+		private static bool Replay(BootstrapInfo info, IDisruptor<TransformationItem> transformRing, JournaledMessage message)
 		{
 			if (message.Sequence <= info.SnapshotSequence)
 				return false;
 
-			var next = this.transformRing.RingBuffer.Next();
-			var claimed = this.transformRing.RingBuffer[next];
+			var next = transformRing.RingBuffer.Next();
+			var claimed = transformRing.RingBuffer[next];
 			claimed.AsJournaledMessage(message.Sequence,
 				message.SerializedBody,
 				message.SerializedType,
 				message.SerializedHeaders);
-			this.transformRing.RingBuffer.Publish(next);
+			transformRing.RingBuffer.Publish(next);
 			return true;
 		}
 		private void Dispatch(BootstrapInfo info, IDisruptor<JournalItem> journalRing, JournaledMessage message)
@@ -115,7 +115,6 @@
 		private readonly AutoResetEvent mutex = new AutoResetEvent(false);
 		private readonly IMessageStore store;
 		private readonly DisruptorFactory disruptors;
-		private IDisruptor<TransformationItem> transformRing;
 		private bool success;
 	}
 }
