@@ -153,9 +153,6 @@ namespace Hydrospanner.Wireup
 			Because of = () =>
 				bootstrapper.Dispose();
 
-			It should_allow_time_for_the_disruptors_to_shutdown = () =>
-				naps.ShouldBeLike(new[] { TimeSpan.FromSeconds(3), TimeSpan.FromMilliseconds(500) });
-
 			It should_dispose_of_all_disposable_resources = () =>
 				Received.InOrder(ExpectedDisposal);
 		}
