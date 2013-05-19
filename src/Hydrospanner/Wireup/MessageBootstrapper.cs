@@ -10,24 +10,24 @@
 
 	internal class MessageBootstrapper
 	{
-		public virtual bool Restore(BootstrapInfo info, IDisruptor<JournalItem> journalRing, IRepository repository)
+		public virtual bool Restore(BootstrapInfo info, IDisruptor<JournalItem> journalDisruptor, IRepository repository)
 		{
 			if (info == null)
 				throw new ArgumentNullException("info");
 			
-			if (journalRing == null) 
-				throw new ArgumentNullException("journalRing");
+			if (journalDisruptor == null) 
+				throw new ArgumentNullException("journalDisruptor");
 			
 			if (repository == null) 
 				throw new ArgumentNullException("repository");
 
-			var transformRing = this.disruptors.CreateStartupTransformationDisruptor(repository, info, this.OnComplete);
-			if (transformRing != null)
-				transformRing.Start();
-
-			using (transformRing)
+			using (var disruptor = this.disruptors.CreateStartupTransformationDisruptor(repository, info, this.OnComplete))
 			{
-				this.Restore(info, transformRing, journalRing);
+				if (disruptor != null)
+					disruptor.Start();
+
+				var ring = disruptor == null ? null : disruptor.RingBuffer;
+				this.Restore(info, ring, journalDisruptor.RingBuffer);
 				this.mutex.WaitOne();
 				return this.success;
 			}
@@ -37,7 +37,7 @@
 			this.success = result;
 			this.mutex.Set();
 		}
-		private void Restore(BootstrapInfo info, IDisruptor<TransformationItem> transformRing, IDisruptor<JournalItem> journalRing)
+		private void Restore(BootstrapInfo info, IRingBuffer<TransformationItem> transformRing, IRingBuffer<JournalItem> journalRing)
 		{
 			var startingSequence = Math.Min(info.DispatchSequence + 1, info.SnapshotSequence + 1);
 			Log.InfoFormat("Restoring from sequence {0}, will dispatch and will replay messages (this could take some time...).", startingSequence);
@@ -56,21 +56,21 @@
 			if (!replayed)
 				this.OnComplete(true);
 		}
-		private static bool Replay(BootstrapInfo info, IDisruptor<TransformationItem> transformRing, JournaledMessage message)
+		private static bool Replay(BootstrapInfo info, IRingBuffer<TransformationItem> transformRing, JournaledMessage message)
 		{
 			if (message.Sequence <= info.SnapshotSequence)
 				return false;
 
-			var next = transformRing.RingBuffer.Next();
-			var claimed = transformRing.RingBuffer[next];
+			var next = transformRing.Next();
+			var claimed = transformRing[next];
 			claimed.AsJournaledMessage(message.Sequence,
 				message.SerializedBody,
 				message.SerializedType,
 				message.SerializedHeaders);
-			transformRing.RingBuffer.Publish(next);
+			transformRing.Publish(next);
 			return true;
 		}
-		private void Dispatch(BootstrapInfo info, IDisruptor<JournalItem> journalRing, JournaledMessage message)
+		private void Dispatch(BootstrapInfo info, IRingBuffer<JournalItem> journalRing, JournaledMessage message)
 		{
 			if (message.Sequence <= info.DispatchSequence)
 				return; // already dispatched
@@ -81,13 +81,13 @@
 			if (this.internalTypes.Contains(message.SerializedType))
 				return;
 
-			var next = journalRing.RingBuffer.Next();
-			var claimed = journalRing.RingBuffer[next];
+			var next = journalRing.Next();
+			var claimed = journalRing[next];
 			claimed.AsBootstrappedDispatchMessage(message.Sequence,
 				message.SerializedBody,
 				message.SerializedType,
 				message.SerializedHeaders);
-			journalRing.RingBuffer.Publish(next);
+			journalRing.Publish(next);
 		}
 
 		public MessageBootstrapper(IMessageStore store, DisruptorFactory disruptors)
