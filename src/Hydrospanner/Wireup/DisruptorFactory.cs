@@ -36,7 +36,8 @@
 			disruptor
 				.HandleEventsWith(serializers.Cast<IEventHandler<BootstrapItem>>().ToArray())
 				.Then(new MementoHandler(repository))
-				.Then(new CountdownHandler(countdown, complete));
+				.Then(new CountdownHandler(countdown, complete))
+				.Then(new ClearItemHandler());
 
 			return new DisruptorBase<BootstrapItem>(disruptor);
 		}
@@ -101,7 +102,8 @@
 			var disruptor = CreateSingleThreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), slots);
 			disruptor.HandleEventsWith(serializers.Cast<IEventHandler<TransformationItem>>().ToArray())
 				.Then(transformationHandler)
-				.Then(new CountdownHandler(countdown, complete));
+				.Then(new CountdownHandler(countdown, complete))
+				.Then(new ClearItemHandler());
 
 			return new DisruptorBase<TransformationItem>(disruptor);
 		}
