@@ -32,12 +32,11 @@
 			for (var i = 0; i < serializerCount; i++)
 				serializers[i] = new Phases.Bootstrap.SerializationHandler(this.CreateInboundSerializer(), serializerCount, i);
 
-			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new SleepingWaitStrategy(), 1024 * 64);
+			var disruptor = CreateSingleThreadedDisruptor<BootstrapItem>(new SleepingWaitStrategy(), 1024 * 128);
 			disruptor
 				.HandleEventsWith(serializers.Cast<IEventHandler<BootstrapItem>>().ToArray())
 				.Then(new MementoHandler(repository))
-				.Then(new CountdownHandler(countdown, complete))
-				.Then(new ClearItemHandler());
+				.Then(new CountdownHandler(countdown, complete));
 
 			return new DisruptorBase<BootstrapItem>(disruptor);
 		}
@@ -48,7 +47,7 @@
 			var messageSender = this.messaging.CreateNewMessageSender();
 			var checkpointStore = this.persistence.CreateDispatchCheckpointStore();
 
-			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 16);
+			var disruptor = CreateSingleThreadedDisruptor<JournalItem>(new SleepingWaitStrategy(), 1024 * 64);
 			disruptor.HandleEventsWith(new Phases.Journal.SerializationHandler(CreateOutboundSerializer()))
 				.Then(new JournalHandler(messageStore))
 				.Then(new AcknowledgmentHandler(), new DispatchHandler(messageSender))
@@ -120,7 +119,7 @@
 			if (size == 1)
 				return 2;
 
-			return size > (1024 * 1024) ? (1024 * 1024) : (int)size;
+			return size > (1024 * 256) ? (1024 * 256) : (int)size;
 		}
 		private TransformationHandler CreateTransformationHandler(IRepository repository, long sequence, ISystemSnapshotTracker tracker = null)
 		{
@@ -138,7 +137,7 @@
 			var systemSnapshotTracker = new SystemSnapshotTracker(info.JournaledSequence, this.snapshotFrequency, this.snapshotRing, repository);
 			var transformationHandler = this.CreateTransformationHandler(repository, info.JournaledSequence, systemSnapshotTracker);
 
-			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 32);
+			var disruptor = CreateMultithreadedDisruptor<TransformationItem>(new SleepingWaitStrategy(), 1024 * 128);
 			disruptor
 				.HandleEventsWith(serializationHandler)
 				.Then(transformationHandler)
