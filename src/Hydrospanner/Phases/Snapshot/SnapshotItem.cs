@@ -53,7 +53,8 @@
 			this.Memento = null;
 			this.MementoType = null;
 			this.Serialized = null;
-			this.CurrentSequence = this.MementosRemaining = 0;
+			this.CurrentSequence = 0;
+			this.MementosRemaining = 0;
 			this.ComputedHash = 0;
 		}
 		private static object Clone(object memento)

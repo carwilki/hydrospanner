@@ -18,5 +18,14 @@
 			this.Memento = null;
 			this.MementoType = null;
 		}
+
+		public void Clear()
+		{
+			this.Key = null;
+			this.SerializedType = null;
+			this.SerializedMemento = null;
+			this.Memento = null;
+			this.MementoType = null;
+		}
 	}
 }

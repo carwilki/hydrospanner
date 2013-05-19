@@ -74,7 +74,8 @@
 		public void Clear()
 		{
 			this.MessageSequence = 0;
-			this.SerializedBody = this.SerializedHeaders = null;
+			this.SerializedBody = null;
+			this.SerializedHeaders = null;
 			this.SerializedType = null;
 			this.Body = null;
 			this.Headers = null;
