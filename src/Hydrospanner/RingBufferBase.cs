@@ -43,6 +43,6 @@
 			this.inner = inner;
 		}
 
-		readonly RingBuffer<T> inner;
+		private readonly RingBuffer<T> inner;
 	}
 }
