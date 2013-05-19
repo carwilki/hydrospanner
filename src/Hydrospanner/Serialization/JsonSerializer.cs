@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.IO;
 	using System.Runtime.Serialization;
 	using System.Text;
 	using Newtonsoft.Json;
@@ -16,8 +17,14 @@
 			
 			try
 			{
-				var serialized = JsonConvert.SerializeObject(graph, this.settings);
-				return DefaultEncoding.GetBytes(serialized);
+				using (var stream = new MemoryStream())
+				using (var streamWriter = new StreamWriter(stream, DefaultEncoding))
+				using (var jsonWriter = new JsonTextWriter(streamWriter))
+				{
+					this.serializer.Serialize(jsonWriter, graph);
+					jsonWriter.Flush();
+					return stream.ToArray();
+				}
 			}
 			catch (Exception e)
 			{
@@ -32,8 +39,10 @@
 
 			try
 			{
-				var json = DefaultEncoding.GetString(serialized);
-				return JsonConvert.DeserializeObject<T>(json, this.settings);
+				using (var stream = new MemoryStream(serialized))
+				using (var streamReader = new StreamReader(stream, DefaultEncoding))
+				using (var jsonReader = new JsonTextReader(streamReader))
+					return this.serializer.Deserialize<T>(jsonReader);
 			}
 			catch (Exception e)
 			{
@@ -57,7 +66,10 @@
 
 			try
 			{
-				return JsonConvert.DeserializeObject(DefaultEncoding.GetString(serialized), deserializedType, this.settings);
+				using (var stream = new MemoryStream(serialized))
+				using (var streamReader = new StreamReader(stream, DefaultEncoding))
+				using (var jsonReader = new JsonTextReader(streamReader))
+					return this.serializer.Deserialize(jsonReader, deserializedType);
 			}
 			catch (Exception e)
 			{
@@ -84,7 +96,7 @@
 		private readonly Dictionary<string, Type> types = new Dictionary<string, Type>(1024);
 
 		// Don't use static for this--it's not thread safe because contract resolver is stateful
-		private readonly JsonSerializerSettings settings = new JsonSerializerSettings
+		private readonly Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer
 		{
 			NullValueHandling = NullValueHandling.Ignore,
 			TypeNameHandling = TypeNameHandling.None,
