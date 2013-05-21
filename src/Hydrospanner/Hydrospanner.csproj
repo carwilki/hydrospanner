@@ -94,6 +94,7 @@
     <Compile Include="Wireup\ConventionWireupParameters.cs" />
     <Compile Include="Wireup\DisruptorFactory.cs" />
     <Compile Include="HydrationInfo.cs" />
+    <Compile Include="Wireup\LogAndTerminateProcessHandler.cs" />
     <Compile Include="Wireup\IRoutingTable.cs" />
     <Compile Include="Wireup\MessagingFactory.cs" />
     <Compile Include="Wireup\SnapshotFactory.cs" />
