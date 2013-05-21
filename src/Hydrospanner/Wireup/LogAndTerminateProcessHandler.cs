@@ -20,16 +20,15 @@
 		{
 			LogAndShutdown("Unhandled exception during startup; process MUST terminate.", ex);
 		}
-
 		private static void LogAndShutdown(string message, Exception innerException)
 		{
-			Console.Write(message + " " + innerException);
 			Log.Fatal(message, innerException);
-			Thread.Sleep(1000);
+			ShutdownTimeout.Sleep();
 			Environment.Exit(FatalError);
 		}
 
 		private const int FatalError = 1;
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LogAndTerminateProcessHandler));
+		private static readonly TimeSpan ShutdownTimeout = TimeSpan.FromSeconds(5);
 	}
 }

@@ -18,6 +18,8 @@
 
 			Log.DebugFormat("Flushing buffer with {0} items to journal.", this.buffer.Count);
 			this.store.Save(this.buffer);
+
+			Log.InfoFormat("{0} items committed to message journal.", this.buffer.Count);
 			this.buffer.Clear();
 		}
 

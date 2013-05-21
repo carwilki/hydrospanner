@@ -26,6 +26,9 @@
 				while (true)
 					if (this.Dispatch())
 						break;
+
+				if (this.buffer.Count > 0)
+					Log.InfoFormat("Dispatched {0} items.", this.buffer.Count);
 			}
 			catch (ObjectDisposedException)
 			{

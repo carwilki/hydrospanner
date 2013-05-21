@@ -33,6 +33,7 @@
 
 			this.recorder.FinishRecording();
 
+			Log.InfoFormat("Persisted {0} public snapshot items to disk.", this.buffer.Count);
 			this.buffer.Clear();
 		}
 
