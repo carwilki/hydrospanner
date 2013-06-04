@@ -63,13 +63,21 @@
 				this.SerializedBody = serializer.Serialize(this.Body);
 				if (this.Body != null)
 					this.SerializedType = this.Body.ResolvableTypeName();
+
+				this.Body = null;
 			}
 
 			if (this.ItemActions.HasFlag(JournalItemAction.Dispatch) && this.Headers == null)
+			{
 				this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
+				this.SerializedHeaders = null;
+			}
 
 			if (this.SerializedHeaders == null && this.Headers != null && this.Headers.Count > 0)
+			{
 				this.SerializedHeaders = serializer.Serialize(this.Headers);
+				this.Headers = null;
+			}
 		}
 		public void Clear()
 		{

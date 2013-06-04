@@ -46,6 +46,9 @@ namespace Hydrospanner.Phases.Bootstrap
 		It should_append_the_deserialized_type = () =>
 			item.MementoType.ShouldEqual(DeserializedType);
 
+		It should_clear_the_serialized_bytes = () =>
+			item.SerializedMemento.ShouldBeNull();
+
 		static readonly Type DeserializedType = typeof(Guid);
 		static BootstrapItem item;
 		static ISerializer serializer;

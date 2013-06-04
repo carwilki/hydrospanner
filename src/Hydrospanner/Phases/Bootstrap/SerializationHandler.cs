@@ -23,6 +23,7 @@
 				Type type;
 				data.Memento = this.serializer.Deserialize(data.SerializedMemento, data.SerializedType, out type);
 				data.MementoType = type;
+				data.SerializedMemento = null;
 			}
 			catch (SerializationException e)
 			{
