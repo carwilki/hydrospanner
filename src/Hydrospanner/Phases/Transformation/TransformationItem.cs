@@ -94,6 +94,12 @@
 				else
 					Log.Fatal("Unable to deserialize item of type '{0}'".FormatWith(this.SerializedType), e);
 			}
+			finally
+			{
+				this.SerializedBody = null;
+				this.SerializedHeaders = null;
+				this.SerializedType = null;
+			}
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(TransformationItem));

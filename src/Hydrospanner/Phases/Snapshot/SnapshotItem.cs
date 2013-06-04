@@ -45,6 +45,7 @@
 
 			this.Serialized = serializer.Serialize(this.Memento);
 			this.ComputedHash = this.Serialized.ComputeHash();
+			this.Memento = null;
 		}
 		public void Clear()
 		{

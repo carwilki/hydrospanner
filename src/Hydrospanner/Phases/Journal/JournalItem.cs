@@ -72,8 +72,7 @@
 				this.Headers = serializer.Deserialize<Dictionary<string, string>>(this.SerializedHeaders);
 				this.SerializedHeaders = null;
 			}
-
-			if (this.SerializedHeaders == null && this.Headers != null && this.Headers.Count > 0)
+			else if (this.SerializedHeaders == null && this.Headers != null && this.Headers.Count > 0)
 			{
 				this.SerializedHeaders = serializer.Serialize(this.Headers);
 				this.Headers = null;

@@ -40,7 +40,6 @@
 		}
 		private void Replay()
 		{
-			Log.DebugFormat("Replaying hydratables that subscribe to type {0}.", this.item.SerializedType);
 			this.deliveryHandler.Deliver(this.item, false);
 		}
 		private void Deliver()
@@ -49,7 +48,6 @@
 			var startingSequence = this.currentSequnce + this.offset;
 			this.item.MessageSequence = startingSequence;
 
-			Log.DebugFormat("Transforming hydratables that subscribe to type {0}.", this.item.SerializedType);
 			this.buffer.AddRange(this.deliveryHandler.Deliver(this.item, true));
 
 			for (var i = 0; i < this.buffer.Count; i++)

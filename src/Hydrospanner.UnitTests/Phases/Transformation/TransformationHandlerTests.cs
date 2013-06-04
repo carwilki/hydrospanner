@@ -301,7 +301,7 @@ namespace Hydrospanner.Phases.Transformation
 						SerializedBody = item.SerializedBody,
 						ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
 						MessageSequence = JournaledSequence + 1,
-						SerializedType = item.SerializedType,
+						SerializedType = default(int).ResolvableTypeName(),
 					});
 
 				It should_increment_the_snapshot_by_one = () =>
@@ -336,7 +336,7 @@ namespace Hydrospanner.Phases.Transformation
 							SerializedBody = item.SerializedBody,
 							ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
 							MessageSequence = JournaledSequence + 1,
-							SerializedType = item.SerializedType
+							SerializedType = default(int).ResolvableTypeName()
 						},
 						new JournalItem
 						{
@@ -394,7 +394,7 @@ namespace Hydrospanner.Phases.Transformation
 							SerializedBody = item.SerializedBody,
 							ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
 							MessageSequence = JournaledSequence + 1,
-							SerializedType = item.SerializedType
+							SerializedType = default(int).ResolvableTypeName()
 						},
 						new JournalItem
 						{
@@ -452,7 +452,7 @@ namespace Hydrospanner.Phases.Transformation
 						SerializedBody = item.SerializedBody,
 						ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
 						MessageSequence = JournaledSequence + 1,
-						SerializedType = item.SerializedType
+						SerializedType = default(int).ResolvableTypeName()
 					},
 					new JournalItem
 					{
@@ -477,7 +477,7 @@ namespace Hydrospanner.Phases.Transformation
 						SerializedBody = item2.SerializedBody,
 						ItemActions = JournalItemAction.Acknowledge | JournalItemAction.Journal,
 						MessageSequence = JournaledSequence + 4,
-						SerializedType = item2.SerializedType
+						SerializedType = default(int).ResolvableTypeName()
 					}
 				});
 

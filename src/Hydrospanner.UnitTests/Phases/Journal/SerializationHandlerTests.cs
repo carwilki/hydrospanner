@@ -60,7 +60,7 @@ namespace Hydrospanner.Phases.Journal
 				item.AsBootstrappedDispatchMessage(0, new byte[0], string.Empty, SerializedValue);
 
 			It should_NOT_serialize_the_headers = () =>
-				item.SerializedHeaders.SequenceEqual(SerializedValue).ShouldBeTrue();
+				item.SerializedHeaders.ShouldBeNull();
 
 			It should_deserialize_the_serialized_headers = () =>
 				item.Headers.ShouldNotBeNull();
