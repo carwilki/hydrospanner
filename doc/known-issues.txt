@@ -1,0 +1,2 @@
+- When working with the database, either increase the DefaultCommandTimeout or ConnectionPooling=False (or both), otherwise, the finalizer thread could throw and terminate the process.
+  http://bugs.mysql.com/bug.php?id=69400

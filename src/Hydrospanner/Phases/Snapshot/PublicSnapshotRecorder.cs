@@ -7,7 +7,6 @@
 	using System.Linq;
 	using System.Text;
 	using log4net;
-	using IsolationLevel = System.Data.IsolationLevel;
 
 	internal class PublicSnapshotRecorder : ISnapshotRecorder
 	{
@@ -45,14 +44,9 @@
 			var keys = this.catalog.Keys.ToArray();
 
 			using (var connection = this.settings.OpenConnection())
-			using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
-			{
 				using (var command = connection.CreateCommand())
 					while (this.saved < keys.Length)
 						this.RecordBatch(command, keys);
-
-				transaction.Commit();
-			}
 
 			Log.DebugFormat("Inserted {0} items successfully", this.saved);
 		}
@@ -95,8 +89,14 @@
 			command.Parameters.Clear();
 			this.builder.Clear();
 
+			if (this.saved == 0)
+				this.builder.Append("ROLLBACK;BEGIN;");
+
 			for (var i = 0; i < this.currentBatch.Count; i++)
 				this.IncludeItem(command, i, this.currentBatch[i]);
+
+			if (this.saved + this.currentBatch.Count == this.catalog.Count)
+				this.builder.Append("COMMIT;");
 
 			command.CommandText = this.builder.ToString();
 		}
