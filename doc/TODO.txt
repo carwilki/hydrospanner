@@ -4,8 +4,22 @@ Documentation
  - When making breaking changes, do a fully replay to make new versions of the sagas and projections
  - Threading model: everything is single threaded.  DO NOT perform blocking operations (unless you really know what you're doing)
      because everything will block behind that operation.
+ - Restore(string key, T memento): generally speaking each hydratable should have its own unique memento, but it is possible to have
+    primitives serve as mementos as well, e.g. int, DateTime, Guid, etc.  In a scenario where two hydratables share the same memento type, the
+    registration list of hydratable types for that memento type (determined by random reflection-based auto-detection order) will be enumerated
+    and the first hydratable type to return a non-null hydratable instance will "own" that memento and any further registrations will be ignored.
+ - "Public" snapshots (projections) are always taken before "system" snapshots and are on the *same* ring.  This ensures that in a failure scenario,
+     all public snapshots are visible and committed before the system snapshot is taken.  Otherwise, a system snapshot might be taken and a
+     public snapshots might fail to save, but during restart of the process, that given public projection will never be replayed until the next
+     full rebuild.
+ - Rebuilds can be done locally pointing to the production journal table and production documents table.  Only "IsComplete" projections will be
+     snapshotted during the rebuild process.  At the very end of rebuild just as the hydrospanner reaches the live stream it takes a snapshot of all
+     public hydratables for persistence, and may also take a system snapshot if enough events have elapsed.  This technique can allow rebuilding
+     really, really large event streams locally such that only the snapshot file need be sync'd to the server and the process restarted with the new
+     code and then we'll start from the newest snapshot and replay forward to live.
 
 Housekeeping
+	 
  - Metadata for projections? *Structured* data that's not a part of the projection but is available to the projection--
     the general idea is to make the projection focused on the consumer side where the "projector" can make decisions
     based upon critiera found outside of the projection (idempotency/ordering/etc)
@@ -27,19 +41,3 @@ Housekeeping
 - Potentially investigate alternative storage engines for both the message log as well as public snapshots, e.g. Mongo, Redis, Riak, etc.
 
 - NEAR FUTURE: Projection messages on the wire during replay
-
-- Restore(string key, T memento): generally speaking each hydratable should have its own unique memento, but it is possible to have
-  primitives serve as mementos as well, e.g. int, DateTime, Guid, etc.  In a scenario where two hydratables share the same memento type, the
-  registration list of hydratable types for that memento type (determined by random reflection-based auto-detection order) will be enumerated
-  and the first hydratable type to return a non-null hydratable instance will "own" that memento and any further registrations will be ignored.
-
-- "Public" snapshots (projections) are always taken before "system" snapshots and are on the *same* ring.  This ensures that in a failure scenario,
-    all public snapshots are visible and committed before the system snapshot is taken.  Otherwise, a system snapshot might be taken and a
-    public snapshots might fail to save, but during restart of the process, that given public projection will never be replayed until the next
-    full rebuild.
-
-- Rebuilds can be done locally pointing to the production journal table and production documents table.  Only "IsComplete" projections will be
-    snapshotted during the rebuild process.  At the very end of rebuild just as the hydrospanner reaches the live stream it takes a snapshot of all
-    public hydratables for persistence, and may also take a system snapshot if enough events have elapsed.  This technique can allow rebuilding
-    really, really large event streams locally such that only the snapshot file need be sync'd to the server and the process restarted with the new
-    code and then we'll start from the newest snapshot and replay forward to live.
