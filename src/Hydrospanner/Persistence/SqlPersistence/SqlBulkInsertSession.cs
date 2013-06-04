@@ -14,7 +14,7 @@
 
 		public virtual void PrepareNewCommand()
 		{
-			this.command = this.transaction.Connection.CreateCommand();
+			this.command = this.connection.CreateCommand();
 			this.command.Transaction = this.transaction;
 		}
 
