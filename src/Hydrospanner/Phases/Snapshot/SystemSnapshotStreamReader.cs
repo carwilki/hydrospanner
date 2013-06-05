@@ -90,7 +90,7 @@
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing && this.stream != null)
-				this.stream.Dispose();
+				this.stream.TryDispose();
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(SystemSnapshotStreamReader));
