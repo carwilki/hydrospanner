@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Configuration;
+	using System.IO;
 	using System.IO.Abstractions;
 	using Phases.Snapshot;
 
@@ -9,7 +10,7 @@
 	{
 		public virtual SystemSnapshotStreamReader CreateSystemSnapshotStreamReader(long journaledSequence)
 		{
-			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), this.systemSnapshotPath);
+			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), x => new FileInfoWrapper(new FileInfo(x)), this.systemSnapshotPath);
 			return loader.Load(journaledSequence);
 		}
 		public virtual ISnapshotRecorder CreateSystemSnapshotRecorder()

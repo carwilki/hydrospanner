@@ -53,7 +53,7 @@ namespace Hydrospanner.Phases.Snapshot
 			{
 				file = Substitute.For<FileBase>();
 				directory = Substitute.For<DirectoryBase>();
-				loader = new SystemSnapshotLoader(directory, file, Path);
+				loader = new SystemSnapshotLoader(directory, file, x => info, Path);
 
 				var reallyEarlyPath = Path + ReallyEarlySnapshotSequence + "-" + hash;
 				var earlierPath = Path + EarlySnapshotSequence + "-" + hash;
@@ -87,7 +87,9 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			file = Substitute.For<FileBase>();
 			directory = Substitute.For<DirectoryBase>();
-			loader = new SystemSnapshotLoader(directory, file, Path);
+			info = Substitute.For<FileInfoBase>();
+			info.Length.Returns(1024);
+			loader = new SystemSnapshotLoader(directory, file, x => info, Path);
 
 			var oneRecord = BitConverter.GetBytes(1);
 			var firstRecordKey = Encoding.UTF8.GetBytes("key1");
@@ -113,6 +115,7 @@ namespace Hydrospanner.Phases.Snapshot
 		static SystemSnapshotLoader loader;
 		static SystemSnapshotStreamReader reader;
 		static DirectoryBase directory;
+		static FileInfoBase info;
 		static FileBase file;
 		static byte[] contents;
 		static string hash;

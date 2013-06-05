@@ -1,5 +1,6 @@
 ﻿namespace Hydrospanner.Phases.Snapshot
 {
+	using System;
 	using System.IO;
 	using System.IO.Abstractions;
 	using System.Linq;
@@ -28,8 +29,9 @@
 
 			try
 			{
-				// FUTURE: buffer according to file size *up to* 64 MB.
-				stream = new BufferedStream(this.file.OpenRead(snapshot.FullPath), MaxBufferSize);
+				var fileInfo = this.info(snapshot.FullPath);
+				var bufferSize = (int)Math.Min(fileInfo.Length, MaxBufferSize);
+				stream = new BufferedStream(this.file.OpenRead(snapshot.FullPath), bufferSize);
 				return reader = SystemSnapshotStreamReader.Open(snapshot.Sequence, snapshot.Hash, stream);
 			}
 			finally
@@ -39,10 +41,11 @@
 			}
 		}
 
-		public SystemSnapshotLoader(DirectoryBase directory, FileBase file, string path)
+		public SystemSnapshotLoader(DirectoryBase directory, FileBase file, Func<string, FileInfoBase> info, string path)
 		{
 			this.directory = directory;
 			this.file = file;
+			this.info = info;
 			this.path = path;
 			this.searchPattern = WildcardPattern;
 		}
@@ -51,6 +54,7 @@
 		private const int MaxBufferSize = 1024 * 1024 * 64;
 		private readonly DirectoryBase directory;
 		private readonly FileBase file;
+		private readonly Func<string, FileInfoBase> info;
 		private readonly string path;
 		private readonly string searchPattern;
 	}

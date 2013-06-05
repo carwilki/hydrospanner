@@ -35,7 +35,7 @@ namespace Hydrospanner.IntegrationTests
 
 		It should_create_a_snapshot_file_with_the_appropriate_values = () =>
 		{
-			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), workingDirectory);
+			var loader = new SystemSnapshotLoader(new DirectoryWrapper(), new FileWrapper(), x => new FileInfoWrapper(new FileInfo(x)), workingDirectory);
 			using (var reader = loader.Load(10))
 			{
 				reader.Count.ShouldEqual(10);
