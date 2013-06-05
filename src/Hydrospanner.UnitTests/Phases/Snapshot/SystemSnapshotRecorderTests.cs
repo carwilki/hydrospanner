@@ -178,11 +178,12 @@ namespace Hydrospanner.Phases.Snapshot
 		{
 			firstSnapshot = new PhotographicMemoryStream();
 			serializer = new JsonSerializer();
+			directory = Substitute.For<DirectoryBase>();
 			file = Substitute.For<FileBase>();
 			file.Create(Arg.Any<string>()).Returns(firstSnapshot);
 			file.OpenRead(Arg.Any<string>()).Returns(x => new MemoryStream(firstSnapshot.Contents));
 			file.Move(Arg.Any<string>(), Arg.Do<string>(x => finalPathOfSnapshot = x));
-			recorder = new SystemSnapshotRecorder(file, Location);
+			recorder = new SystemSnapshotRecorder(directory, file, Location);
 			
 			first = new SnapshotItem();
 			middle = new SnapshotItem();
@@ -202,6 +203,7 @@ namespace Hydrospanner.Phases.Snapshot
 		const string Key = "key";
 		static string hash;
 		static string finalPathOfSnapshot;
+		static DirectoryBase directory;
 		static FileBase file;
 		static SystemSnapshotRecorder recorder;
 		static PhotographicMemoryStream firstSnapshot;

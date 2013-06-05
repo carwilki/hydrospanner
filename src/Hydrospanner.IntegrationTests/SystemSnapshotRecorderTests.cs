@@ -18,7 +18,7 @@ namespace Hydrospanner.IntegrationTests
 		Establish context = () =>
 		{
 			serializer = new JsonSerializer();
-			recorder = new SystemSnapshotRecorder(new FileWrapper(), workingDirectory);
+			recorder = new SystemSnapshotRecorder(new DirectoryWrapper(), new FileWrapper(), workingDirectory);
 			expectedRecords = Enumerable.Range(1, 10)
 				.Select(x => new Tuple<string, string, byte[]>("key", default(int).ResolvableTypeName(), serializer.Serialize(x)))
 				.ToList();

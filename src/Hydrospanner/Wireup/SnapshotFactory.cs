@@ -14,7 +14,7 @@
 		}
 		public virtual ISnapshotRecorder CreateSystemSnapshotRecorder()
 		{
-			return new SystemSnapshotRecorder(new FileWrapper(), this.systemSnapshotPath);
+			return new SystemSnapshotRecorder(new DirectoryWrapper(), new FileWrapper(), this.systemSnapshotPath);
 		}
 		public virtual ISnapshotRecorder CreatePublicSnapshotRecorder()
 		{

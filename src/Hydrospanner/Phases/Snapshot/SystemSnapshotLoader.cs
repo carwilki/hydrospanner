@@ -8,19 +8,12 @@
 	{
 		public virtual SystemSnapshotStreamReader Load(long maxSequence)
 		{
-			var files = this.directory
+			var snapshots = this.directory
 				.GetFiles(this.path, this.searchPattern, SearchOption.TopDirectoryOnly)
-				.ToList();
-
-			var snapshots = files
 				.Select(ParsedSystemSnapshotFilename.Parse)
-				.ToList();
+				.Where(x => x != null && x.Sequence <= maxSequence);
 
-			var viableSnapshots = snapshots
-				.Where(x => x != null && x.Sequence <= maxSequence)
-				.ToList();
-
-			var openSnapshot = viableSnapshots
+			var openSnapshot = snapshots
 				.OrderByDescending(x => x.Sequence)
 				.Select(this.OpenOrDefault)
 				.FirstOrDefault(x => x != null && x.Count > 0);
@@ -54,11 +47,11 @@
 			this.searchPattern = WildcardPattern;
 		}
 
-		const string WildcardPattern = "*";
-		const int MaxBufferSize = 1024 * 1024 * 64;
-		readonly DirectoryBase directory;
-		readonly FileBase file;
-		readonly string path;
-		readonly string searchPattern;
+		private const string WildcardPattern = "*";
+		private const int MaxBufferSize = 1024 * 1024 * 64;
+		private readonly DirectoryBase directory;
+		private readonly FileBase file;
+		private readonly string path;
+		private readonly string searchPattern;
 	}
 }
