@@ -114,8 +114,8 @@
 			this.settings = settings;
 		}
 		
-		private const int MaxBatchSizeInBytes = 1024 * 1024 * 8;
-		private const int MaxParametersPerBatch = 8192;
+		private const int MaxBatchSizeInBytes = 1024 * 1024 * 4;
+		private const int MaxParametersPerBatch = 4096;
 		private const int ParametersPerStatement = 4;
 		private const string Upsert = "INSERT INTO documents VALUES (UNHEX(MD5(@i{0})), @i{0}, @s{0}, @h{0}, @d{0}) ON DUPLICATE KEY UPDATE sequence = @s{0}, hash = @h{0}, document = @d{0};";
 		private static readonly ILog Log = LogManager.GetLogger(typeof(PublicSnapshotRecorder));
