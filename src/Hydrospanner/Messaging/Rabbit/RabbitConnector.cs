@@ -52,6 +52,7 @@
 				throw new ArgumentNullException("address");
 
 			this.factory = factory ?? RabbitConnectionParser.Parse(address);
+			this.factory.RequestedHeartbeat = HeartbeatInSeconds;
 		}
 		protected RabbitConnector()
 		{
@@ -72,6 +73,7 @@
 			this.Disconnect();
 		}
 
+		private const ushort HeartbeatInSeconds = 5;
 		private static readonly TimeSpan ConnectionFailureTimeout = TimeSpan.FromSeconds(3);
 		private readonly ConnectionFactory factory;
 		private readonly object sync;
