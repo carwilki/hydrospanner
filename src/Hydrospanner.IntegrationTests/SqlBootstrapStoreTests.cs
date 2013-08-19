@@ -84,7 +84,7 @@ namespace Hydrospanner.IntegrationTests
 				InitializeDatabase();
 			});
 			factory = DbProviderFactories.GetFactory(settings.ProviderName);
-			store = new SqlBootstrapStore(factory, settings.ConnectionString, ForeignIdsToLoad);
+			store = new SqlBootstrapStore(factory, connectionString, ForeignIdsToLoad);
 		};
 
 		Because of = () =>
@@ -92,7 +92,6 @@ namespace Hydrospanner.IntegrationTests
 
 		static BootstrapInfo result;
 		static SqlBootstrapStore store;
-		static DbProviderFactory factory;
 		static TimeSpan nap;
 		const int ForeignIdsToLoad = 5;
 	}

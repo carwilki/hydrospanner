@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Configuration;
+	using System.Data.Common;
 	using System.IO;
 	using System.IO.Abstractions;
 	using Phases.Snapshot;
@@ -19,34 +20,37 @@
 		}
 		public virtual ISnapshotRecorder CreatePublicSnapshotRecorder()
 		{
-			if (this.settings.ConnectionString == "null-storage")
+			if (this.connectionString == "null-storage")
 				return new NullSnapshotRecorder();
 
-			return new PublicSnapshotRecorder(this.settings);
+			return new PublicSnapshotRecorder(this.factory, this.connectionString);
 		}
 
-		public SnapshotFactory(string systemSnapshotPath, string publicSnapshotConnectionName)
+		public SnapshotFactory(string systemSnapshotPath, string connectionName)
 		{
 			if (string.IsNullOrWhiteSpace(systemSnapshotPath))
 				throw new ArgumentNullException("systemSnapshotPath");
 
-			if (string.IsNullOrWhiteSpace(publicSnapshotConnectionName))
-				throw new ArgumentNullException("publicSnapshotConnectionName");
+			if (string.IsNullOrWhiteSpace(connectionName))
+				throw new ArgumentNullException("connectionName");
 
-			this.settings = ConfigurationManager.ConnectionStrings[publicSnapshotConnectionName];
-			if (this.settings == null)
-				throw new ConfigurationErrorsException("No persistence configuration info found for connection named '{0}'.".FormatWith(publicSnapshotConnectionName));
+			var settings = ConfigurationManager.ConnectionStrings[connectionName];
+			if (settings == null)
+				throw new ConfigurationErrorsException("No persistence configuration info found for connection named '{0}'.".FormatWith(connectionName));
 
-			if (string.IsNullOrWhiteSpace(this.settings.ProviderName) || string.IsNullOrWhiteSpace(this.settings.ConnectionString))
-				throw new ConfigurationErrorsException("Connection named '{0}' missing provider info or connection string info.".FormatWith(publicSnapshotConnectionName));
+			if (string.IsNullOrWhiteSpace(settings.ProviderName) || string.IsNullOrWhiteSpace(settings.ConnectionString))
+				throw new ConfigurationErrorsException("Connection named '{0}' missing provider info or connection string info.".FormatWith(connectionName));
 
+			this.factory = DbProviderFactories.GetFactory(settings.ProviderName);
+			this.connectionString = settings.ConnectionString;
 			this.systemSnapshotPath = systemSnapshotPath;
 		}
 		protected SnapshotFactory()
 		{
 		}
 
-		private readonly ConnectionStringSettings settings;
 		private readonly string systemSnapshotPath;
+		private readonly DbProviderFactory factory;
+		private readonly string connectionString;
 	}
 }

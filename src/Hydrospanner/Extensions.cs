@@ -2,10 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Configuration;
 	using System.Data;
-	using System.Data.Common;
-	using System.Data.SqlClient;
 	using System.Globalization;
 	using System.Text;
 	using System.Threading;
@@ -147,29 +144,5 @@
 		}
 
 		private static Action<TimeSpan> callback = Thread.Sleep;
-	}
-
-	internal static class DataExtensions
-	{
-		public static IDbConnection OpenConnection(this ConnectionStringSettings connectionSettings)
-		{
-			if (connectionSettings == null)
-				throw new ArgumentNullException("connectionSettings");
-
-			var provider = DbProviderFactories.GetFactory(connectionSettings.ProviderName);
-			var connection = provider.CreateConnection() ?? new SqlConnection();
-			connection.ConnectionString = connectionSettings.ConnectionString;
-			connection.Open();
-			return connection;
-		}
-		public static IDbCommand WithParameter(this IDbCommand command, string name, object value, DbType type)
-		{
-			var parameter = command.CreateParameter();
-			parameter.ParameterName = name;
-			parameter.DbType = type;
-			parameter.Value = value ?? DBNull.Value;
-			command.Parameters.Add(parameter);
-			return command;
-		}
 	}
 }

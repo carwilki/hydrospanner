@@ -6,6 +6,7 @@ namespace Hydrospanner.IntegrationTests
 	using System;
 	using System.Configuration;
 	using System.Data;
+	using System.Data.Common;
 	using Machine.Specifications;
 	using Persistence.SqlPersistence;
 
@@ -16,7 +17,9 @@ namespace Hydrospanner.IntegrationTests
 			ThreadExtensions.Freeze(x => napTime = x);
 
 			settings = ConfigurationManager.ConnectionStrings["DB"];
-			connection = ConfigurationManager.ConnectionStrings["DB-startup"].OpenConnection();
+			factory = DbProviderFactories.GetFactory(settings.ProviderName);
+			connectionString = settings.ConnectionString;
+			connection = factory.OpenConnection(connectionString);
 			InitializeDatabase();
 		};
 
@@ -53,6 +56,8 @@ namespace Hydrospanner.IntegrationTests
 		protected static TimeSpan napTime;
 		protected static IDbConnection connection;
 		protected static ConnectionStringSettings settings;
+		protected static DbProviderFactory factory;
+		protected static string connectionString;
 		const string DbName = "hydrospanner-test";
 		const string Cleanup = @"DROP DATABASE IF EXISTS `hydrospanner-test`;";
 	}

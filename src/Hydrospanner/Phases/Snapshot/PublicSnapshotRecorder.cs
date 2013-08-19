@@ -2,11 +2,12 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Configuration;
 	using System.Data;
+	using System.Data.Common;
 	using System.Linq;
 	using System.Text;
 	using log4net;
+	using Persistence.SqlPersistence;
 
 	internal class PublicSnapshotRecorder : ISnapshotRecorder
 	{
@@ -43,7 +44,7 @@
 		{
 			var keys = this.catalog.Keys.ToArray();
 
-			using (var connection = this.settings.OpenConnection())
+			using (var connection = this.factory.OpenConnection(this.connectionString))
 			using (var command = connection.CreateCommand())
 				while (this.saved < keys.Length)
 					this.RecordBatch(command, keys);
@@ -112,9 +113,16 @@
 			this.builder.AppendFormat(Upsert, i);
 		}
 
-		public PublicSnapshotRecorder(ConnectionStringSettings settings)
+		public PublicSnapshotRecorder(DbProviderFactory factory, string connectionString)
 		{
-			this.settings = settings;
+			if (factory == null)
+				throw new ArgumentNullException("factory");
+
+			if (string.IsNullOrWhiteSpace(connectionString))
+				throw new ArgumentNullException("connectionString");
+
+			this.factory = factory;
+			this.connectionString = connectionString;
 		}
 		
 		public const int MaxBatchSizeInBytes = 1024 * 1024 * 4;
@@ -123,10 +131,11 @@
 		private const string Upsert = "INSERT INTO documents VALUES (UNHEX(MD5(@i{0})), @i{0}, @s{0}, @h{0}, @d{0}) ON DUPLICATE KEY UPDATE sequence = @s{0}, hash = @h{0}, document = @d{0};";
 		private static readonly ILog Log = LogManager.GetLogger(typeof(PublicSnapshotRecorder));
 		private static readonly TimeSpan SleepTimeout = TimeSpan.FromSeconds(5);
-		private readonly ConnectionStringSettings settings;
 		private readonly IDictionary<string, SnapshotItem> catalog = new Dictionary<string, SnapshotItem>();
 		private readonly StringBuilder builder = new StringBuilder(1024 * 1024);
-		private readonly List<SnapshotItem> currentBatch = new List<SnapshotItem>(1024 * 4); 
+		private readonly List<SnapshotItem> currentBatch = new List<SnapshotItem>(1024 * 4);
+		private readonly DbProviderFactory factory;
+		private readonly string connectionString;
 		private int saved;
 	}
 }

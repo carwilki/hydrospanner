@@ -5,7 +5,6 @@ namespace Hydrospanner.IntegrationTests
 {
 	using System;
 	using System.Globalization;
-	using System.Linq;
 	using Machine.Specifications;
 	using Phases.Snapshot;
 	using Serialization;
@@ -18,7 +17,7 @@ namespace Hydrospanner.IntegrationTests
 			item = new SnapshotItem();
 			item.AsPublicSnapshot("key", "value", typeof(string), 1);
 			item.Serialize(new JsonSerializer());
-			recorder = new PublicSnapshotRecorder(settings);
+			recorder = new PublicSnapshotRecorder(factory, connectionString);
 		};
 
 		Because of = () =>
@@ -35,6 +34,9 @@ namespace Hydrospanner.IntegrationTests
 				command.CommandText = "select * from `hydrospanner-test`.`documents`;";
 				using (var reader = command.ExecuteReader())
 				{
+					if (reader == null)
+						throw new InvalidOperationException();
+
 					reader.Read().ShouldBeTrue();
 					reader.GetString(1).ShouldEqual("key");
 					reader.GetInt64(2).ShouldEqual(1);
@@ -56,7 +58,7 @@ namespace Hydrospanner.IntegrationTests
 			item = new SnapshotItem();
 			item.AsPublicSnapshot("key", string.Empty, typeof(string), 1);
 			item.Serialized = new byte[PublicSnapshotRecorder.MaxBatchSizeInBytes + 1]; // larger than allowed buffer
-			recorder = new PublicSnapshotRecorder(settings);
+			recorder = new PublicSnapshotRecorder(factory, connectionString);
 		};
 
 		Because of = () =>
@@ -73,6 +75,9 @@ namespace Hydrospanner.IntegrationTests
 				command.CommandText = "select * from `hydrospanner-test`.`documents`;";
 				using (var reader = command.ExecuteReader())
 				{
+					if (reader == null)
+						throw new InvalidOperationException();
+
 					reader.Read().ShouldBeTrue();
 					reader.GetString(1).ShouldEqual("key");
 					reader.GetInt64(2).ShouldEqual(1);
@@ -91,7 +96,7 @@ namespace Hydrospanner.IntegrationTests
 		Establish context = () =>
 		{
 			serializer = new JsonSerializer();
-			recorder = new PublicSnapshotRecorder(settings);
+			recorder = new PublicSnapshotRecorder(factory, connectionString);
 		};
 
 		Because of = () =>
@@ -131,7 +136,7 @@ namespace Hydrospanner.IntegrationTests
 	{
 		Establish context = () =>
 		{
-			recorder = new PublicSnapshotRecorder(null);
+			recorder = new PublicSnapshotRecorder(factory, connectionString);
 
 			ThreadExtensions.Freeze(x =>
 			{
@@ -164,7 +169,7 @@ namespace Hydrospanner.IntegrationTests
 		Establish context = () =>
 		{
 			TearDownDatabase();
-			recorder = new PublicSnapshotRecorder(settings);
+			recorder = new PublicSnapshotRecorder(factory, connectionString);
 
 			snapshotItem = new SnapshotItem();
 			snapshotItem.AsPublicSnapshot("key", "memento", typeof(string), 42);

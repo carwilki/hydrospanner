@@ -5,17 +5,9 @@ namespace Hydrospanner
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Configuration;
 	using System.Linq;
 	using System.Text;
 	using Machine.Specifications;
-
-	[Subject(typeof(DataExtensions))]
-	public class when_opening_a_database_connection
-	{
-		It should_throw_when_the_settings_instance_provided_is_null = () =>
-			Catch.Exception(() => ConfigurationManager.ConnectionStrings[string.Empty].OpenConnection()).ShouldBeOfType<ArgumentNullException>();
-	}
 
 	[Subject(typeof(StringExtensions))]
 	public class when_formatting_a_string
