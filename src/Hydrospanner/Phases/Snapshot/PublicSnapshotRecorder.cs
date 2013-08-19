@@ -44,9 +44,9 @@
 			var keys = this.catalog.Keys.ToArray();
 
 			using (var connection = this.settings.OpenConnection())
-				using (var command = connection.CreateCommand())
-					while (this.saved < keys.Length)
-						this.RecordBatch(command, keys);
+			using (var command = connection.CreateCommand())
+				while (this.saved < keys.Length)
+					this.RecordBatch(command, keys);
 
 			Log.DebugFormat("Inserted {0} items successfully", this.saved);
 		}
