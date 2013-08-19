@@ -25,14 +25,12 @@ namespace Hydrospanner.IntegrationTests
 
 		protected static void InitializeDatabase()
 		{
-			using (var command = connection.CreateCommand())
-			{
-				command.CommandText = 
-					("DROP DATABASE IF EXISTS `{0}`; CREATE DATABASE `{0}`;"
+			var statement = ("DROP DATABASE IF EXISTS `{0}`; CREATE DATABASE `{0}`;"
 					+ DbScripts.MessagesCreation
 					+ DbScripts.DocumentsCreation).FormatWith(DbName);
+
+			using (var command = connection.CreateCommand(statement))
 				command.ExecuteNonQuery();
-			}
 		}
 
 		Cleanup after = () =>
@@ -42,13 +40,15 @@ namespace Hydrospanner.IntegrationTests
 			connection.Dispose();
 			connection = null;
 			settings = null;
+			factory = null;
+			connectionString = null;
 		};
 
 		protected static void TearDownDatabase()
 		{
 			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = Cleanup;
+				command.CommandText = Cleanup.FormatWith(DbName);
 				command.ExecuteNonQuery();
 			}
 		}
@@ -59,7 +59,7 @@ namespace Hydrospanner.IntegrationTests
 		protected static DbProviderFactory factory;
 		protected static string connectionString;
 		const string DbName = "hydrospanner-test";
-		const string Cleanup = @"DROP DATABASE IF EXISTS `hydrospanner-test`;";
+		const string Cleanup = @"DROP TABLE `messages`; DROP TABLE `checkpoints`; DROP TABLE `documents`; DROP TABLE `metadata`;";
 	}
 }
 

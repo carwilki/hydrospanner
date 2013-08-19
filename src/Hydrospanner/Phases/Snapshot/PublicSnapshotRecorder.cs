@@ -9,7 +9,7 @@
 	using log4net;
 	using Persistence.SqlPersistence;
 
-	internal class PublicSnapshotRecorder : ISnapshotRecorder
+	internal class PublicSnapshotRecorder : ISnapshotRecorder, IDisposable
 	{
 		public void StartRecording(int expectedItems)
 		{
@@ -34,6 +34,7 @@
 				}
 				catch (Exception e)
 				{
+					this.activeConnection = this.activeConnection.TryDispose();
 					Log.Warn("Unable to persist to database.", e);
 					SleepTimeout.Sleep();
 				}
@@ -44,12 +45,19 @@
 		{
 			var keys = this.catalog.Keys.ToArray();
 
-			using (var connection = this.factory.OpenConnection(this.connectionString))
-			using (var command = connection.CreateCommand())
+			using (var command = this.EnsureConnection().CreateCommand())
 				while (this.saved < keys.Length)
 					this.RecordBatch(command, keys);
 
 			Log.DebugFormat("Inserted {0} items successfully", this.saved);
+		}
+		private IDbConnection EnsureConnection()
+		{
+			var connection = this.activeConnection;
+			if (connection == null)
+				this.activeConnection = connection = this.factory.OpenConnection(this.connectionString);
+
+			return connection;
 		}
 		private void RecordBatch(IDbCommand command, IList<string> keys)
 		{
@@ -124,6 +132,19 @@
 			this.factory = factory;
 			this.connectionString = connectionString;
 		}
+
+		public void Dispose()
+		{
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing)
+				return;
+
+			this.activeConnection = this.activeConnection.TryDispose();
+		}
 		
 		public const int MaxBatchSizeInBytes = 1024 * 1024 * 4;
 		private const int MaxParametersPerBatch = 4096;
@@ -136,6 +157,7 @@
 		private readonly List<SnapshotItem> currentBatch = new List<SnapshotItem>(1024 * 4);
 		private readonly DbProviderFactory factory;
 		private readonly string connectionString;
+		private IDbConnection activeConnection;
 		private int saved;
 	}
 }
