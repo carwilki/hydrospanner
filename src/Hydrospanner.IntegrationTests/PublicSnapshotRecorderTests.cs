@@ -5,6 +5,7 @@ namespace Hydrospanner.IntegrationTests
 {
 	using System;
 	using System.Globalization;
+	using System.Linq;
 	using Machine.Specifications;
 	using Phases.Snapshot;
 	using Serialization;
@@ -38,6 +39,43 @@ namespace Hydrospanner.IntegrationTests
 					reader.GetString(1).ShouldEqual("key");
 					reader.GetInt64(2).ShouldEqual(1);
 					((uint)reader.GetValue(3)).ShouldBeGreaterThan(0);
+					(reader.GetValue(4) as byte[]).ShouldBeLike(item.Serialized);
+				}
+			}
+		};
+
+		static PublicSnapshotRecorder recorder;
+		static SnapshotItem item;
+	}
+
+	[Subject(typeof(PublicSnapshotRecorder))]
+	public class when_saving_an_item_larger_than_the_configured_max_batch_size : TestDatabase
+	{
+		Establish context = () =>
+		{
+			item = new SnapshotItem();
+			item.AsPublicSnapshot("key", string.Empty, typeof(string), 1);
+			item.Serialized = new byte[PublicSnapshotRecorder.MaxBatchSizeInBytes + 1]; // larger than allowed buffer
+			recorder = new PublicSnapshotRecorder(settings);
+		};
+
+		Because of = () =>
+		{
+			recorder.StartRecording(1);
+			recorder.Record(item);
+			recorder.FinishRecording();
+		};
+
+		It should_be_added_to_storage = () =>
+		{
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = "select * from `hydrospanner-test`.`documents`;";
+				using (var reader = command.ExecuteReader())
+				{
+					reader.Read().ShouldBeTrue();
+					reader.GetString(1).ShouldEqual("key");
+					reader.GetInt64(2).ShouldEqual(1);
 					(reader.GetValue(4) as byte[]).ShouldBeLike(item.Serialized);
 				}
 			}

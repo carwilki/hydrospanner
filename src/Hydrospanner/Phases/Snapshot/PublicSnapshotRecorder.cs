@@ -79,6 +79,9 @@
 		}
 		private static bool BatchCapacityReached(int nextItem, int alreadyBatched, int batchCount)
 		{
+			if (batchCount == 0)
+				return false;
+
 			var payloadCapacityExceeded = nextItem + alreadyBatched > MaxBatchSizeInBytes;
 			var parameterCapacityExceeded = (batchCount + 1) * ParametersPerStatement > MaxParametersPerBatch;
 
@@ -114,7 +117,7 @@
 			this.settings = settings;
 		}
 		
-		private const int MaxBatchSizeInBytes = 1024 * 1024 * 4;
+		public const int MaxBatchSizeInBytes = 1024 * 1024 * 4;
 		private const int MaxParametersPerBatch = 4096;
 		private const int ParametersPerStatement = 4;
 		private const string Upsert = "INSERT INTO documents VALUES (UNHEX(MD5(@i{0})), @i{0}, @s{0}, @h{0}, @d{0}) ON DUPLICATE KEY UPDATE sequence = @s{0}, hash = @h{0}, document = @d{0};";
