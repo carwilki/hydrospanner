@@ -1,0 +1,911 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Hydrospanner.DisruptorBase&lt;T&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQACAAEAAAAAAAAAAAAAAAAAAAIAAgAAAAAAA=</HashCode>
+      <FileName>DisruptorBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.ReflectionExtensions" Collapsed="true">
+    <Position X="6" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAA=</HashCode>
+      <FileName>Extensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.StringExtensions" Collapsed="true">
+    <Position X="18.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Extensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.ByteConversionExtensions" Collapsed="true">
+    <Position X="16.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAIAAAAEAACAAAAAAAAKACAAAA=</HashCode>
+      <FileName>Extensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.DisposableExtensions" Collapsed="true">
+    <Position X="21.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Extensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.CollectionExtensions" Collapsed="true">
+    <Position X="20" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAABAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>Extensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.ThreadExtensions" Collapsed="true">
+    <Position X="14.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABCAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Extensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.RingBufferBase&lt;T&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAABAAAAACEAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RingBufferBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.SystemTime" Collapsed="true">
+    <Position X="13" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAASAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAABAAo=</HashCode>
+      <FileName>SystemTime.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Messaging.Azure.AzureServiceBusChannel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAACAAAAAAAEAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Messaging\Azure\AzureServiceBusChannel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Messaging.Azure.AzureSubscription" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Messaging\Azure\AzureSubscription.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Messaging.Rabbit.ExtensionMethods" Collapsed="true">
+    <Position X="11.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAABAAAAAAAAAAAQAAgAAAAAAAAAAAAAAIAA=</HashCode>
+      <FileName>Messaging\Rabbit\ExtensionMethods.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Messaging.Rabbit.RabbitChannel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgIIgEgAACAgIAAAAEAAAAAEADwAAABwEAAUAACAgCA=</HashCode>
+      <FileName>Messaging\Rabbit\RabbitChannel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Messaging.Rabbit.RabbitConnectionParser" Collapsed="true">
+    <Position X="16.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAAAAQACAgAAAAAAAAAAAAAAAACAAg=</HashCode>
+      <FileName>Messaging\Rabbit\RabbitConnectionParser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Messaging.Rabbit.RabbitConnector" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAYAAAAAALAgAAAAAAABAIAAABAAQAAAEAAAAAAAAAA=</HashCode>
+      <FileName>Messaging\Rabbit\RabbitConnector.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Messaging.Rabbit.RabbitSubscription" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="20" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAgAAAAiAAIAAAAAAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Messaging\Rabbit\RabbitSubscription.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Persistence.BootstrapInfo" Collapsed="true">
+    <Position X="11.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>hAAAAAAAAAABCAAAAAAQAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
+      <FileName>Persistence\BootstrapInfo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Persistence.DefaultRepository" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="16.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAgAAAAAIACAACAAECAABIAAEAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Persistence\DefaultRepository.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Persistence.GraveyardMemento" Collapsed="true">
+    <Position X="13" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Persistence\GraveyardMemento.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Persistence.HydratableGraveyard" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EQAAAQAABBAAAAQCAAICAAAIAAAAAAAIAIAIAAAQAAA=</HashCode>
+      <FileName>Persistence\HydratableGraveyard.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Persistence.NullStore" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="16.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Persistence\NullStore.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Persistence.SqlPersistence.DbExtensions" Collapsed="true">
+    <Position X="13" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAEAAAAAAEAAAgAQAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Persistence\SqlPersistence\DbExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Persistence.SqlPersistence.DbScripts" Collapsed="true">
+    <Position X="14.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Persistence\SqlPersistence\DbScripts.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Persistence.SqlPersistence.JournalMessageTypeRegistrar" Collapsed="true">
+    <Position X="21.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAEABAAACAAAAAAEAAAAAAAAABAACCAgEAAAAAAAA=</HashCode>
+      <FileName>Persistence\SqlPersistence\JournalMessageTypeRegistrar.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Persistence.SqlPersistence.SqlBootstrapStore" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAggAAAAAAgAAgAAAAAAAAAAAgAAGIAAAACAAAAAAA=</HashCode>
+      <FileName>Persistence\SqlPersistence\SqlBootstrapStore.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Persistence.SqlPersistence.SqlBulkInsertCommandBuilder" Collapsed="true">
+    <Position X="7.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIQAAAACAAgAAAABCEACQAAAAAAgAAAAgBAAEIBgAA=</HashCode>
+      <FileName>Persistence\SqlPersistence\SqlBulkInsertCommandBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Persistence.SqlPersistence.SqlBulkInsertSession" Collapsed="true">
+    <Position X="9.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAABIACgAAgAQAABAAAAAAQAAAAAAAAAAEAAgAA=</HashCode>
+      <FileName>Persistence\SqlPersistence\SqlBulkInsertSession.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Persistence.SqlPersistence.SqlCheckpointStore" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="11.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAgACgAAAAAAAAAAAAAACIAAAAAAAAAAAA=</HashCode>
+      <FileName>Persistence\SqlPersistence\SqlCheckpointStore.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Persistence.SqlPersistence.SqlMessageStore" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgIAAAQAgACgAAAAQEAAAAAgAAAIAAQAAAEIAAAA=</HashCode>
+      <FileName>Persistence\SqlPersistence\SqlMessageStore.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Persistence.SqlPersistence.SqlMessageStoreReader" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAACAADAgBBiAAACBAAAAAA4AAAKEoAAAAAAQAAA=</HashCode>
+      <FileName>Persistence\SqlPersistence\SqlMessageStoreReader.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Persistence.SqlPersistence.SqlMessageStoreWriter" Collapsed="true">
+    <Position X="16.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACgAAAAAAAAAAAAAAEAEAAAAAAIAAAAAAAAAEMAAAA=</HashCode>
+      <FileName>Persistence\SqlPersistence\SqlMessageStoreWriter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Phases.Bootstrap.BootstrapItem" Collapsed="true">
+    <Position X="13" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAQAAACQAAABAAAAAAAAAAAIAABAAAA=</HashCode>
+      <FileName>Phases\Bootstrap\BootstrapItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Phases.Bootstrap.CountdownHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEBAAAAAAAAAABAAAAgAAAAAAAgAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Bootstrap\CountdownHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Bootstrap.MementoHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAACAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Bootstrap\MementoHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Bootstrap.RepositoryExtensions" Collapsed="true">
+    <Position X="7.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAEAAAAAAACAAAAAAAAAAAAIAAAAAAAQEA=</HashCode>
+      <FileName>Phases\Bootstrap\RepositoryExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Phases.Bootstrap.SerializationHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="11.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAIAAAAAAAAAAABAAAAAgAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>Phases\Bootstrap\SerializationHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.ClearItemHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\ClearItemHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Journal.AcknowledgmentHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAUAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Journal\AcknowledgmentHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Journal.DispatchCheckpointHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAAAAIAAAAAgAgAAAABAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Journal\DispatchCheckpointHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Journal.DispatchHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="20" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEgAAAAAAAAAAAAAAAAAAgAAAAgAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>Phases\Journal\DispatchHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Journal.JournalHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAAAAAAAAAAAAgAAAABAABAAAAAAAA=</HashCode>
+      <FileName>Phases\Journal\JournalHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Journal.JournalItem" Collapsed="true">
+    <Position X="20" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAggAAAAAAAAAAAAAAARAAAACCAQDAAAAAAAAQJACAA=</HashCode>
+      <FileName>Phases\Journal\JournalItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Phases.Journal.SerializationHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAIAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Journal\SerializationHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.NullSnapshotRecorder" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAEAAABAA=</HashCode>
+      <FileName>Phases\Snapshot\NullSnapshotRecorder.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.ParsedSystemSnapshotFilename" Collapsed="true">
+    <Position X="21.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAoAAAAAAIAAAAACAAAAAAAAAQAAAAAAAAAAAEAAAQ=</HashCode>
+      <FileName>Phases\Snapshot\ParsedSystemSnapshotFilename.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.PublicSnapshotDispatchHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEgAAAAAAAAAAAAAAAAAAgAAAAgAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>Phases\Snapshot\PublicSnapshotDispatchHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.PublicSnapshotHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="11.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAACAAAAAAAAAAAAAgAAAAACABAAAAAAAA=</HashCode>
+      <FileName>Phases\Snapshot\PublicSnapshotHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.PublicSnapshotRecorder" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAQIACACAgAAgAAAEAAAEACAgYAUAoAAAAERAABgA=</HashCode>
+      <FileName>Phases\Snapshot\PublicSnapshotRecorder.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.SerializationHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Snapshot\SerializationHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.SnapshotItem" Collapsed="true">
+    <Position X="21.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAADAgAQAAAAAAAAAACAAAAAAgIAIIABAABA=</HashCode>
+      <FileName>Phases\Snapshot\SnapshotItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.SystemSnapshotHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="21.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAEAAAAAAAAAAgAAEAACAAAEAAABAA=</HashCode>
+      <FileName>Phases\Snapshot\SystemSnapshotHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.SystemSnapshotLoader" Collapsed="true">
+    <Position X="6" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAggAAAAAQAAAAAAACAAAIAAAAAAAARoAAAAAAAAA=</HashCode>
+      <FileName>Phases\Snapshot\SystemSnapshotLoader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.SystemSnapshotRecorder" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgQAAAAQYACAAAAAAABACCAQAAEAgBgAAEACCBAA=</HashCode>
+      <FileName>Phases\Snapshot\SystemSnapshotRecorder.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Snapshot.SystemSnapshotStreamReader" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAEACAAIAAAAAAAAAQgAAgACAAACAAACAAAAAA=</HashCode>
+      <FileName>Phases\Snapshot\SystemSnapshotStreamReader.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Transformation.CommandFilterTransformer" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="21.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAAAAAAAIAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Transformation\CommandFilterTransformer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Transformation.DuplicateStore" Collapsed="true">
+    <Position X="9.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACIAAAAAAAAAAAAAAAIgAAAAAAAAAAAAAAAAAAAQAAA=</HashCode>
+      <FileName>Phases\Transformation\DuplicateStore.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Phases.Transformation.MessageListener" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQIAABAAACAAEAAAAEAAAgAIAAgAAAAAAACAAAAAAIA=</HashCode>
+      <FileName>Phases\Transformation\MessageListener.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Transformation.ReflectionDeliveryHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="21.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAQgAgAAEAAAAAAAAAAQAAAAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Transformation\ReflectionDeliveryHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Transformation.SerializationHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="16.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAIAAAAAAAAAAABAAAAAgACAAAAEAAAAAAAAA=</HashCode>
+      <FileName>Phases\Transformation\SerializationHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Transformation.SystemSnapshotTracker" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="11.25" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAEACAAAAAQAAAAAAAAAAAACABAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Transformation\SystemSnapshotTracker.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Transformation.NullSystemSnapshotTracker" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Transformation\SystemSnapshotTracker.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Transformation.TransformationHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AECQASQIAAAAAAAAIEYAAAECAAgAAAAAAQBEAABAAAA=</HashCode>
+      <FileName>Phases\Transformation\TransformationHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Phases.Transformation.TransformationItem" Collapsed="true">
+    <Position X="16.5" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAgAIQAAAAAAAAAAAARAAAgCAhQDAAIAAAAAQBIAAA=</HashCode>
+      <FileName>Phases\Transformation\TransformationItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Phases.Transformation.Transformer" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACEAAAAAAAAAQAAAkBIAAAAgAAAAAAACA=</HashCode>
+      <FileName>Phases\Transformation\Transformer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Serialization.JsonSerializer" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAIAAAAIAAAAAAAAAAAAAAAACBAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>Serialization\JsonSerializer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Serialization.UnderscoreContractResolver" Collapsed="true">
+    <Position X="20" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAIAABEAAA=</HashCode>
+      <FileName>Serialization\UnderscoreContractResolver.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Serialization.UnderscoreEnumConverter" Collapsed="true">
+    <Position X="21.75" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAQQAAAAAAAAAAAAAAAAAAAAAAAAAAABACAA=</HashCode>
+      <FileName>Serialization\UnderscoreEnumConverter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Serialization.UnderscoreExtensions" Collapsed="true">
+    <Position X="6" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAIAAAAAAAAABAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Serialization\UnderscoreExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Serialization.UnderscoreNormalizer" Collapsed="true">
+    <Position X="7.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Serialization\UnderscoreNormalizer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Timeout.CurrentTimeMessage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="11.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Timeout\CurrentTimeMessage.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Timeout.NullTimeoutWatcher" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="20" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Timeout\NullTimeoutWatcher.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Timeout.SystemClock" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="20" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAYAAAAIAKAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Timeout\SystemClock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Timeout.TimeoutAbortedEvent" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="16.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQABAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Timeout\TimeoutAbortedEvent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Timeout.TimeoutAggregate" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIBAAABABAAAAAAAAACBAAAAAAAAAAEAAAAAAAAADA=</HashCode>
+      <FileName>Timeout\TimeoutAggregate.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Timeout.TimeoutHydratable" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="21.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAgQAAIBAABCQEAAACIAAAABAAAAABAIAIAAAAABA=</HashCode>
+      <FileName>Timeout\TimeoutHydratable.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Timeout.TimeoutReachedHydratableRoute" Collapsed="true">
+    <Position X="9.5" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAAAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>Timeout\TimeoutHydratable.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Timeout.TimeoutMemento" Collapsed="true">
+    <Position X="6" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAA=</HashCode>
+      <FileName>Timeout\TimeoutMemento.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Timeout.TimeoutReachedEvent" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.75" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAQABAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Timeout\TimeoutReachedEvent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Timeout.TimeoutRequestedEvent" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="11.25" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQABAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Timeout\TimeoutRequestedEvent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Timeout.TimerWrapper" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAYAAAAQACAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Timeout\TimerWrapper.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Wireup.Bootstrapper" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAIACACAAAAAAAAIgQAAMgAAAABAAACAAQAAAA=</HashCode>
+      <FileName>Wireup\Bootstrapper.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Wireup.ConventionRoutingTable" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAARAQAAAIIAACCCIABAAAgAABAAABAAAACAAAA=</HashCode>
+      <FileName>Wireup\ConventionRoutingTable.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Wireup.ConventionWireupParameters" Collapsed="true">
+    <Position X="7.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABgACAAgAAAgAAAAAAQAAQCAAgAAAkAAAAGAIAAA=</HashCode>
+      <FileName>Wireup\ConventionWireupParameters.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.DisruptorFactory" Collapsed="true">
+    <Position X="7.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQQACBAAEAABUACAAgAIAAAAoAkDAAABgQAAAAAAAA=</HashCode>
+      <FileName>Wireup\DisruptorFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.JournaledMessage" Collapsed="true">
+    <Position X="16.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAgAAAAAAAAAAAAAAAQAAAAAAAABAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Wireup\JournaledMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.LogAndTerminateProcessHandler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAHAAAAAAAAAAAAAAAAAAAAAgAAAAQAAAEAAAAQAA=</HashCode>
+      <FileName>Wireup\LogAndTerminateProcessHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Hydrospanner.Wireup.MessageBootstrapper" Collapsed="true">
+    <Position X="11.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAACAAAAAgAAAAAAACAAAAAEgAAAIBAQAAAAAAIAA=</HashCode>
+      <FileName>Wireup\MessageBootstrapper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.AzureMessagingFactory" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAgAAAAAAAAAAAACAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>Wireup\MessagingFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.MessagingFactory" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAgAAAAAAAAAgAACAAAAAhEAAAAAACAAA=</HashCode>
+      <FileName>Wireup\MessagingFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.PersistenceBootstrapper" Collapsed="true">
+    <Position X="6" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAAAACAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Wireup\PersistenceBootstrapper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.PersistenceFactory" Collapsed="true">
+    <Position X="7.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAggAgAAAAAgAAAAAAAIUAAAAAIAAAAAAA=</HashCode>
+      <FileName>Wireup\PersistenceFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.SnapshotBootstrapper" Collapsed="true">
+    <Position X="18.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAATQAAAAACEAAAEEAAAAAAAgBAAIAAAAAAAAAIAA=</HashCode>
+      <FileName>Wireup\SnapshotBootstrapper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.SnapshotFactory" Collapsed="true">
+    <Position X="20" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAoAAgAAAAAAAAAAAAAAAAABAAAAKAAAAA=</HashCode>
+      <FileName>Wireup\SnapshotFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.TimeoutFactory" Collapsed="true">
+    <Position X="20" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>Wireup\TimeoutFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hydrospanner.Wireup.Wireup" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAIAAAAAACAAAQQAAAAAAAAAAAgAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Wireup\Wireup.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Struct Name="Hydrospanner.Delivery&lt;T&gt;" Collapsed="true">
+    <Position X="6" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAAAAAAAAAAIAAAACABAAAAAQQAAIAEBACA=</HashCode>
+      <FileName>Delivery.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Hydrospanner.HydrationInfo" Collapsed="true">
+    <Position X="7.75" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAQAAAAAAAAAAAAAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>HydrationInfo.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Hydrospanner.Messaging.MessageDelivery" Collapsed="true">
+    <Position X="9.5" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAEAAAAAAIQAABACAAAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>Messaging\MessageDelivery.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Interface Name="Hydrospanner.IDisruptor&lt;T&gt;" Collapsed="true">
+    <Position X="11.25" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQACAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>DisruptorBase.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.IHydratable" Collapsed="true">
+    <Position X="3.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAQAAABAAAAQAAAAAAAAAAAAAAAAAAIAIAAAAAAA=</HashCode>
+      <FileName>IHydratable.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.IHydratable&lt;T&gt;" Collapsed="true">
+    <Position X="3.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IHydratable.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.IInternalMessage" Collapsed="true">
+    <Position X="13" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IInternalMessage.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.IRepository" Collapsed="true">
+    <Position X="20" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAACAACAAACAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.IRingBuffer&lt;T&gt;" Collapsed="true">
+    <Position X="21.75" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAACEAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RingBufferBase.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Messaging.IMessageReceiver" Collapsed="true">
+    <Position X="14.75" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Messaging\IMessageReceiver.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Messaging.IMessageSender" Collapsed="true">
+    <Position X="16.5" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Messaging\IMessageSender.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Persistence.IBootstrapStore" Collapsed="true">
+    <Position X="6" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Persistence\IBootstrapStore.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Persistence.IDispatchCheckpointStore" Collapsed="true">
+    <Position X="9.5" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Persistence\IDispatchCheckpointStore.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Persistence.IMessageStore" Collapsed="true">
+    <Position X="18.25" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Persistence\IMessageStore.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Phases.Snapshot.ISnapshotRecorder" Collapsed="true">
+    <Position X="9.5" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAEAAABAA=</HashCode>
+      <FileName>Phases\Snapshot\ISnapshotRecorder.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Phases.Transformation.IDeliveryHandler" Collapsed="true">
+    <Position X="7.75" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Transformation\IDeliveryHandler.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Phases.Transformation.ISystemSnapshotTracker" Collapsed="true">
+    <Position X="11.25" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Transformation\ISystemSnapshotTracker.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Phases.Transformation.ITransformer" Collapsed="true">
+    <Position X="14.75" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Phases\Transformation\ITransformer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Serialization.ISerializer" Collapsed="true">
+    <Position X="7.75" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAACBAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Serialization\ISerializer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Timeout.ITimeoutWatcher" Collapsed="true">
+    <Position X="13" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Timeout\ITimeoutWatcher.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Hydrospanner.Wireup.IRoutingTable" Collapsed="true">
+    <Position X="6" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAACIAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Wireup\IRoutingTable.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="Hydrospanner.Messaging.Acknowledgment" Collapsed="true">
+    <Position X="6" Y="13.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAGAAAAAAAAAA=</HashCode>
+      <FileName>Messaging\MessageDelivery.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Hydrospanner.Phases.Journal.JournalItemAction" Collapsed="true">
+    <Position X="7.75" Y="13.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAAAAAAABAAAAgAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Phases\Journal\JournalItemAction.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Delegate Name="Hydrospanner.Wireup.LookupDelegate" Collapsed="true">
+    <Position X="6" Y="14.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Wireup\ConventionRoutingTable.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="Hydrospanner.Wireup.LookupDelegate&lt;T&gt;" Collapsed="true">
+    <Position X="7.75" Y="14.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Wireup\ConventionRoutingTable.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="Hydrospanner.Wireup.MementoDelegate" Collapsed="true">
+    <Position X="9.5" Y="14.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>Wireup\ConventionRoutingTable.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="Hydrospanner.Wireup.MementoDelegate&lt;T&gt;" Collapsed="true">
+    <Position X="11.25" Y="14.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Wireup\ConventionRoutingTable.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

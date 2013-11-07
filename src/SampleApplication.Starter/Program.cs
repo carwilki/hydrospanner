@@ -10,12 +10,17 @@
 	{
 		private static void Main()
 		{
-			var factory = new ConnectionFactory { Endpoint = new AmqpTcpEndpoint(ServerAddress) };
-			using (var connection = factory.CreateConnection())
-			using (var channel = connection.CreateModel())
-				SendMessages(channel);
+		    string token = string.Empty;
+		    do
+		    {
+		        var factory = new ConnectionFactory { Endpoint = new AmqpTcpEndpoint(ServerAddress) };
+		        using (var connection = factory.CreateConnection()) using (var channel = connection.CreateModel()) SendMessages(channel);
 
-			Console.WriteLine("Done");
+		        Console.WriteLine("Done");
+
+		        token = Console.ReadLine();
+		    }
+		    while (token != "quit");
 		}
 
 		static void SendMessages(IModel channel)

@@ -1,10 +1,38 @@
 ﻿namespace Hydrospanner.Wireup
 {
 	using System;
+
+	using Hydrospanner.Messaging.Azure;
+
 	using Messaging;
 	using Messaging.Rabbit;
 	using Phases.Transformation;
 	using RabbitMQ.Client;
+
+    public class AzureMessagingFactory : MessagingFactory
+    {
+        private readonly DuplicateStore duplicates;
+
+        public AzureMessagingFactory(string sourceQueue, DuplicateStore duplicates)
+        {
+            this.duplicates = duplicates;
+        }
+
+        public override MessageListener CreateMessageListener(IRingBuffer<TransformationItem> ring)
+        {
+            return new MessageListener(this.NewReceiver, ring, duplicates);
+        }
+
+        public override IMessageSender CreateNewMessageSender()
+        {
+            return new AzureServiceBusChannel();
+        }
+
+        private IMessageReceiver NewReceiver()
+        {
+            return new AzureServiceBusChannel();
+        }
+    }
 
 	public class MessagingFactory
 	{
